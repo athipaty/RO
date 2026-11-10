@@ -11,6 +11,7 @@ An original browser action RPG in the style of classic 2.5D MMORPGs (isometric c
   - **Ranger**: archer (Twin Shot, Arrow Rain, Hawk Eye)
   - **Cleric**: battle healer (Smite, Mend, Blessing)
 - 11 monster types across 4 regions, plus the Ashen Warlord world boss, who telegraphs a ground slam
+- **Ground loot**: monsters drop items and gold on the ground with a set chance (shown when you target them); click to pick it up, auto-hunt collects it too
 - Rare **sigils**: every monster can drop one. Socket it into gear with a free slot for a permanent bonus.
 - The town of Hearthvale has a shop (buy and sell), a guild hall (class change), a chapel (free heal) and a waystation (fast travel)
 - Minimap, hotbar, sitting to regenerate, death penalty, and autosave to localStorage
@@ -40,6 +41,12 @@ An original browser action RPG in the style of classic 2.5D MMORPGs (isometric c
 | Enter | Chat |
 | E | Emotes |
 | Esc | Close the window and clear the target |
+| F1–F8 | Hotbar slots (same as 1–8) |
+| Insert | Sit / stand |
+| Alt+E / Alt+S / Alt+A | Items / Skills / Stats |
+| Alt+L | Emotes |
+| Alt+V / F12 | Hide the status box / hotbar |
+| Click dropped loot | Walk over and pick it up |
 
 ## Regions
 Hearthvale (town) → Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45, boss) → Frostpeak Pass (42+)

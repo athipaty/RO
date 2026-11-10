@@ -53,6 +53,7 @@ button{font:inherit;color:inherit}
 .who{display:flex;flex-direction:column;padding:5px 0;border-bottom:1px solid rgba(184,146,79,.14)}.who:last-child{border-bottom:0}
 .who b{color:#9fd3ff}.who.me b{color:var(--exp)}.who span{font-size:11.5px;color:var(--muted)}
 #target{position:fixed;top:calc(max(10px,env(safe-area-inset-top)) + 40px);left:50%;transform:translateX(-50%);width:220px;padding:6px 10px;text-align:center;pointer-events:none}
+#target .td{font-size:11px;color:#e8d7a6;margin-top:3px;line-height:1.3}
 #target .tn{font-weight:800}#target .tl{color:var(--muted);font-size:11px}
 /* log */
 #log{position:fixed;left:max(10px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));width:min(340px,calc(100vw - 20px));max-height:120px;overflow-y:auto;padding:6px 8px;font-size:12.5px;line-height:1.35;background:rgba(10,13,18,.72);border-radius:5px;border:1px solid rgba(184,146,79,.25)}
@@ -166,6 +167,7 @@ button{font:inherit;color:inherit}
 <div id="whoList" class="frame" hidden></div>
 <div id="target" class="frame" hidden>
   <div class="tn" id="tName"></div><div class="tl" id="tLv"></div>
+  <div class="td" id="tDrops"></div>
   <div class="bar hpb"><i id="tI"></i><span id="tT"></span></div>
 </div>
 
@@ -194,6 +196,7 @@ button{font:inherit;color:inherit}
     <div class="keys">
       <b>Click</b> the ground to walk · <b>click</b> a monster to attack · <b>click</b> a townsperson to talk<br>
       <b>WASD</b> move · <b>1–4</b> skills · <b>5–8</b> tonics &amp; scrolls · <b>Tab</b> nearest foe<br>
+      <b>F1–F8</b> hotbar · <b>Insert</b> sit · <b>Alt+E / S / A</b> items, skills, stats · <b>click</b> dropped loot to pick it up<br>
       <b>C</b> stats · <b>I</b> items · <b>K</b> skills · <b>X</b> sit to rest · <b>Enter</b> chat · <b>E</b> emotes · <b>Esc</b> close<br>
       On a phone: tap to walk and attack, and use the round buttons on the right.
     </div>
@@ -622,6 +625,7 @@ function drawEmote(k,x,y,age){
 function doEmote(k){if(!P||P.dead||!EMOTE_KEYS.includes(k))return;P.emote={k,start:now};NET.myEmote={i:++NET.chatId,k,t:Date.now()};NET.lastSent='';NET.sendT=0;sfx('pop');}
 
 /* ================= state ================= */
+let loot=[], lootId=0, hoverLoot=null;
 let P=null, S=null, zoneId='town', Z=null, mobs=[], fx=[], texts=[], shots=[], now=0, running=false;
 const zoneCache={};
 let uid=1;
@@ -814,11 +818,21 @@ function killMob(m){
   gainExp(Math.round(m.d.exp*pb),Math.round(m.d.jexp*pb));
   questKill(m.d.id);
   if(m.d.boss)announce('boss',m.d.id);
-  for(const [id,ch] of m.d.drops)if(Math.random()<ch)giveItem(id,1,true);
-  if(Math.random()<(m.d.sigChance||.02)){giveItem(m.d.id+'_sig',1,false);addLog(`A ${m.d.name} Sigil dropped!`,'l-rare');sfx('rare');announce('sig',m.d.id);fx.push({k:'beam',x:m.x,y:m.y,t0:now,dur:1.6});}
+  for(const [id,ch] of m.d.drops)if(Math.random()<ch)dropLoot(m,id);
+  if(Math.random()<(m.d.sigChance||.02)){dropLoot(m,m.d.id+'_sig',{rare:true});addLog(`A ${m.d.name} Sigil dropped! Pick it up.`,'l-rare');sfx('rare');announce('sig',m.d.id);fx.push({k:'beam',x:m.x,y:m.y,t0:now,dur:1.6});}
   if(m.d.boss){addLog(`The ${m.d.name} has been defeated! It will rise again in 3 minutes.`,'l-rare');}
-  const g=Math.round(m.d.lv*rnd(1.5,3));P.gold+=g;
+  dropLoot(m,null,{gold:Math.round(m.d.lv*rnd(1.5,3))});
 }
+function dropLoot(m,id,o={}){
+  let x=m.x,y=m.y;for(let k=0;k<6;k++){const a=rnd(0,7),r=rnd(14,36),tx=m.x+Math.cos(a)*r,ty=m.y+Math.sin(a)*r;if(canStand(tx,ty,4)){x=tx;y=ty;break;}}
+  loot.push({id,gold:o.gold||0,rare:!!o.rare,x,y,fx:m.x,fy:m.y,t0:now+loot.length%6*.04,exp:now+120,uid:++lootId});}
+function pickUp(l){const i=loot.indexOf(l);if(i<0)return;loot.splice(i,1);
+  if(l.gold){P.gold+=l.gold;sfx('coin');floatT(P.x,P.y-40,`+${fmt(l.gold)} gold`,'#ffcf5a',13);}
+  else{giveItem(l.id,1,true);if(l.rare)sfx('rare');}}
+function lootAt(sc){let best=null,bd=1e9;const pad=touchPick?26:15;for(const l of loot){const q=proj(l.x,l.y),d=Math.hypot(q.x-sc.x,q.y-6-sc.y);if(d<pad&&d<bd){bd=d;best=l;}}return best;}
+function goLoot(l){P.target=null;P.queued=null;P.npcGoal=null;P.lootGoal=l;if(dist(P,l)<30){pickUp(l);P.lootGoal=null;}else pathTo(l.x,l.y,true);}
+function dropText(d){const pc=c=>{const v=c*100;return(v>=10||v===Math.round(v)?Math.round(v):v.toFixed(1))+'%';};
+  return [...d.drops.map(([id,c])=>`${ITEMS[id].name} ${pc(c)}`),`Sigil ${pc(d.sigChance||.02)}`].join(' · ');}
 function hurtPlayer(dmg,src){
   if(P.dead)return;P.hp-=dmg;P.sitting=false;P.hurtT=now;fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});sfx('hurt');floatT(P.x,P.y-30,fmt(dmg),'#ff6a5a',16);
   if(P.hp<=0){P.hp=0;die(src);}
@@ -933,6 +947,7 @@ function autoHunt(){
   const f=P.hp/S.maxhp;
   if(f<.4&&(P.cd['item']||0)<=now){const pot=invFind('orange')?'orange':invFind('red')?'red':null;
     if(pot)useItem(pot);else if(f<.3){P.auto=false;$('#autoBtn').classList.remove('on');addLog('Auto-hunt paused: you are out of tonics. Rest with Sit or buy more in town.','l-bad');return;}}
+  if((!P.target||P.target.dead)&&!P.path.length&&!P.lootGoal){let bl=null,bd=320;for(const l of loot)if(now>l.t0+.4){const d=dist(l,P);if(d<bd){bd=d;bl=l;}}if(bl){goLoot(bl);return;}}
   if((!P.target||P.target.dead)&&!P.path.length&&f>=.3){let best=null,bd=650;for(const m of mobs)if(!m.dead){const d=dist(m,P);if(d<bd){bd=d;best=m;}}if(best){P.target=best;P.queued=null;P.sitting=false;}}
 }
 
@@ -944,7 +959,7 @@ function spawnMob(type,m){
   return m;
 }
 function enterZone(id,from){
-  zoneId=id;Z=getZone(id);P.zone=id;mobs=[];fx=[];shots=[];
+  zoneId=id;Z=getZone(id);P.zone=id;mobs=[];fx=[];shots=[];loot=[];P.lootGoal=null;hoverLoot=null;
   if(Z.D.mobs)for(const [type,n] of Z.D.mobs)for(let k=0;k<n;k++)mobs.push(spawnMob(type));
   mobs.forEach((m,i)=>m.idx=i);NET.zt=Date.now();NET.evs=[];NET.hits=[];NET.evSeen.clear();NET.wasClient=false;NET.lastSent='';NET.sendT=0;
   if(mobs.some(m=>m.d.boss))addLog('The ground smoulders. The Ashen Warlord stirs somewhere in this crypt.','l-rare');
@@ -972,7 +987,7 @@ function update(dt){
   // keyboard
   let kx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0), ky=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
   P.moving=false;
-  if(kx||ky){if(kx)P.face=kx;if(ky)P.back=ky<0;
+  if(kx||ky){if(kx)P.face=kx;if(ky)P.back=ky<0;P.lootGoal=null;
     if(!P.sitting){P.path=[];P.target=null;P.queued=null;P.npcGoal=null;const wx=(kx+2*ky)/2,wy=(2*ky-kx)/2,n=Math.hypot(wx,wy);moveEnt(P,wx/n*S.speed*dt,wy/n*S.speed*dt,PR);P.moving=true;}}
   autoHunt();
   // target behaviour
@@ -992,6 +1007,9 @@ function update(dt){
     if(d<=st){if(!moveEnt(P,dx,dy,PR))P.path=[];else P.path.shift();}else{moveEnt(P,dx/d*st,dy/d*st,PR);}
     P.moving=true;if(d>2)faceTo(P,dx,dy);}
   if(P.moving)P.walkT+=dt;
+  // loot
+  loot=loot.filter(l=>now<l.exp);
+  if(P.lootGoal){if(!loot.includes(P.lootGoal))P.lootGoal=null;else if(dist(P,P.lootGoal)<30){pickUp(P.lootGoal);P.lootGoal=null;P.path=[];}else if(!P.path.length)P.lootGoal=null;}
   // npc
   if(P.npcGoal){if(dist(P,P.npcGoal)<48){P.path=[];openNpc(P.npcGoal);P.npcGoal=null;}else if(!P.path.length)P.npcGoal=null;}
   // portals
@@ -1174,6 +1192,7 @@ function render(){
   // entities sorted
   // everything that stands up, sorted back-to-front (x+y is depth in this view)
   const items=[];for(const m of mobs)if(!m.dead)items.push({e:m,x:m.x,y:m.y});for(const n of Z.npcs)items.push({e:n,x:n.x,y:n.y});if(!P.dead)items.push({e:P,x:P.x,y:P.y});
+  for(const l of loot)if(now>=l.t0)items.push({l,x:l.x,y:l.y});
   const others=[];for(const o of NET.others.values())if(o.z===zoneId&&!o.dead){others.push(o);items.push({o,x:o.rx,y:o.ry});}
   for(const ob of Z.objs){const p=proj(ob.x,ob.y);if(p.x>camX-90&&p.x<camX+VW+90&&p.y>camY-30&&p.y<camY+VH+130)items.push({ob,x:ob.x,y:ob.y});}
   const back=[],front=[];
@@ -1183,6 +1202,7 @@ function render(){
   const pp=proj(P.x,P.y);
   const drawItem=it=>{if(it.ob){const op=proj(it.ob.x,it.ob.y);const cover=!P.dead&&it.ob.x+it.ob.y>P.x+P.y&&Math.abs(op.x-pp.x)<34&&op.y-pp.y<95&&op.y>pp.y;
       if(cover){ctx.save();ctx.globalAlpha=.4;drawObj(it.ob);ctx.restore();}else drawObj(it.ob);}
+    else if(it.l)at(it.l.x,it.l.y,()=>drawLoot(it.l));
     else if(it.o)at(it.o.rx,it.o.ry,()=>drawOther(it.o));
     else{const e=it.e;at(e.x,e.y,()=>{if(e===P)drawPlayer(P,P.eq.weapon&&P.eq.weapon.id);else if(e.d)drawMob(e);else drawNpc(e);});}};
   back.forEach(drawItem);
@@ -1365,6 +1385,22 @@ function drawPlayerBody(P,wid){
 }
 function drawNpc(n){const by=drawHuman(n.x,n.y,n.col,n.hair,1,0,{look:{...lookFor(n.name),hair:n.hair}});
   const b=Math.sin(now*3)*2;ctx.fillStyle='#ffcf5a';ctx.beginPath();ctx.arc(n.x,by-48+b,7,0,7);ctx.fill();ctx.fillStyle='#2a2018';ctx.font='800 11px "Alegreya Sans",sans-serif';ctx.textAlign='center';ctx.fillText('!',n.x,by-44+b);}
+function drawLoot(l){
+  const k=Math.min(1,(now-l.t0)/.38),dx=l.fx-l.x,dy=l.fy-l.y;
+  const ox=(dx-dy)*ISO*(1-k),oy=(dx+dy)*ISO/2*(1-k)-Math.sin(k*Math.PI)*28+(k>=1?Math.sin(now*3+l.uid)*1.2:0);
+  const x=l.x+ox,y=l.y+oy-6,left=l.exp-now;
+  if(left<10&&Math.sin(now*12)>0)ctx.globalAlpha=.45;
+  ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(l.x,l.y+1,7*(.6+.4*k),2.6,0,0,7);ctx.fill();
+  if(l.rare||hoverLoot===l){ctx.shadowColor=l.rare?'#ffcf5a':'#ffffff';ctx.shadowBlur=l.rare?14+Math.sin(now*5)*5:8;}
+  ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;
+  if(l.gold){for(const [cx,cy] of [[-3,1],[3,1],[0,-2]]){ctx.fillStyle='#f0c040';ctx.beginPath();ctx.ellipse(x+cx,y+cy,4.5,3,0,0,7);ctx.fill();ctx.stroke();ctx.fillStyle='#fff2a8';ctx.fillRect(x+cx-1.5,y+cy-1.5,3,1.2);}}
+  else{const it=ITEMS[l.id];ctx.fillStyle=it.col;ctx.beginPath();ctx.arc(x,y,7,0,7);ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle='#1a120a';ctx.font='800 9px "Alegreya Sans",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(it.g,x,y+.5);ctx.textBaseline='alphabetic';
+    ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.arc(x-2.5,y-2.5,1.8,0,7);ctx.fill();}
+  ctx.shadowBlur=0;
+  if(k>=1&&(now+l.uid*.7)%2.4<.25){ctx.fillStyle='rgba(255,255,255,.9)';const gx=x+5,gy=y-6;ctx.beginPath();ctx.moveTo(gx,gy-4);ctx.lineTo(gx+1,gy);ctx.lineTo(gx,gy+4);ctx.lineTo(gx-1,gy);ctx.fill();ctx.fillRect(gx-3,gy-.5,6,1);}
+  if(hoverLoot===l||l.rare){ctx.globalAlpha=1;label(l.gold?`${fmt(l.gold)} gold`:ITEMS[l.id].name,l.x,y-12,l.rare?'#ffcf5a':'#f3ead6',11);}
+  ctx.globalAlpha=1;}
 function shade(hex,amt){const n=parseInt(hex.slice(1),16);let r=(n>>16)+amt,g=(n>>8&255)+amt,b=(n&255)+amt;return`rgb(${clamp(r,0,255)},${clamp(g,0,255)},${clamp(b,0,255)})`;}
 function drawMob(m){
   const d=m.d,s=d.size,x=m.x,f=m.face,t=now+m.ph;let y=m.y;
@@ -1482,7 +1518,7 @@ function updateHud(){
   const qe=$('#quest');if(qe.hidden!==!P.quest)qe.hidden=!P.quest;if(P.quest)setT('quest',`Contract: ${MOBS[P.quest.mob].name} ${P.quest.have}/${P.quest.need}`);
   const t=P.target&&!P.target.dead?P.target:null;const te=$('#target');
   if(!!t===te.hidden)te.hidden=!t;
-  if(t){setT('tName',t.d.name);setT('tLv',`Lv ${t.d.lv}`+(t.d.undead?' · undead':'')+(t.d.boss?' · boss':''));setW('tI',t.hp/t.d.hp);setT('tT',`${fmt(t.hp)} / ${fmt(t.d.hp)}`);}
+  if(t){setT('tDrops','Drops: '+dropText(t.d));setT('tName',t.d.name);setT('tLv',`Lv ${t.d.lv}`+(t.d.undead?' · undead':'')+(t.d.boss?' · boss':''));setW('tI',t.hp/t.d.hp);setT('tT',`${fmt(t.hp)} / ${fmt(t.d.hp)}`);}
   // hotbar cooldowns & counts
   for(const el of hotEls){const s=el._slot;let frac=0,off=false,n='';
     if(s.skill){const l=P.skills[s.skill]||0;off=!l||P.sp<SKILLS[s.skill].sp(l||1);const r=(P.cd[s.skill]||0)-now;if(r>0)frac=r/SKILLS[s.skill].cd;n=l?String(l):'';}
@@ -1553,7 +1589,7 @@ function refreshPanel(){
     <b>Hats:</b> rare headgear drops from some monsters (and the Straw Hat and Ribbon Bow from the store). Everyone online sees what you wear.<br>
     <b>Auto-hunt:</b> the Auto button fights the nearest monster for you and drinks tonics when HP runs low. It's handy on a phone.<br>
     <b>Saving:</b> your progress saves automatically in this browser.</div>
-    <h3>Keys</h3><div class="dv"><div><span>Enter</span><span>chat</span></div><div><span>E</span><span>emotes</span></div><div><span>1–4</span><span>skills</span></div><div><span>5–8</span><span>tonics, scroll</span></div><div><span>C / I / K</span><span>windows</span></div><div><span>X</span><span>sit</span></div><div><span>Tab</span><span>target</span></div><div><span>Esc</span><span>close</span></div></div>
+    <h3>Keys</h3><div class="dv"><div><span>F1–F8</span><span>hotbar</span></div><div><span>Insert</span><span>sit / stand</span></div><div><span>Alt+E</span><span>items</span></div><div><span>Alt+S</span><span>skills</span></div><div><span>Alt+A</span><span>stats</span></div><div><span>Alt+L</span><span>emotes</span></div><div><span>Alt+V</span><span>hide status box</span></div><div><span>F12</span><span>hide hotbar</span></div><div><span>Click item</span><span>pick it up</span></div><div><span>Enter</span><span>chat</span></div><div><span>E</span><span>emotes</span></div><div><span>1–4</span><span>skills</span></div><div><span>5–8</span><span>tonics, scroll</span></div><div><span>C / I / K</span><span>windows</span></div><div><span>X</span><span>sit</span></div><div><span>Tab</span><span>target</span></div><div><span>Esc</span><span>close</span></div></div>
     <h3>Sound</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" data-act="music">Music: ${AU.music?'on':'off'}</button><button class="btn small" data-act="sfxt">Sound effects: ${AU.sfx?'on':'off'}</button></div>
     <h3>Playing together</h3><p class="ds">Everyone who has this page open at the same time shares the world. You can see each other walking around, chat with Enter or the Chat button, and send emotes (E). Hunting near another player gives you both a party bonus of +25% EXP. The log announces big moments like level milestones, rare sigils and boss kills to everyone. ${NET.room?`<span class="gold">You are connected.</span>`:'Chat is offline in this view, so you are playing solo.'}</p>
     <h3>Adventure</h3><button class="btn" data-act="newgame">Start a new adventure</button>`;
@@ -1631,15 +1667,23 @@ function mobAt(sc){let best=null,bd=1e9;const pad=touchPick?28:14;for(const m of
 cv.addEventListener('pointerdown',ev=>{
   audioInit();touchPick=ev.pointerType==='touch';closeChat(true);
   if(!P||P.dead||!running)return;const sc=screenAt(ev),w=unproj(sc.x,sc.y);
-  const m=mobAt(sc);
+  P.lootGoal=null;const m=mobAt(sc);
+  if(!m){const l=lootAt(sc);if(l){if(P.sitting)P.sitting=false;goLoot(l);return;}}
   if(m){if(Z.D.safe)return;P.target=m;P.queued=null;P.npcGoal=null;P.sitting=false;return;}
   for(const n of Z.npcs){const np=proj(n.x,n.y);if(Math.hypot(np.x-sc.x,np.y-22-sc.y)<(touchPick?34:26)){P.target=null;P.npcGoal=n;if(dist(P,n)<48){openNpc(n);P.npcGoal=null;}else pathTo(n.x,n.y+14,true);return;}}
   if(P.sitting){faceTo(P,w.x-P.x,w.y-P.y);return;}
   P.target=null;P.queued=null;P.npcGoal=null;clickMark={x:w.x,y:w.y,t:now};pathTo(w.x,w.y,true);
 });
-cv.addEventListener('pointermove',ev=>{if(!P)return;hoverMob=mobAt(screenAt(ev));cv.style.cursor=hoverMob?'crosshair':'pointer';});
+cv.addEventListener('pointermove',ev=>{if(!P)return;const sc=screenAt(ev);hoverMob=mobAt(sc);hoverLoot=hoverMob?null:lootAt(sc);cv.style.cursor=hoverMob?'crosshair':hoverLoot?'grab':'pointer';});
 window.addEventListener('keydown',ev=>{
   if(!running||ev.target.tagName==='INPUT')return;const k=ev.key.toLowerCase();
+  // classic MMO desktop shortcuts (the single-letter keys below keep working too)
+  if(ev.altKey){const pn={e:'items',q:'items',s:'skills',a:'status',l:'emote',h:'help'}[k];
+    if(pn){ev.preventDefault();togglePanel(pn);return;}
+    if(k==='v'){ev.preventDefault();$('#hud').hidden=!$('#hud').hidden;return;}}
+  if(/^f[1-9]$/.test(k)){ev.preventDefault();const i=+k.slice(1)-1;if(i<8)pressSlot(i);return;}
+  if(k==='f12'){ev.preventDefault();$('#hotbar').hidden=!$('#hotbar').hidden;return;}
+  if(k==='insert'){ev.preventDefault();if(!P.dead){P.sitting=!P.sitting;P.path=[];P.target=null;}return;}
   if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){keys[k]=true;ev.preventDefault();return;}
   if(k==='enter'){ev.preventDefault();openChat();return;}
   if(k==='e'){togglePanel('emote');return;}
