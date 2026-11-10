@@ -16,7 +16,7 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 - [x] 2a. Live play through our own server (public broker kept only as a fallback)
 - [x] 2a. Sign up / log in; characters saved in MongoDB (play from any device), move a guest character into an account
 - [x] 2a. Channels: busy rooms split into channels of 40
-- [ ] 2b. Server runs monsters, drops and damage checks (no cheating, no "host player")
+- [x] 2b. Server runs monsters, drops and damage checks (player-hosted monsters only as a backup)
 
 ## Stage 3: Social
 - [ ] Parties: invite, shared EXP, party chat, party members on the minimap
