@@ -97,6 +97,7 @@ function ingest(p){
   o.id=clean(s.id,16)||null;o.zt=fin(s.zt);o.hd=!!s.hd;
   o.mb=Array.isArray(s.mb)&&s.mb.length<=80?s.mb:null;o.ev=Array.isArray(s.ev)?s.ev.slice(-24):[];o.hx=Array.isArray(s.hx)?s.hx.slice(-24):[];
   if(s.em&&typeof s.em==='object'&&EMOTE_KEYS.includes(s.em.k)){const id=fin(s.em.i);if(id>(o.emSeen||0)){const first=!o.emSeen;o.emSeen=id;if(!(fresh&&first&&Math.abs(Date.now()-fin(s.em.t))>4000)){o.emote={k:s.em.k,start:now};if(o.z===zoneId)sfx('pop');}}}
+  if(typeof supportRecv==='function')supportRecv(o,s.sp,fresh);
   if(fresh){addLog(`${o.n} (${CLASSES[o.cls].name} Lv ${o.lv}) is online.`,'l-good');friendSeen(o.n);}
   const msgs=Array.isArray(s.ch)?s.ch.slice(-4):[];
   for(const m of msgs){
@@ -194,7 +195,7 @@ function netTick(dt){
   if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+(NET.relay?.15:.12);
   const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,b:P.back?1:0,lk:lookCode(P.look),lv:P.lv,mv:P.moving?1:0,st:P.sitting?1:0,d:P.dead?1:0,
     w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),ch:NET.myChat,em:NET.myEmote||null,
-    id:NET.myId,zt:NET.zt,vd:typeof TR!=='undefined'&&TR.vend?TR.vend.title:null,hd:document.hidden?1:0,hx:NET.hits};
+    id:NET.myId,zt:NET.zt,vd:typeof TR!=='undefined'&&TR.vend?TR.vend.title:null,hd:document.hidden?1:0,hx:NET.hits};if(NET.sp&&NET.sp.length)s.sp=NET.sp;
   if(!zoneHost()&&othersHere()&&mobs.length){s.ev=NET.evs;
     s.mb=mobs.map(m=>[Math.round(m.x),Math.round(m.y),m.dead?0:Math.round(clamp(m.hp/m.d.hp,0,1)*1000),(m.dead?1:0)|(m.moving?2:0)|(m.face<0?4:0)|(m.state==='chase'?8:0)|(m.slowUntil>now?16:0)|(m.ailUntil>now?(m.ail==='freeze'?32:64):0)]);}
   const j=JSON.stringify(s);if(j===NET.lastSent)return;NET.lastSent=j;NET.room.presence(s).catch(()=>{});

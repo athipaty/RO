@@ -88,7 +88,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 26. M Skill tree screen with prerequisites
 - [x] 27. L Second jobs (2 per class) with a job quest (v0.15.0)
 - [ ] 28. L Rebirth / third tier
-- [ ] 29. M Support skills on other players (needs parties)
+- [x] 29. M Support skills on other players (needs parties) (v0.18.0)
 - [ ] 30. M Ground-target skills (walls, traps, safe zones)
 - [ ] 31. S Choose which skill level to cast
 

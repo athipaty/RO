@@ -130,6 +130,7 @@ function refreshPanel(){
     <b>Regions:</b> Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45), home of the Ashen Warlord → Frostpeak Pass (42+).<br>
     <b>Quests:</b> people with a gold <b>!</b> over their head have a quest for you, and a <b>?</b> means you can hand one in. Start the story with Elder Hollis by the fountain. Press J for your quest log.<br>
     <b>Second jobs:</b> at Job Lv 40, Corvin can test you for an advanced calling.<br>
+    <b>Party support:</b> healing and buff skills marked “party” in the skill tree also land on party members standing near you.<br>
     <b>World bosses:</b> every so often a huge boss appears somewhere and everyone online is told where. Whoever deals the most damage is the MVP and wins a rare hat. Bring friends.<br>
     <b>Hunting contracts:</b> Guildmaster Corvin offers hunts that suit your level for bonus EXP and gold.<br>
     <b>Hats:</b> rare headgear drops from some monsters (and the Straw Hat and Ribbon Bow from the store). Everyone online sees what you wear.<br>
