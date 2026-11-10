@@ -36,7 +36,7 @@ An original browser action RPG in the style of classic 2.5D MMORPGs (isometric c
 | 5–8 | Red, Amber and Blue Tonic, Hearth Scroll |
 | Tab | Target the nearest monster |
 | C / I / K / H | Stats / Items / Skills / Help |
-| X | Sit and rest |
+| X | Sit and rest (while sitting, WASD / arrows or a click turn you in place) |
 | Enter | Chat |
 | E | Emotes |
 | Esc | Close the window and clear the target |
