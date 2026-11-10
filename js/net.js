@@ -186,6 +186,7 @@ function announceText(n,k,v){
   if(k==='boss'&&MOBS[v]&&MOBS[v].boss)return `${n} helped defeat the ${MOBS[v].name}!`;
   if(k==='drop'&&ITEMS[v]&&rarityOf(v)>=2)return `${n} found a ${RARITY[rarityOf(v)].name.toLowerCase()} ${ITEMS[v].name}!`;
   if(k==='refine'&&typeof v==='string'){const[r,id]=v.split(':');const it=ITEMS[id];if(it&&['weapon','armor','head','accessory'].includes(it.type)&&+r>=7&&+r<=10)return `${n} refined a +${+r} ${it.name}!`;}
+  if(k==='story'&&v==='warlord')return `${n} finished the story “The Ember Below” and saved Hearthvale!`;
   if(k==='quest'&&MOBS[v])return `${n} finished a ${MOBS[v].name} hunting contract.`;
   return null;}
 function netTick(dt){

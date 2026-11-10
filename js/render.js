@@ -293,7 +293,10 @@ function drawPlayerBody(P,wid){
   ctx.restore();
 }
 function drawNpc(n){const by=drawHuman(n.x,n.y,n.col,n.hair,1,0,{look:{...lookFor(n.name),hair:n.hair}});
-  const b=Math.sin(now*3)*2;ctx.fillStyle='#ffcf5a';ctx.beginPath();ctx.arc(n.x,by-48+b,7,0,7);ctx.fill();ctx.fillStyle='#2a2018';ctx.font='800 11px "Alegreya Sans",sans-serif';ctx.textAlign='center';ctx.fillText('!',n.x,by-44+b);}
+  const mk=typeof npcMark==='function'?npcMark(n):'svc';if(!mk)return;
+  const b=Math.sin(now*3)*2,big=mk==='offer'||mk==='ready',r=big?9:7;
+  ctx.fillStyle=mk==='busy'?'#9aa3b2':mk==='svc'?'#d8c08a':'#ffcf5a';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(n.x,by-48+b,r,0,7);ctx.fill();if(big)ctx.stroke();
+  ctx.fillStyle='#2a2018';ctx.font=`800 ${big?14:11}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.fillText(mk==='offer'?'!':mk==='svc'?'…':'?',n.x,by-48+b+(big?5:4));}
 function drawLoot(l){
   const k=Math.min(1,(now-l.t0)/.38),dx=l.fx-l.x,dy=l.fy-l.y;
   const ox=(dx-dy)*ISO*(1-k),oy=(dx+dy)*ISO/2*(1-k)-Math.sin(k*Math.PI)*28+(k>=1?Math.sin(now*3+l.uid)*1.2:0);

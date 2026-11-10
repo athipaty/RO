@@ -128,6 +128,8 @@ function refreshPanel(){
     <b>Sigils:</b> every monster has a small chance to drop its sigil. Socket it into equipment with a free slot to gain its bonus for good.<br>
     <b>Resting:</b> press X to sit and recover HP and SP faster.<br>
     <b>Regions:</b> Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45), home of the Ashen Warlord → Frostpeak Pass (42+).<br>
+    <b>Quests:</b> people with a gold <b>!</b> over their head have a quest for you, and a <b>?</b> means you can hand one in. Start the story with Elder Hollis by the fountain. Press J for your quest log.<br>
+    <b>Second jobs:</b> at Job Lv 40, Corvin can test you for an advanced calling.<br>
     <b>Hunting contracts:</b> Guildmaster Corvin offers hunts that suit your level for bonus EXP and gold.<br>
     <b>Hats:</b> rare headgear drops from some monsters (and the Straw Hat and Ribbon Bow from the store). Everyone online sees what you wear.<br>
     <b>Auto-hunt:</b> the Auto button fights the nearest monster for you and drinks tonics when HP runs low. It's handy on a phone.<br>
@@ -249,7 +251,7 @@ cv.addEventListener('pointermove',ev=>{if(!P)return;const sc=screenAt(ev);hoverM
 window.addEventListener('keydown',ev=>{
   if(!running||ev.target.tagName==='INPUT')return;const k=ev.key.toLowerCase();
   // classic MMO desktop shortcuts (the single-letter keys below keep working too)
-  if(ev.altKey){const pn={e:'items',q:'equip',s:'skills',a:'status',l:'emote',h:'help'}[k];
+  if(ev.altKey){const pn={e:'items',q:'equip',s:'skills',a:'status',l:'emote',h:'help',u:'quests'}[k];
     if(pn){ev.preventDefault();togglePanel(pn);return;}
     if(k==='v'){ev.preventDefault();$('#hud').hidden=!$('#hud').hidden;return;}}
   if(/^f[1-9]$/.test(k)){ev.preventDefault();const i=+k.slice(1)-1;if(i<8)pressSlot(i);return;}
@@ -259,7 +261,7 @@ window.addEventListener('keydown',ev=>{
   if(k==='enter'){ev.preventDefault();openChat();return;}
   if(k==='e'){togglePanel('emote');return;}
   if(k>='1'&&k<='8'){pressSlot(+k-1);return;}
-  if(k==='c')togglePanel('status');else if(k==='i')togglePanel('items');else if(k==='k')togglePanel('skills');else if(k==='h')togglePanel('help');
+  if(k==='c')togglePanel('status');else if(k==='i')togglePanel('items');else if(k==='k')togglePanel('skills');else if(k==='h')togglePanel('help');else if(k==='j')togglePanel('quests');
   else if(k==='escape'){closePanel();P.target=null;}
   else if(k==='x'&&!P.dead){P.sitting=!P.sitting;P.path=[];P.target=null;}
   else if(k==='tab'){ev.preventDefault();targetNearest(false);}
@@ -286,7 +288,7 @@ $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDef
 
 /* ================= save / load ================= */
 function snapshot(){if(!P)return null;
-  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot'];
+  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','qs','track'];
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;
   if(typeof pendingEscrow==='function'){const ex=pendingEscrow();if(ex.items.length||ex.gold){o.inv=[...P.inv,...ex.items];o.gold=P.gold+ex.gold;}}
   return {v:1,p:JSON.parse(JSON.stringify(o))};}

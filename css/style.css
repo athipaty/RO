@@ -183,3 +183,15 @@ button{font:inherit;color:inherit}
 .srow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.snode .srow .btn{align-self:auto}
 .hotpick{display:flex;gap:3px;margin-left:auto}.hotpick .hk{min-width:24px;height:24px;padding:0;border:1px solid var(--edge-dim);border-radius:4px;background:#1a2029;color:var(--muted);font:700 11px inherit;cursor:pointer}
 .hotpick .hk.on{border-color:var(--edge);background:#3a3020;color:#ffcf5a}
+#qtrack{color:#ffe7a0;margin-top:3px;white-space:pre-line;line-height:1.3;border-top:1px solid var(--edge-dim);padding-top:3px}
+.say.talk{font-size:15px;min-height:3.2em}
+.tlist{display:flex;flex-direction:column;align-items:stretch;gap:4px;margin:8px 0;width:100%}
+.tq{display:flex;width:100%;box-sizing:border-box;gap:8px;align-items:center;justify-content:flex-start;text-align:left;padding:7px 10px;border:1px solid var(--edge-dim);border-radius:6px;background:#10141b;color:inherit;font:inherit;cursor:pointer}
+.tq:hover,.tq:focus-visible{border-color:var(--edge)}
+.tq b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#ffcf5a;color:#2a2018;font-weight:800;flex:none}
+.tq.busy b{background:#9aa3b2}
+.tbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.qbox{padding:8px 10px;border:1px solid var(--edge-dim);border-radius:6px;background:#10141b;margin-top:6px;display:flex;flex-direction:column;gap:6px}
+.qrew{color:#e8d7a6}
+.qrow{align-items:flex-start}.qbtns{display:flex;flex-direction:column;gap:4px}
+.thead{display:flex;align-items:center;gap:10px}.thead h2{margin:0}#talkCv{width:56px;height:56px;border:1px solid var(--edge);border-radius:50%;background:radial-gradient(#2a3140,#10141b);flex:none}

@@ -33,7 +33,7 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 
 ## Stage 5: World and content
 - [ ] New regions and multi-floor dungeons
-- [ ] Story quests with NPC dialogue, daily quests
+- [x] Story quests with NPC dialogue, daily quests (v0.16.0)
 - [ ] World bosses on timers with an MVP reward for top damage
 - [ ] Timed events (EXP weekends, seasonal map)
 
@@ -121,8 +121,8 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 53. S Partner system
 
 ### Quests and events
-- [ ] 54. M NPC dialog windows with portraits and choices
-- [ ] 55. M Quest log with tracking
+- [x] 54. M NPC dialog windows with portraits and choices (v0.16.0)
+- [x] 55. M Quest log with tracking (v0.16.0)
 - [ ] 56. M Daily hunting board
 - [ ] 57. M Seasonal events
 - [ ] 58. S Achievements and titles
