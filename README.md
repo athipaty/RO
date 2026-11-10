@@ -14,6 +14,10 @@ An original browser action RPG in the style of classic 2D MMORPGs, built as a si
 - Rare **sigils**: every monster can drop one. Socket it into gear with a free slot for a permanent bonus.
 - The town of Hearthvale has a shop (buy and sell), a guild hall (class change), a chapel (free heal) and a waystation (fast travel)
 - Minimap, hotbar, sitting to regenerate, death penalty, and autosave to localStorage
+- **Original soundtrack**: a theme for each region plus a boss battle theme, synthesised live with the Web Audio API (no audio files)
+- **Sound effects** for hits, misses, magic, arrows, level-ups, loot and rare sigil drops, plus a ringing critical hit with screen shake
+- **Play together**: everyone who has the shared page open sees each other walk around, with chat bubbles over their heads and in the log. This uses the claude.ai artifact live room; the standalone file runs solo.
+- **Phone-friendly**: tap to walk, attack and talk, plus big round Attack / Sit / Chat / sound buttons
 
 ## Controls
 | Input | Action |
@@ -25,6 +29,7 @@ An original browser action RPG in the style of classic 2D MMORPGs, built as a si
 | Tab | Target the nearest monster |
 | C / I / K / H | Stats / Items / Skills / Help |
 | X | Sit and rest |
+| Enter | Chat |
 | Esc | Close the window and clear the target |
 
 ## Regions
