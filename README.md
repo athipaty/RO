@@ -1,6 +1,6 @@
 # Embervale
 
-An original browser action RPG in the style of classic 2D MMORPGs, built as a single file: `index.html`. It needs no build step or dependencies. Open it in a browser and play.
+An original browser action RPG in the style of classic 2.5D MMORPGs (isometric camera, upright sprites), built as a single file: `index.html`. It needs no build step or dependencies. Open it in a browser and play.
 
 ## Features
 - Click-to-move with A* pathfinding, click-to-attack auto combat, WASD movement
