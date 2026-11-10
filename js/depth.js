@@ -59,18 +59,21 @@ function skillMissing(id){const r=SKILL_REQ[id]||{};return Object.keys(r).filter
 const skillUnlocked=id=>!skillMissing(id).length;
 function skillDepth(id){const r=SKILL_REQ[id];return r?1+Math.max(...Object.keys(r).map(skillDepth)):0;}
 function skillTreeHtml(){const c=CLASSES[P.cls],list=P.cls==='novice'?['firstaid']:c.skills;
-  let h=`<h2>Skill tree</h2><div class="sub">${c.name} · Skill points: <span class="gold">${P.skillPts}</span> · learned skills appear on your hotbar (keys 1–4)</div>`;
-  const tiers=[];for(const id of list){const d=skillDepth(id);(tiers[d]=tiers[d]||[]).push(id);}
-  tiers.forEach((ids,ti)=>{if(ti)h+=`<div class="tarrow" aria-hidden="true">▼</div>`;h+=`<div class="ttier">`;
+  let h=`<h2>Skill tree</h2><div class="sub">${c.name} · Skill points: <span class="gold">${P.skillPts}</span> · press 1–4 under a learned skill to put it on that hotbar key</div>`;
+  if(c.tier===2){const own=new Set(c.own);h+=`<h3>${CLASSES[c.base].name} skills</h3>`+skillTiers(list.filter(s=>!own.has(s)))+`<h3 style="color:${c.acc}">${c.name} skills</h3>`+skillTiers(c.own);}
+  else h+=skillTiers(list);
+  if(P.cls==='novice')h+=`<p class="muted">Reach Job Lv 10, then talk to Guildmaster Corvin in Hearthvale to choose a calling and unlock its skill tree.</p>`;
+  return h;}
+function skillTiers(list){let h='';const tiers=[];for(const id of list){const d=skillDepth(id);(tiers[d]=tiers[d]||[]).push(id);}
+  tiers.filter(Boolean).forEach((ids,ti)=>{if(ti)h+=`<div class="tarrow" aria-hidden="true">▼</div>`;h+=`<div class="ttier">`;
     for(const id of ids){const sk=SKILLS[id],l=P.skills[id]||0,nl=Math.min(sk.max,l+1),miss=skillMissing(id),locked=miss.length>0;
       const el=SKILL_ELEM[id];
       h+=`<div class="snode${locked?' locked':''}${l?' has':''}"><div class="snh"><span class="ico" style="background:${sk.col}">${sk.g}</span><div class="grow"><div class="nm">${sk.name}</div>`+
         `<div class="slv">Lv ${l}/${sk.max}${el?` · <span style="color:${ELEM[el].col}">${ELEM[el].name}</span>`:''}${CAST[id]?' · cast':''}</div></div></div>`+
         `<div class="ds">${l?sk.desc(l):sk.desc(1)} · ${sk.sp(nl)} SP</div>`+
         (locked?`<div class="sreq">Needs ${miss.join(' and ')}</div>`:'')+
-        `<button class="btn small" data-act="learn" data-arg="${id}" ${locked||!P.skillPts||l>=sk.max?'disabled':''}>${l>=sk.max?'Mastered':l?'Level up':'Learn'}</button></div>`;}
+        `<div class="srow"><button class="btn small" data-act="learn" data-arg="${id}" ${locked||!P.skillPts||l>=sk.max?'disabled':''}>${l>=sk.max?'Mastered':l?'Level up':'Learn'}</button>${hotPicker(id)}</div></div>`;}
     h+=`</div>`;});
-  if(P.cls==='novice')h+=`<p class="muted">Reach Job Lv 10, then talk to Guildmaster Corvin in Hearthvale to choose a calling and unlock its skill tree.</p>`;
   return h;}
 // the element each damaging skill uses (shown in the tree)
 const SKILL_ELEM={emberbolt:'fire',frostnova:'water',arcstorm:'wind',smite:'holy'};

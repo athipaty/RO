@@ -28,6 +28,7 @@ Play online: https://ro-six-bay.vercel.app/ (add `?room=yourname` to the link fo
   - **Arcanist**: spellcaster (Ember Bolt, Frost Nova, Arc Storm)
   - **Ranger**: archer (Twin Shot, Arrow Rain, Hawk Eye)
   - **Cleric**: battle healer (Smite, Mend, Blessing)
+- At Job Lv 40, take Corvin's trial to become one of two **advanced callings** per class, each with 3 new skills: Bulwark or Ravager (Warden), Stormcaller or Hexweaver (Arcanist), Sharpshooter or Wildstalker (Ranger), Templar or Oracle (Cleric). You keep every first-job skill, and you pick which skills sit on hotbar keys 1–4 from the skill tree.
 - 11 monster types across 4 regions, plus the Ashen Warlord world boss, who telegraphs a ground slam
 - **Ground loot**: monsters drop items and gold on the ground with a set chance (shown when you target them); click to pick it up, auto-hunt collects it too
 - Rare **sigils**: every monster can drop one. Socket it into gear with a free slot for a permanent bonus.

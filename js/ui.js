@@ -27,7 +27,7 @@ function updateHud(){
     const key=frac.toFixed(2)+off+n;if(el._k!==key){el._k=key;el.querySelector('.cd').style.height=(frac*100)+'%';el.classList.toggle('off',off);el.querySelector('.n').textContent=n;}}
 }
 let hotEls=[];
-function hotSlots(){const sk=CLASSES[P.cls].skills.slice(0,4);while(sk.length<4)sk.push(null);
+function hotSlots(){const sk=hotSkills();
   return [...sk.map(s=>s?{skill:s}:null),{item:'red'},{item:'orange'},{item:'blue'},{item:'scroll'}];}
 function rebuildHotbar(){
   if(!P)return;const hb=$('#hotbar');const slots=hotSlots();const sig=JSON.stringify(slots);if(hb._sig===sig)return;hb._sig=sig;
@@ -148,7 +148,7 @@ function refreshPanel(){
   }
   else if(panelKind==='job'){
     h+=`<h2>Guild Hall</h2>`;
-    if(P.cls!=='novice')h+=`<div class="say">“A ${c.name}, and a fine one. Come back stronger, and I'll have stories to trade.” — Corvin</div>`;
+    if(P.cls!=='novice')h+=jobHallHtml(c);
     else if(P.jl<10)h+=`<div class="say">“Every calling starts in the meadow. Reach Job Level 10 and come see me. You're at ${P.jl} now.” — Corvin</div>`;
     else{h+=`<div class="say">“You've earned it. Choose your calling. The choice is for life, so choose with care.” — Corvin</div><div class="choice">`;
       for(const id of ['warden','arcanist','ranger','cleric']){const k=CLASSES[id];h+=`<button data-act="job" data-arg="${id}"><b style="color:${k.col}">${k.name}</b><small>${k.desc}</small><small>Starts with: ${ITEMS[k.gift].name}</small></button>`;}
@@ -286,7 +286,7 @@ $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDef
 
 /* ================= save / load ================= */
 function snapshot(){if(!P)return null;
-  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest'];
+  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot'];
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;
   if(typeof pendingEscrow==='function'){const ex=pendingEscrow();if(ex.items.length||ex.gold){o.inv=[...P.inv,...ex.items];o.gold=P.gold+ex.gold;}}
   return {v:1,p:JSON.parse(JSON.stringify(o))};}

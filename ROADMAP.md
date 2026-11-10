@@ -29,7 +29,7 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 - [ ] Equipped gear visible on the character, item tooltips, equipment window
 - [ ] Gear upgrading +1 to +10 with failure chance at high levels
 - [ ] Storage NPC, weight limit, item rarity colours
-- [ ] Second-tier jobs (2 per class) and a skill tree screen
+- [x] Second-tier jobs (2 per class) and a skill tree screen (v0.15.0)
 
 ## Stage 5: World and content
 - [ ] New regions and multi-floor dungeons
@@ -86,7 +86,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 
 ### Classes and skills
 - [x] 26. M Skill tree screen with prerequisites
-- [ ] 27. L Second jobs (2 per class) with a job quest
+- [x] 27. L Second jobs (2 per class) with a job quest (v0.15.0)
 - [ ] 28. L Rebirth / third tier
 - [ ] 29. M Support skills on other players (needs parties)
 - [ ] 30. M Ground-target skills (walls, traps, safe zones)

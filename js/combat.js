@@ -81,7 +81,8 @@ function gainExp(e,j){
   if(P.jl>=jm)P.jexp=0;
   if(lvUp){sfx('levelup');if(mile)announce('lv',mile);S=computeStats();P.hp=S.maxhp;P.sp=S.maxsp;fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:1.6,txt:'LEVEL UP'});addLog(`Base level ${P.lv}! You have ${P.statPts} stat points to spend (C).`,'l-lvl');save();}
   if(jUp){if(!lvUp)sfx('jobup');fx.push({k:'lvl',x:P.x,y:P.y-18,t0:now,dur:1.6,txt:'JOB UP',col:'#62bf86'});addLog(`Job level ${P.jl}! You have ${P.skillPts} skill points (K).`,'l-lvl');
-    if(P.cls==='novice'&&P.jl>=10)addLog('You can now choose a calling. Talk to Guildmaster Corvin in Hearthvale.','l-rare');refreshPanel();}
+    if(P.cls==='novice'&&P.jl>=10)addLog('You can now choose a calling. Talk to Guildmaster Corvin in Hearthvale.','l-rare');
+    if(TRIALS[P.cls]&&P.jl===JOB2_LV&&!P.trial)addLog('You are ready for an advanced calling. Talk to Guildmaster Corvin in Hearthvale to begin your trial.','l-rare');refreshPanel();}
   if(lvUp)refreshPanel();
 }
 function die(src){

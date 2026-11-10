@@ -180,3 +180,6 @@ button{font:inherit;color:inherit}
   .act{width:44px;height:44px}.act.big{width:60px;height:60px}
 }
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+.srow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.snode .srow .btn{align-self:auto}
+.hotpick{display:flex;gap:3px;margin-left:auto}.hotpick .hk{min-width:24px;height:24px;padding:0;border:1px solid var(--edge-dim);border-radius:4px;background:#1a2029;color:var(--muted);font:700 11px inherit;cursor:pointer}
+.hotpick .hk.on{border-color:var(--edge);background:#3a3020;color:#ffcf5a}
