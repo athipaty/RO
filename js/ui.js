@@ -215,8 +215,61 @@ $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDef
 function snapshot(){if(!P)return null;
   const keep=['name','look','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest'];
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;return {v:1,p:JSON.parse(JSON.stringify(o))};}
-function save(){const s=snapshot();if(!s)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(s));}catch(e){}}
+function save(force){const s=snapshot();if(!s)return;
+  if(ACC.token){ACC.cloud=s;cloudSave(force);}else try{localStorage.setItem(SAVE_KEY,JSON.stringify(s));}catch(e){}}
 function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return s&&s.v===1?s:null;}catch(e){return null;}}
+// the character you would continue with: the server copy when logged in, otherwise this device's
+function currentSave(){return ACC.token?ACC.cloud:loadSave();}
+
+/* ---- talking to the game server ---- */
+async function api(method,path,body,keepalive){
+  const r=await fetch(SERVER+'/api/embervale'+path,{method,keepalive:!!keepalive,
+    headers:{'Content-Type':'application/json',...(ACC.token?{Authorization:'Bearer '+ACC.token}:{})},body:body?JSON.stringify(body):undefined});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw Object.assign(new Error(j.error||'The server did not answer. Try again in a moment.'),{status:r.status});
+  return j;}
+let cloudT=0,cloudTimer=null,cloudWarned=false;
+function cloudSave(force){
+  if(!ACC.token||!ACC.cloud)return;const wait=10000-(Date.now()-cloudT);
+  if(!force&&wait>0){if(!cloudTimer)cloudTimer=setTimeout(()=>{cloudTimer=null;cloudSave(true);},wait);return;}
+  clearTimeout(cloudTimer);cloudTimer=null;cloudT=Date.now();
+  api('PUT','/character',{character:ACC.cloud},true).then(()=>{cloudWarned=false;}).catch(e=>{
+    if(e.status===401){addLog('Your login has expired. Log in again from the title screen to keep saving to the server.','l-bad');setAccount(null);
+      try{localStorage.setItem(SAVE_KEY,JSON.stringify(ACC.cloud||snapshot()));}catch(_){}}
+    else if(!cloudWarned){cloudWarned=true;addLog('Could not reach the server to save. Will keep trying.','l-bad');}});}
+function setAccount(sess){
+  ACC.token=sess?sess.token:null;ACC.username=sess?sess.username:null;ACC.cloud=null;ACC.loaded=!sess;
+  try{if(sess)localStorage.setItem('embervale.account',JSON.stringify({token:sess.token,username:sess.username}));else localStorage.removeItem('embervale.account');}catch(e){}
+  if(NET.room&&NET.room.relogin)NET.room.relogin();
+  refreshTitle();}
+async function loadCloud(){
+  if(!ACC.token)return;acMsg('Loading your character…',true);
+  try{const r=await api('GET','/character');ACC.cloud=r.character&&r.character.v===1?r.character:null;ACC.loaded=true;acMsg('');}
+  catch(e){if(e.status===401){setAccount(null);acMsg('Your login has expired. Please log in again.');}else acMsg(e.message);}
+  refreshTitle();}
+function acMsg(t,ok){const el=$('#acMsg');el.textContent=t||'';el.classList.toggle('ok',!!ok);}
+function refreshTitle(){
+  const inAcct=!!ACC.token;$('#acOut').hidden=!inAcct;$('#acIn').hidden=inAcct;$('#acNote').hidden=inAcct;
+  if(inAcct)$('#acName').textContent=ACC.username;
+  $('#acImport').hidden=!(inAcct&&ACC.loaded&&!ACC.cloud&&loadSave());
+  const s=currentSave(),c=$('#contBtn');c.hidden=!s;
+  if(s)c.textContent=`Continue as ${String(s.p.name).slice(0,16)} (Lv ${Math.floor(+s.p.lv)||1})`;
+  $('#newBtn').disabled=inAcct&&!ACC.loaded;$('#contBtn').disabled=inAcct&&!ACC.loaded;}
+async function accountSubmit(kind){
+  const username=$('#acUser').value.trim().toLowerCase(),password=$('#acPass').value;
+  if(!/^[a-z0-9_]{3,16}$/.test(username)){acMsg('Username: 3-16 letters, numbers or _');return;}
+  if(password.length<6){acMsg('Password: at least 6 characters');return;}
+  acMsg(kind==='register'?'Creating your account…':'Logging in…',true);
+  try{const sess=await api('POST',kind==='register'?'/register':'/login',{username,password});$('#acPass').value='';
+    setAccount(sess);acMsg(kind==='register'?'Account created!':'Welcome back!',true);await loadCloud();
+    if(kind==='register'&&loadSave())acMsg('Account created! You can move your guest character into it below.',true);}
+  catch(e){acMsg(e.message);}}
+$('#acIn').addEventListener('submit',ev=>{ev.preventDefault();accountSubmit('login');});
+$('#acReg').addEventListener('click',()=>accountSubmit('register'));
+$('#acLogout').addEventListener('click',()=>{setAccount(null);acMsg('Logged out. You are playing as a guest.',true);});
+$('#acImport').addEventListener('click',async()=>{const s=loadSave();if(!s)return;ACC.cloud=s;
+  try{await api('PUT','/character',{character:s});acMsg('Your guest character is now saved to your account.',true);}catch(e){ACC.cloud=null;acMsg(e.message);}
+  refreshTitle();});
 function startWith(data){
   P=newPlayer(data?data.p.name:($('#nameIn').value.trim()||'Wanderer'));
   if(data){Object.assign(P,data.p);uid=Math.max(uid,data.p.uid||1);if(!('head' in P.eq))P.eq.head=null;P.look=lookDecode(lookCode(P.look))&&P.look;}
@@ -229,13 +282,15 @@ function startWith(data){
   save();
 }
 setInterval(()=>{if(running)save();},15000);
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&running)save();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&running)save(true);});
+addEventListener('pagehide',()=>{if(running)save(true);});
 $('#reviveBtn').addEventListener('click',()=>{P.dead=false;S=computeStats();P.hp=Math.round(S.maxhp*.5);P.sp=Math.round(S.maxsp*.5);$('#death').hidden=true;enterZone('town');save();});
-$('#newBtn').addEventListener('click',()=>{audioInit();if(loadSave()&&!$('#contBtn').hidden){$('#confirm').hidden=false;return;}startWith(null);});
-$('#contBtn').addEventListener('click',()=>{audioInit();const s=loadSave();if(s)startWith(s);});
+$('#newBtn').addEventListener('click',()=>{audioInit();if(currentSave()){$('#confirm').hidden=false;return;}startWith(null);});
+$('#contBtn').addEventListener('click',()=>{audioInit();const s=currentSave();if(s)startWith(s);});
 $('#cfNo').addEventListener('click',()=>{$('#confirm').hidden=true;});
-$('#cfYes').addEventListener('click',()=>{try{localStorage.removeItem(SAVE_KEY);}catch(e){}$('#confirm').hidden=true;closePanel();
-  if(running){running=false;P=null;$('#log').innerHTML='';$('#title').hidden=false;$('#contBtn').hidden=true;}else startWith(null);});
+$('#cfYes').addEventListener('click',async()=>{$('#confirm').hidden=true;closePanel();
+  if(ACC.token){try{await api('DELETE','/character');ACC.cloud=null;}catch(e){acMsg(e.message);return;}}else try{localStorage.removeItem(SAVE_KEY);}catch(e){}
+  if(running){running=false;P=null;$('#log').innerHTML='';$('#title').hidden=false;refreshTitle();}else startWith(null);});
 
 /* ================= loop ================= */
 let last=performance.now();
@@ -268,7 +323,7 @@ function boot(hot){
   $('#onlineBadge').addEventListener('click',()=>{const l=$('#whoList');if(!NET.room)return;l.hidden=!l.hidden;if(!l.hidden)updateWho();});
   setInterval(()=>{if(!$('#whoList').hidden)updateWho();},1500);
   if(hot&&hot.v===1){startWith(hot);}
-  else if(loadSave())$('#contBtn').hidden=false;
+  else{refreshTitle();loadCloud();}
   requestAnimationFrame(frame);
 }
 window.claude?.hot?.snapshot?.(()=>snapshot());

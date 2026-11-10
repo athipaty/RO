@@ -11,7 +11,10 @@ const CANDIDATES = [
   '/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser',
 ].filter(Boolean);
 const BROWSER = CANDIDATES.find(p => fs.existsSync(p));
-const GAME = url.pathToFileURL(path.join(__dirname, '..', 'index.html')).href;
+// GAME_URL lets tests load the game over http (needed for the account API's CORS);
+// EMBER_SERVER points the game at a local copy of the game server instead of the real one.
+const GAME = process.env.GAME_URL || url.pathToFileURL(path.join(__dirname, '..', 'index.html')).href;
+const SERVER_Q = process.env.EMBER_SERVER ? '&server=' + encodeURIComponent(process.env.EMBER_SERVER) : '';
 
 const wait = ms => new Promise(r => setTimeout(r, ms));
 // every test run gets its own private room, so tests never meet real players
@@ -24,7 +27,7 @@ async function openGame(room) {
   await page.setViewport({ width: 1200, height: 800 });
   page.errors = [];
   page.on('pageerror', e => page.errors.push(e.message));
-  await page.goto(GAME + '?room=' + room);
+  await page.goto(GAME + '?room=' + room + SERVER_Q);
   return { browser, page, ev: (f, ...a) => page.evaluate(f, ...a), close: () => browser.close() };
 }
 

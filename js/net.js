@@ -31,12 +31,38 @@ function mqttRoom(){
     addEventListener('pagehide',()=>{try{c.publish(topic,'',{retain:true,qos:0});c.end();}catch(e){}});
   }));
 }
+/* Player account: logging in keeps your character on the server so you can play from any device. */
+const ACC={token:null,username:null,cloud:null,loaded:false};
+try{const a=JSON.parse(localStorage.getItem('embervale.account')||'null');if(a&&a.token){ACC.token=a.token;ACC.username=a.username;}}catch(e){}
+/* Our own game server (the Embervale part of center-kitchen-backend). Override with ?server=https://... for testing. */
+const SERVER=(()=>{const s=new URLSearchParams(location.search).get('server');return /^https?:\/\/[\w.:-]+$/.test(s||'')?s:'https://center-kitchen-backend.onrender.com';})();
+function serverRoom(){
+  return (window.io?Promise.resolve():loadScript('https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js')).then(()=>new Promise((res,rej)=>{
+    const sock=io(SERVER+'/embervale',{transports:['websocket'],auth:{token:ACC.token||undefined},reconnectionDelayMax:8000});
+    const seen=new Set();let cb=null,last=null,ready=false;
+    const fail=setTimeout(()=>{if(!ready){ready=true;sock.close();rej(new Error('timeout'));}},9000);
+    const room={presence(s){last=s;if(sock.connected)sock.emit('presence',s);return Promise.resolve();},onPeers(f){cb=f;},server:true,
+      relogin(){sock.auth={token:ACC.token||undefined};sock.disconnect();sock.connect();}};
+    sock.on('connect',()=>sock.emit('join',{room:ROOM||'world'}));
+    sock.on('joined',m=>{NET.channel=m.channel;NET.account=m.account||null;
+      const now=new Set((m.peers||[]).map(p=>p.peer));
+      const left=[...seen].filter(id=>!now.has(id)).map(peer=>({peer}));for(const p of left)seen.delete(p.peer);
+      const joined=(m.peers||[]).filter(p=>!seen.has(p.peer));for(const p of joined)seen.add(p.peer);
+      if(cb&&(left.length||joined.length))cb({joined,updated:[],left});
+      if(last)sock.emit('presence',last);
+      if(!ready){ready=true;clearTimeout(fail);res(room);}else updateOnline();});
+    sock.on('peer',p=>{if(!cb||!p||!p.peer)return;const was=seen.has(p.peer);seen.add(p.peer);cb({joined:was?[]:[p],updated:was?[p]:[],left:[]});});
+    sock.on('left',p=>{if(cb&&p&&seen.delete(p.peer))cb({joined:[],updated:[],left:[{peer:p.peer}]});});
+    sock.on('disconnect',()=>{if(ready){NET.status='connecting';updateWho();}});
+    sock.on('connect_error',()=>{if(!ready){ready=true;clearTimeout(fail);sock.close();rej(new Error('connect failed'));}});
+  }));
+}
 function netConnect(tries=0){
   if(!window.claude?.use){
     let framed=true;try{framed=window.top!==window;}catch(e){}
     if(framed&&tries<12){setTimeout(()=>netConnect(tries+1),500);return;}
     NET.relay=true;NET.status='connecting';$('#online').textContent='Connecting…';updateWho();
-    mqttRoom().then(room=>{NET.room=room;
+    serverRoom().catch(()=>{NET.viaBroker=true;return mqttRoom();}).then(room=>{NET.room=room;
       room.onPeers(ch=>{
         for(const p of ch.left){const o=NET.others.get(p.peer);if(o&&o.n)addLog(`${o.n} left.`);NET.others.delete(p.peer);}
         for(const p of ch.joined)ingest(p);for(const p of ch.updated)ingest(p);updateOnline();});
@@ -82,7 +108,7 @@ function updateOnline(){const el=$('#online');
 function updateWho(){
   const b=$('#onlineBadge'),list=$('#whoList');
   if(!NET.room){b.textContent=NET.status==='connecting'?'○ Connecting…':'○ Offline · solo';b.classList.add('off');list.hidden=true;return;}
-  b.classList.remove('off');b.textContent=`● ${NET.others.size+1} online`;
+  b.classList.remove('off');b.textContent=`● ${NET.others.size+1} online`+(NET.channel?` · ch ${NET.channel}`:'');
   list.textContent='';
   const row=(name,o,me)=>{const d=document.createElement('div');d.className='who'+(me?' me':'');
     const nm=document.createElement('b');nm.textContent=name+(me?' (you)':'');

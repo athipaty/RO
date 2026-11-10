@@ -62,6 +62,18 @@
   <div class="card frame">
     <h1>Embervale</h1>
     <p class="tag">Leave Hearthvale with a club and a cotton tunic. Hunt across five regions, take up a calling, and go after the Ashen Warlord in the Cinder Crypt.</p>
+    <div id="acct">
+      <div id="acOut" hidden>Signed in as <b id="acName"></b> · <button class="btn small" id="acLogout">Log out</button></div>
+      <form id="acIn" autocomplete="on">
+        <input id="acUser" maxlength="16" placeholder="Username" autocomplete="username" aria-label="Username">
+        <input id="acPass" type="password" maxlength="100" placeholder="Password" autocomplete="current-password" aria-label="Password">
+        <button class="btn small" id="acLogin" type="submit">Log in</button>
+        <button class="btn small" id="acReg" type="button">Create account</button>
+      </form>
+      <div class="acNote" id="acNote">Log in to keep your character on the server and play from any device, or just play as a guest (saved on this device only).</div>
+      <button class="btn small" id="acImport" hidden>Move my guest character to this account</button>
+      <div class="acMsg" id="acMsg" role="status"></div>
+    </div>
     <input id="nameIn" maxlength="16" placeholder="Name your adventurer" value="Wanderer" aria-label="Adventurer name">
     <div id="creator">
       <canvas id="lookCv" width="240" height="240" aria-label="Preview of your adventurer"></canvas>

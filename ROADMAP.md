@@ -12,10 +12,11 @@ Everything stays original: a classic 2.5D MMO feel, but no names, art, maps or m
 - [x] Private rooms: add `?room=yourname` to the link to play only with friends who use the same link
 
 ## Stage 2: Own game server and accounts
-- [ ] Node.js WebSocket server (Render), Vercel keeps hosting the page
-- [ ] Sign up / log in; characters saved in a database (play from any device)
-- [ ] Server runs monsters, drops and damage checks (no cheating, no "host player")
-- [ ] Channels/worlds so busy maps can split
+Server code lives in center-kitchen-backend (`routes/embervale/`, `models/embervale/`), Socket.IO namespace `/embervale`.
+- [x] 2a. Live play through our own server (public broker kept only as a fallback)
+- [x] 2a. Sign up / log in; characters saved in MongoDB (play from any device), move a guest character into an account
+- [x] 2a. Channels: busy rooms split into channels of 40
+- [ ] 2b. Server runs monsters, drops and damage checks (no cheating, no "host player")
 
 ## Stage 3: Social
 - [ ] Parties: invite, shared EXP, party chat, party members on the minimap
