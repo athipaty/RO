@@ -1,0 +1,40 @@
+// Shared helpers: start a real headless browser playing the game from the local files.
+const pptr = require('puppeteer-core');
+const fs = require('fs'), path = require('path'), url = require('url');
+
+const CANDIDATES = [
+  process.env.BROWSER,
+  'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+  'C:/Program Files/Microsoft/Edge/Application/msedge.exe',
+  'C:/Program Files/Google/Chrome/Application/chrome.exe',
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  '/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser',
+].filter(Boolean);
+const BROWSER = CANDIDATES.find(p => fs.existsSync(p));
+const GAME = url.pathToFileURL(path.join(__dirname, '..', 'index.html')).href;
+
+const wait = ms => new Promise(r => setTimeout(r, ms));
+// every test run gets its own private room, so tests never meet real players
+const newRoom = () => 'test-' + Math.random().toString(36).slice(2, 10);
+
+async function openGame(room) {
+  if (!BROWSER) throw new Error('No Chrome or Edge found. Set the BROWSER environment variable to its path.');
+  const browser = await pptr.launch({ executablePath: BROWSER, headless: true });
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1200, height: 800 });
+  page.errors = [];
+  page.on('pageerror', e => page.errors.push(e.message));
+  await page.goto(GAME + '?room=' + room);
+  return { browser, page, ev: (f, ...a) => page.evaluate(f, ...a), close: () => browser.close() };
+}
+
+// open the game and start a brand new character
+async function player(name, room, { zone } = {}) {
+  const g = await openGame(room);
+  await g.ev(n => { localStorage.clear(); document.getElementById('nameIn').value = n; document.getElementById('newBtn').click(); }, name);
+  await wait(600);
+  if (zone) await g.ev(z => enterZone(z), zone);
+  return g;
+}
+
+module.exports = { openGame, player, wait, newRoom, BROWSER };

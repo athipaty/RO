@@ -1,0 +1,11 @@
+{
+  "name": "embervale-tests",
+  "private": true,
+  "description": "Browser tests for Embervale. Run `npm install` once in this folder, then `npm test`.",
+  "scripts": {
+    "test": "node run.js"
+  },
+  "devDependencies": {
+    "puppeteer-core": "23.11.1"
+  }
+}

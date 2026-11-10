@@ -1,8 +1,25 @@
 # Embervale
 
-An original browser action RPG in the style of classic 2.5D MMORPGs (isometric camera, upright sprites), built as a single file: `index.html`. It needs no build step or dependencies. Open it in a browser and play.
+An original browser action RPG in the style of classic 2.5D MMORPGs (isometric camera, upright sprites). It needs no build step: open `index.html` in a browser and play.
+
+Play online: https://ro-six-bay.vercel.app/ (add `?room=yourname` to the link for a private room with friends). See [ROADMAP.md](ROADMAP.md) for what is coming next.
+
+## Project layout
+| Path | What is in it |
+|---|---|
+| `index.html` | Page markup (HUD, panels, title screen and character creator) |
+| `css/style.css` | All styles |
+| `js/data.js` | Classes, items, monsters, regions, skills, small utilities |
+| `js/audio.js` | Synthesised soundtrack and sound effects |
+| `js/net.js` | Multiplayer (presence, chat, emotes, online list) |
+| `js/world.js` | Player state, region generation, pathfinding, stats |
+| `js/combat.js` | Combat, loot, items, skills, shared monsters, the update loop |
+| `js/render.js` | Drawing the world, characters, monsters and effects |
+| `js/ui.js` | HUD, panels, input, save/load, character creator, main loop |
+| `tests/` | Browser tests: `cd tests && npm install && npm test` (needs Chrome or Edge) |
 
 ## Features
+- **Character creator**: choose a hairstyle, hair colour, eyes and skin with a live preview. Other players see your look.
 - Click-to-move with A* pathfinding, click-to-attack auto combat, WASD movement
 - Six stats (STR / AGI / VIT / INT / DEX / LUK) with rising point costs
 - Separate base and job levels. Reach Job Lv 10 as a Novice, then choose a calling:
