@@ -47,7 +47,12 @@ button{font:inherit;color:inherit}
 #menu{display:flex;gap:4px;justify-content:center;margin-top:6px}
 #menu .btn{padding:2px 7px;font-size:12px}
 /* target */
-#target{position:fixed;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:220px;padding:6px 10px;text-align:center;pointer-events:none}
+#onlineBadge{position:fixed;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:4;padding:5px 14px;border-radius:999px;border:1px solid var(--jexp);background:var(--panel);color:var(--jexp);font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.5);white-space:nowrap}
+#onlineBadge.off{border-color:var(--edge-dim);color:var(--muted)}
+#whoList{position:fixed;top:calc(max(10px,env(safe-area-inset-top)) + 38px);left:50%;transform:translateX(-50%);z-index:4;width:min(280px,calc(100vw - 24px));max-height:50vh;overflow-y:auto;padding:6px 10px}
+.who{display:flex;flex-direction:column;padding:5px 0;border-bottom:1px solid rgba(184,146,79,.14)}.who:last-child{border-bottom:0}
+.who b{color:#9fd3ff}.who.me b{color:var(--exp)}.who span{font-size:11.5px;color:var(--muted)}
+#target{position:fixed;top:calc(max(10px,env(safe-area-inset-top)) + 40px);left:50%;transform:translateX(-50%);width:220px;padding:6px 10px;text-align:center;pointer-events:none}
 #target .tn{font-weight:800}#target .tl{color:var(--muted);font-size:11px}
 /* log */
 #log{position:fixed;left:max(10px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));width:min(340px,calc(100vw - 20px));max-height:120px;overflow-y:auto;padding:6px 8px;font-size:12.5px;line-height:1.35;background:rgba(10,13,18,.72);border-radius:5px;border:1px solid rgba(184,146,79,.25)}
@@ -65,7 +70,9 @@ button{font:inherit;color:inherit}
   #log{bottom:calc(max(10px,env(safe-area-inset-bottom)) + 62px);max-height:74px;font-size:11.5px}
   #hud{width:175px;padding:6px 8px}#hud .name{font-size:17px}
   #mini{width:110px;height:76px}
-  #target{top:calc(max(10px,env(safe-area-inset-top)) + 186px);width:190px}
+  #target{top:calc(max(10px,env(safe-area-inset-top)) + 192px);width:190px}
+  #onlineBadge{top:calc(max(10px,env(safe-area-inset-top)) + 150px);font-size:12px;padding:4px 12px}
+  #whoList{top:calc(max(10px,env(safe-area-inset-top)) + 182px)}
   .slot{width:38px;height:40px}.slot .ic{width:24px;height:24px;font-size:11px}
 }
 /* panel */
@@ -155,6 +162,8 @@ button{font:inherit;color:inherit}
   </div>
 </div>
 
+<button id="onlineBadge" class="off" aria-label="Players online" title="Who is online">○ Solo</button>
+<div id="whoList" class="frame" hidden></div>
 <div id="target" class="frame" hidden>
   <div class="tn" id="tName"></div><div class="tl" id="tLv"></div>
   <div class="bar hpb"><i id="tI"></i><span id="tT"></span></div>
@@ -473,10 +482,11 @@ function mqttRoom(){
       onPeers(f,closed){cb=f;onClose=closed;}};
     c.on('connect',()=>{c.subscribe(base+'+');pub();if(!ready){ready=true;res(room);}});
     c.on('error',e=>{if(!ready){ready=true;c.end(true);rej(e);}});
-    c.on('message',(t,buf)=>{const id=t.slice(base.length);if(id===me||!cb||buf.length>4000)return;
+    c.on('message',(t,buf,pk)=>{const id=t.slice(base.length);if(id===me||!cb||buf.length>4000)return;
       if(!buf.length)return leave(id);
       let p;try{p=JSON.parse(buf.toString());}catch(e){return;}
-      if(!p||typeof p!=='object'||Math.abs(Date.now()-fin(p._t))>30000)return;
+      // live messages are always fresh; only an old retained message (left behind by a crashed tab) is skipped
+      if(!p||typeof p!=='object'||(pk&&pk.retain&&Date.now()-fin(p._t)>300000))return;
       const was=seen.has(id);seen.set(id,Date.now());const e={peer:id,presence:p};
       cb({joined:was?[]:[e],updated:was?[e]:[],left:[]});});
     setInterval(()=>{pub();const cut=Date.now()-15000;for(const[id,t]of seen)if(t<cut)leave(id);},5000);
@@ -487,12 +497,12 @@ function netConnect(tries=0){
   if(!window.claude?.use){
     let framed=true;try{framed=window.top!==window;}catch(e){}
     if(framed&&tries<12){setTimeout(()=>netConnect(tries+1),500);return;}
-    NET.relay=true;$('#online').textContent='Connecting…';
+    NET.relay=true;NET.status='connecting';$('#online').textContent='Connecting…';updateWho();
     mqttRoom().then(room=>{NET.room=room;
       room.onPeers(ch=>{
         for(const p of ch.left){const o=NET.others.get(p.peer);if(o&&o.n)addLog(`${o.n} left.`);NET.others.delete(p.peer);}
         for(const p of ch.joined)ingest(p);for(const p of ch.updated)ingest(p);updateOnline();});
-      updateOnline();NET.lastSent='';}).catch(()=>{NET.relay=false;updateOnline();});
+      NET.status='online';updateOnline();NET.lastSent='';}).catch(()=>{NET.relay=false;NET.status='offline';updateOnline();});
     return;}
   window.claude.use('room').then(room=>{
     if(!room){updateOnline();return;}
@@ -527,7 +537,21 @@ function ingest(p){
 }
 function updateOnline(){const el=$('#online');
   if(!NET.room){el.textContent=window.claude?.use||NET.relay===false?'Solo · chat offline':'Solo';return;}
-  const n=NET.others.size;el.textContent=n?`${n+1} adventurers online`:'Online · nobody else here yet';}
+  const n=NET.others.size;el.textContent=n?`${n+1} adventurers online`:'Online · nobody else here yet';
+  updateWho();}
+function updateWho(){
+  const b=$('#onlineBadge'),list=$('#whoList');
+  if(!NET.room){b.textContent=NET.status==='connecting'?'○ Connecting…':'○ Offline · solo';b.classList.add('off');list.hidden=true;return;}
+  b.classList.remove('off');b.textContent=`● ${NET.others.size+1} online`;
+  list.textContent='';
+  const row=(name,o,me)=>{const d=document.createElement('div');d.className='who'+(me?' me':'');
+    const nm=document.createElement('b');nm.textContent=name+(me?' (you)':'');
+    const info=document.createElement('span');const z=o.z||zoneId;info.textContent=`${CLASSES[o.cls]?.name||'Novice'} Lv ${o.lv||1} · ${ZONES[z]?.name||''}${!me&&z===zoneId?' · here':''}`;
+    d.append(nm,info);list.appendChild(d);};
+  if(P)row(P.name,{cls:P.cls,lv:P.lv,z:zoneId},true);
+  for(const o of NET.others.values())row(o.n,o,false);
+  if(!NET.others.size){const d=document.createElement('div');d.className='who muted';d.textContent='Nobody else yet. Send your friend the link!';list.appendChild(d);}
+}
 function chatLog(name,txt,zone,mine,guest){
   const el=$('#log'),d=document.createElement('div');d.className='l-chat'+(mine?' me':'');
   const b=document.createElement('b');b.textContent=name+(guest?' (guest)':'');d.appendChild(b);
@@ -1593,6 +1617,8 @@ function frame(ts){const dt=Math.min(.05,(ts-last)/1000);last=ts;now+=dt;
   render();if(running)renderMini();requestAnimationFrame(frame);}
 function boot(hot){
   resize();setAudio(AU.music,AU.sfx);netConnect();
+  $('#onlineBadge').addEventListener('click',()=>{const l=$('#whoList');if(!NET.room)return;l.hidden=!l.hidden;if(!l.hidden)updateWho();});
+  setInterval(()=>{if(!$('#whoList').hidden)updateWho();},1500);
   if(hot&&hot.v===1){startWith(hot);}
   else if(loadSave())$('#contBtn').hidden=false;
   requestAnimationFrame(frame);
