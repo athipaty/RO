@@ -17,6 +17,14 @@ An original browser action RPG in the style of classic 2D MMORPGs, built as a si
 - **Original soundtrack**: a theme for each region plus a boss battle theme, synthesised live with the Web Audio API (no audio files)
 - **Sound effects** for hits, misses, magic, arrows, level-ups, loot and rare sigil drops, plus a ringing critical hit with screen shake
 - **Play together**: everyone who has the shared page open sees each other walk around, with chat bubbles over their heads and in the log. This uses the claude.ai artifact live room; the standalone file runs solo.
+- **Emotes**: 12 hand-drawn emotes (heart, GG, sweat drop, and more), shown over your head to everyone nearby. Use the Emote button, the E key, or /heart, /gg and so on in chat.
+- **Party bonus**: hunting near another player gives you both +25% EXP, and you can see each other's HP bars
+- **World announcements**: everyone online hears about level milestones, class changes, rare sigils, finished contracts and boss kills
+- **Hunting contracts** from Guildmaster Corvin, matched to your level, for bonus EXP and gold
+- **Hats**: 8 cosmetic headgear items with small stat bonuses. Two are sold in town and the rest are rare drops (the Ember Crown comes from the boss). Other players see your hat.
+- **Frostpeak Pass**: a sixth region (Lv 42+) with snowy pines, three new monsters and its own theme music
+- **Ambient weather**: fireflies, drifting sand, rising embers, snowfall and petals, different in each region
+- **Auto-hunt**: fights the nearest monster and drinks tonics when HP runs low, which helps on phones
 - **Phone-friendly**: tap to walk, attack and talk, plus big round Attack / Sit / Chat / sound buttons
 
 ## Controls
@@ -30,7 +38,8 @@ An original browser action RPG in the style of classic 2D MMORPGs, built as a si
 | C / I / K / H | Stats / Items / Skills / Help |
 | X | Sit and rest |
 | Enter | Chat |
+| E | Emotes |
 | Esc | Close the window and clear the target |
 
 ## Regions
-Hearthvale (town) → Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32+, boss)
+Hearthvale (town) → Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45, boss) → Frostpeak Pass (42+)

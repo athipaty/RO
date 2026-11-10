@@ -35,6 +35,10 @@ button{font:inherit;color:inherit}
 .exb i{background:var(--exp)}.jxb i{background:var(--jexp)}
 .lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 #gold{margin-top:5px;font-size:12.5px;color:var(--exp);font-variant-numeric:tabular-nums}
+#party{color:var(--jexp);margin-top:2px}#quest{color:#e8d7a6;margin-top:2px}
+.emgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.emb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;background:#10141b;border:1px solid var(--edge-dim);border-radius:6px;cursor:pointer;color:var(--ink);font-size:11.5px}
+.emb:hover,.emb:focus-visible{border-color:var(--exp)}.emb img{width:32px;height:32px}
 /* minimap */
 #minibox{position:fixed;top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right));padding:6px;text-align:center}
 #minibox .zn{font-family:var(--display);font-size:16px;color:var(--exp);margin-bottom:4px}
@@ -134,6 +138,8 @@ button{font:inherit;color:inherit}
   <div class="lbl"><span id="jlT">Job Lv 1</span><span id="jxT">0%</span></div>
   <div class="bar thin jxb"><i id="jxI"></i><span></span></div>
   <div id="gold">0 gold</div>
+  <div id="party" class="lbl" hidden></div>
+  <div id="quest" class="lbl" hidden></div>
 </div>
 
 <div id="minibox" class="frame">
@@ -159,6 +165,8 @@ button{font:inherit;color:inherit}
 <div id="panel" class="frame" hidden></div>
 <div id="actions">
   <button class="act small" id="muteBtn" aria-label="Music and sound on or off" title="Music and sound">♪</button>
+  <button class="act" id="emoteBtn" aria-label="Emotes" title="Emotes">Emote</button>
+  <button class="act" id="autoBtn" aria-label="Auto-hunt on or off" title="Auto-hunt">Auto</button>
   <button class="act" id="chatBtn" aria-label="Chat (Enter)" title="Chat (Enter)">Chat</button>
   <button class="act" id="sitBtn" aria-label="Sit to rest (X)" title="Sit to rest (X)">Sit</button>
   <button class="act big" id="atkBtn" aria-label="Attack the nearest monster (Tab)" title="Attack nearest (Tab)">Attack</button>
@@ -177,7 +185,7 @@ button{font:inherit;color:inherit}
     <div class="keys">
       <b>Click</b> the ground to walk · <b>click</b> a monster to attack · <b>click</b> a townsperson to talk<br>
       <b>WASD</b> move · <b>1–4</b> skills · <b>5–8</b> tonics &amp; scrolls · <b>Tab</b> nearest foe<br>
-      <b>C</b> stats · <b>I</b> items · <b>K</b> skills · <b>X</b> sit to rest · <b>Enter</b> chat · <b>Esc</b> close<br>
+      <b>C</b> stats · <b>I</b> items · <b>K</b> skills · <b>X</b> sit to rest · <b>Enter</b> chat · <b>E</b> emotes · <b>Esc</b> close<br>
       On a phone: tap to walk and attack, and use the round buttons on the right.
     </div>
   </div>
@@ -250,25 +258,37 @@ const ITEMS={
   robe:{name:'Sage Robe',type:'armor',def:8,b:{int:3,maxsp:40},price:1500,lv:15,slots:1,col:'#7d6ad0',g:'A'},
   scale:{name:'Scale Mail',type:'armor',def:24,price:2200,lv:20,slots:1,col:'#8fa0b0',g:'A'},
   plate:{name:'Ember Plate',type:'armor',def:42,price:6500,lv:32,slots:1,col:'#c0603a',g:'A'},
+  strawhat:{name:'Straw Hat',type:'head',def:1,price:120,lv:1,slots:0,col:'#e0c070',g:'^'},
+  ribbon:{name:'Ribbon Bow',type:'head',b:{luk:1},price:200,lv:1,slots:0,col:'#f07ca0',g:'^'},
+  sprout:{name:'Leaf Sprout',type:'head',b:{vit:1,maxhp:25},price:400,lv:1,slots:0,col:'#7fd36a',g:'^'},
+  lupeears:{name:'Lupe Ears',type:'head',b:{agi:2},price:1200,lv:10,slots:0,col:'#a3a8b2',g:'^'},
+  turban:{name:'Sand Turban',type:'head',def:3,b:{int:2},price:2400,lv:20,slots:0,col:'#efe6d2',g:'^'},
+  imphorns:{name:'Imp Horns',type:'head',b:{atk:6,matk:15},price:4000,lv:30,slots:0,col:'#a33a2a',g:'^'},
+  frostcap:{name:'Frost Cap',type:'head',def:5,b:{vit:2},price:5000,lv:40,slots:0,col:'#6fa8d8',g:'^'},
+  crown:{name:'Ember Crown',type:'head',def:4,b:{str:3,int:3,maxhp:150},price:20000,lv:40,slots:0,col:'#ffcf5a',g:'^'},
+  fang:{name:'Rime Fang',type:'etc',price:260,col:'#cfe3f0',g:'•'}, shard:{name:'Frost Shard',type:'etc',price:280,col:'#9fd6ff',g:'•'}, fur:{name:'Snowhulk Fur',type:'etc',price:310,col:'#f0f4f8',g:'•'},
   ring:{name:'Brass Ring',type:'accessory',b:{str:2},price:300,lv:1,slots:1,col:'#d9b45a',g:'O'},
   clip:{name:'Silver Clip',type:'accessory',b:{maxsp:30},price:900,lv:10,slots:1,col:'#cfd6de',g:'O'},
   charm:{name:'Clover Charm',type:'accessory',b:{luk:4,crit:3},price:900,lv:10,slots:1,col:'#7fd38a',g:'O'},
 };
-const SHOP=['red','orange','blue','leaf','scroll','spiked','sword','wand','bow','mace','bastion','rod','longbow','sunmace','axe','tunic','vest','robe','scale','plate','ring','clip','charm'];
+const SHOP=['red','orange','blue','leaf','scroll','strawhat','ribbon','spiked','sword','wand','bow','mace','bastion','rod','longbow','sunmace','axe','tunic','vest','robe','scale','plate','ring','clip','charm'];
 
 const MOBS={
-  sproutling:{name:'Sproutling',lv:2,hp:42,atk:6,def:0,flee:3,exp:12,jexp:10,spd:38,shape:'blob',col:'#8fd16a',size:12,leaf:true,drops:[['sap',.55],['red',.08]],sig:{kind:'armor',b:{maxhp:80},txt:'+80 Max HP'}},
+  sproutling:{name:'Sproutling',lv:2,hp:42,atk:6,def:0,flee:3,exp:12,jexp:10,spd:38,shape:'blob',col:'#8fd16a',size:12,leaf:true,drops:[['sap',.55],['red',.08],['sprout',.012]],sig:{kind:'armor',b:{maxhp:80},txt:'+80 Max HP'}},
   hopper:{name:'Hopper',lv:4,hp:75,atk:10,def:2,flee:10,exp:22,jexp:17,spd:75,shape:'beast',col:'#d8b48a',size:11,drops:[['tuft',.5],['red',.08]],sig:{kind:'accessory',b:{agi:2},txt:'+2 AGI'}},
   mossbug:{name:'Mossbug',lv:7,hp:130,atk:15,def:8,flee:6,exp:40,jexp:30,spd:45,shape:'bug',col:'#6f8f3a',size:12,drops:[['shell',.5],['orange',.04]],sig:{kind:'armor',b:{def:4},txt:'+4 DEF'}},
   thornling:{name:'Thornling',lv:11,hp:280,atk:30,def:10,flee:14,exp:105,jexp:80,spd:60,aggro:true,shape:'blob',col:'#4e8a3d',size:13,spikes:true,drops:[['thorn',.5],['red',.1]],sig:{kind:'weapon',b:{atk:15},txt:'+15 ATK'}},
-  greylupe:{name:'Grey Lupe',lv:14,hp:400,atk:42,def:12,flee:25,exp:155,jexp:115,spd:100,aggro:true,shape:'beast',col:'#8a909c',size:14,drops:[['pelt',.45],['orange',.05]],sig:{kind:'accessory',b:{flee:10,agi:1},txt:'+10 FLEE, +1 AGI'}},
+  greylupe:{name:'Grey Lupe',lv:14,hp:400,atk:42,def:12,flee:25,exp:155,jexp:115,spd:100,aggro:true,shape:'beast',col:'#8a909c',size:14,drops:[['pelt',.45],['orange',.05],['lupeears',.015]],sig:{kind:'accessory',b:{flee:10,agi:1},txt:'+10 FLEE, +1 AGI'}},
   mushcap:{name:'Mushcap',lv:17,hp:600,atk:50,def:22,flee:12,exp:230,jexp:165,spd:42,shape:'mushroom',col:'#c4523d',size:14,drops:[['spore',.5],['blue',.03]],sig:{kind:'armor',b:{vit:3,maxhp:120},txt:'+3 VIT, +120 Max HP'}},
-  scarab:{name:'Dune Scarab',lv:22,hp:950,atk:72,def:42,flee:20,exp:380,jexp:260,spd:58,shape:'bug',col:'#3a6a8a',size:14,drops:[['carapace',.45],['orange',.06]],sig:{kind:'armor',b:{def:10},txt:'+10 DEF'}},
+  scarab:{name:'Dune Scarab',lv:22,hp:950,atk:72,def:42,flee:20,exp:380,jexp:260,spd:58,shape:'bug',col:'#3a6a8a',size:14,drops:[['carapace',.45],['orange',.06],['turban',.015]],sig:{kind:'armor',b:{def:10},txt:'+10 DEF'}},
   wraith:{name:'Dust Wraith',lv:26,hp:1050,atk:92,def:15,flee:55,exp:520,jexp:360,spd:85,aggro:true,undead:true,shape:'ghost',col:'#d8c99a',size:14,drops:[['dust',.45],['blue',.05]],sig:{kind:'accessory',b:{flee:20},txt:'+20 FLEE'}},
   cactoid:{name:'Cactoid',lv:30,hp:1700,atk:108,def:58,flee:15,exp:720,jexp:490,spd:34,shape:'blob',col:'#5d9b52',size:15,spikes:true,drops:[['needle',.45],['orange',.08]],sig:{kind:'weapon',b:{atk:10,str:3},txt:'+10 ATK, +3 STR'}},
   bonearcher:{name:'Bone Archer',lv:34,hp:1900,atk:120,def:35,flee:35,exp:920,jexp:640,spd:55,aggro:true,undead:true,range:190,shape:'skeleton',col:'#e8e2cf',size:13,drops:[['bone',.45],['blue',.06]],sig:{kind:'weapon',b:{dex:3,hit:15},txt:'+3 DEX, +15 HIT'}},
-  emberimp:{name:'Ember Imp',lv:38,hp:2300,atk:150,def:40,flee:45,exp:1180,jexp:820,spd:105,aggro:true,shape:'imp',col:'#e06a2b',size:12,drops:[['core',.4],['orange',.1]],sig:{kind:'weapon',b:{matk:35},txt:'+35 MATK'}},
-  warlord:{name:'Ashen Warlord',lv:45,hp:20000,atk:300,def:80,flee:40,exp:30000,jexp:20000,spd:70,aggro:true,boss:true,shape:'golem',col:'#7a2e1f',size:30,respawn:180,sigChance:.25,drops:[['crest',1],['orange',1],['blue',.6]],sig:{kind:'armor',b:{str:5,vit:5,hppct:15},txt:'+5 STR, +5 VIT, +15% Max HP'}},
+  emberimp:{name:'Ember Imp',lv:38,hp:2300,atk:150,def:40,flee:45,exp:1180,jexp:820,spd:105,aggro:true,shape:'imp',col:'#e06a2b',size:12,drops:[['core',.4],['orange',.1],['imphorns',.015]],sig:{kind:'weapon',b:{matk:35},txt:'+35 MATK'}},
+  rimestalker:{name:'Rime Stalker',lv:44,hp:3000,atk:190,def:55,flee:60,exp:1700,jexp:1150,spd:110,aggro:true,shape:'beast',col:'#a9c6dc',size:15,drops:[['fang',.4],['orange',.1]],sig:{kind:'accessory',b:{agi:3,crit:5},txt:'+3 AGI, +5 CRIT'}},
+  frostwisp:{name:'Frost Wisp',lv:47,hp:2800,atk:210,def:30,flee:80,exp:1900,jexp:1300,spd:90,aggro:true,range:160,shape:'ghost',col:'#bfe6ff',size:13,drops:[['shard',.4],['blue',.1]],sig:{kind:'weapon',b:{matk:50,int:2},txt:'+50 MATK, +2 INT'}},
+  snowhulk:{name:'Snowhulk',lv:50,hp:5200,atk:240,def:85,flee:25,exp:2600,jexp:1800,spd:45,shape:'blob',col:'#e8f2f8',size:19,drops:[['fur',.4],['frostcap',.02]],sig:{kind:'armor',b:{vit:4,def:6},txt:'+4 VIT, +6 DEF'}},
+  warlord:{name:'Ashen Warlord',lv:45,hp:20000,atk:300,def:80,flee:40,exp:30000,jexp:20000,spd:70,aggro:true,boss:true,shape:'golem',col:'#7a2e1f',size:30,respawn:180,sigChance:.25,drops:[['crest',1],['orange',1],['blue',.6],['crown',.3]],sig:{kind:'armor',b:{str:5,vit:5,hppct:15},txt:'+5 STR, +5 VIT, +15% Max HP'}},
 };
 for(const id in MOBS){const m=MOBS[id];m.id=id;m.hit=m.lv*2+12;
   ITEMS[id+'_sig']={name:m.name+' Sigil',type:'sigil',kind:m.sig.kind,b:m.sig.b,price:m.boss?20000:600,col:'#ffcf5a',g:'✦',desc:`Socket into ${m.sig.kind==='accessory'?'an':'a'} ${m.sig.kind}: ${m.sig.txt}.`};}
@@ -278,14 +298,16 @@ const ZONES={
   meadow:{name:'Greenmoss Meadow',w:64,h:44,theme:'meadow',seed:11,density:.045,ponds:3,lvl:'Lv 1–10',mobs:[['sproutling',16],['hopper',10],['mossbug',9]],links:{west:'town',east:'woods'}},
   woods:{name:'Whispering Woods',w:64,h:46,theme:'woods',seed:23,density:.11,ponds:2,lvl:'Lv 10–20',mobs:[['thornling',13],['greylupe',10],['mushcap',9]],links:{west:'meadow',east:'dunes'}},
   dunes:{name:'Ashen Dunes',w:68,h:46,theme:'dunes',seed:37,density:.04,ponds:1,lvl:'Lv 20–32',mobs:[['scarab',13],['wraith',10],['cactoid',9]],links:{west:'woods',east:'crypt'}},
-  crypt:{name:'Cinder Crypt',w:60,h:44,theme:'crypt',seed:51,density:.07,ponds:3,lvl:'Lv 32+ · boss',mobs:[['bonearcher',12],['emberimp',11],['warlord',1]],links:{west:'dunes'}},
+  crypt:{name:'Cinder Crypt',w:60,h:44,theme:'crypt',seed:51,density:.07,ponds:3,lvl:'Lv 32–45 · boss',mobs:[['bonearcher',12],['emberimp',11],['warlord',1]],links:{west:'dunes',east:'frost'}},
+  frost:{name:'Frostpeak Pass',w:64,h:44,theme:'frost',seed:67,density:.08,ponds:3,lvl:'Lv 42+',mobs:[['rimestalker',12],['frostwisp',11],['snowhulk',9]],links:{west:'crypt'}},
 };
-const ZONE_ORDER=['town','meadow','woods','dunes','crypt'];
+const ZONE_ORDER=['town','meadow','woods','dunes','crypt','frost'];
 const THEMES={
   town:{g:['#6aa553','#6ea957','#66a050'],path:'#c9b07a',canopy:['#3f7d34','#4e9440'],water:'#4a8fc8',cob:'#a59f93'},
   meadow:{g:['#5e9b4a','#62a04d','#5a9446'],path:'#c9b07a',canopy:['#3f7d34','#4e9440'],water:'#3f7fb8'},
   woods:{g:['#3d6b35','#406f38','#3a6532'],path:'#8a7552',canopy:['#24502a','#2f6334'],water:'#2f5f80'},
   dunes:{g:['#d9bf85','#dcc38a','#d4b97e'],path:'#c2a46c',rock:['#9c7b55','#7d6043'],water:'#3ea0b0'},
+  frost:{g:['#e6edf2','#edf2f6','#e1e9ef'],path:'#b7c6d2',canopy:['#9fb8c8','#f5f9fc'],water:'#8fc0dc'},
   crypt:{g:['#3a3842','#3d3b46','#37353f'],path:'#55505e',rock:['#26242c','#4a4654'],water:'#d4521f',lava:true},
 };
 
@@ -350,6 +372,8 @@ const SONGS={
     mel:'A4 . Bb4 C#5 E5 . C#5 Bb4 | A4 . - - D5 . Bb4 . | C#5 . E5 . F5 E5 C#5 . | D5 . Bb4 . G4 . A4 . | E5 . F5 E5 D5 . C#5 . | D5 . F5 . A5 . F5 D5 | F5 E5 D5 . Bb4 . C#5 . | A4 . . . - - - -'},
   crypt:{bpm:76,spb:8,lead:'square',lp:900,lv:.9,chords:'Em C Am B Em C D B',pulse:true,
     mel:'E4 . . G4 B4 . . . | C5 . B4 . G4 . . . | A4 . . C5 E5 . D5 C5 | B4 . . . D#5 . . . | E5 . . . B4 . G4 . | C5 . . . E5 . G4 . | F#4 . A4 . D5 . C5 . | B4 . . . - - - -'},
+  frost:{bpm:88,spb:8,lead:'sine',lp:4000,arp:true,lv:1.2,chords:'Am F C G Am F E E',
+    mel:'E5 . A5 . B5 . C6 . | A5 . . . F5 . E5 . | G5 . E5 . C5 . D5 E5 | D5 . . . - - B4 . | C5 . E5 . A5 . B5 . | C6 . B5 A5 F5 . A5 . | G#5 . . . E5 . B4 . | E5 . . . - - - -'},
   boss:{bpm:150,spb:8,lead:'sawtooth',lp:2400,lv:.7,chords:'Cm Cm Ab Bb Cm Cm Ab G',drums:{k:[0,2,4,6],h:[1,3,5,7],s:[2,6]},pulse:true,
     mel:'C5 C5 - C5 Eb5 . D5 C5 | G4 . - G4 C5 . Eb5 . | Ab4 . C5 . Eb5 . F5 Eb5 | D5 . Bb4 . F5 . D5 . | C5 C5 - C5 G5 . F5 Eb5 | D5 . C5 . Eb5 . G5 . | Ab5 . G5 F5 Eb5 . C5 . | B4 . D5 . G5 . - -'},
 };
@@ -420,6 +444,8 @@ function sfx(n){
     case 'death':[392,330,262,196].forEach((f,i)=>tone({type:'triangle',f,dur:.45,vol:.17,t:t+i*.22}));break;
     case 'ping':tone({f:1175,dur:.15,vol:.07});tone({f:1568,dur:.25,vol:.06,t:t+.08});break;
     case 'click':tone({type:'triangle',f:660,dur:.04,vol:.05});break;
+    case 'pop':tone({f:520,f2:1100,dur:.09,vol:.12});tone({type:'triangle',f:1320,dur:.08,vol:.05,t:t+.05});break;
+    case 'fanfare':[[523,0],[523,.12],[523,.24],[659,.36],[784,.6],[659,.78],[784,.9],[1047,1.05]].forEach(([f,d],i)=>tone({type:i%2?'square':'triangle',f,dur:i===7?.8:.16,vol:.13,lp:4500,t:t+d}));break;
     case 'slam':tone({f:90,f2:28,dur:.7,vol:.75});noise({ft:'lowpass',f:900,f2:90,dur:.6,vol:.5});break;
   }
 }
@@ -428,7 +454,7 @@ function setAudio(music,fxOn){AU.music=music;AU.sfx=fxOn;saveAudio();
   $('#muteBtn').classList.toggle('on',music||fxOn);$('#muteBtn').textContent=(music||fxOn)?'♪':'×';}
 
 /* ================= multiplayer: see each other + chat (live room) ================= */
-const NET={room:null,others:new Map(),chatId:Date.now(),myChat:[],lastSent:'',sendT:0,warned:false};
+const NET={myEmote:null,room:null,others:new Map(),chatId:Date.now(),myChat:[],lastSent:'',sendT:0,warned:false};
 const clean=(s,n)=>String(s??'').replace(/[\u0000-\u001f\u007f-\u009f­​-‏‪-‮⁠-⁯﻿]/g,'').trim().slice(0,n);
 const fin=v=>Number.isFinite(+v)?+v:0;
 function netConnect(tries=0){
@@ -452,12 +478,15 @@ function ingest(p){
   o.n=clean(s.n,16)||'Traveller';o.cls=CLASSES[s.c]?s.c:'novice';o.z=ZONES[s.z]?s.z:'town';
   o.x=clamp(fin(s.x),0,4000);o.y=clamp(fin(s.y),0,4000);o.face=s.f<0?-1:1;o.lv=clamp(Math.floor(fin(s.lv)),1,99);
   o.moving=!!s.mv;o.sitting=!!s.st;o.dead=!!s.d;o.wid=typeof s.w==='string'&&ITEMS[s.w]&&ITEMS[s.w].type==='weapon'?s.w:null;o.guest=!!p.guest;
+  o.hat=typeof s.h==='string'&&ITEMS[s.h]&&ITEMS[s.h].type==='head'?s.h:null;o.hp=clamp(fin(s.hp),0,100);
+  if(s.em&&typeof s.em==='object'&&EMOTE_KEYS.includes(s.em.k)){const id=fin(s.em.i);if(id>(o.emSeen||0)){const first=!o.emSeen;o.emSeen=id;if(!(fresh&&first&&Math.abs(Date.now()-fin(s.em.t))>4000)){o.emote={k:s.em.k,start:now};if(o.z===zoneId)sfx('pop');}}}
   if(fresh){addLog(`${o.n} (${CLASSES[o.cls].name} Lv ${o.lv}) is online.`,'l-good');}
   const msgs=Array.isArray(s.ch)?s.ch.slice(-4):[];
   for(const m of msgs){
     if(!m||typeof m!=='object')continue;const id=fin(m.i);if(id<=o.seen)continue;o.seen=id;
-    const txt=clean(m.s,120);if(!txt)continue;
     if(fresh&&!(Math.abs(Date.now()-fin(m.t))<120000))continue;
+    if(m.k){const t=announceText(o.n,clean(m.k,8),typeof m.v==='number'?m.v:clean(m.v,16));if(t){addLog('★ '+t,'l-rare');sfx('ping');}continue;}
+    const txt=clean(m.s,120);if(!txt)continue;
     o.bubble={txt,until:now+7};chatLog(o.n,txt,o.z,false,o.guest);sfx('ping');
   }
 }
@@ -471,19 +500,59 @@ function chatLog(name,txt,zone,mine,guest){
   d.appendChild(document.createTextNode(': '+txt));el.appendChild(d);while(el.children.length>60)el.firstChild.remove();el.scrollTop=el.scrollHeight;}
 function sendChat(raw){
   const txt=clean(raw,120);if(!txt||!P)return;
+  if(txt[0]==='/'){const k=txt.slice(1).toLowerCase();if(EMOTE_KEYS.includes(k)){doEmote(k);return;}addLog('Emotes: '+EMOTE_KEYS.map(e=>'/'+e).join(' '));return;}
   NET.myChat=[...NET.myChat,{i:++NET.chatId,s:txt,t:Date.now()}].slice(-4);
   P.bubble={txt,until:now+7};chatLog(P.name,txt,zoneId,true);sfx('click');NET.lastSent='';NET.sendT=0;
   if(!NET.room&&!NET.warned){NET.warned=true;addLog('Nobody else can hear you here. Open the shared Embervale page to chat with other players.');}
 }
+function announce(k,v){NET.myChat=[...NET.myChat,{i:++NET.chatId,k,v,t:Date.now()}].slice(-4);NET.lastSent='';NET.sendT=0;}
+function announceText(n,k,v){
+  if(k==='lv'&&Number.isInteger(v)&&v>1&&v<=99)return `${n} reached base level ${v}!`;
+  if(k==='job'&&CLASSES[v])return `${n} became a ${CLASSES[v].name}!`;
+  if(k==='sig'&&MOBS[v])return `${n} found a ${MOBS[v].name} Sigil!`;
+  if(k==='boss'&&MOBS[v]&&MOBS[v].boss)return `${n} helped defeat the ${MOBS[v].name}!`;
+  if(k==='quest'&&MOBS[v])return `${n} finished a ${MOBS[v].name} hunting contract.`;
+  return null;}
 function netTick(dt){
   for(const o of NET.others.values()){if(o.z!==zoneId)continue;const d=Math.hypot(o.x-o.rx,o.y-o.ry);
     if(d>300){o.rx=o.x;o.ry=o.y;}else{const k=Math.min(1,dt*9);o.rx+=(o.x-o.rx)*k;o.ry+=(o.y-o.ry)*k;}
     if(o.moving||d>2)o.walkT+=dt;if(Math.abs(o.x-o.rx)>1)o.face=o.x<o.rx?-1:1;}
   if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+.12;
   const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,lv:P.lv,mv:P.moving?1:0,st:P.sitting?1:0,d:P.dead?1:0,
-    w:P.eq.weapon?P.eq.weapon.id:null,ch:NET.myChat};
+    w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),ch:NET.myChat,em:NET.myEmote||null};
   const j=JSON.stringify(s);if(j===NET.lastSent)return;NET.lastSent=j;NET.room.presence(s).catch(()=>{});
 }
+
+/* ================= emotes ================= */
+const EMOTES=[['heart','Love'],['wow','Surprise'],['huh','Huh?'],['note','Sing'],['smile','Happy'],['angry','Angry'],['sweat','Oops'],['gg','Good game'],['zzz','Sleepy'],['thx','Thanks'],['cry','Sad'],['star','Amazing']];
+const EMOTE_KEYS=EMOTES.map(e=>e[0]);
+function drawEmoteIcon(g,k,x,y,s){
+  g.save();g.translate(x,y);g.scale(s/20,s/20);g.lineCap='round';g.lineJoin='round';
+  const txt=(t,c,sz)=>{g.font=`800 ${sz}px "Alegreya Sans",sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillStyle=c;g.fillText(t,0,1);};
+  switch(k){
+    case 'heart':g.fillStyle='#e8435a';g.beginPath();g.moveTo(0,8);g.bezierCurveTo(-14,-2,-8,-14,0,-6);g.bezierCurveTo(8,-14,14,-2,0,8);g.fill();break;
+    case 'wow':txt('!','#d9483f',24);break;
+    case 'huh':txt('?','#3a78c8',24);break;
+    case 'note':g.fillStyle='#8a5ad0';g.beginPath();g.ellipse(-4,6,4.5,3.5,-.4,0,7);g.fill();g.fillRect(-0.5,-10,2.5,16);g.beginPath();g.moveTo(2,-10);g.quadraticCurveTo(10,-6,7,1);g.lineTo(2,-4);g.fill();break;
+    case 'smile':g.fillStyle='#ffd24a';g.beginPath();g.arc(0,0,10,0,7);g.fill();g.strokeStyle='#5a3a10';g.lineWidth=2;g.beginPath();g.arc(-4,-1,2.5,Math.PI*1.1,Math.PI*1.9);g.stroke();g.beginPath();g.arc(4,-1,2.5,Math.PI*1.1,Math.PI*1.9);g.stroke();g.beginPath();g.arc(0,2,5,.2,Math.PI-.2);g.stroke();break;
+    case 'angry':g.strokeStyle='#d9483f';g.lineWidth=3;for(const [a,b] of [[-1,-1],[1,-1],[-1,1],[1,1]]){g.beginPath();g.moveTo(a*2,b*8);g.quadraticCurveTo(a*2,b*2,a*8,b*2);g.stroke();}break;
+    case 'sweat':g.fillStyle='#5ab0f0';g.beginPath();g.moveTo(0,-11);g.quadraticCurveTo(9,2,0,9);g.quadraticCurveTo(-9,2,0,-11);g.fill();g.fillStyle='rgba(255,255,255,.7)';g.beginPath();g.ellipse(-2.5,2,1.6,3,0,0,7);g.fill();break;
+    case 'gg':txt('GG','#d99a1e',17);break;
+    case 'zzz':txt('z',  '#5a6aa0',11);g.translate(5,-6);txt('Z','#5a6aa0',15);break;
+    case 'thx':txt('THX','#3f8a4c',12);break;
+    case 'cry':g.fillStyle='#ffd24a';g.beginPath();g.arc(0,0,10,0,7);g.fill();g.strokeStyle='#5a3a10';g.lineWidth=2;g.beginPath();g.moveTo(-6,-2);g.lineTo(-2,-2);g.moveTo(2,-2);g.lineTo(6,-2);g.stroke();g.beginPath();g.arc(0,7,4,Math.PI+.3,-.3);g.stroke();g.fillStyle='#5ab0f0';g.fillRect(-6,0,2.5,7);g.fillRect(4,0,2.5,7);break;
+    case 'star':g.fillStyle='#ffcf3a';g.beginPath();for(let i=0;i<10;i++){const r=i%2?4.5:11,a=-Math.PI/2+i*Math.PI/5;g.lineTo(Math.cos(a)*r,Math.sin(a)*r);}g.closePath();g.fill();break;
+  }
+  g.restore();
+}
+function drawEmote(k,x,y,age){
+  const pop=age<.18?.4+age/.18*.7:age<.28?1.1-(age-.18):1,fade=age>2.6?Math.max(0,1-(age-2.6)/.4):1;
+  ctx.save();ctx.globalAlpha=fade;ctx.translate(x,y-Math.min(age,.3)*20);ctx.scale(pop,pop);
+  ctx.fillStyle='rgba(255,252,240,.96)';ctx.strokeStyle='#3a2f1e';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,15,0,7);ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-4,13);ctx.lineTo(0,20);ctx.lineTo(4,13);ctx.fill();
+  drawEmoteIcon(ctx,k,0,0,20);ctx.restore();
+}
+function doEmote(k){if(!P||P.dead||!EMOTE_KEYS.includes(k))return;P.emote={k,start:now};NET.myEmote={i:++NET.chatId,k,t:Date.now()};NET.lastSent='';NET.sendT=0;sfx('pop');}
 
 /* ================= state ================= */
 let P=null, S=null, zoneId='town', Z=null, mobs=[], fx=[], texts=[], shots=[], now=0, running=false;
@@ -492,7 +561,7 @@ let uid=1;
 
 function newPlayer(name){
   return {name:name||'Wanderer',cls:'novice',lv:1,exp:0,jl:1,jexp:0,st:{str:1,agi:1,vit:1,int:1,dex:1,luk:1},statPts:24,skillPts:0,skills:{},
-    gold:200,inv:[{id:'red',n:6},{id:'scroll',n:1}],eq:{weapon:{id:'club',uid:uid++,s:[]},armor:{id:'tunic',uid:uid++,s:[]},accessory:null},
+    gold:200,inv:[{id:'red',n:6},{id:'scroll',n:1}],eq:{weapon:{id:'club',uid:uid++,s:[]},armor:{id:'tunic',uid:uid++,s:[]},accessory:null,head:null},quest:null,
     hp:1,sp:1,zone:'town',x:0,y:0,visited:['town'],buffs:{},cd:{},
     path:[],target:null,npcGoal:null,queued:null,atkT:0,face:1,walkT:0,moving:false,sitting:false,dead:false,regenAcc:0};
 }
@@ -524,7 +593,7 @@ function getZone(id){
     const clusters=Math.floor(W*H*D.density/5);
     for(let i=0;i<clusters;i++){let cx=1+Math.floor(r()*(W-2)),cy=1+Math.floor(r()*(H-2));const n=2+Math.floor(r()*6);
       for(let k=0;k<n;k++){set(cx,cy,obst);cx+=Math.floor(r()*3)-1;cy+=Math.floor(r()*3)-1;}}
-    for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(get(x,y)===0&&r()<D.density*.25)set(x,y,obst);else if(get(x,y)===0&&D.theme!=='crypt'&&r()<.035)set(x,y,7);}
+    for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(get(x,y)===0&&r()<D.density*.25)set(x,y,obst);else if(get(x,y)===0&&D.theme!=='crypt'&&D.theme!=='frost'&&r()<.035)set(x,y,7);}
     for(let i=0;i<D.ponds;i++){const cx=6+Math.floor(r()*(W-12)),cy=5+Math.floor(r()*(H-10)),rx=2+r()*3,ry=2+r()*2.5;
       for(let y=Math.floor(cy-ry);y<=cy+ry;y++)for(let x=Math.floor(cx-rx);x<=cx+rx;x++){const q=((x-cx)/rx)**2+((y-cy)/ry)**2;if(q<1)set(x,y,3);}}
     const mid=H>>1; let y=mid; const ys=[];
@@ -562,6 +631,7 @@ function renderZone(z, r){
     // ground texture
     if(z.D.theme==='dunes'){g.strokeStyle='rgba(150,110,60,.18)';g.lineWidth=1;g.beginPath();const oy=R()*TILE;g.moveTo(px,py+oy);g.quadraticCurveTo(px+16,py+oy-4,px+32,py+oy);g.stroke();}
     else if(z.D.theme==='crypt'){g.strokeStyle='rgba(0,0,0,.25)';g.strokeRect(px+.5,py+.5,TILE-1,TILE-1);if(R()<.15){g.beginPath();g.moveTo(px+R()*32,py+R()*32);g.lineTo(px+R()*32,py+R()*32);g.stroke();}}
+    else if(z.D.theme==='frost'){for(let k=0;k<3;k++){g.fillStyle='rgba(110,140,170,.2)';g.fillRect(px+R()*30,py+R()*30,2,2);}}
     else{for(let k=0;k<3;k++){g.fillStyle='rgba(0,40,0,.18)';const gx=px+R()*30,gy=py+R()*30;g.fillRect(gx,gy,1.5,4);g.fillRect(gx+2,gy+1,1.5,3);}}
     let mc=th.g[0];
     if(v===1){g.fillStyle=th.path;g.fillRect(px,py,TILE,TILE);g.fillStyle='rgba(0,0,0,.12)';for(let k=0;k<3;k++)g.fillRect(px+R()*28,py+R()*28,3,2);mc=th.path;}
@@ -582,6 +652,10 @@ function renderZone(z, r){
         if(R()<.3){g.fillStyle='#4f8a46';g.fillRect(px+20,py+2,6,18);g.fillRect(px+16,py+8,4,4);g.fillRect(px+26,py+6,4,4);}}
     } else {
       g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse(px+17,py+27,13,5,0,0,7);g.fill();
+      if(z.D.theme==='frost'){g.fillStyle='#5a3d24';g.fillRect(px+14,py+20,4,9);
+        for(let k=0;k<3;k++){const w=15-k*4,ty=py+22-k*8;g.fillStyle='#2f5a4a';g.beginPath();g.moveTo(px+16-w,ty);g.lineTo(px+16,ty-12);g.lineTo(px+16+w,ty);g.fill();
+          g.fillStyle='#f5f9fc';g.beginPath();g.moveTo(px+16-w*.55,ty-5);g.lineTo(px+16,ty-12);g.lineTo(px+16+w*.55,ty-5);g.fill();}
+        continue;}
       g.fillStyle='#5a3d24';g.fillRect(px+13,py+16,6,12);
       g.fillStyle=th.canopy[0];g.beginPath();g.arc(px+16,py+11,14,0,7);g.fill();
       g.fillStyle=th.canopy[1];g.beginPath();g.arc(px+12,py+8,8,0,7);g.arc(px+20,py+12,7,0,7);g.fill();
@@ -644,7 +718,7 @@ function pathTo(x,y,exact){
 function addB(b,src){if(!src)return;for(const k in src)b[k]=(b[k]||0)+src[k];}
 function computeStats(){
   const c=CLASSES[P.cls], b={}, lv=P.lv;
-  for(const slot of ['weapon','armor','accessory']){const e=P.eq[slot];if(!e)continue;const it=ITEMS[e.id];
+  for(const slot of ['weapon','armor','accessory','head']){const e=P.eq[slot];if(!e)continue;const it=ITEMS[e.id];
     addB(b,{atk:it.atk||0,matk:it.matk||0,def:it.def||0});addB(b,it.b);for(const s of e.s)if(s)addB(b,ITEMS[s].b);}
   for(const k in P.buffs)addB(b,P.buffs[k].b);
   const st={};for(const k of STATS)st[k]=P.st[k]+(b[k]||0);
@@ -687,9 +761,12 @@ function killMob(m){
   m.dead=true;m.hp=0;m.respawnAt=now+(m.d.respawn||rnd(9,15));
   if(P.target===m){P.target=null;P.queued=null;}
   fx.push({k:'poof',x:m.x,y:m.y,col:m.d.col,t0:now,dur:.45});sfx('kill');
-  gainExp(m.d.exp,m.d.jexp);
+  const pb=partyCount()>0?1.25:1;
+  gainExp(Math.round(m.d.exp*pb),Math.round(m.d.jexp*pb));
+  questKill(m.d.id);
+  if(m.d.boss)announce('boss',m.d.id);
   for(const [id,ch] of m.d.drops)if(Math.random()<ch)giveItem(id,1,true);
-  if(Math.random()<(m.d.sigChance||.02)){giveItem(m.d.id+'_sig',1,false);addLog(`A ${m.d.name} Sigil dropped!`,'l-rare');sfx('rare');fx.push({k:'beam',x:m.x,y:m.y,t0:now,dur:1.6});}
+  if(Math.random()<(m.d.sigChance||.02)){giveItem(m.d.id+'_sig',1,false);addLog(`A ${m.d.name} Sigil dropped!`,'l-rare');sfx('rare');announce('sig',m.d.id);fx.push({k:'beam',x:m.x,y:m.y,t0:now,dur:1.6});}
   if(m.d.boss){addLog(`The ${m.d.name} has been defeated! It will rise again in 3 minutes.`,'l-rare');}
   const g=Math.round(m.d.lv*rnd(1.5,3));P.gold+=g;
 }
@@ -709,10 +786,11 @@ function gainExp(e,j){
   P.exp+=e;
   const jm=jobMax(P.cls);if(P.jl<jm)P.jexp+=j;
   let lvUp=false,jUp=false;
-  while(P.lv<99&&P.exp>=expNeed(P.lv)){P.exp-=expNeed(P.lv);P.lv++;P.statPts+=Math.floor(P.lv/5)+3;lvUp=true;}
+  let mile=0;
+  while(P.lv<99&&P.exp>=expNeed(P.lv)){P.exp-=expNeed(P.lv);P.lv++;P.statPts+=Math.floor(P.lv/5)+3;lvUp=true;if(P.lv%5===0)mile=P.lv;}
   while(P.jl<jm&&P.jexp>=jexpNeed(P.jl)){P.jexp-=jexpNeed(P.jl);P.jl++;P.skillPts++;jUp=true;}
   if(P.jl>=jm)P.jexp=0;
-  if(lvUp){sfx('levelup');S=computeStats();P.hp=S.maxhp;P.sp=S.maxsp;fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:1.6,txt:'LEVEL UP'});addLog(`Base level ${P.lv}! You have ${P.statPts} stat points to spend (C).`,'l-lvl');save();}
+  if(lvUp){sfx('levelup');if(mile)announce('lv',mile);S=computeStats();P.hp=S.maxhp;P.sp=S.maxsp;fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:1.6,txt:'LEVEL UP'});addLog(`Base level ${P.lv}! You have ${P.statPts} stat points to spend (C).`,'l-lvl');save();}
   if(jUp){if(!lvUp)sfx('jobup');fx.push({k:'lvl',x:P.x,y:P.y-18,t0:now,dur:1.6,txt:'JOB UP',col:'#62bf86'});addLog(`Job level ${P.jl}! You have ${P.skillPts} skill points (K).`,'l-lvl');
     if(P.cls==='novice'&&P.jl>=10)addLog('You can now choose a calling. Talk to Guildmaster Corvin in Hearthvale.','l-rare');refreshPanel();}
   if(lvUp)refreshPanel();
@@ -728,7 +806,7 @@ function die(src){
 function invFind(id){return P.inv.find(e=>e.id===id&&e.n!==undefined);}
 function giveItem(id,n=1,announce){
   const it=ITEMS[id];
-  if(it.type==='weapon'||it.type==='armor'||it.type==='accessory'){for(let i=0;i<n;i++)P.inv.push({id,uid:uid++,s:Array(it.slots).fill(null)});}
+  if(it.type==='weapon'||it.type==='armor'||it.type==='accessory'||it.type==='head'){for(let i=0;i<n;i++)P.inv.push({id,uid:uid++,s:Array(it.slots).fill(null)});}
   else{const e=invFind(id);if(e)e.n+=n;else P.inv.push({id,n});}
   if(announce){sfx('pickup');}if(announce)addLog(`You got ${it.name}${n>1?' ×'+n:''}.`,'l-loot');
   refreshPanel();rebuildHotbar();
@@ -789,6 +867,26 @@ function useSkill(id){
 function castNow(id,l,cost,fn){P.sp-=cost;P.cd[id]=now+SKILLS[id].cd;P.queued=null;P.sitting=false;P.atkT=Math.max(P.atkT,.25);
   floatT(P.x,P.y-44,SKILLS[id].name+(l>1?' '+l:''),'#f0e0a0',12);sfx('skill');fn();}
 
+/* ================= party, contracts, auto-hunt ================= */
+function partyCount(){let n=0;if(!P)return 0;for(const o of NET.others.values())if(o.z===zoneId&&!o.dead&&Math.hypot(o.x-P.x,o.y-P.y)<520)n++;return n;}
+function contractOffers(){
+  const all=Object.values(MOBS).filter(m=>!m.boss);
+  return all.map(m=>({m,d:Math.abs(m.lv-P.lv)})).sort((a,b)=>a.d-b.d).slice(0,3).map(({m})=>{
+    const need=m.lv>=30?8:m.lv>=14?10:12;
+    return {mob:m.id,need,exp:Math.round(m.exp*need*.9),jexp:Math.round(m.jexp*need*.7),gold:m.lv*need*8};});
+}
+function questKill(id){const q=P.quest;if(!q||q.mob!==id)return;q.have=Math.min(q.need,q.have+1);
+  if(q.have>=q.need){P.quest=null;addLog(`Contract complete: ${q.need} ${MOBS[id].name}. Reward: ${fmt(q.exp)} EXP, ${fmt(q.gold)} gold.`,'l-rare');
+    P.gold+=q.gold;sfx('fanfare');fx.push({k:'lvl',x:P.x,y:P.y-30,t0:now,dur:1.6,txt:'CONTRACT DONE',col:'#ffcf5a'});announce('quest',id);gainExp(q.exp,q.jexp);save();}
+  refreshPanel();}
+function autoHunt(){
+  if(!P.auto||P.dead||Z.D.safe)return;
+  const f=P.hp/S.maxhp;
+  if(f<.4&&(P.cd['item']||0)<=now){const pot=invFind('orange')?'orange':invFind('red')?'red':null;
+    if(pot)useItem(pot);else if(f<.3){P.auto=false;$('#autoBtn').classList.remove('on');addLog('Auto-hunt paused: you are out of tonics. Rest with Sit or buy more in town.','l-bad');return;}}
+  if((!P.target||P.target.dead)&&!P.path.length&&f>=.3){let best=null,bd=650;for(const m of mobs)if(!m.dead){const d=dist(m,P);if(d<bd){bd=d;best=m;}}if(best){P.target=best;P.queued=null;P.sitting=false;}}
+}
+
 /* ================= zones & entities ================= */
 function spawnMob(type,m){
   const i=Z.spawnTiles[Math.floor(Math.random()*Z.spawnTiles.length)];
@@ -825,6 +923,7 @@ function update(dt){
   let kx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0), ky=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
   P.moving=false;
   if(kx||ky){P.path=[];P.target=null;P.queued=null;P.npcGoal=null;P.sitting=false;const n=Math.hypot(kx,ky);moveEnt(P,kx/n*S.speed*dt,ky/n*S.speed*dt,PR);P.moving=true;if(kx)P.face=kx;}
+  autoHunt();
   // target behaviour
   const t=P.target;
   if(t&&!t.dead){
@@ -933,12 +1032,37 @@ function render(){
     if(show){const w=Math.max(30,m.d.size*2.4),y=m.y-m.d.size*2-10;ctx.fillStyle='#000';ctx.fillRect(m.x-w/2-1,y-1,w+2,6);ctx.fillStyle='#d9483f';ctx.fillRect(m.x-w/2,y,w*m.hp/m.d.hp,4);}
   }
   for(const n of Z.npcs)label(n.name,n.x,n.y+22,'#ffe7a0',12);
-  for(const o of others)label(`${o.n} · Lv${o.lv}`,o.rx,o.ry+22,'#9fd3ff',12);
+  for(const o of others){label(`${o.n} · Lv${o.lv}`,o.rx,o.ry+22,'#9fd3ff',12);
+    if(Math.hypot(o.x-P.x,o.y-P.y)<520){ctx.fillStyle='#000';ctx.fillRect(o.rx-17,o.ry+27,34,5);ctx.fillStyle='#62bf86';ctx.fillRect(o.rx-16,o.ry+28,32*(o.hp||0)/100,3);}}
   if(!P.dead)label(P.name,P.x,P.y+22,'#ffffff',12);
   for(const o of others)if(o.bubble&&now<o.bubble.until)bubble(o.bubble.txt,o.rx,o.ry-58);
   if(!P.dead&&P.bubble&&now<P.bubble.until)bubble(P.bubble.txt,P.x,P.y-58);
+  for(const o of others)if(o.emote&&now-o.emote.start<3)drawEmote(o.emote.k,o.rx+20,o.ry-52,now-o.emote.start);
+  if(!P.dead&&P.emote&&now-P.emote.start<3)drawEmote(P.emote.k,P.x+20,P.y-52,now-P.emote.start);
   for(const t of texts){const a=(now-t.t0)/t.dur;ctx.globalAlpha=1-a*a;ctx.font=`800 ${t.size}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.8)';
     const y=t.y-a*34;ctx.strokeText(t.txt,t.x,y);ctx.fillStyle=t.col;ctx.fillText(t.txt,t.x,y);ctx.globalAlpha=1;}
+  ctx.restore();
+  drawAmbient();
+}
+const amb=[];let ambZone=null,ambLast=0;
+const AMB={meadow:{n:18,col:'#fff6a8'},woods:{n:26,col:'#d8ff7a'},dunes:{n:40,col:'rgba(230,200,140,.7)'},crypt:{n:34,col:'#ff9a4a'},frost:{n:70,col:'#ffffff'},town:{n:10,col:'#ffd8e8'}};
+function drawAmbient(){
+  const dt=Math.min(.05,now-ambLast);ambLast=now;const cfg=AMB[zoneId];if(!cfg||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  if(ambZone!==zoneId){ambZone=zoneId;amb.length=0;for(let i=0;i<cfg.n;i++)amb.push({x:Math.random()*VW,y:Math.random()*VH,p:Math.random()*6,s:.5+Math.random()});}
+  ctx.save();
+  for(const a of amb){a.p+=dt;
+    if(zoneId==='frost'){a.y+=dt*(30+a.s*30);a.x+=Math.sin(a.p*1.3)*dt*20-dt*10;}
+    else if(zoneId==='crypt'){a.y-=dt*(20+a.s*25);a.x+=Math.sin(a.p*2)*dt*12;}
+    else if(zoneId==='dunes'){a.x+=dt*(80+a.s*90);a.y+=Math.sin(a.p*3)*dt*8;}
+    else if(zoneId==='town'){a.y+=dt*(14+a.s*10);a.x+=Math.sin(a.p)*dt*24;}
+    else{a.x+=Math.sin(a.p*.8+a.s)*dt*18;a.y+=Math.cos(a.p*.6)*dt*14;}
+    if(a.y>VH+10)a.y=-10;if(a.y<-10)a.y=VH+10;if(a.x>VW+10)a.x=-10;if(a.x<-10)a.x=VW+10;
+    ctx.fillStyle=cfg.col;
+    if(zoneId==='woods'||zoneId==='meadow'){ctx.globalAlpha=.35+.65*Math.abs(Math.sin(a.p*2));ctx.shadowColor=cfg.col;ctx.shadowBlur=6;ctx.beginPath();ctx.arc(a.x,a.y,1.6*a.s,0,7);ctx.fill();ctx.shadowBlur=0;}
+    else if(zoneId==='dunes'){ctx.globalAlpha=.5;ctx.fillRect(a.x,a.y,6*a.s,1);}
+    else if(zoneId==='town'){ctx.globalAlpha=.8;ctx.beginPath();ctx.ellipse(a.x,a.y,2.4*a.s,1.4*a.s,a.p,0,7);ctx.fill();}
+    else{ctx.globalAlpha=zoneId==='crypt'?.4+.6*Math.abs(Math.sin(a.p*3)):.85;ctx.beginPath();ctx.arc(a.x,a.y,(zoneId==='frost'?1.8:1.3)*a.s,0,7);ctx.fill();}
+  }
   ctx.restore();
 }
 function label(txt,x,y,col,size){if(typeof x!=='number')return;ctx.font=`700 ${size}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.strokeText(txt,x,y);ctx.fillStyle=col;ctx.fillText(txt,x,y);}
@@ -964,12 +1088,28 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
   ctx.fillStyle='#f1d2b0';ctx.beginPath();ctx.arc(x,by-21,9,0,7);ctx.fill();
   ctx.fillStyle=hair;ctx.beginPath();ctx.arc(x-face*1.5,by-24,9.5,Math.PI*.95,Math.PI*2.05);ctx.fill();
   ctx.fillStyle='#2a2018';ctx.fillRect(x+face*3-1,by-21,2,3);ctx.fillRect(x+face*3+(face>0?-6:4),by-21,2,3);
+  if(opt.hat)drawHat(opt.hat,x,by-21,face);
   return by;
 }
-function drawOther(o){drawPlayer({x:o.rx,y:o.ry,cls:o.cls,face:o.face,moving:o.moving,walkT:o.walkT,sitting:o.sitting},o.wid);}
+function drawHat(id,x,hy,f){
+  ctx.save();
+  switch(id){
+    case 'strawhat':ctx.fillStyle='#d9b45a';ctx.beginPath();ctx.ellipse(x,hy-6,15,4,0,0,7);ctx.fill();ctx.fillStyle='#e8c870';ctx.beginPath();ctx.ellipse(x,hy-9,8,6,0,Math.PI,0);ctx.fill();ctx.fillStyle='#b8473a';ctx.fillRect(x-8,hy-8,16,2);break;
+    case 'ribbon':ctx.fillStyle='#f07ca0';ctx.beginPath();ctx.moveTo(x-f*4,hy-12);ctx.lineTo(x-f*13,hy-18);ctx.lineTo(x-f*12,hy-7);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(x-f*4,hy-12);ctx.lineTo(x+f*5,hy-19);ctx.lineTo(x+f*4,hy-8);ctx.closePath();ctx.fill();ctx.fillStyle='#c84a78';ctx.beginPath();ctx.arc(x-f*4,hy-12,2.5,0,7);ctx.fill();break;
+    case 'sprout':ctx.strokeStyle='#4e9a3a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,hy-9);ctx.lineTo(x,hy-17);ctx.stroke();ctx.fillStyle='#7fd36a';ctx.beginPath();ctx.ellipse(x-5,hy-18,5,2.5,-.5,0,7);ctx.ellipse(x+5,hy-19,5,2.5,.5,0,7);ctx.fill();break;
+    case 'lupeears':ctx.fillStyle='#8a909c';for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(x+k*3,hy-7);ctx.lineTo(x+k*8,hy-20);ctx.lineTo(x+k*10,hy-6);ctx.fill();}ctx.fillStyle='#e0b8b8';for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(x+k*5,hy-8);ctx.lineTo(x+k*8,hy-16);ctx.lineTo(x+k*9,hy-8);ctx.fill();}break;
+    case 'turban':ctx.fillStyle='#efe6d2';ctx.beginPath();ctx.ellipse(x,hy-6,10.5,8,0,Math.PI,0);ctx.fill();ctx.strokeStyle='#cbbfa6';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-9,hy-9);ctx.quadraticCurveTo(x,hy-14,x+9,hy-8);ctx.stroke();ctx.fillStyle='#d9483f';ctx.beginPath();ctx.arc(x+f*2,hy-10,2.2,0,7);ctx.fill();break;
+    case 'imphorns':ctx.fillStyle='#7a2a1e';for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(x+k*4,hy-8);ctx.quadraticCurveTo(x+k*14,hy-12,x+k*11,hy-22);ctx.quadraticCurveTo(x+k*9,hy-13,x+k*1,hy-10);ctx.fill();}break;
+    case 'frostcap':ctx.fillStyle='#4f86b8';ctx.beginPath();ctx.ellipse(x,hy-6,10,8,0,Math.PI,0);ctx.fill();ctx.fillStyle='#eef4f8';ctx.fillRect(x-10,hy-7,20,3);ctx.beginPath();ctx.arc(x,hy-15,3.5,0,7);ctx.fill();break;
+    case 'crown':ctx.shadowColor='#ffb03a';ctx.shadowBlur=8;ctx.fillStyle='#ffcf5a';ctx.beginPath();ctx.moveTo(x-9,hy-7);ctx.lineTo(x-9,hy-15);ctx.lineTo(x-5,hy-11);ctx.lineTo(x,hy-18);ctx.lineTo(x+5,hy-11);ctx.lineTo(x+9,hy-15);ctx.lineTo(x+9,hy-7);ctx.closePath();ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#e0522a';ctx.beginPath();ctx.arc(x,hy-10,2,0,7);ctx.fill();break;
+  }
+  ctx.restore();
+}
+function drawOther(o){drawPlayer({x:o.rx,y:o.ry,cls:o.cls,face:o.face,moving:o.moving,walkT:o.walkT,sitting:o.sitting,hat:o.hat},o.wid);}
 function drawPlayer(P,wid){
   const c=CLASSES[P.cls],w=wid?ITEMS[wid]:null;
-  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?P.walkT:0,{sit:P.sitting});
+  const hat=P.hat!==undefined?P.hat:(P.eq&&P.eq.head?P.eq.head.id:null);
+  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?P.walkT:0,{sit:P.sitting,hat});
   if(P.cls==='cleric'){ctx.fillStyle='#fff8e0';ctx.fillRect(P.x-2,by-12,4,10);ctx.fillRect(P.x-5,by-9,10,3);}
   if(P.cls==='warden'){ctx.fillStyle='#9aa0aa';ctx.beginPath();ctx.roundRect(P.x-P.face*13-5,by-14,10,14,3);ctx.fill();}
   if(!w)return;
@@ -1092,6 +1232,8 @@ function updateHud(){
   setT('lvT',`Base Lv ${P.lv}`);setT('exT',(P.exp/en*100).toFixed(1)+'%');setW('exI',P.exp/en);
   setT('jlT',`Job Lv ${P.jl}`);setT('jxT',jm?'max':(P.jexp/jn*100).toFixed(1)+'%');setW('jxI',jm?1:P.jexp/jn);
   setT('gold',`${fmt(P.gold)} gold`+(P.statPts?` · ${P.statPts} stat pts`:'')+(P.skillPts?` · ${P.skillPts} skill pts`:''));
+  const pc=partyCount();const pe=$('#party');if(pe.hidden!==!pc)pe.hidden=!pc;if(pc)setT('party',`Party bonus +25% EXP · ${pc} ally${pc>1?'s':''} nearby`);
+  const qe=$('#quest');if(qe.hidden!==!P.quest)qe.hidden=!P.quest;if(P.quest)setT('quest',`Contract: ${MOBS[P.quest.mob].name} ${P.quest.have}/${P.quest.need}`);
   const t=P.target&&!P.target.dead?P.target:null;const te=$('#target');
   if(!!t===te.hidden)te.hidden=!t;
   if(t){setT('tName',t.d.name);setT('tLv',`Lv ${t.d.lv}`+(t.d.undead?' · undead':'')+(t.d.boss?' · boss':''));setW('tI',t.hp/t.d.hp);setT('tT',`${fmt(t.hp)} / ${fmt(t.d.hp)}`);}
@@ -1138,7 +1280,7 @@ function refreshPanel(){
       h+=`<div class="st"><b>${k.toUpperCase()}</b><span class="muted" style="font-size:12px">${STAT_DESC[k]}</span><span>${v}${bonus?`<span class="gold"> +${bonus}</span>`:''}</span><button class="btn small" data-act="stat" data-arg="${k}" ${P.statPts<cost||v>=99?'disabled':''} title="Costs ${cost} points">+${cost>2?' ('+cost+')':''}</button></div>`;}
     h+=`<h3>Combat</h3><div class="dv"><div><span>ATK</span><span>${S.atk}</span></div><div><span>MATK</span><span>${S.matk}</span></div><div><span>DEF</span><span>${S.def}</span></div><div><span>HIT</span><span>${S.hit}</span></div><div><span>FLEE</span><span>${S.flee}</span></div><div><span>CRIT</span><span>${S.crit}%</span></div><div><span>Attacks/s</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Range</span><span>${S.range}px</span></div></div>`;
     h+=`<h3>Equipment</h3>`;
-    for(const slot of ['weapon','armor','accessory']){const e=P.eq[slot];
+    for(const slot of ['head','weapon','armor','accessory']){const e=P.eq[slot];
       h+=`<div class="row">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="nm">${e?ITEMS[e.id].name:'<span class="muted">No '+slot+'</span>'}</div><div class="ds">${e?itemDesc(e):''}</div></div>${e?`<button class="btn small" data-act="unequip" data-arg="${slot}">Remove</button>`:''}</div>`;}
   }
   else if(panelKind==='items'){
@@ -1160,11 +1302,14 @@ function refreshPanel(){
     <b>Levels:</b> base levels give stat points (C). Job levels give skill points (K). At Job Lv 10, talk to Guildmaster Corvin to become a Warden, Arcanist, Ranger or Cleric.<br>
     <b>Sigils:</b> every monster has a small chance to drop its sigil. Socket it into equipment with a free slot to gain its bonus for good.<br>
     <b>Resting:</b> press X to sit and recover HP and SP faster.<br>
-    <b>Regions:</b> Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32+), home of the Ashen Warlord.<br>
+    <b>Regions:</b> Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45), home of the Ashen Warlord → Frostpeak Pass (42+).<br>
+    <b>Hunting contracts:</b> Guildmaster Corvin offers hunts that suit your level for bonus EXP and gold.<br>
+    <b>Hats:</b> rare headgear drops from some monsters (and the Straw Hat and Ribbon Bow from the store). Everyone online sees what you wear.<br>
+    <b>Auto-hunt:</b> the Auto button fights the nearest monster for you and drinks tonics when HP runs low. It's handy on a phone.<br>
     <b>Saving:</b> your progress saves automatically in this browser.</div>
-    <h3>Keys</h3><div class="dv"><div><span>1–4</span><span>skills</span></div><div><span>5–8</span><span>tonics, scroll</span></div><div><span>C / I / K</span><span>windows</span></div><div><span>X</span><span>sit</span></div><div><span>Tab</span><span>target</span></div><div><span>Esc</span><span>close</span></div></div>
+    <h3>Keys</h3><div class="dv"><div><span>Enter</span><span>chat</span></div><div><span>E</span><span>emotes</span></div><div><span>1–4</span><span>skills</span></div><div><span>5–8</span><span>tonics, scroll</span></div><div><span>C / I / K</span><span>windows</span></div><div><span>X</span><span>sit</span></div><div><span>Tab</span><span>target</span></div><div><span>Esc</span><span>close</span></div></div>
     <h3>Sound</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" data-act="music">Music: ${AU.music?'on':'off'}</button><button class="btn small" data-act="sfxt">Sound effects: ${AU.sfx?'on':'off'}</button></div>
-    <h3>Playing together</h3><p class="ds">Everyone who has this page open at the same time shares the world. You can see each other walking around and chat with Enter or the Chat button. ${NET.room?`<span class="gold">You are connected.</span>`:'Chat is offline in this view, so you are playing solo.'}</p>
+    <h3>Playing together</h3><p class="ds">Everyone who has this page open at the same time shares the world. You can see each other walking around, chat with Enter or the Chat button, and send emotes (E). Hunting near another player gives you both a party bonus of +25% EXP. The log announces big moments like level milestones, rare sigils and boss kills to everyone. ${NET.room?`<span class="gold">You are connected.</span>`:'Chat is offline in this view, so you are playing solo.'}</p>
     <h3>Adventure</h3><button class="btn" data-act="newgame">Start a new adventure</button>`;
   }
   else if(panelKind==='shop'){
@@ -1183,6 +1328,15 @@ function refreshPanel(){
     else{h+=`<div class="say">“You've earned it. Choose your calling. The choice is for life, so choose with care.” — Corvin</div><div class="choice">`;
       for(const id of ['warden','arcanist','ranger','cleric']){const k=CLASSES[id];h+=`<button data-act="job" data-arg="${id}"><b style="color:${k.col}">${k.name}</b><small>${k.desc}</small><small>Starts with: ${ITEMS[k.gift].name}</small></button>`;}
       h+=`</div>`;}
+    h+=`<h3>Hunting contracts</h3>`;
+    if(P.quest){const q=P.quest,m=MOBS[q.mob];h+=`<div class="row"><div class="grow"><div class="nm">Defeat ${q.need} ${m.name}</div><div class="ds">Progress ${q.have}/${q.need} · Reward ${fmt(q.exp)} EXP, ${fmt(q.gold)} gold · found in ${Object.values(ZONES).find(z=>(z.mobs||[]).some(x=>x[0]===q.mob)).name}</div></div><button class="btn small" data-act="qdrop">Abandon</button></div>`;}
+    else{h+=`<div class="ds" style="margin-bottom:4px">Take one contract at a time. It completes automatically wherever you are.</div>`;
+      for(const o of contractOffers()){const m=MOBS[o.mob];h+=`<div class="row"><div class="grow"><div class="nm">Defeat ${o.need} ${m.name} <span class="muted">Lv ${m.lv}</span></div><div class="ds">Reward ${fmt(o.exp)} EXP, ${fmt(o.jexp)} job EXP, ${fmt(o.gold)} gold · ${Object.values(ZONES).find(z=>(z.mobs||[]).some(x=>x[0]===o.mob)).name}</div></div><button class="btn small" data-act="qtake" data-arg="${o.mob}">Accept</button></div>`;}}
+  }
+  else if(panelKind==='emote'){
+    h+=`<h2>Emotes</h2><div class="sub">Everyone nearby sees it over your head. You can also type /heart, /gg and so on in chat.</div><div class="emgrid">`;
+    for(const [k,l] of EMOTES)h+=`<button class="emb" data-act="emote" data-arg="${k}"><img alt="" src="${emoteThumb(k)}"><span>${l}</span></button>`;
+    h+=`</div>`;
   }
   else if(panelKind==='heal'){
     h+=`<h2>Chapel</h2><div class="say">“Rest a moment, traveller. The light asks nothing of you.” — Sister Maren</div><button class="btn" data-act="heal">Receive a blessing (full HP and SP)</button>`;
@@ -1194,6 +1348,7 @@ function refreshPanel(){
   }
   panel.innerHTML=h;
 }
+const emThumbs={};function emoteThumb(k){if(!emThumbs[k]){const c=document.createElement('canvas');c.width=c.height=64;drawEmoteIcon(c.getContext('2d'),k,32,32,52);emThumbs[k]=c.toDataURL();}return emThumbs[k];}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 panel.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act,arg=b.dataset.arg;
@@ -1208,10 +1363,13 @@ panel.addEventListener('click',ev=>{
   if(a==='sellall'){let g=0;P.inv=P.inv.filter(e=>{if(ITEMS[e.id].type==='etc'){g+=sellValue(e.id)*e.n;return false;}return true;});P.gold+=g;sfx('coin');addLog(`Sold your loot for ${fmt(g)} gold.`,'l-loot');}
   if(a==='job'&&P.cls==='novice'&&P.jl>=10){const k=CLASSES[arg];P.cls=arg;P.jl=1;P.jexp=0;P.skillPts=0;giveItem(k.gift,1);
     const idx=P.inv.findIndex(e=>e.id===k.gift);if(idx>=0)useInv(idx);
-    fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:2,txt:k.name.toUpperCase(),col:k.col});addLog(`You are now a ${k.name}! Your ${ITEMS[k.gift].name} is equipped. Earn job levels to learn new skills.`,'l-rare');rebuildHotbar();S=computeStats();}
+    fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:2,txt:k.name.toUpperCase(),col:k.col});sfx('fanfare');announce('job',arg);addLog(`You are now a ${k.name}! Your ${ITEMS[k.gift].name} is equipped. Earn job levels to learn new skills.`,'l-rare');rebuildHotbar();S=computeStats();}
   if(a==='heal'){P.hp=S.maxhp;P.sp=S.maxsp;fx.push({k:'heal',x:P.x,y:P.y,t0:now,dur:.8});addLog('You feel refreshed.','l-good');}
   if(a==='warp'){const i=ZONE_ORDER.indexOf(arg),cost=i*60;if(P.gold>=cost){P.gold-=cost;closePanel();enterZone(arg);save();return;}}
   if(a==='newgame'){$('#confirm').hidden=false;return;}
+  if(a==='qtake'&&!P.quest){const o=contractOffers().find(o=>o.mob===arg);if(o){P.quest={...o,have:0};addLog(`Contract accepted: defeat ${o.need} ${MOBS[arg].name}.`,'l-good');sfx('click');}}
+  if(a==='qdrop'){P.quest=null;addLog('Contract abandoned.');}
+  if(a==='emote'){doEmote(arg);closePanel();return;}
   if(a==='music'){audioInit();setAudio(!AU.music,AU.sfx);}
   if(a==='sfxt'){audioInit();setAudio(AU.music,!AU.sfx);}
   refreshPanel();save();
@@ -1236,6 +1394,7 @@ window.addEventListener('keydown',ev=>{
   if(!running||ev.target.tagName==='INPUT')return;const k=ev.key.toLowerCase();
   if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){keys[k]=true;ev.preventDefault();return;}
   if(k==='enter'){ev.preventDefault();openChat();return;}
+  if(k==='e'){togglePanel('emote');return;}
   if(k>='1'&&k<='8'){pressSlot(+k-1);return;}
   if(k==='c')togglePanel('status');else if(k==='i')togglePanel('items');else if(k==='k')togglePanel('skills');else if(k==='h')togglePanel('help');
   else if(k==='escape'){closePanel();P.target=null;}
@@ -1250,6 +1409,9 @@ function targetNearest(keep){
   if(keep&&P.target&&!P.target.dead)return;
   let best=null,bd=460;for(const m of mobs)if(!m.dead&&(m!==P.target||keep)){const d=dist(m,P);if(d<bd){bd=d;best=m;}}
   if(best){P.target=best;P.queued=null;P.npcGoal=null;P.sitting=false;}else addLog('No monsters nearby.');}
+$('#emoteBtn').addEventListener('click',()=>{audioInit();togglePanel('emote');});
+$('#autoBtn').addEventListener('click',()=>{if(!P)return;P.auto=!P.auto;$('#autoBtn').classList.toggle('on',P.auto);
+  addLog(P.auto?'Auto-hunt on: you fight the nearest monster and drink tonics when HP runs low.':'Auto-hunt off.',P.auto?'l-good':'l-sys');});
 $('#atkBtn').addEventListener('click',()=>{audioInit();targetNearest(true);});
 $('#sitBtn').addEventListener('click',()=>{if(!P||P.dead)return;P.sitting=!P.sitting;P.path=[];P.target=null;});
 $('#chatBtn').addEventListener('click',()=>{audioInit();$('#chatbar').hidden?openChat():closeChat();});
@@ -1261,13 +1423,13 @@ $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDef
 
 /* ================= save / load ================= */
 function snapshot(){if(!P)return null;
-  const keep=['name','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited'];
+  const keep=['name','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest'];
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;return {v:1,p:JSON.parse(JSON.stringify(o))};}
 function save(){const s=snapshot();if(!s)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(s));}catch(e){}}
 function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return s&&s.v===1?s:null;}catch(e){return null;}}
 function startWith(data){
   P=newPlayer(data?data.p.name:($('#nameIn').value.trim()||'Wanderer'));
-  if(data){Object.assign(P,data.p);uid=Math.max(uid,data.p.uid||1);}
+  if(data){Object.assign(P,data.p);uid=Math.max(uid,data.p.uid||1);if(!('head' in P.eq))P.eq.head=null;}
   S=computeStats();if(!data||P.hp<=0){P.hp=S.maxhp;P.sp=S.maxsp;}
   $('#title').hidden=true;running=true;rebuildHotbar();
   enterZone(data&&ZONES[P.zone]?P.zone:'town');
