@@ -332,7 +332,7 @@ const SKILLS={
   emberbolt:{name:'Ember Bolt',max:10,col:'#ff8a3a',g:'E',sp:l=>5+l*2,cd:.7,kind:'target',range:230,desc:l=>`Hurl fire for ${140+l*30}% MATK.`,
     run:(l,t)=>shoot(P,t,'orb','#ff8a3a',()=>dealMag(t,1.4+l*.3))},
   frostnova:{name:'Frost Nova',max:10,col:'#8fd0f0',g:'F',sp:l=>14+l*2,cd:3,kind:'self',desc:l=>`Freeze foes within 115px: ${100+l*20}% MATK and slowed for ${(2+l*.3).toFixed(1)}s.`,
-    run:l=>{fx.push({k:'nova',x:P.x,y:P.y,r:115,t0:now,dur:.5});aoe(P.x,P.y,115,m=>{dealMag(m,1+l*.2);m.slowUntil=now+2+l*.3;});}},
+    run:l=>{fx.push({k:'nova',x:P.x,y:P.y,r:115,t0:now,dur:.5});aoe(P.x,P.y,115,m=>{dealMag(m,1+l*.2);slowMob(m,2+l*.3);});}},
   arcstorm:{name:'Arc Storm',max:10,col:'#c8b0ff',g:'S',sp:l=>25+l*3,cd:4,kind:'area',range:250,radius:105,desc:l=>`Call lightning on your target's area: ${220+l*40}% MATK to all within 105px.`,
     run:(l,x,y)=>{for(let i=0;i<6;i++)fx.push({k:'bolt',x:x+rnd(-80,80),y:y+rnd(-60,60),t0:now+i*.05,dur:.3});fx.push({k:'ring',x,y,r:105,col:'#c8b0ff',t0:now,dur:.4});aoe(x,y,105,m=>dealMag(m,2.2+l*.4));}},
   twinshot:{name:'Twin Shot',max:10,col:'#9fe08a',g:'T',sp:l=>6+l,cd:.6,kind:'target',range:250,desc:l=>`Fire two arrows, each ${90+l*15}% ATK.`,
@@ -463,7 +463,7 @@ function setAudio(music,fxOn){AU.music=music;AU.sfx=fxOn;saveAudio();
   $('#muteBtn').classList.toggle('on',music||fxOn);$('#muteBtn').textContent=(music||fxOn)?'♪':'×';}
 
 /* ================= multiplayer: see each other + chat (live room) ================= */
-const NET={myEmote:null,room:null,others:new Map(),chatId:Date.now(),myChat:[],lastSent:'',sendT:0,warned:false};
+const NET={myId:Math.random().toString(36).slice(2,10),zt:0,evs:[],hits:[],evId:0,hitId:0,evSeen:new Map(),wasClient:false,myEmote:null,room:null,others:new Map(),chatId:Date.now(),myChat:[],lastSent:'',sendT:0,warned:false};
 const clean=(s,n)=>String(s??'').replace(/[\u0000-\u001f\u007f-\u009f­​-‏‪-‮⁠-⁯﻿]/g,'').trim().slice(0,n);
 const fin=v=>Number.isFinite(+v)?+v:0;
 /* Outside claude.ai (e.g. on Vercel) players meet through a free public MQTT broker.
@@ -482,7 +482,7 @@ function mqttRoom(){
       onPeers(f,closed){cb=f;onClose=closed;}};
     c.on('connect',()=>{c.subscribe(base+'+');pub();if(!ready){ready=true;res(room);}});
     c.on('error',e=>{if(!ready){ready=true;c.end(true);rej(e);}});
-    c.on('message',(t,buf,pk)=>{const id=t.slice(base.length);if(id===me||!cb||buf.length>4000)return;
+    c.on('message',(t,buf,pk)=>{const id=t.slice(base.length);if(id===me||!cb||buf.length>12000)return;
       if(!buf.length)return leave(id);
       let p;try{p=JSON.parse(buf.toString());}catch(e){return;}
       // live messages are always fresh; only an old retained message (left behind by a crashed tab) is skipped
@@ -524,6 +524,8 @@ function ingest(p){
   o.x=clamp(fin(s.x),0,4000);o.y=clamp(fin(s.y),0,4000);o.face=s.f<0?-1:1;o.lv=clamp(Math.floor(fin(s.lv)),1,99);
   o.moving=!!s.mv;o.sitting=!!s.st;o.dead=!!s.d;o.wid=typeof s.w==='string'&&ITEMS[s.w]&&ITEMS[s.w].type==='weapon'?s.w:null;o.guest=!!p.guest;
   o.hat=typeof s.h==='string'&&ITEMS[s.h]&&ITEMS[s.h].type==='head'?s.h:null;o.hp=clamp(fin(s.hp),0,100);
+  o.id=clean(s.id,16)||null;o.zt=fin(s.zt);o.hd=!!s.hd;
+  o.mb=Array.isArray(s.mb)&&s.mb.length<=80?s.mb:null;o.ev=Array.isArray(s.ev)?s.ev.slice(-24):[];o.hx=Array.isArray(s.hx)?s.hx.slice(-24):[];
   if(s.em&&typeof s.em==='object'&&EMOTE_KEYS.includes(s.em.k)){const id=fin(s.em.i);if(id>(o.emSeen||0)){const first=!o.emSeen;o.emSeen=id;if(!(fresh&&first&&Math.abs(Date.now()-fin(s.em.t))>4000)){o.emote={k:s.em.k,start:now};if(o.z===zoneId)sfx('pop');}}}
   if(fresh){addLog(`${o.n} (${CLASSES[o.cls].name} Lv ${o.lv}) is online.`,'l-good');}
   const msgs=Array.isArray(s.ch)?s.ch.slice(-4):[];
@@ -578,7 +580,10 @@ function netTick(dt){
     if(o.moving||d>2)o.walkT+=dt;if(Math.abs((o.x-o.rx)-(o.y-o.ry))>1)o.face=sface(o.x-o.rx,o.y-o.ry);}
   if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+(NET.relay?.15:.12);
   const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,lv:P.lv,mv:P.moving?1:0,st:P.sitting?1:0,d:P.dead?1:0,
-    w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),ch:NET.myChat,em:NET.myEmote||null};
+    w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),ch:NET.myChat,em:NET.myEmote||null,
+    id:NET.myId,zt:NET.zt,hd:document.hidden?1:0,hx:NET.hits};
+  if(!zoneHost()&&othersHere()&&mobs.length){s.ev=NET.evs;
+    s.mb=mobs.map(m=>[Math.round(m.x),Math.round(m.y),m.dead?0:Math.round(clamp(m.hp/m.d.hp,0,1)*1000),(m.dead?1:0)|(m.moving?2:0)|(m.face<0?4:0)|(m.state==='chase'?8:0)|(m.slowUntil>now?16:0)]);}
   const j=JSON.stringify(s);if(j===NET.lastSent)return;NET.lastSent=j;NET.room.presence(s).catch(()=>{});
 }
 
@@ -779,23 +784,26 @@ function aoe(x,y,r,fn){for(const m of mobs)if(!m.dead&&Math.hypot(m.x-x,m.y-y)<=
 function shoot(from,to,kind,col,onHit,hostile){shots.push({x:from.x,y:from.y-10,to,kind,col,onHit,spd:kind==='arrow'?620:440,hostile});}
 function dealPhys(m,mult,o={}){
   if(m.dead)return;const crit=Math.random()*100<S.crit;
-  if(!o.sure&&!crit){const hc=clamp(80+S.hit-m.d.flee,5,100);if(Math.random()*100>hc){floatT(m.x,m.y-m.d.size-8,'Miss','#aab4c4',13);sfx('miss');provoke(m);return;}}
+  if(!o.sure&&!crit){const hc=clamp(80+S.hit-m.d.flee,5,100);if(Math.random()*100>hc){floatT(m.x,m.y-m.d.size-8,'Miss','#aab4c4',13);sfx('miss');if(zoneHost())sendHit(m,0,0);else provoke(m);return;}}
   let dmg=S.atk*mult*rnd(.9,1.1);dmg=crit?dmg*1.5:dmg-m.d.def*.6;
   hurtMob(m,Math.max(1,Math.round(dmg)),crit,'phys');}
 function dealMag(m,mult,holy){
   if(m.dead)return;let dmg=S.matk*mult*rnd(.92,1.08)-m.d.def*.3;if(holy&&m.d.undead)dmg*=2;
   hurtMob(m,Math.max(1,Math.round(dmg)),false,'mag');}
 function provoke(m){if(!m.dead){m.state='chase';m.aggroed=true;}}
-function hurtMob(m,dmg,crit,kind){m.hp-=dmg;m.hitF=now;provoke(m);
+function hurtMob(m,dmg,crit,kind){m.hitF=now;m.myDmg=(m.myDmg||0)+dmg;const client=!!zoneHost();
+  if(client){m.hp=Math.max(1,m.hp-dmg);sendHit(m,dmg,0);}else{m.hp-=dmg;provoke(m);}
   if(crit){sfx('crit');shakeUntil=now+.2;fx.push({k:'critburst',x:m.x,y:m.y-m.d.size,t0:now,dur:.35});
     texts.push({x:m.x,y:m.y-m.d.size-34,txt:'CRITICAL',col:'#ffe27a',size:13,t0:now,dur:.9});
     texts.push({x:m.x,y:m.y-m.d.size-12,txt:fmt(dmg),col:'#ffb03a',size:26,t0:now,dur:1});}
   else{sfx(kind==='mag'?'zap':'hit');floatT(m.x,m.y-m.d.size-8,fmt(dmg),'#ffffff',15);}
-  if(m.hp<=0)killMob(m);}
+  if(!client&&m.hp<=0)killMob(m);}
 function killMob(m){
   m.dead=true;m.hp=0;m.respawnAt=now+(m.d.respawn||rnd(9,15));
   if(P.target===m){P.target=null;P.queued=null;}
-  fx.push({k:'poof',x:m.x,y:m.y,col:m.d.col,t0:now,dur:.45});sfx('kill');
+  fx.push({k:'poof',x:m.x,y:m.y,col:m.d.col,t0:now,dur:.45});
+  const mine=(m.myDmg||0)>0;m.myDmg=0;if(!mine)return; // in a shared world you are rewarded for monsters you hit
+  sfx('kill');
   const pb=partyCount()>0?1.25:1;
   gainExp(Math.round(m.d.exp*pb),Math.round(m.d.jexp*pb));
   questKill(m.d.id);
@@ -932,6 +940,7 @@ function spawnMob(type,m){
 function enterZone(id,from){
   zoneId=id;Z=getZone(id);P.zone=id;mobs=[];fx=[];shots=[];
   if(Z.D.mobs)for(const [type,n] of Z.D.mobs)for(let k=0;k<n;k++)mobs.push(spawnMob(type));
+  mobs.forEach((m,i)=>m.idx=i);NET.zt=Date.now();NET.evs=[];NET.hits=[];NET.evSeen.clear();NET.wasClient=false;NET.lastSent='';NET.sendT=0;
   if(mobs.some(m=>m.d.boss))addLog('The ground smoulders. The Ashen Warlord stirs somewhere in this crypt.','l-rare');
   let pos=Z.spawn;
   if(from){const pt=Z.portals.find(p=>p.to===from);if(pt)pos={x:pt.x+(pt.side==='west'?2.6:-2.6)*TILE,y:pt.y};}
@@ -948,7 +957,7 @@ const keys={};
 function update(dt){
   netTick(dt);
   if(P&&zoneId==='crypt'){const b=mobs.find(m=>m.d.boss&&!m.dead);musicPlay(b&&b.state==='chase'&&dist(b,P)<650?'boss':'crypt');}
-  if(!P||P.dead){updateFx();return;}
+  if(!P||P.dead){if(P&&Z)mobsTick(dt);updateFx();return;}
   S=computeStats();
   for(const k in P.buffs)if(P.buffs[k].until<now){addLog(`${P.buffs[k].name} has worn off.`);delete P.buffs[k];S=computeStats();}
   // regen
@@ -981,7 +990,7 @@ function update(dt){
   // portals
   if(now>(P.portalLock||0))for(const pt of Z.portals)if(Math.hypot(P.x-pt.x,P.y-pt.y)<22){const from=zoneId;enterZone(pt.to,from);save();break;}
   // mobs
-  for(const m of mobs)updateMob(m,dt);
+  mobsTick(dt);
   // projectiles
   for(let i=shots.length-1;i>=0;i--){const s=shots[i],tg=s.to;
     if(!s.hostile&&tg.dead){shots.splice(i,1);continue;}
@@ -995,21 +1004,27 @@ function basicAttack(t){
   else if(S.range>100){sfx('bow');shoot(P,t,'arrow','#e8dcb0',()=>dealPhys(t,1));}
   else{P.swingT=now;dealPhys(t,1);}
 }
-function updateMob(m,dt){
+function mobTargets(){const t=[];if(P&&!P.dead&&!Z.D.safe)t.push(P);
+  if(NET.room&&!Z.D.safe)for(const o of NET.others.values())if(o.z===zoneId&&!o.dead&&o.id)t.push(o);return t;}
+function slamLand(m){fx.push({k:'ring',x:m.x,y:m.y,r:130,col:'#ff7a3a',t0:now,dur:.4});sfx('slam');shakeUntil=now+.35;
+  if(!P.dead&&dist(m,P)<130+PR)hurtPlayer(Math.round(m.d.atk*1.5-S.def*.6),m.d.name);}
+function updateMob(m,dt,T){
   if(m.dead){if(now>=m.respawnAt){spawnMob(m.d.id,m);if(m.d.boss)addLog('The Ashen Warlord has risen again in the Cinder Crypt!','l-rare');}return;}
-  const d=m.d, dp=dist(m,P), slow=m.slowUntil>now?.4:1;
-  if(m.slamAt){if(now>=m.slamAt){m.slamAt=0;m.slamT=now+7;fx.push({k:'ring',x:m.x,y:m.y,r:130,col:'#ff7a3a',t0:now,dur:.4});sfx('slam');shakeUntil=now+.35;if(!P.dead&&dp<130+PR)hurtPlayer(Math.round(d.atk*1.5-S.def*.6),d.name);}return;}
-  if(P.dead||Z.D.safe){m.state='idle';m.aggroed=false;}
+  let tg=null,dp=1e9;for(const t of T){const q=dist(m,t);if(q<dp){dp=q;tg=t;}}
+  const d=m.d, slow=m.slowUntil>now?.4:1;
+  if(m.slamAt){if(now>=m.slamAt){m.slamAt=0;m.slamT=now+7;netEvent('s',m);slamLand(m);}return;}
+  if(!tg){if(m.state==='chase'){m.state='idle';m.aggroed=false;}}
   else if(m.state!=='chase'&&d.aggro&&dp<170)m.state='chase';
-  if(m.state==='chase'){
+  if(m.state==='chase'&&tg){
     if(Math.hypot(m.x-m.sx,m.y-m.sy)>520||dp>600){m.state='return';m.aggroed=false;}
     else{
-      if(d.boss&&now>m.slamT&&dp<160){m.slamAt=now+1.1;fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});return;}
+      if(d.boss&&now>m.slamT&&dp<160){m.slamAt=now+1.1;fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});netEvent('w',m);return;}
       const reach=(d.range||0)+d.size+PR+4;
       m.atkT-=dt;
-      if(dp<=reach){m.face=sface(P.x-m.x,P.y-m.y);if(m.atkT<=0){m.atkT=d.boss?1.3:1.6;m.lunge=now;
-          if(d.range)shoot(m,P,'arrow','#d8d0b8',()=>mobAttack(m),true);else mobAttack(m);}}
-      else{const dx=P.x-m.x,dy=P.y-m.y,n=Math.hypot(dx,dy),s=d.spd*slow*dt*1.15;moveEnt(m,dx/n*s,dy/n*s,Math.min(d.size*.6,11));m.face=sface(dx,dy);m.moving=true;}
+      if(dp<=reach){m.face=sface(tg.x-m.x,tg.y-m.y);m.moving=false;if(m.atkT<=0){m.atkT=d.boss?1.3:1.6;m.lunge=now;
+          if(tg===P){if(d.range)shoot(m,P,'arrow','#d8d0b8',()=>mobAttack(m),true);else mobAttack(m);}
+          else{netEvent('a',m,tg.id);if(d.range)shoot(m,tg,'arrow','#d8d0b8',()=>{},true);}}}
+      else{const dx=tg.x-m.x,dy=tg.y-m.y,n=Math.hypot(dx,dy),s=d.spd*slow*dt*1.15;moveEnt(m,dx/n*s,dy/n*s,Math.min(d.size*.6,11));m.face=sface(dx,dy);m.moving=true;}
     }
   }
   if(m.state==='return'){const dx=m.sx-m.x,dy=m.sy-m.y,n=Math.hypot(dx,dy);if(n<8){m.state='idle';m.hp=d.hp;}else{const s=d.spd*1.6*dt;if(!moveEnt(m,dx/n*s,dy/n*s,Math.min(d.size*.6,11))){m.x=m.sx;m.y=m.sy;}m.hp=Math.min(d.hp,m.hp+d.hp*dt*.5);}}
@@ -1017,6 +1032,45 @@ function updateMob(m,dt){
     if(m.tx!==null){const dx=m.tx-m.x,dy=m.ty-m.y,n=Math.hypot(dx,dy);if(n<3)m.tx=null;else{const s=d.spd*.45*slow*dt;if(!moveEnt(m,dx/n*Math.min(s,n),dy/n*Math.min(s,n),Math.min(d.size*.6,11)))m.tx=null;m.face=sface(dx,dy);m.moving=true;}}
     if(m.wT<=0){m.wT=rnd(2,5);if(Math.hypot(m.x-m.sx,m.y-m.sy)>150){m.tx=m.sx;m.ty=m.sy;}else{m.tx=m.x+rnd(-80,80);m.ty=m.y+rnd(-80,80);}}}
 }
+/* ---- shared monsters: one player per region (whoever got there first) runs them, everyone else follows ---- */
+function othersHere(){for(const o of NET.others.values())if(o.z===zoneId&&o.id)return true;return false;}
+function zoneHost(){
+  if(!NET.room||!P)return null;let best=null;
+  for(const o of NET.others.values())if(o.z===zoneId&&o.id&&o.zt&&!o.hd&&(!best||o.zt<best.zt||(o.zt===best.zt&&o.id<best.id)))best=o;
+  if(!best||NET.zt<best.zt||(NET.zt===best.zt&&NET.myId<best.id))return null;
+  return best;}
+function netEvent(k,m,t){if(!NET.room)return;NET.evs=[...NET.evs,{i:++NET.evId,k,m:m.idx,t:t||null}].slice(-24);NET.lastSent='';NET.sendT=0;}
+function sendHit(m,d,sl){NET.hits=[...NET.hits,{i:++NET.hitId,m:m.idx,d,sl}].slice(-24);NET.lastSent='';NET.sendT=0;}
+function slowMob(m,t){if(zoneHost())sendHit(m,0,t);m.slowUntil=now+t;}
+function applyHits(apply){
+  for(const o of NET.others.values()){const hx=o.hx||[];if(o.hxSeen===undefined)o.hxSeen=0;
+    if(!apply||o.z!==zoneId){for(const h of hx)o.hxSeen=Math.max(o.hxSeen,fin(h&&h.i));continue;}
+    for(const h of hx){if(!h||fin(h.i)<=o.hxSeen)continue;o.hxSeen=fin(h.i);const m=mobs[fin(h.m)|0];if(!m||m.dead)continue;
+      provoke(m);if(h.sl)m.slowUntil=now+clamp(fin(h.sl),0,6);
+      const dmg=clamp(Math.round(fin(h.d)),0,99999);
+      if(dmg>0){m.hp-=dmg;m.hitF=now;floatT(m.x,m.y-m.d.size-8,fmt(dmg),'#cfe0ff',13);if(m.hp<=0)killMob(m);}}}}
+function syncMobs(host,dt){
+  const mb=host.mb;if(!mb||mb.length!==mobs.length)return;
+  for(let i=0;i<mobs.length;i++){const m=mobs[i],st=mb[i];if(!Array.isArray(st))continue;
+    const f=fin(st[3])|0,dead=!!(f&1),nx=fin(st[0]),ny=fin(st[1]);
+    if(dead){if(!m.dead)killMob(m);continue;}
+    if(m.dead){m.dead=false;m.x=nx;m.y=ny;m.hp=m.d.hp;m.myDmg=0;}
+    if(Math.hypot(nx-m.x,ny-m.y)>200){m.x=nx;m.y=ny;}else{const k=Math.min(1,dt*10);m.x+=(nx-m.x)*k;m.y+=(ny-m.y)*k;}
+    const hp=clamp(fin(st[2]),0,1000)/1000*m.d.hp;if(now-m.hitF>.6||hp<m.hp)m.hp=Math.max(1,hp);
+    m.moving=!!(f&2);m.face=f&4?-1:1;m.state=f&8?'chase':'idle';if(f&16)m.slowUntil=Math.max(m.slowUntil,now+.3);}
+  const evs=host.ev||[];let seen=NET.evSeen.get(host.id);
+  if(seen===undefined)seen=Math.max(0,...evs.map(e=>fin(e&&e.i)));
+  for(const e of evs){if(!e||fin(e.i)<=seen)continue;seen=fin(e.i);const m=mobs[fin(e.m)|0];if(!m||m.dead)continue;
+    if(e.k==='a'){m.lunge=now;
+      if(e.t===NET.myId){if(!P.dead){if(m.d.range)shoot(m,P,'arrow','#d8d0b8',()=>mobAttack(m),true);else mobAttack(m);}}
+      else if(m.d.range){for(const o of NET.others.values())if(o.id===e.t){shoot(m,{x:o.rx,y:o.ry},'arrow','#d8d0b8',()=>{},true);break;}}}
+    else if(e.k==='w')fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});
+    else if(e.k==='s')slamLand(m);}
+  NET.evSeen.set(host.id,seen);}
+function mobsTick(dt){const host=zoneHost();
+  if(host){NET.wasClient=true;applyHits(false);syncMobs(host,dt);return;}
+  if(NET.wasClient){NET.wasClient=false;for(const m of mobs){m.sx=m.x;m.sy=m.y;m.atkT=1;if(m.dead)m.respawnAt=now+rnd(4,9);}}
+  applyHits(true);const T=mobTargets();for(const m of mobs)updateMob(m,dt,T);}
 function updateFx(){fx=fx.filter(f=>now<f.t0+f.dur);texts=texts.filter(f=>now<f.t0+f.dur);}
 
 /* ================= render ================= */
@@ -1617,6 +1671,7 @@ function frame(ts){const dt=Math.min(.05,(ts-last)/1000);last=ts;now+=dt;
   render();if(running)renderMini();requestAnimationFrame(frame);}
 function boot(hot){
   resize();setAudio(AU.music,AU.sfx);netConnect();
+  document.addEventListener('visibilitychange',()=>{NET.lastSent='';NET.sendT=0;if(P)netTick(0);});
   $('#onlineBadge').addEventListener('click',()=>{const l=$('#whoList');if(!NET.room)return;l.hidden=!l.hidden;if(!l.hidden)updateWho();});
   setInterval(()=>{if(!$('#whoList').hidden)updateWho();},1500);
   if(hot&&hot.v===1){startWith(hot);}
