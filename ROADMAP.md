@@ -19,8 +19,9 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 - [x] 2b. Server runs monsters, drops and damage checks (player-hosted monsters only as a backup)
 
 ## Stage 3: Social
+- [x] Player shops: sit with a sign, others click to buy
 - [x] Parties: invite, shared EXP, party chat, party members on the minimap
-- [ ] Two-sided trade window (both players confirm)
+- [x] Two-sided trade window (both players confirm)
 - [x] Whispers, friends list, chat tabs (all / party / whisper)
 - [ ] Party loot rules (free-for-all or round-robin)
 
@@ -79,8 +80,8 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 20. S Rarity colours and world announcements for rare drops
 - [x] 21. M Storage NPC (cart still to do)
 - [ ] 22. M Crafting and brewing
-- [ ] 23. L (server) Player shops while sitting
-- [ ] 24. L (server) Trade window
+- [x] 23. L (server) Player shops while sitting
+- [x] 24. L (server) Trade window
 - [ ] 25. S Gold sinks: teleport service, inn, repair
 
 ### Classes and skills

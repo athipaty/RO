@@ -42,8 +42,10 @@ function pressSlot(i){const s=hotSlots()[i];if(!s)return;if(s.skill){if(!P.skill
 
 /* ================= panels ================= */
 const panel=$('#panel');let panelKind=null,panelArg=null,shopTab='buy';
+// other files (trade.js) register extra windows here: render, button actions, and what to do on close
+const PANELS={},PANEL_ACTS={},PANEL_CLOSE={};
 function openPanel(kind,arg){panelKind=kind;panelArg=arg;panel.hidden=false;refreshPanel();}
-function closePanel(){panelKind=null;panel.hidden=true;}
+function closePanel(){const k=panelKind;panelKind=null;panel.hidden=true;if(PANEL_CLOSE[k])PANEL_CLOSE[k]();}
 function togglePanel(kind){if(panelKind===kind)closePanel();else openPanel(kind);}
 function icon(it){return `<span class="ico" style="background:${it.col}">${it.g}</span>`;}
 function itemDesc(e){const it=ITEMS[e.id];const bits=[];
@@ -67,7 +69,7 @@ function refreshPanel(){
       h+=`<div class="row">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="nm">${e?ITEMS[e.id].name:'<span class="muted">No '+slot+'</span>'}</div><div class="ds">${e?itemDesc(e):''}</div></div>${e?`<button class="btn small" data-act="unequip" data-arg="${slot}">Remove</button>`:''}</div>`;}
   }
   else if(panelKind==='items'){
-    h+=`<h2>Items</h2><div class="sub">${fmt(P.gold)} gold · click an item to use, equip or socket it</div>`;
+    h+=`<h2>Items</h2><div class="sub">${fmt(P.gold)} gold · click an item to use, equip or socket it</div><div class="tbtns" style="justify-content:flex-start;margin:0 0 6px"><button class="btn small" data-act="vendsetup">Open a shop</button></div>`;
     if(!P.inv.length)h+=`<p class="muted">Your bag is empty.</p>`;
     P.inv.forEach((e,i)=>{const it=ITEMS[e.id];const verb=it.type==='use'?'Use':it.type==='sigil'?'Socket':it.type==='etc'?'':'Equip';
       h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div><div class="ds">${itemDesc(e)}</div></div>${verb?`<button class="btn small" data-act="use" data-arg="${i}">${verb}</button>`:''}</div>`;});
@@ -171,6 +173,7 @@ function refreshPanel(){
     ZONE_ORDER.slice(1).forEach((id,i)=>{const D=ZONES[id];const ok=P.visited.includes(id);const cost=(i+1)*60;
       h+=`<div class="row"><div class="grow"><div class="nm">${D.name}</div><div class="ds">${D.lvl}${ok?'':' · not visited yet'}</div></div><span class="gold">${cost}</span><button class="btn small" data-act="warp" data-arg="${id}" ${ok&&P.gold>=cost?'':'disabled'}>Travel</button></div>`;});
   }
+  if(PANELS[panelKind])h+=PANELS[panelKind]();
   panel.innerHTML=h;
   if(panelKind==='equip')drawEquipDoll();
 }
@@ -196,6 +199,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','
 panel.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act,arg=b.dataset.arg;
   if(a==='close')return closePanel();
+  if(PANEL_ACTS[a])return PANEL_ACTS[a](arg,b);
   if(a==='refine')return doRefine(arg);
   if(a==='store'){const e=P.inv[+arg];if(!e)return;const st=e.n!==undefined?P.storage.find(x=>x.id===e.id&&x.n!==undefined):null;
     if(!st&&P.storage.length>=STORAGE_MAX){addLog('Storage is full.','l-bad');return;}
@@ -234,7 +238,9 @@ function mobAt(sc){let best=null,bd=1e9;const pad=touchPick?28:14;for(const m of
 cv.addEventListener('pointerdown',ev=>{
   audioInit();touchPick=ev.pointerType==='touch';closeChat(true);
   if(!P||P.dead||!running)return;const sc=screenAt(ev),w=unproj(sc.x,sc.y);
-  P.lootGoal=null;const m=mobAt(sc);
+  P.lootGoal=null;
+  {const sp=shopAt(sc);if(sp){soc('vendView',{peer:sp});return;}}
+  const m=mobAt(sc);
   if(!m){const l=lootAt(sc);if(l){if(P.sitting)P.sitting=false;goLoot(l);return;}}
   if(m){if(Z.D.safe)return;P.target=m;P.queued=null;P.npcGoal=null;P.sitting=false;return;}
   for(const n of Z.npcs){const np=proj(n.x,n.y);if(Math.hypot(np.x-sc.x,np.y-22-sc.y)<(touchPick?34:26)){P.target=null;P.npcGoal=n;if(dist(P,n)<48){openNpc(n);P.npcGoal=null;}else pathTo(n.x,n.y+14,true);return;}}
@@ -283,7 +289,9 @@ $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDef
 /* ================= save / load ================= */
 function snapshot(){if(!P)return null;
   const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest'];
-  const o={};for(const k of keep)o[k]=P[k];o.uid=uid;return {v:1,p:JSON.parse(JSON.stringify(o))};}
+  const o={};for(const k of keep)o[k]=P[k];o.uid=uid;
+  if(typeof pendingEscrow==='function'){const ex=pendingEscrow();if(ex.items.length||ex.gold){o.inv=[...P.inv,...ex.items];o.gold=P.gold+ex.gold;}}
+  return {v:1,p:JSON.parse(JSON.stringify(o))};}
 function save(force){const s=snapshot();if(!s)return;
   if(ACC.token){ACC.cloud=s;cloudSave(force);}else try{localStorage.setItem(SAVE_KEY,JSON.stringify(s));}catch(e){}}
 function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return s&&s.v===1?s:null;}catch(e){return null;}}

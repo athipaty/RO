@@ -94,7 +94,7 @@ function ingest(p){
   if(!o){o={peer:p.peer,rx:fin(s.x),ry:fin(s.y),seen:0,bubble:null,walkT:0};NET.others.set(p.peer,o);}
   o.n=clean(s.n,16)||'Traveller';o.cls=CLASSES[s.c]?s.c:'novice';o.z=ZONES[s.z]?s.z:'town';
   o.x=clamp(fin(s.x),0,4000);o.y=clamp(fin(s.y),0,4000);o.face=s.f<0?-1:1;o.lv=clamp(Math.floor(fin(s.lv)),1,99);
-  o.moving=!!s.mv;o.sitting=!!s.st;o.back=!!s.b;o.look=lookDecode(s.lk);o.dead=!!s.d;o.wid=typeof s.w==='string'&&ITEMS[s.w]&&ITEMS[s.w].type==='weapon'?s.w:null;o.guest=!!p.guest;
+  o.moving=!!s.mv;o.sitting=!!s.st;o.back=!!s.b;o.look=lookDecode(s.lk);o.vd=s.vd?clean(s.vd,30):null;o.dead=!!s.d;o.wid=typeof s.w==='string'&&ITEMS[s.w]&&ITEMS[s.w].type==='weapon'?s.w:null;o.guest=!!p.guest;
   o.hat=typeof s.h==='string'&&ITEMS[s.h]&&ITEMS[s.h].type==='head'?s.h:null;o.hp=clamp(fin(s.hp),0,100);
   o.id=clean(s.id,16)||null;o.zt=fin(s.zt);o.hd=!!s.hd;
   o.mb=Array.isArray(s.mb)&&s.mb.length<=80?s.mb:null;o.ev=Array.isArray(s.ev)?s.ev.slice(-24):[];o.hx=Array.isArray(s.hx)?s.hx.slice(-24):[];
@@ -122,10 +122,11 @@ function updateWho(){
     const nm=document.createElement('b');nm.textContent=name+(me?' (you)':'');
     const info=document.createElement('span');const z=o.z||zoneId;info.textContent=`${CLASSES[o.cls]?.name||'Novice'} Lv ${o.lv||1} · ${ZONES[z]?.name||''}${!me&&z===zoneId?' · here':''}`;
     d.append(nm,info);
-    if(peer&&NET.room&&NET.room.server){const bs=document.createElement('div');bs.className='wb';
+    if(peer&&P&&NET.room&&NET.room.server){const bs=document.createElement('div');bs.className='wb';
       const mk=(label,fn)=>{const b=document.createElement('button');b.className='btn small';b.type='button';b.textContent=label;b.addEventListener('click',ev=>{ev.stopPropagation();fn();});bs.appendChild(b);};
       if(!inParty(peer)&&(!SOC.party||SOC.party.leader===selfPeer()))mk('Invite',()=>soc('partyInvite',{peer}));
       mk('Whisper',()=>{openChat();$('#chatIn').value=`/w ${name} `;});
+      if(o.vd)mk('Shop',()=>soc('vendView',{peer}));else if(o.z===zoneId)mk('Trade',()=>soc('tradeRequest',{peer}));
       if(!P.friends.some(f=>f.toLowerCase()===String(name).toLowerCase()))mk('+ Friend',()=>{friendToggle(name,true);updateWho();});
       d.appendChild(bs);}
     list.appendChild(d);};
@@ -150,7 +151,7 @@ function sendChat(raw){
   if(!NET.room&&!NET.warned){NET.warned=true;addLog('Nobody else can hear you here. Open the shared Embervale page to chat with other players.');}
 }
 const CMD_HELP=[['/help','this list'],['/where','your region, position and channel'],['/who','who is online and where'],['/sit, /stand','sit down or get up'],
-  ['/exp','your EXP per hour'],['/w Name text, /r text','whisper, reply'],['/invite Name, /p text, /leave, /kick Name','party'],['/friend Name, /unfriend Name, /friends','friends'],['/roll','roll a number from 1 to 100 for everyone to see'],['/emotes','list emotes (e.g. /heart, /gg)'],['/clear','clear this log']];
+  ['/exp','your EXP per hour'],['/w Name text, /r text','whisper, reply'],['/invite Name, /p text, /leave, /kick Name','party'],['/friend Name, /unfriend Name, /friends','friends'],['/trade Name, /shop','trade, open a shop'],['/roll','roll a number from 1 to 100 for everyone to see'],['/emotes','list emotes (e.g. /heart, /gg)'],['/clear','clear this log']];
 function chatCommand(k,arg){
   if(k==='help'||k==='?'||k==='h'){addLog('Commands: '+CMD_HELP.map(([c,d])=>`${c} (${d})`).join(' · '));return true;}
   if(k==='where'){addLog(`You are in ${Z.D.name} at (${Math.round(P.x/TILE)}, ${Math.round(P.y/TILE)})`+(NET.channel?`, channel ${NET.channel}`:'')+(ROOM?`, room "${ROOM}"`:'')+'.');return true;}
@@ -173,6 +174,8 @@ function chatCommand(k,arg){
   if(k==='friend'){friendToggle(arg,true);return true;}
   if(k==='unfriend'){friendToggle(arg,false);return true;}
   if(k==='friends'){if(!P.friends.length)addLog('Your friends list is empty. Add someone with /friend Name.');else soc('friends',{names:P.friends});return true;}
+  if(k==='trade'){if(!arg)addLog('Usage: /trade Name (stand next to them)');else tradeWith(arg);return true;}
+  if(k==='shop'||k==='vend'){PANEL_ACTS.vendsetup();return true;}
   if(k==='roll'){const n=1+Math.floor(Math.random()*100);sendChat(`rolls ${n} (1-100)`);return true;}
   return false;}
 function announce(k,v){NET.myChat=[...NET.myChat,{i:++NET.chatId,k,v,t:Date.now()}].slice(-4);NET.lastSent='';NET.sendT=0;}
@@ -192,7 +195,7 @@ function netTick(dt){
   if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+(NET.relay?.15:.12);
   const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,b:P.back?1:0,lk:lookCode(P.look),lv:P.lv,mv:P.moving?1:0,st:P.sitting?1:0,d:P.dead?1:0,
     w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),ch:NET.myChat,em:NET.myEmote||null,
-    id:NET.myId,zt:NET.zt,hd:document.hidden?1:0,hx:NET.hits};
+    id:NET.myId,zt:NET.zt,vd:typeof TR!=='undefined'&&TR.vend?TR.vend.title:null,hd:document.hidden?1:0,hx:NET.hits};
   if(!zoneHost()&&othersHere()&&mobs.length){s.ev=NET.evs;
     s.mb=mobs.map(m=>[Math.round(m.x),Math.round(m.y),m.dead?0:Math.round(clamp(m.hp/m.d.hp,0,1)*1000),(m.dead?1:0)|(m.moving?2:0)|(m.face<0?4:0)|(m.state==='chase'?8:0)|(m.slowUntil>now?16:0)]);}
   const j=JSON.stringify(s);if(j===NET.lastSent)return;NET.lastSent=j;NET.room.presence(s).catch(()=>{});

@@ -4,7 +4,7 @@
 let SOCK=null;
 const SOC={party:null,lastWhisper:null,invite:null,tab:'all'};
 
-function socialAttach(sock){SOCK=sock;
+function socialAttach(sock){SOCK=sock;tradeAttach(sock);
   sock.on('connect',()=>{if(SOC.party){SOC.party=null;renderParty();}}); // the server forgets parties when we reconnect
   sock.on('whisper',m=>{if(!m)return;const from=clean(m.from,16),text=clean(m.text,120);if(!from||!text)return;
     SOC.lastWhisper=from;logLine('whisper',`[From ${from}] `,text);sfx('ping');});
