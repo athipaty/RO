@@ -39,19 +39,20 @@ const SERVER=(()=>{const s=new URLSearchParams(location.search).get('server');re
 function serverRoom(){
   return (window.io?Promise.resolve():loadScript('https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js')).then(()=>new Promise((res,rej)=>{
     const sock=io(SERVER+'/embervale',{transports:['websocket'],auth:{token:ACC.token||undefined},reconnectionDelayMax:8000});
-    const seen=new Set();let cb=null,last=null,ready=false;
+    const seen=new Map();let cb=null,last=null,ready=false; // peer id -> latest {peer,presence,guest}
     const fail=setTimeout(()=>{if(!ready){ready=true;sock.close();rej(new Error('timeout'));}},9000);
-    const room={presence(s){last=s;if(sock.connected)sock.emit('presence',s);return Promise.resolve();},onPeers(f){cb=f;},server:true,
+    // players already in the channel arrive before the game listens, so hand them over when it does
+    const room={presence(s){last=s;if(sock.connected)sock.emit('presence',s);return Promise.resolve();},onPeers(f){cb=f;if(seen.size)f({joined:[...seen.values()],updated:[],left:[]});},server:true,
       relogin(){sock.auth={token:ACC.token||undefined};sock.disconnect();sock.connect();}};
     sock.on('connect',()=>sock.emit('join',{room:ROOM||'world'}));
     sock.on('joined',m=>{NET.channel=m.channel;NET.account=m.account||null;
       const now=new Set((m.peers||[]).map(p=>p.peer));
-      const left=[...seen].filter(id=>!now.has(id)).map(peer=>({peer}));for(const p of left)seen.delete(p.peer);
-      const joined=(m.peers||[]).filter(p=>!seen.has(p.peer));for(const p of joined)seen.add(p.peer);
+      const left=[...seen.keys()].filter(id=>!now.has(id)).map(peer=>({peer}));for(const p of left)seen.delete(p.peer);
+      const joined=(m.peers||[]).filter(p=>!seen.has(p.peer));for(const p of m.peers||[])seen.set(p.peer,p);
       if(cb&&(left.length||joined.length))cb({joined,updated:[],left});
       if(last)sock.emit('presence',last);
       if(!ready){ready=true;clearTimeout(fail);res(room);}else updateOnline();});
-    sock.on('peer',p=>{if(!cb||!p||!p.peer)return;const was=seen.has(p.peer);seen.add(p.peer);cb({joined:was?[]:[p],updated:was?[p]:[],left:[]});});
+    sock.on('peer',p=>{if(!p||!p.peer)return;const was=seen.has(p.peer);seen.set(p.peer,p);if(cb)cb({joined:was?[]:[p],updated:was?[p]:[],left:[]});});
     sock.on('left',p=>{if(cb&&p&&seen.delete(p.peer))cb({joined:[],updated:[],left:[{peer:p.peer}]});});
     sock.on('disconnect',()=>{if(ready){NET.status='connecting';updateWho();}});
     sock.on('connect_error',()=>{if(!ready){ready=true;clearTimeout(fail);sock.close();rej(new Error('connect failed'));}});

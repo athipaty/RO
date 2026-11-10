@@ -8,6 +8,13 @@ module.exports = async t => {
   const room = newRoom(), user = 'u' + Math.random().toString(36).slice(2, 9);
   const fill = (g, u, p) => g.ev((u, p) => { document.getElementById('acUser').value = u; document.getElementById('acPass').value = p; }, u, p);
 
+  // ---- someone standing still is visible to a player who joins later
+  {
+    const idle = await player('Idler', room + 'i'); await wait(2500);
+    const late = await player('Latecomer', room + 'i'); await wait(2500);
+    t.ok(await late.ev(() => [...NET.others.values()].some(o => o.n === 'Idler')), 'a newcomer sees a player who is standing still');
+    await idle.close(); await late.close();
+  }
   // ---- device 1: play as guest, then create an account and move the guest character into it
   const A = await player('Guestly', room);
   try {
