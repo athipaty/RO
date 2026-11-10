@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='0.13.0';
+const VERSION='0.14.0';
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
 const BLOCK=[0,0,1,1,1,1,0,0]; // 0 ground 1 path 2 tree 3 water 4 rock 5 building 6 cobble 7 flowers
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
@@ -24,6 +24,7 @@ const ITEMS={
   orange:{name:'Amber Tonic',type:'use',price:70,heal:180,col:'#e08a3a',g:'A',desc:'Restores 180 HP.'},
   blue:{name:'Blue Tonic',type:'use',price:150,sp:60,col:'#4a8fd9',g:'B',desc:'Restores 60 SP.'},
   leaf:{name:'Drift Leaf',type:'use',price:40,tele:true,col:'#7fd36a',g:'L',desc:'Teleports you to a random spot in this region.'},
+  remedy:{name:'Remedy Draught',type:'use',price:50,cure:true,col:'#c58cff',g:'C',desc:'Cures poison, stun, sleep, freeze, silence and blindness.'},
   scroll:{name:'Hearth Scroll',type:'use',price:120,home:true,col:'#e0b84a',g:'H',desc:'Returns you to Hearthvale.'},
   sap:{name:'Sap Drop',type:'etc',price:6,col:'#9be38a',g:'•'}, tuft:{name:'Hopper Tuft',type:'etc',price:10,col:'#e3cfae',g:'•'},
   shell:{name:'Moss Shell',type:'etc',price:16,col:'#8aa45a',g:'•'}, thorn:{name:'Thorn Barb',type:'etc',price:30,col:'#5a9b48',g:'•'},
@@ -81,7 +82,7 @@ function refineBonus(e){const r=e.r||0;if(!r)return {};const it=ITEMS[e.id];
   if(it.type==='weapon'){const o={atk:r*Math.max(3,Math.round((it.atk||0)*.06))};if(it.matk)o.matk=r*Math.max(2,Math.round(it.matk*.06));return o;}
   return {def:r};}
 function itemName(e){return (e.r?`+${e.r} `:'')+ITEMS[e.id].name;}
-const SHOP=['red','orange','blue','leaf','scroll','strawhat','ribbon','spiked','sword','wand','bow','mace','bastion','rod','longbow','sunmace','axe','tunic','vest','robe','scale','plate','ring','clip','charm'];
+const SHOP=['red','orange','blue','remedy','leaf','scroll','strawhat','ribbon','spiked','sword','wand','bow','mace','bastion','rod','longbow','sunmace','axe','tunic','vest','robe','scale','plate','ring','clip','charm'];
 
 const MOBS={
   sproutling:{name:'Sproutling',lv:2,hp:42,atk:6,def:0,flee:3,exp:12,jexp:10,spd:38,shape:'blob',col:'#8fd16a',size:12,leaf:true,drops:[['sap',.55],['red',.08],['sprout',.012]],sig:{kind:'armor',b:{maxhp:80},txt:'+80 Max HP'}},
@@ -124,28 +125,28 @@ const THEMES={
 /* ================= skills ================= */
 const SKILLS={
   firstaid:{name:'First Aid',max:5,col:'#7fd38a',g:'+',sp:l=>3,cd:1.5,kind:'self',desc:l=>`Heal ${8+l*7} HP.`,run:l=>healP(8+l*7)},
-  cleave:{name:'Cleave',max:10,col:'#e06a5a',g:'C',sp:l=>6+l,cd:.8,kind:'target',range:55,desc:l=>`A heavy strike for ${150+l*30}% ATK that never misses.`,
-    run:(l,t)=>{fx.push({k:'slash',x:t.x,y:t.y,t0:now,dur:.25});dealPhys(t,1.5+l*.3,{sure:true});}},
+  cleave:{name:'Cleave',max:10,col:'#e06a5a',g:'C',sp:l=>6+l,cd:.8,kind:'target',range:55,desc:l=>`A heavy strike for ${150+l*30}% ATK that never misses, ${15+l*2}% chance to stun.`,
+    run:(l,t)=>{fx.push({k:'slash',x:t.x,y:t.y,t0:now,dur:.25});dealPhys(t,1.5+l*.3,{sure:true,ail:['stun',.15+l*.02,1.5]});}},
   whirl:{name:'Whirlwind',max:10,col:'#e0904a',g:'W',sp:l=>12+l*2,cd:2.5,kind:'self',desc:l=>`Spin and hit every foe within 95px for ${120+l*20}% ATK.`,
     run:l=>{fx.push({k:'ring',x:P.x,y:P.y,r:95,col:'#ffb070',t0:now,dur:.35});aoe(P.x,P.y,95,m=>dealPhys(m,1.2+l*.2,{sure:true}));}},
   ironwill:{name:'Iron Will',max:10,col:'#b0b8c8',g:'I',sp:l=>20,cd:20,kind:'self',desc:l=>`For 60s: +${l*4} DEF and +${l*2} HP regen per second.`,
     run:l=>buff('ironwill','Iron Will',60,{def:l*4,regen:l*2})},
   emberbolt:{name:'Ember Bolt',max:10,col:'#ff8a3a',g:'E',sp:l=>5+l*2,cd:.7,kind:'target',range:230,desc:l=>`Hurl fire for ${140+l*30}% MATK.`,
-    run:(l,t)=>shoot(P,t,'orb','#ff8a3a',()=>dealMag(t,1.4+l*.3))},
-  frostnova:{name:'Frost Nova',max:10,col:'#8fd0f0',g:'F',sp:l=>14+l*2,cd:3,kind:'self',desc:l=>`Freeze foes within 115px: ${100+l*20}% MATK and slowed for ${(2+l*.3).toFixed(1)}s.`,
-    run:l=>{fx.push({k:'nova',x:P.x,y:P.y,r:115,t0:now,dur:.5});aoe(P.x,P.y,115,m=>{dealMag(m,1+l*.2);slowMob(m,2+l*.3);});}},
+    run:(l,t)=>shoot(P,t,'orb','#ff8a3a',()=>dealMag(t,1.4+l*.3,'fire'))},
+  frostnova:{name:'Frost Nova',max:10,col:'#8fd0f0',g:'F',sp:l=>14+l*2,cd:3,kind:'self',desc:l=>`Water damage to foes within 115px: ${100+l*20}% MATK, slowed for ${(2+l*.3).toFixed(1)}s, ${30+l*3}% chance to freeze them.`,
+    run:l=>{fx.push({k:'nova',x:P.x,y:P.y,r:115,t0:now,dur:.5});aoe(P.x,P.y,115,m=>{dealMag(m,1+l*.2,'water',['freeze',.3+l*.03,1.5+l*.1]);slowMob(m,2+l*.3);});}},
   arcstorm:{name:'Arc Storm',max:10,col:'#c8b0ff',g:'S',sp:l=>25+l*3,cd:4,kind:'area',range:250,radius:105,desc:l=>`Call lightning on your target's area: ${220+l*40}% MATK to all within 105px.`,
-    run:(l,x,y)=>{for(let i=0;i<6;i++)fx.push({k:'bolt',x:x+rnd(-80,80),y:y+rnd(-60,60),t0:now+i*.05,dur:.3});fx.push({k:'ring',x,y,r:105,col:'#c8b0ff',t0:now,dur:.4});aoe(x,y,105,m=>dealMag(m,2.2+l*.4));}},
+    run:(l,x,y)=>{for(let i=0;i<6;i++)fx.push({k:'bolt',x:x+rnd(-80,80),y:y+rnd(-60,60),t0:now+i*.05,dur:.3});fx.push({k:'ring',x,y,r:105,col:'#c8b0ff',t0:now,dur:.4});aoe(x,y,105,m=>dealMag(m,2.2+l*.4,'wind'));}},
   twinshot:{name:'Twin Shot',max:10,col:'#9fe08a',g:'T',sp:l=>6+l,cd:.6,kind:'target',range:250,desc:l=>`Fire two arrows, each ${90+l*15}% ATK.`,
     run:(l,t)=>{shoot(P,t,'arrow','#e8dcb0',()=>dealPhys(t,.9+l*.15,{sure:true}));setTimeout(()=>{if(!t.dead)shoot(P,t,'arrow','#e8dcb0',()=>dealPhys(t,.9+l*.15,{sure:true}));},110);}},
   arrowrain:{name:'Arrow Rain',max:10,col:'#d8e070',g:'R',sp:l=>18+l*2,cd:3,kind:'area',range:250,radius:110,desc:l=>`Rain arrows on your target's area: ${130+l*25}% ATK to all within 110px.`,
     run:(l,x,y)=>{for(let i=0;i<14;i++)fx.push({k:'arrowfall',x:x+rnd(-100,100),y:y+rnd(-80,80),t0:now+i*.03,dur:.35});aoe(x,y,110,m=>dealPhys(m,1.3+l*.25,{sure:true}));}},
   hawkeye:{name:'Hawk Eye',max:10,col:'#e0c070',g:'H',sp:l=>22,cd:20,kind:'self',desc:l=>`For 90s: +${l*2} DEX and +${l} CRIT.`,
     run:l=>buff('hawkeye','Hawk Eye',90,{dex:l*2,crit:l})},
-  smite:{name:'Smite',max:10,col:'#fff0a0',g:'S',sp:l=>7+l*2,cd:.8,kind:'target',range:210,desc:l=>`Holy light for ${150+l*30}% MATK, double against undead.`,
-    run:(l,t)=>{fx.push({k:'pillar',x:t.x,y:t.y,t0:now,dur:.45});dealMag(t,1.5+l*.3,true);}},
-  mend:{name:'Mend',max:10,col:'#7fd38a',g:'M',sp:l=>10+l*3,cd:1.2,kind:'self',desc:l=>`Heal yourself for ${20*l} + ${100+l*40}% MATK.`,
-    run:l=>healP(Math.round(20*l+S.matk*(1+l*.4)))},
+  smite:{name:'Smite',max:10,col:'#fff0a0',g:'S',sp:l=>7+l*2,cd:.8,kind:'target',range:210,desc:l=>`Holy light for ${150+l*30}% MATK, double against Shadow monsters.`,
+    run:(l,t)=>{fx.push({k:'pillar',x:t.x,y:t.y,t0:now,dur:.45});dealMag(t,1.5+l*.3,'holy');}},
+  mend:{name:'Mend',max:10,col:'#7fd38a',g:'M',sp:l=>10+l*3,cd:1.2,kind:'self',desc:l=>`Heal yourself for ${20*l} + ${100+l*40}% MATK and cure ailments.`,
+    run:l=>{healP(Math.round(20*l+S.matk*(1+l*.4)));cureAll();}},
   blessing:{name:'Blessing',max:10,col:'#f0e0a0',g:'B',sp:l=>24,cd:20,kind:'self',desc:l=>`For 120s: +${l} STR, INT and DEX.`,
     run:l=>buff('blessing','Blessing',120,{str:l,int:l,dex:l})},
 };

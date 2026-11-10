@@ -8,12 +8,14 @@ function aoe(x,y,r,fn){for(const m of mobs)if(!m.dead&&Math.hypot(m.x-x,m.y-y)<=
 function shoot(from,to,kind,col,onHit,hostile){shots.push({x:from.x,y:from.y-10,to,kind,col,onHit,spd:kind==='arrow'?620:440,hostile});}
 function dealPhys(m,mult,o={}){
   if(m.dead)return;const crit=Math.random()*100<S.crit;
-  if(!o.sure&&!crit){const hc=clamp(80+S.hit-m.d.flee,5,100);if(Math.random()*100>hc){floatT(m.x,m.y-m.d.size-8,'Miss','#aab4c4',13);sfx('miss');if(zoneHost())sendHit(m,0,0);else provoke(m);return;}}
-  let dmg=S.atk*mult*rnd(.9,1.1);dmg=crit?dmg*1.5:dmg-m.d.def*.6;
-  hurtMob(m,Math.max(1,Math.round(dmg)),crit,'phys');}
-function dealMag(m,mult,holy){
-  if(m.dead)return;let dmg=S.matk*mult*rnd(.92,1.08)-m.d.def*.3;if(holy&&m.d.undead)dmg*=2;
-  hurtMob(m,Math.max(1,Math.round(dmg)),false,'mag');}
+  if(!o.sure&&!crit){const hc=clamp(80+S.hit-m.d.flee-(ailOn('blind')?45:0),5,100);if(Math.random()*100>hc){floatT(m.x,m.y-m.d.size-8,'Miss','#aab4c4',13);sfx('miss');if(zoneHost())sendHit(m,0,0);else provoke(m);return;}}
+  const em=elemMult(o.el,m.d.el);let dmg=S.atk*mult*rnd(.9,1.1);dmg=crit?dmg*1.5:dmg-m.d.def*.6;dmg*=em;
+  if(em!==1)elemHint(m,em);if(o.ail&&Math.random()<o.ail[1])ailMob(m,o.ail[0],o.ail[2]);
+  hurtMob(m,em===0?0:Math.max(1,Math.round(dmg)),crit,'phys');}
+function dealMag(m,mult,el,ail){
+  if(m.dead)return;const em=elemMult(el,m.d.el);let dmg=(S.matk*mult*rnd(.92,1.08)-m.d.def*.3)*em;
+  if(em!==1)elemHint(m,em);if(ail&&Math.random()<ail[1])ailMob(m,ail[0],ail[2]);
+  hurtMob(m,em===0?0:Math.max(1,Math.round(dmg)),false,'mag');}
 function provoke(m){if(!m.dead){m.state='chase';m.aggroed=true;}}
 function knock(m,src){const dx=m.x-src.x,dy=m.y-src.y,sx=(dx-dy)*ISO,sy=(dx+dy)*ISO/2,n=Math.hypot(sx,sy)||1;
   m.kbX=sx/n;m.kbY=sy/n;m.kbT=now;m.stunUntil=now+.22;fx.push({k:'spark',x:m.x,y:m.y-m.d.size*.9,t0:now,dur:.22,r:rnd(0,6)});}
@@ -53,7 +55,7 @@ function goLoot(l){P.target=null;P.queued=null;P.npcGoal=null;P.lootGoal=l;if(di
 function dropText(d){const pc=c=>{const v=c*100;return(v>=10||v===Math.round(v)?Math.round(v):v.toFixed(1))+'%';};
   return [...d.drops.map(([id,c])=>`${ITEMS[id].name} ${pc(c)}`),`Sigil ${pc(d.sigChance||.02)}`].join(' · ');}
 function hurtPlayer(dmg,src){
-  if(P.dead)return;P.hp-=dmg;P.sitting=false;P.hurtT=now;interruptCast();fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});sfx('hurt');floatT(P.x,P.y-30,fmt(dmg),'#ff6a5a',16);
+  if(P.dead)return;P.hp-=dmg;P.sitting=false;P.hurtT=now;interruptCast();if(P.ail&&P.ail.sleep)delete P.ail.sleep;fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});sfx('hurt');floatT(P.x,P.y-30,fmt(dmg),'#ff6a5a',16);
   if(P.hp<=0){P.hp=0;die(src);}
 }
 function mobAttack(m){
@@ -61,6 +63,7 @@ function mobAttack(m){
   const hc=clamp(85+m.d.hit-S.flee,5,95);
   if(Math.random()*100>hc){floatT(P.x,P.y-30,'Dodge','#9fd3ff',13);return;}
   hurtPlayer(Math.max(1,Math.round(m.d.atk*rnd(.85,1.1)-S.def*.6)),m.d.name);
+  if(m.d.ail)tryAilment(m.d.ail);
 }
 function healP(n){n=Math.max(1,Math.round(n));P.hp=Math.min(S.maxhp,P.hp+n);floatT(P.x,P.y-30,'+'+fmt(n),'#7fd38a',16);fx.push({k:'heal',x:P.x,y:P.y,t0:now,dur:.6});sfx('heal');}
 function buff(id,name,dur,b){P.buffs[id]={name,until:now+dur,b};fx.push({k:'ring',x:P.x,y:P.y,r:40,col:'#f0e0a0',t0:now,dur:.5});addLog(`${name} is active for ${dur}s.`,'l-good');S=computeStats();}
@@ -82,7 +85,7 @@ function gainExp(e,j){
   if(lvUp)refreshPanel();
 }
 function die(src){
-  P.dead=true;P.casting=null;P.target=null;P.path=[];P.queued=null;
+  P.dead=true;P.casting=null;P.ail={};P.target=null;P.path=[];P.queued=null;
   const loss=P.lv>1?Math.floor(expNeed(P.lv)*.01):0;P.exp=Math.max(0,P.exp-loss);
   $('#deathMsg').textContent=`Struck down by ${src}.`+(loss?` You lost ${fmt(loss)} experience.`:'');
   $('#death').hidden=false;sfx('death');addLog(`You were defeated by ${src}.`,'l-bad');
@@ -125,7 +128,8 @@ function useItem(id){
   if(P.dead)return;const it=ITEMS[id];
   if(!invFind(id)){addLog(`You have no ${it.name}.`,'l-bad');return;}
   if((P.cd['item']||0)>now)return;
-  if(it.heal){if(P.hp>=S.maxhp)return;healP(it.heal);}
+  if(it.cure){if(!Object.keys(P.ail||{}).some(ailOn)){addLog('You have no ailments to cure.');return;}cureAll();}
+  else if(it.heal){if(P.hp>=S.maxhp)return;healP(it.heal);}
   else if(it.sp){if(P.sp>=S.maxsp)return;P.sp=Math.min(S.maxsp,P.sp+it.sp);floatT(P.x,P.y-30,'+'+it.sp+' SP','#7ab0f0',15);}
   else if(it.home){takeItem(id);enterZone('town');addLog('The scroll carries you home.');save();return;}
   else if(it.tele){if(Z.D.safe){addLog('Drift Leaves only work outside town.','l-bad');return;}
@@ -140,6 +144,7 @@ function useSkill(id){
   const l=P.skills[id]||0;if(!l||P.dead||P.casting)return;const sk=SKILLS[id];
   if(!skillReady(id))return;
   if(P.heavy>1){tooHeavy();return;}
+  if(ailHeld()||ailOn('silence')){floatT(P.x,P.y-40,ailOn('silence')?'Silenced':'Cannot act','#c58cff',12);return;}
   const cost=sk.sp(l);
   if(P.sp<cost){floatT(P.x,P.y-30,'Not enough SP','#7ab0f0',13);return;}
   if(sk.kind==='target'||sk.kind==='area'){
@@ -217,16 +222,17 @@ function update(dt){
   // regen
   const rm=P.sitting?2.5:1;
   const wp=carryWeight()/maxWeight();P.heavy=wp>=.9?2:wp>=.5?1:0;
-  if(!P.heavy){P.hp=Math.min(S.maxhp,P.hp+S.regen*rm*dt);P.sp=Math.min(S.maxsp,P.sp+S.spregen*rm*dt);}
+  ailTick(dt);const held=ailHeld();
+  if(!P.heavy&&!ailOn('poison')){P.hp=Math.min(S.maxhp,P.hp+S.regen*rm*dt);P.sp=Math.min(S.maxsp,P.sp+S.spregen*rm*dt);}
   // keyboard
   let kx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0), ky=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
   P.moving=false;
-  if(kx||ky){if(kx)P.face=kx;if(ky)P.back=ky<0;P.lootGoal=null;
+  if((kx||ky)&&!held){if(kx)P.face=kx;if(ky)P.back=ky<0;P.lootGoal=null;
     if(!P.sitting){P.path=[];P.target=null;P.queued=null;P.npcGoal=null;const wx=(kx+2*ky)/2,wy=(2*ky-kx)/2,n=Math.hypot(wx,wy);moveEnt(P,wx/n*S.speed*dt,wy/n*S.speed*dt,PR);P.moving=true;}}
-  autoHunt();
+  if(!held)autoHunt();
   // target behaviour
   const t=P.target;
-  if(t&&!t.dead){
+  if(t&&!t.dead&&!held){
     const need=P.queued?SKILLS[P.queued].range:S.range;
     const d=dist(P,t)-t.d.size;
     if(d<=need&&(!S.ranged&&!P.queued?true:clearLine(P.x,P.y,t.x,t.y)||d<60)){
@@ -237,7 +243,7 @@ function update(dt){
   } else if(t&&t.dead){P.target=null;}
   P.atkT-=dt;
   // follow path
-  if(P.path.length){const w=P.path[0];const dx=w.x-P.x,dy=w.y-P.y,d=Math.hypot(dx,dy),st=S.speed*dt;
+  if(P.path.length&&!held){const w=P.path[0];const dx=w.x-P.x,dy=w.y-P.y,d=Math.hypot(dx,dy),st=S.speed*dt;
     if(d<=st){if(!moveEnt(P,dx,dy,PR))P.path=[];else P.path.shift();}else{moveEnt(P,dx/d*st,dy/d*st,PR);}
     P.moving=true;if(d>2)faceTo(P,dx,dy);}
   if(P.moving)P.walkT+=dt;
@@ -268,9 +274,10 @@ function basicAttack(t){
 function mobTargets(){const t=[];if(P&&!P.dead&&!Z.D.safe)t.push(P);
   if(NET.room&&!Z.D.safe)for(const o of NET.others.values())if(o.z===zoneId&&!o.dead&&o.id)t.push(o);return t;}
 function slamLand(m){fx.push({k:'ring',x:m.x,y:m.y,r:130,col:'#ff7a3a',t0:now,dur:.4});sfx('slam');shakeUntil=now+.35;
-  if(!P.dead&&dist(m,P)<130+PR)hurtPlayer(Math.round(m.d.atk*1.5-S.def*.6),m.d.name);}
+  if(!P.dead&&dist(m,P)<130+PR){hurtPlayer(Math.round(m.d.atk*1.5-S.def*.6),m.d.name);tryAilment(['stun',1,1.5]);}}
 function updateMob(m,dt,T){
   if(m.dead){if(now>=m.respawnAt){spawnMob(m.d.id,m);if(m.d.boss)addLog('The Ashen Warlord has risen again in the Cinder Crypt!','l-rare');}return;}
+  if(m.ailUntil>now){m.moving=false;return;}
   let tg=null,dp=1e9;for(const t of T){const q=dist(m,t);if(q<dp){dp=q;tg=t;}}
   const d=m.d, slow=m.slowUntil>now?.4:1;
   if(m.slamAt){if(now>=m.slamAt){m.slamAt=0;m.slamT=now+7;netEvent('s',m);slamLand(m);}return;}
@@ -303,13 +310,13 @@ function zoneHost(){
   if(!best||NET.zt<best.zt||(NET.zt===best.zt&&NET.myId<best.id))return null;
   return best;}
 function netEvent(k,m,t){if(!NET.room)return;NET.evs=[...NET.evs,{i:++NET.evId,k,m:m.idx,t:t||null}].slice(-24);NET.lastSent='';NET.sendT=0;}
-function sendHit(m,d,sl){NET.hits=[...NET.hits,{i:++NET.hitId,m:m.idx,d,sl}].slice(-24);NET.lastSent='';NET.sendT=0;}
+function sendHit(m,d,sl,ex){NET.hits=[...NET.hits,{i:++NET.hitId,m:m.idx,d,sl,...(ex||{})}].slice(-24);NET.lastSent='';NET.sendT=0;}
 function slowMob(m,t){if(zoneHost())sendHit(m,0,t);m.slowUntil=now+t;}
 function applyHits(apply){
   for(const o of NET.others.values()){const hx=o.hx||[];if(o.hxSeen===undefined)o.hxSeen=0;
     if(!apply||o.z!==zoneId){for(const h of hx)o.hxSeen=Math.max(o.hxSeen,fin(h&&h.i));continue;}
     for(const h of hx){if(!h||fin(h.i)<=o.hxSeen)continue;o.hxSeen=fin(h.i);const m=mobs[fin(h.m)|0];if(!m||m.dead)continue;
-      provoke(m);if(h.sl)m.slowUntil=now+clamp(fin(h.sl),0,6);
+      provoke(m);if(h.sl)m.slowUntil=now+clamp(fin(h.sl),0,6);if(h.sk==='freeze'||h.sk==='stun'){m.ail=h.sk;m.ailUntil=now+clamp(fin(h.st),0,5);}
       const dmg=clamp(Math.round(fin(h.d)),0,99999);
       if(dmg>0){m.hp-=dmg;m.hitF=now;knock(m,o);floatT(m.x,m.y-m.d.size-8,fmt(dmg),'#cfe0ff',13);if(m.hp<=0)killMob(m);}}}}
 function syncMobs(host,dt){
@@ -320,7 +327,8 @@ function syncMobs(host,dt){
     if(m.dead){m.dead=false;m.x=nx;m.y=ny;m.hp=m.d.hp;m.myDmg=0;}
     if(Math.hypot(nx-m.x,ny-m.y)>200){m.x=nx;m.y=ny;}else{const k=Math.min(1,dt*10);m.x+=(nx-m.x)*k;m.y+=(ny-m.y)*k;}
     const hp=clamp(fin(st[2]),0,1000)/1000*m.d.hp;if(now-m.hitF>.6||hp<m.hp)m.hp=Math.max(1,hp);
-    m.moving=!!(f&2);m.face=f&4?-1:1;m.state=f&8?'chase':'idle';if(f&16)m.slowUntil=Math.max(m.slowUntil,now+.3);}
+    m.moving=!!(f&2);m.face=f&4?-1:1;m.state=f&8?'chase':'idle';if(f&16)m.slowUntil=Math.max(m.slowUntil,now+.3);
+    if(f&96){m.ail=f&32?'freeze':'stun';m.ailUntil=now+.3;}}
   const evs=host.ev||[];let seen=NET.evSeen.get(host.id);
   if(seen===undefined)seen=Math.max(0,...evs.map(e=>fin(e&&e.i)));
   for(const e of evs){if(!e||fin(e.i)<=seen)continue;seen=fin(e.i);const m=mobs[fin(e.m)|0];if(!m)continue;

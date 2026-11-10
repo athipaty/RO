@@ -197,7 +197,7 @@ function netTick(dt){
     w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),ch:NET.myChat,em:NET.myEmote||null,
     id:NET.myId,zt:NET.zt,vd:typeof TR!=='undefined'&&TR.vend?TR.vend.title:null,hd:document.hidden?1:0,hx:NET.hits};
   if(!zoneHost()&&othersHere()&&mobs.length){s.ev=NET.evs;
-    s.mb=mobs.map(m=>[Math.round(m.x),Math.round(m.y),m.dead?0:Math.round(clamp(m.hp/m.d.hp,0,1)*1000),(m.dead?1:0)|(m.moving?2:0)|(m.face<0?4:0)|(m.state==='chase'?8:0)|(m.slowUntil>now?16:0)]);}
+    s.mb=mobs.map(m=>[Math.round(m.x),Math.round(m.y),m.dead?0:Math.round(clamp(m.hp/m.d.hp,0,1)*1000),(m.dead?1:0)|(m.moving?2:0)|(m.face<0?4:0)|(m.state==='chase'?8:0)|(m.slowUntil>now?16:0)|(m.ailUntil>now?(m.ail==='freeze'?32:64):0)]);}
   const j=JSON.stringify(s);if(j===NET.lastSent)return;NET.lastSent=j;NET.room.presence(s).catch(()=>{});
 }
 

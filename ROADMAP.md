@@ -59,15 +59,15 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 3. S Lower/middle headgear slots (glasses, masks, mouth items)
 - [ ] 4. M Hair dye / stylist NPC
 - [ ] 5. M More animations: casting pose, hurt frame, death pose, per-weapon attacks
-- [ ] 6. S Status icons over heads (buffs, poison, stun)
+- [x] 6. S Status icons over heads (buffs, poison, stun)
 
 ### Combat feel
 - [x] 7. S Attack speed you can see (swing speed follows ASPD, Attacks/sec in Stats)
 - [x] 8. S Cast bars for spells, cancelled by moving, interrupted by being hit
 - [x] 9. S "Dodge" and "Lucky!" dodge text (LUK)
-- [ ] 10. M Elements and an element damage chart
+- [x] 10. M Elements and an element damage chart
 - [ ] 11. M Monster size and race bonuses
-- [ ] 12. M Status ailments (poison, stun, freeze, sleep, silence, blind)
+- [x] 12. M Status ailments (poison, stun, freeze, sleep, silence, blind)
 - [x] 13. S Weight penalties: 50%+ no regen, 90%+ cannot fight
 - [ ] 14. S Potion cooldowns tuned for melee play
 - [ ] 15. M Monster skills (heal, summon, ranged spells, teleport)
@@ -85,7 +85,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 25. S Gold sinks: teleport service, inn, repair
 
 ### Classes and skills
-- [ ] 26. M Skill tree screen with prerequisites
+- [x] 26. M Skill tree screen with prerequisites
 - [ ] 27. L Second jobs (2 per class) with a job quest
 - [ ] 28. L Rebirth / third tier
 - [ ] 29. M Support skills on other players (needs parties)

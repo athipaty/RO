@@ -11,6 +11,7 @@ function updateHud(){
   const en=expNeed(P.lv),jn=jexpNeed(P.jl),jm=P.jl>=jobMax(P.cls);
   setT('lvT',`Base Lv ${P.lv}`);setT('exT',(P.exp/en*100).toFixed(1)+'%');setW('exI',P.exp/en);
   setT('jlT',`Job Lv ${P.jl}`);setT('jxT',jm?'max':(P.jexp/jn*100).toFixed(1)+'%');setW('jxI',jm?1:P.jexp/jn);
+  setT('ailT',ailText());
   setT('weight',`Weight ${fmt(carryWeight())} / ${fmt(maxWeight())}`+(P.heavy===2?' · too heavy to fight':P.heavy?' · no regen':''));
   {const we=$('#weight'),hv=!!P.heavy;if(we.classList.contains('heavy')!==hv)we.classList.toggle('heavy',hv);}
   setT('gold',`${fmt(P.gold)} gold`+(P.statPts?` · ${P.statPts} stat pts`:'')+(P.skillPts?` · ${P.skillPts} skill pts`:''));
@@ -18,7 +19,7 @@ function updateHud(){
   const qe=$('#quest');if(qe.hidden!==!P.quest)qe.hidden=!P.quest;if(P.quest)setT('quest',`Contract: ${MOBS[P.quest.mob].name} ${P.quest.have}/${P.quest.need}`);
   const t=P.target&&!P.target.dead?P.target:null;const te=$('#target');
   if(!!t===te.hidden)te.hidden=!t;
-  if(t){setT('tDrops','Drops: '+dropText(t.d));setT('tName',t.d.name);setT('tLv',`Lv ${t.d.lv}`+(t.d.undead?' · undead':'')+(t.d.boss?' · boss':''));setW('tI',t.hp/t.d.hp);setT('tT',`${fmt(t.hp)} / ${fmt(t.d.hp)}`);}
+  if(t){setT('tDrops','Drops: '+dropText(t.d));setT('tName',t.d.name);setT('tLv',`Lv ${t.d.lv} · ${ELEM[t.d.el||'neutral'].name}`+(t.d.undead?' · undead':'')+(t.d.boss?' · boss':''));setW('tI',t.hp/t.d.hp);setT('tT',`${fmt(t.hp)} / ${fmt(t.d.hp)}`);}
   // hotbar cooldowns & counts
   for(const el of hotEls){const s=el._slot;let frac=0,off=false,n='';
     if(s.skill){const l=P.skills[s.skill]||0;off=!l||P.sp<SKILLS[s.skill].sp(l||1);const r=(P.cd[s.skill]||0)-now;if(r>0)frac=r/SKILLS[s.skill].cd;n=l?String(l):'';}
@@ -75,11 +76,7 @@ function refreshPanel(){
       h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div><div class="ds">${itemDesc(e)}</div></div>${verb?`<button class="btn small" data-act="use" data-arg="${i}">${verb}</button>`:''}</div>`;});
   }
   else if(panelKind==='skills'){
-    h+=`<h2>Skills</h2><div class="sub">${c.name} · Skill points: <span class="gold">${P.skillPts}</span></div>`;
-    const list=P.cls==='novice'?['firstaid']:c.skills;
-    for(const id of list){const sk=SKILLS[id],l=P.skills[id]||0;const nl=Math.min(sk.max,l+1);
-      h+=`<div class="row"><span class="ico" style="background:${sk.col}">${sk.g}</span><div class="grow"><div class="nm">${sk.name} <span class="muted">${l}/${sk.max}</span></div><div class="ds">${l?sk.desc(l):'Next: '+sk.desc(1)} · ${sk.sp(nl)} SP${l&&l<sk.max?` · next level: ${sk.desc(nl)}`:''}</div></div><button class="btn small" data-act="learn" data-arg="${id}" ${!P.skillPts||l>=sk.max?'disabled':''}>Learn</button></div>`;}
-    if(P.cls==='novice')h+=`<p class="muted">Reach Job Lv 10, then talk to Guildmaster Corvin in Hearthvale to choose a calling and unlock its skills.</p>`;
+    h+=skillTreeHtml();
   }
   else if(panelKind==='smith'){
     h+=`<h2>Brannoc the Smith</h2><div class="say">"Bring me ore and gold and I'll make that blade sing. Up to +4 never fails. Past that, a bad strike shatters the piece for good."</div>`;
@@ -122,6 +119,7 @@ function refreshPanel(){
       `<div><span>Your hit chance</span><span>${clamp(80+S.hit-d.flee,5,100)}%</span></div><div><span>You dodge</span><span>${100-clamp(85+d.hit-S.flee,5,95)}%</span></div></div>`;
     h+=`<h3>Drops</h3>`+d.drops.map(([id,c])=>`<div class="row">${icon(ITEMS[id])}<div class="grow"><div class="nm">${ITEMS[id].name}</div></div><span>${pc(c)}</span></div>`).join('')+
       `<div class="row">${icon(ITEMS[d.id+'_sig'])}<div class="grow"><div class="nm">${d.name} Sigil</div><div class="ds">${d.sig.kind}: ${d.sig.txt}</div></div><span>${pc(d.sigChance||.02)}</span></div>`;
+    h+=`<h3>Element</h3><div class="sub"><span style="color:${ELEM[d.el||'neutral'].col}">${ELEM[d.el||'neutral'].name}</span>`+(weakTo(d.el).length?` · weak to ${weakTo(d.el).map(e=>ELEM[e].name).join(', ')}`:'')+`</div>`+(d.ail?`<h3>Inflicts</h3><div class="sub">${AILS[d.ail[0]].name} (${Math.round(d.ail[1]*100)}% per hit, ${d.ail[2]}s): ${AILS[d.ail[0]].desc.toLowerCase()}</div>`:'');
     h+=`<h3>Found in</h3><div class="sub">${where||'Unknown'}</div>`;}
   else if(panelKind==='help'){
     h+=`<h2>How to play</h2><p class="say">Embervale is a click-to-move action RPG. Hunt monsters for experience, gold, loot and rare sigils.</p>
@@ -134,7 +132,7 @@ function refreshPanel(){
     <b>Hats:</b> rare headgear drops from some monsters (and the Straw Hat and Ribbon Bow from the store). Everyone online sees what you wear.<br>
     <b>Auto-hunt:</b> the Auto button fights the nearest monster for you and drinks tonics when HP runs low. It's handy on a phone.<br>
     <b>Saving:</b> your progress saves automatically in this browser.</div>
-    <h3>Name colours</h3><div class="sub">Blue: players · green: your party · grey: guests · white: calm monsters · red: monsters that attack on sight · gold: bosses</div><h3>Chat commands</h3><div class="sub">/help · /where · /who · /sit · /stand · /exp · /roll · /emotes · /clear<br>/w Name text · /r text · /invite Name · /p text · /leave · /kick Name · /friend Name · /friends</div><h3>Keys</h3><div class="dv"><div><span>Right-click monster</span><span>monster info</span></div><div><span>F1–F8</span><span>hotbar</span></div><div><span>Insert</span><span>sit / stand</span></div><div><span>Alt+E</span><span>items</span></div><div><span>Alt+S</span><span>skills</span></div><div><span>Alt+A</span><span>stats</span></div><div><span>Alt+L</span><span>emotes</span></div><div><span>Alt+V</span><span>hide status box</span></div><div><span>F12</span><span>hide hotbar</span></div><div><span>Click item</span><span>pick it up</span></div><div><span>Enter</span><span>chat</span></div><div><span>E</span><span>emotes</span></div><div><span>1–4</span><span>skills</span></div><div><span>5–8</span><span>tonics, scroll</span></div><div><span>C / I / K</span><span>windows</span></div><div><span>X</span><span>sit</span></div><div><span>Tab</span><span>target</span></div><div><span>Esc</span><span>close</span></div></div>
+    <h3>Elements</h3><div class="sub">Fire beats Earth, Earth beats Wind, Wind beats Water, Water beats Fire (×1.5); the same element resists itself. Holy and Shadow deal double to each other. Monster info (right-click) shows each monster's element.</div><h3>Ailments</h3><div class="sub">Poison, stun, sleep, freeze, silence and blind. VIT resists poison, stun and freeze; INT resists sleep, silence and blind. Remedy Draught (General Store) and Mend cure them.</div><h3>Name colours</h3><div class="sub">Blue: players · green: your party · grey: guests · white: calm monsters · red: monsters that attack on sight · gold: bosses</div><h3>Chat commands</h3><div class="sub">/help · /where · /who · /sit · /stand · /exp · /roll · /emotes · /clear<br>/w Name text · /r text · /invite Name · /p text · /leave · /kick Name · /friend Name · /friends</div><h3>Keys</h3><div class="dv"><div><span>Right-click monster</span><span>monster info</span></div><div><span>F1–F8</span><span>hotbar</span></div><div><span>Insert</span><span>sit / stand</span></div><div><span>Alt+E</span><span>items</span></div><div><span>Alt+S</span><span>skills</span></div><div><span>Alt+A</span><span>stats</span></div><div><span>Alt+L</span><span>emotes</span></div><div><span>Alt+V</span><span>hide status box</span></div><div><span>F12</span><span>hide hotbar</span></div><div><span>Click item</span><span>pick it up</span></div><div><span>Enter</span><span>chat</span></div><div><span>E</span><span>emotes</span></div><div><span>1–4</span><span>skills</span></div><div><span>5–8</span><span>tonics, scroll</span></div><div><span>C / I / K</span><span>windows</span></div><div><span>X</span><span>sit</span></div><div><span>Tab</span><span>target</span></div><div><span>Esc</span><span>close</span></div></div>
     <h3>Sound</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" data-act="music">Music: ${AU.music?'on':'off'}</button><button class="btn small" data-act="sfxt">Sound effects: ${AU.sfx?'on':'off'}</button></div>
     <h3>Playing together</h3><p class="ds">Everyone who has this page open at the same time shares the world. You can see each other walking around, chat with Enter or the Chat button, and send emotes (E). Hunting near another player gives you both a party bonus of +25% EXP. The log announces big moments like level milestones, rare sigils and boss kills to everyone. ${NET.room?`<span class="gold">You are connected.</span>`:'Chat is offline in this view, so you are playing solo.'}</p>
     <h3>Adventure</h3><button class="btn" data-act="newgame">Start a new adventure</button>`;
@@ -209,7 +207,7 @@ panel.addEventListener('click',ev=>{
   if(a==='stat'){const v=P.st[arg],c=statCost(v);if(P.statPts>=c&&v<99){P.st[arg]++;P.statPts-=c;S=computeStats();}}
   if(a==='use')useInv(+arg);
   if(a==='unequip')unequip(arg);
-  if(a==='learn'){if(P.skillPts>0){P.skills[arg]=(P.skills[arg]||0)+1;P.skillPts--;rebuildHotbar();addLog(`Learned ${SKILLS[arg].name} level ${P.skills[arg]}.`,'l-good');}}
+  if(a==='learn'){if(P.skillPts>0&&skillUnlocked(arg)&&(P.skills[arg]||0)<SKILLS[arg].max){P.skills[arg]=(P.skills[arg]||0)+1;P.skillPts--;rebuildHotbar();addLog(`Learned ${SKILLS[arg].name} level ${P.skills[arg]}.`,'l-good');}}
   if(a==='tab')shopTab=arg;
   if(a==='buy'){const it=ITEMS[arg];if(carryWeight()+itemWeight(arg)>maxWeight()){addLog(`You cannot carry ${it.name}: too heavy.`,'l-bad');}else if(P.gold>=it.price){P.gold-=it.price;giveItem(arg,1);sfx('coin');addLog(`Bought ${it.name}.`,'l-loot');}}
   if(a==='sell'){const e=P.inv[+arg];if(e){sfx('coin');P.gold+=sellValue(e.id);if(e.n!==undefined)takeItem(e.id);else P.inv.splice(+arg,1);}}

@@ -45,6 +45,13 @@ module.exports = async t => {
       await wait(6000);
       t.ok((await B.ev(() => P.hp)) < hp0, 'a provoked server monster chases and hits the player');
 
+      // freezing a server-run monster holds it still for everyone, then it thaws
+      const frz = await B.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); const m = mobs.find(x => !x.dead && x.idx > 4);
+        P.x = m.x - 30; P.y = m.y; NET.lastSent = ''; netTick(0); await w(400);
+        ailMob(m, 'freeze', 2); await w(600); const p0 = [m.x, m.y], seen = m.ail === 'freeze' && m.ailUntil > now; await w(1000);
+        return { seen, still: Math.hypot(m.x - p0[0], m.y - p0[1]) < 1, idx: m.idx }; });
+      t.ok(frz.seen && frz.still, 'a monster frozen by a skill is frozen by the server and stays still');
+      t.ok(await A.ev(i => mobs[i].ail === 'freeze' || mobs[i].ailUntil > now - 3, frz.idx), 'the other player sees it frozen too');
       // the monsters keep running when the first player leaves (no host hand-over needed)
       await A.close(); await wait(2500);
       const s0 = await B.ev(() => mobs.map(m => m.x + m.y).join()); await wait(2500);
