@@ -16,6 +16,7 @@ Play online: https://ro-six-bay.vercel.app/ (add `?room=yourname` to the link fo
 | `js/combat.js` | Combat, loot, items, skills, shared monsters, the update loop |
 | `js/render.js` | Drawing the world, characters, monsters and effects |
 | `js/ui.js` | HUD, panels, input, save/load, character creator, main loop |
+| `tools/export-world.js` | Exports maps, monsters and drops to `tools/embervale-world.json` for the game server (copy it to center-kitchen-backend `routes/embervale/world.json` whenever regions, monsters or drops change) |
 | `tests/` | Browser tests: `cd tests && npm install && npm test` (needs Chrome or Edge) |
 
 ## Features

@@ -41,7 +41,11 @@ module.exports = async t => {
       for (let i = 0; i < 200 && !lucky; i++) { mobAttack(m); lucky = texts.some(x => x.txt === 'Lucky!'); } P.st.luk = 1; S = computeStats(); return lucky; }), 'high LUK can give a "Lucky!" dodge');
 
     // ---- #63 floating EXP
-    t.ok(await g.ev(() => { const m = mobs.find(m => !m.dead); P.cls = 'novice'; S = computeStats(); hurtMob(m, 99999, false, 'phys'); return texts.some(x => /^\+\d+ EXP$/.test(x.txt)) && texts.some(x => /^\+\d+ Job$/.test(x.txt)); }),
+    // stand next to it (a game server refuses far-away hits) and give the server a moment to confirm the kill
+    t.ok(await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); const m = mobs.find(m => !m.dead); P.cls = 'novice'; S = computeStats();
+      P.x = m.x - 25; P.y = m.y; NET.lastSent = ''; netTick(0); await w(300); hurtMob(m, 99999, false, 'phys');
+      const seen = () => texts.some(x => /^\+\d+ EXP$/.test(x.txt)) && texts.some(x => /^\+\d+ Job$/.test(x.txt));
+      for (let i = 0; i < 30 && !seen(); i++) await w(100); return seen(); }),
       'a kill shows floating "+EXP" and "+Job" gains');
 
     // ---- #42 monster info

@@ -20,20 +20,21 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 // every test run gets its own private room, so tests never meet real players
 const newRoom = () => 'test-' + Math.random().toString(36).slice(2, 10);
 
-async function openGame(room) {
+// opts.server overrides the game server (e.g. an unreachable one to test the public-broker backup)
+async function openGame(room, opts = {}) {
   if (!BROWSER) throw new Error('No Chrome or Edge found. Set the BROWSER environment variable to its path.');
   const browser = await pptr.launch({ executablePath: BROWSER, headless: true });
   const page = await browser.newPage();
   await page.setViewport({ width: 1200, height: 800 });
   page.errors = [];
   page.on('pageerror', e => page.errors.push(e.message));
-  await page.goto(GAME + '?room=' + room + SERVER_Q);
+  await page.goto(GAME + '?room=' + room + (opts.server ? '&server=' + encodeURIComponent(opts.server) : SERVER_Q));
   return { browser, page, ev: (f, ...a) => page.evaluate(f, ...a), close: () => browser.close() };
 }
 
 // open the game and start a brand new character
-async function player(name, room, { zone } = {}) {
-  const g = await openGame(room);
+async function player(name, room, { zone, server } = {}) {
+  const g = await openGame(room, { server });
   await g.ev(n => { localStorage.clear(); document.getElementById('nameIn').value = n; document.getElementById('newBtn').click(); }, name);
   await wait(600);
   if (zone) await g.ev(z => enterZone(z), zone);

@@ -1,12 +1,15 @@
+// BACKUP PATH: the game server is unreachable here on purpose, so the players fall back to the
+// public broker and the first player in a region hosts the monsters.
 // Two separate browsers in the same private room: they see each other, share monsters,
 // get rewarded for their own kills, get attacked by the shared monsters, and survive the host leaving.
 const { player, wait, newRoom } = require('./helpers');
 
 module.exports = async t => {
   const room = newRoom();
-  const A = await player('Alpha', room, { zone: 'meadow' });
+  const OFFLINE = 'http://127.0.0.1:9'; // nothing listens here
+  const A = await player('Alpha', room, { zone: 'meadow', server: OFFLINE });
   await wait(2500);
-  const B = await player('Beta', room);
+  const B = await player('Beta', room, { server: OFFLINE });
   try {
     await B.ev(() => enterZone('meadow'));
     await wait(5000);
