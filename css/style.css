@@ -93,6 +93,13 @@ button{font:inherit;color:inherit}
 .ico{width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#10141b}
 .tabs{display:flex;gap:6px;margin:6px 0 8px}
 .tabs .btn.on{border-color:var(--exp);color:var(--exp)}
+.eqgrid{display:grid;grid-template-columns:1fr 120px 1fr;gap:8px;align-items:center;margin:8px 0 10px}
+#eqCv{width:120px;height:150px;border-radius:8px;background:radial-gradient(circle at 50% 60%,#3c4a5e,#1a2230);border:1px solid var(--edge-dim)}
+.eqcol{display:flex;flex-direction:column;gap:8px;min-width:0}
+.eqslot{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:6px;border:1px solid var(--edge-dim);border-radius:6px;background:#10141b;min-width:0}
+.eqslot .grow{min-width:0;width:100%}.eqslot .nm{font-weight:700;font-size:12.5px;overflow-wrap:anywhere}.eqslot .ds{font-size:11px;color:var(--muted)}
+.eqk{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--edge)}
+@media (max-width:420px){.eqgrid{grid-template-columns:1fr 1fr}#eqCv{grid-column:1/-1;grid-row:1;justify-self:center}}
 .choice{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .choice button{text-align:left;padding:10px;border-radius:5px;border:1px solid var(--edge-dim);background:#10141b;cursor:pointer}
 .choice button:hover{border-color:var(--edge)}

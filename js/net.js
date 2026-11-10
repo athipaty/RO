@@ -156,6 +156,8 @@ function announceText(n,k,v){
   if(k==='job'&&CLASSES[v])return `${n} became a ${CLASSES[v].name}!`;
   if(k==='sig'&&MOBS[v])return `${n} found a ${MOBS[v].name} Sigil!`;
   if(k==='boss'&&MOBS[v]&&MOBS[v].boss)return `${n} helped defeat the ${MOBS[v].name}!`;
+  if(k==='drop'&&ITEMS[v]&&rarityOf(v)>=2)return `${n} found a ${RARITY[rarityOf(v)].name.toLowerCase()} ${ITEMS[v].name}!`;
+  if(k==='refine'&&typeof v==='string'){const[r,id]=v.split(':');const it=ITEMS[id];if(it&&['weapon','armor','head','accessory'].includes(it.type)&&+r>=7&&+r<=10)return `${n} refined a +${+r} ${it.name}!`;}
   if(k==='quest'&&MOBS[v])return `${n} finished a ${MOBS[v].name} hunting contract.`;
   return null;}
 function netTick(dt){

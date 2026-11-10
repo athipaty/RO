@@ -7,7 +7,7 @@ let uid=1;
 
 function newPlayer(name){
   return {name:name||'Wanderer',cls:'novice',lv:1,exp:0,jl:1,jexp:0,st:{str:1,agi:1,vit:1,int:1,dex:1,luk:1},statPts:24,skillPts:0,skills:{},
-    gold:200,inv:[{id:'red',n:6},{id:'scroll',n:1}],eq:{weapon:{id:'club',uid:uid++,s:[]},armor:{id:'tunic',uid:uid++,s:[]},accessory:null,head:null},quest:null,
+    gold:200,storage:[],inv:[{id:'red',n:6},{id:'scroll',n:1}],eq:{weapon:{id:'club',uid:uid++,s:[]},armor:{id:'tunic',uid:uid++,s:[]},accessory:null,head:null},quest:null,
     hp:1,sp:1,zone:'town',x:0,y:0,visited:['town'],buffs:{},cd:{},
     path:[],target:null,npcGoal:null,queued:null,atkT:0,face:1,walkT:0,moving:false,sitting:false,dead:false,regenAcc:0};
 }
@@ -26,7 +26,9 @@ function getZone(id){
     const B=[{x:5,y:4,w:7,h:5,name:'General Store',roof:'#8e3b2e',npc:{name:'Ilsa the Merchant',role:'shop',col:'#c86a3a',hair:'#8a3b1a'}},
              {x:27,y:4,w:8,h:5,name:'Guild Hall',roof:'#2e4f8e',npc:{name:'Guildmaster Corvin',role:'job',col:'#3b5ea8',hair:'#c8c8c8'}},
              {x:5,y:20,w:7,h:5,name:'Chapel',roof:'#cfc6b4',npc:{name:'Sister Maren',role:'heal',col:'#efe7d6',hair:'#e0c070'}},
-             {x:28,y:20,w:7,h:5,name:'Waystation',roof:'#3e7a4a',npc:{name:'Tobin the Wayfarer',role:'warp',col:'#4f8a4a',hair:'#5a3a20'}}];
+             {x:28,y:20,w:7,h:5,name:'Waystation',roof:'#3e7a4a',npc:{name:'Tobin the Wayfarer',role:'warp',col:'#4f8a4a',hair:'#5a3a20'}},
+             {x:14,y:4,w:6,h:4,name:'Smithy',roof:'#5a4a42',npc:{name:'Brannoc the Smith',role:'smith',col:'#6a5040',hair:'#2b1d16'}},
+             {x:14,y:20,w:6,h:4,name:'Warehouse',roof:'#7a6a3a',npc:{name:'Wenna the Keeper',role:'storage',col:'#8a6a9a',hair:'#d86a9a'}}];
     for(const b of B){for(let y=b.y;y<b.y+b.h;y++)for(let x=b.x;x<b.x+b.w;x++)set(x,y,5);
       zone.buildings.push(b);
       const nx=(b.x+b.w/2)*TILE, ny=(b.y+b.h)*TILE+20;
@@ -143,7 +145,7 @@ function maxWeight(){return 800+((S&&S.str)||P.st.str)*30;}
 function computeStats(){
   const c=CLASSES[P.cls], b={}, lv=P.lv;
   for(const slot of ['weapon','armor','accessory','head']){const e=P.eq[slot];if(!e)continue;const it=ITEMS[e.id];
-    addB(b,{atk:it.atk||0,matk:it.matk||0,def:it.def||0});addB(b,it.b);for(const s of e.s)if(s)addB(b,ITEMS[s].b);}
+    addB(b,{atk:it.atk||0,matk:it.matk||0,def:it.def||0});addB(b,it.b);addB(b,refineBonus(e));for(const s of e.s)if(s)addB(b,ITEMS[s].b);}
   for(const k in P.buffs)addB(b,P.buffs[k].b);
   const st={};for(const k of STATS)st[k]=P.st[k]+(b[k]||0);
   const w=P.eq.weapon?ITEMS[P.eq.weapon.id]:null, bow=w&&w.wt==='bow';

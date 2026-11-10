@@ -49,6 +49,7 @@ function icon(it){return `<span class="ico" style="background:${it.col}">${it.g}
 function itemDesc(e){const it=ITEMS[e.id];const bits=[];
   if(it.atk)bits.push(`ATK ${it.atk}`);if(it.matk)bits.push(`MATK ${it.matk}`);if(it.def)bits.push(`DEF ${it.def}`);
   if(it.b)for(const k in it.b)bits.push(`${k.toUpperCase().replace('MAXHP','Max HP').replace('MAXSP','Max SP')} +${it.b[k]}`);
+  if(rarityOf(e.id))bits.push(RARITY[rarityOf(e.id)].name);if(e.r){const rb=refineBonus(e);bits.push(Object.keys(rb).map(k=>`${k.toUpperCase()} +${rb[k]}`).join(', ')+' (refine)');}
   if(it.lv>1)bits.push(`Lv ${it.lv}+`);if(it.wt)bits.push(it.wt);
   if(e.s&&e.s.length)bits.push('Slots: '+e.s.map(s=>s?ITEMS[s].name.replace(' Sigil',''):'empty').join(', '));
   return it.desc||bits.join(' · ');}
@@ -69,7 +70,7 @@ function refreshPanel(){
     h+=`<h2>Items</h2><div class="sub">${fmt(P.gold)} gold · click an item to use, equip or socket it</div>`;
     if(!P.inv.length)h+=`<p class="muted">Your bag is empty.</p>`;
     P.inv.forEach((e,i)=>{const it=ITEMS[e.id];const verb=it.type==='use'?'Use':it.type==='sigil'?'Socket':it.type==='etc'?'':'Equip';
-      h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div><div class="ds">${itemDesc(e)}</div></div>${verb?`<button class="btn small" data-act="use" data-arg="${i}">${verb}</button>`:''}</div>`;});
+      h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div><div class="ds">${itemDesc(e)}</div></div>${verb?`<button class="btn small" data-act="use" data-arg="${i}">${verb}</button>`:''}</div>`;});
   }
   else if(panelKind==='skills'){
     h+=`<h2>Skills</h2><div class="sub">${c.name} · Skill points: <span class="gold">${P.skillPts}</span></div>`;
@@ -77,6 +78,38 @@ function refreshPanel(){
     for(const id of list){const sk=SKILLS[id],l=P.skills[id]||0;const nl=Math.min(sk.max,l+1);
       h+=`<div class="row"><span class="ico" style="background:${sk.col}">${sk.g}</span><div class="grow"><div class="nm">${sk.name} <span class="muted">${l}/${sk.max}</span></div><div class="ds">${l?sk.desc(l):'Next: '+sk.desc(1)} · ${sk.sp(nl)} SP${l&&l<sk.max?` · next level: ${sk.desc(nl)}`:''}</div></div><button class="btn small" data-act="learn" data-arg="${id}" ${!P.skillPts||l>=sk.max?'disabled':''}>Learn</button></div>`;}
     if(P.cls==='novice')h+=`<p class="muted">Reach Job Lv 10, then talk to Guildmaster Corvin in Hearthvale to choose a calling and unlock its skills.</p>`;
+  }
+  else if(panelKind==='smith'){
+    h+=`<h2>Brannoc the Smith</h2><div class="say">"Bring me ore and gold and I'll make that blade sing. Up to +4 never fails. Past that, a bad strike shatters the piece for good."</div>`;
+    h+=`<h3>Materials</h3>`;
+    for(const id of ['emberore','glintstone']){const it=ITEMS[id],have=(invFind(id)||{}).n||0;
+      h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name} <span class="muted">×${have}</span></div><div class="ds">${it.desc}</div></div><span class="gold">${it.price}</span><button class="btn small" data-act="buy" data-arg="${id}" ${P.gold<it.price?'disabled':''}>Buy</button></div>`;}
+    h+=`<h3>Refine</h3><div class="sub">${fmt(P.gold)} gold</div>`;
+    const gear=[...['weapon','armor','head','accessory'].filter(s=>P.eq[s]).map(s=>({e:P.eq[s],key:'eq:'+s,where:'equipped'})),
+      ...P.inv.filter(e=>e.uid&&['weapon','armor','head','accessory'].includes(ITEMS[e.id].type)).map(e=>({e,key:'inv:'+e.uid,where:'in bag'}))];
+    if(!gear.length)h+=`<p class="muted">You have no gear to refine.</p>`;
+    for(const {e,key,where} of gear){const r=e.r||0,next=r+1,mat=refineMat(e.id),has=!!invFind(mat),fee=refineFee(next);
+      const armed=refineArm===key,risk=REFINE_CHANCE[next]<1;
+      h+=`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)} <span class="muted">${where}</span></div>`+
+        (r>=10?`<div class="ds">Fully refined.</div></div>`:
+        `<div class="ds">To +${next}: ${Math.round(REFINE_CHANCE[next]*100)}% · ${ITEMS[mat].name} + ${fmt(fee)} gold${risk?' · <span style="color:var(--warn)">breaks on failure</span>':''}</div></div>`+
+        `<button class="btn small" data-act="refine" data-arg="${key}" ${!has||P.gold<fee?'disabled':''}>${armed?'Sure?':'Refine'}</button>`)+`</div>`;}
+  }
+  else if(panelKind==='storage'){
+    h+=`<h2>Wenna the Keeper</h2><div class="say">"Leave it with me, love. It'll be right here when you come back."</div>`;
+    h+=`<div class="sub">Storage ${P.storage.length}/${STORAGE_MAX} · Weight ${fmt(carryWeight())}/${fmt(maxWeight())}</div>`;
+    h+=`<h3>Your bag</h3>`;if(!P.inv.length)h+=`<p class="muted">Empty.</p>`;
+    P.inv.forEach((e,i)=>{h+=`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><button class="btn small" data-act="store" data-arg="${i}">Store</button></div>`;});
+    h+=`<h3>In storage</h3>`;if(!P.storage.length)h+=`<p class="muted">Nothing stored yet.</p>`;
+    P.storage.forEach((e,i)=>{h+=`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><button class="btn small" data-act="take" data-arg="${i}">Take</button></div>`;});
+  }
+  else if(panelKind==='equip'){S=computeStats();
+    const slotBox=s=>{const e=P.eq[s];return `<div class="eqslot">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="eqk">${s}</div>`+
+      (e?`<div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}</div><div class="ds">${itemDesc(e)}</div></div><button class="btn small" data-act="unequip" data-arg="${s}">Remove</button>`:`<div class="muted">Empty</div></div>`)+`</div>`;};
+    h+=`<h2>Equipment</h2><div class="sub">Refine gear with Brannoc the Smith in Hearthvale.</div>`;
+    h+=`<div class="eqgrid"><div class="eqcol">${slotBox('head')}${slotBox('armor')}</div><canvas id="eqCv" width="240" height="300" aria-label="Your character"></canvas><div class="eqcol">${slotBox('weapon')}${slotBox('accessory')}</div></div>`;
+    h+=`<div class="dv"><div><span>ATK</span><span>${S.atk}</span></div><div><span>MATK</span><span>${S.matk}</span></div><div><span>DEF</span><span>${S.def}</span></div><div><span>HIT</span><span>${S.hit}</span></div>`+
+      `<div><span>FLEE</span><span>${S.flee}</span></div><div><span>CRIT</span><span>${S.crit}</span></div><div><span>Attacks/sec</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Weight</span><span>${fmt(carryWeight())}/${fmt(maxWeight())}</span></div></div>`;
   }
   else if(panelKind==='mob'){const d=MOBS[panelArg];if(!d){closePanel();return;}S=computeStats();
     const pc=c=>{const v=c*100;return(v>=10||v===Math.round(v)?Math.round(v):v.toFixed(1))+'%';};
@@ -111,7 +144,7 @@ function refreshPanel(){
       h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name}</div><div class="ds">${itemDesc({id,s:it.slots?Array(it.slots).fill(null):[]})}${why&&it.type!=='use'?` · <span style="color:#ef7a6f">${why.replace('Requires ','')}</span>`:''}</div></div><span class="gold" style="font-variant-numeric:tabular-nums">${fmt(it.price)}</span><button class="btn small" data-act="buy" data-arg="${id}" ${P.gold<it.price?'disabled':''}>Buy</button></div>`;}}
     else{const etc=P.inv.filter(e=>ITEMS[e.id].type==='etc');const tot=etc.reduce((a,e)=>a+sellValue(e.id)*e.n,0);
       h+=`<div class="row"><div class="grow">Sell all monster loot</div><span class="gold">${fmt(tot)}</span><button class="btn small" data-act="sellall" ${tot?'':'disabled'}>Sell all</button></div>`;
-      P.inv.forEach((e,i)=>{const it=ITEMS[e.id];h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><span class="gold">${fmt(sellValue(e.id))}</span><button class="btn small" data-act="sell" data-arg="${i}">Sell 1</button></div>`;});}
+      P.inv.forEach((e,i)=>{const it=ITEMS[e.id];h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><span class="gold">${fmt(sellValue(e.id))}</span><button class="btn small" data-act="sell" data-arg="${i}">Sell 1</button></div>`;});}
   }
   else if(panelKind==='job'){
     h+=`<h2>Guild Hall</h2>`;
@@ -139,12 +172,36 @@ function refreshPanel(){
       h+=`<div class="row"><div class="grow"><div class="nm">${D.name}</div><div class="ds">${D.lvl}${ok?'':' · not visited yet'}</div></div><span class="gold">${cost}</span><button class="btn small" data-act="warp" data-arg="${id}" ${ok&&P.gold>=cost?'':'disabled'}>Travel</button></div>`;});
   }
   panel.innerHTML=h;
+  if(panelKind==='equip')drawEquipDoll();
 }
 const emThumbs={};function emoteThumb(k){if(!emThumbs[k]){const c=document.createElement('canvas');c.width=c.height=64;drawEmoteIcon(c.getContext('2d'),k,32,32,52);emThumbs[k]=c.toDataURL();}return emThumbs[k];}
+const STORAGE_MAX=120;let refineArm=null;
+function findGear(key){const[w,v]=key.split(':');if(w==='eq')return P.eq[v]?{e:P.eq[v],slot:v}:null;const i=P.inv.findIndex(e=>String(e.uid)===v);return i<0?null:{e:P.inv[i],idx:i};}
+function doRefine(key){const g=findGear(key);if(!g){refineArm=null;refreshPanel();return;}const e=g.e,next=(e.r||0)+1;if(next>10)return;
+  const mat=refineMat(e.id),fee=refineFee(next),chance=REFINE_CHANCE[next];
+  if(!invFind(mat)||P.gold<fee){addLog(`You need ${ITEMS[mat].name} and ${fmt(fee)} gold.`,'l-bad');return;}
+  if(chance<1&&refineArm!==key){refineArm=key;refreshPanel();return;} // risky: ask once more
+  refineArm=null;takeItem(mat);P.gold-=fee;
+  if(Math.random()<chance){e.r=next;sfx('levelup');fx.push({k:'ring',x:P.x,y:P.y,r:46,col:'#ffcf5a',t0:now,dur:.5});
+    addLog(`Success! It is now ${itemName(e)}.`,'l-good');floatT(P.x,P.y-50,`+${next}!`,'#ffcf5a',20);
+    if(next>=7)announce('refine',`${next}:${e.id}`);}
+  else{sfx('hurt');shakeUntil=now+.25;fx.push({k:'poof',x:P.x,y:P.y-10,col:'#9aa0aa',t0:now,dur:.6});
+    if(g.slot)P.eq[g.slot]=null;else P.inv.splice(g.idx,1);
+    addLog(`The refine failed. Your ${itemName(e)} shattered.`,'l-bad');floatT(P.x,P.y-50,'Shattered!','#ff8a7a',18);}
+  S=computeStats();P.hp=Math.min(P.hp,S.maxhp);P.sp=Math.min(P.sp,S.maxsp);rebuildHotbar();refreshPanel();save(true);}
+function drawEquipDoll(){const c=document.getElementById('eqCv');if(!c)return;const g=c.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,c.width,c.height);
+  g.setTransform(3,0,0,3,0,0);const main=ctx;ctx=g;
+  try{drawPlayer({name:P.name,look:P.look,cls:P.cls,eq:P.eq,x:40,y:82,face:1,back:false,moving:false,sitting:false},P.eq.weapon&&P.eq.weapon.id);}finally{ctx=main;}}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 panel.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act,arg=b.dataset.arg;
   if(a==='close')return closePanel();
+  if(a==='refine')return doRefine(arg);
+  if(a==='store'){const e=P.inv[+arg];if(!e)return;const st=e.n!==undefined?P.storage.find(x=>x.id===e.id&&x.n!==undefined):null;
+    if(!st&&P.storage.length>=STORAGE_MAX){addLog('Storage is full.','l-bad');return;}
+    P.inv.splice(+arg,1);if(st)st.n+=e.n;else P.storage.push(e);sfx('click');rebuildHotbar();refreshPanel();save();return;}
+  if(a==='take'){const e=P.storage[+arg];if(!e)return;if(carryWeight()+itemWeight(e.id)*(e.n||1)>maxWeight()){addLog(`Too heavy to carry ${itemName(e)}.`,'l-bad');return;}
+    P.storage.splice(+arg,1);const bag=e.n!==undefined?invFind(e.id):null;if(bag)bag.n+=e.n;else P.inv.push(e);sfx('click');rebuildHotbar();refreshPanel();save();return;}
   if(a==='stat'){const v=P.st[arg],c=statCost(v);if(P.statPts>=c&&v<99){P.st[arg]++;P.statPts-=c;S=computeStats();}}
   if(a==='use')useInv(+arg);
   if(a==='unequip')unequip(arg);
@@ -188,7 +245,7 @@ cv.addEventListener('pointermove',ev=>{if(!P)return;const sc=screenAt(ev);hoverM
 window.addEventListener('keydown',ev=>{
   if(!running||ev.target.tagName==='INPUT')return;const k=ev.key.toLowerCase();
   // classic MMO desktop shortcuts (the single-letter keys below keep working too)
-  if(ev.altKey){const pn={e:'items',q:'items',s:'skills',a:'status',l:'emote',h:'help'}[k];
+  if(ev.altKey){const pn={e:'items',q:'equip',s:'skills',a:'status',l:'emote',h:'help'}[k];
     if(pn){ev.preventDefault();togglePanel(pn);return;}
     if(k==='v'){ev.preventDefault();$('#hud').hidden=!$('#hud').hidden;return;}}
   if(/^f[1-9]$/.test(k)){ev.preventDefault();const i=+k.slice(1)-1;if(i<8)pressSlot(i);return;}
@@ -225,7 +282,7 @@ $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDef
 
 /* ================= save / load ================= */
 function snapshot(){if(!P)return null;
-  const keep=['name','look','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest'];
+  const keep=['name','look','storage','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest'];
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;return {v:1,p:JSON.parse(JSON.stringify(o))};}
 function save(force){const s=snapshot();if(!s)return;
   if(ACC.token){ACC.cloud=s;cloudSave(force);}else try{localStorage.setItem(SAVE_KEY,JSON.stringify(s));}catch(e){}}

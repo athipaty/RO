@@ -74,10 +74,10 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 
 ### Items and economy
 - [x] 17. S Item weight and carry limit (STR raises it)
-- [ ] 18. M Refining +1 to +10 with failure chance
+- [x] 18. M Refining +1 to +10 with failure chance
 - [ ] 19. M Slotted gear variants (0-4 sigil slots)
-- [ ] 20. S Rarity colours and world announcements for rare drops
-- [ ] 21. M Storage NPC and a cart
+- [x] 20. S Rarity colours and world announcements for rare drops
+- [x] 21. M Storage NPC (cart still to do)
 - [ ] 22. M Crafting and brewing
 - [ ] 23. L (server) Player shops while sitting
 - [ ] 24. L (server) Trade window
@@ -128,7 +128,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 
 ### Interface
 - [ ] 59. M Classic basic-info window
-- [ ] 60. M Equipment window with a paper doll
+- [x] 60. M Equipment window with a paper doll
 - [ ] 61. S Draggable windows that remember their place
 - [ ] 62. S Several hotbar rows with drag and drop
 - [x] 63. S Floating "+EXP / +Job" gains, EXP per hour (/exp)

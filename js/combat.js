@@ -40,7 +40,8 @@ function killMob(m){
 }
 function dropLoot(m,id,o={}){
   let x=m.x,y=m.y;for(let k=0;k<6;k++){const a=rnd(0,7),r=rnd(14,36),tx=m.x+Math.cos(a)*r,ty=m.y+Math.sin(a)*r;if(canStand(tx,ty,4)){x=tx;y=ty;break;}}
-  loot.push({id,gold:o.gold||0,rare:!!o.rare,x,y,fx:m.x,fy:m.y,t0:now+loot.length%6*.04,exp:now+120,uid:++lootId});}
+  const rar=id?rarityOf(id):0;if(rar>=2&&!o.rare)announce('drop',id);
+  loot.push({id,gold:o.gold||0,rare:!!o.rare||rar>=2,x,y,fx:m.x,fy:m.y,t0:now+loot.length%6*.04,exp:now+120,uid:++lootId});}
 function pickUp(l){const i=loot.indexOf(l);if(i<0)return;
   if(!l.gold&&carryWeight()+itemWeight(l.id)>maxWeight()){l.tooHeavy=true;floatT(P.x,P.y-40,'Too heavy!','#ff9a6a',13);addLog(`You are carrying too much to pick up ${ITEMS[l.id].name}.`,'l-bad');return;}
   loot.splice(i,1);

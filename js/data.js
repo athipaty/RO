@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='0.9.0';
+const VERSION='0.10.0';
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
 const BLOCK=[0,0,1,1,1,1,0,0]; // 0 ground 1 path 2 tree 3 water 4 rock 5 building 6 cobble 7 flowers
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
@@ -55,6 +55,8 @@ const ITEMS={
   imphorns:{name:'Imp Horns',type:'head',b:{atk:6,matk:15},price:4000,lv:30,slots:0,col:'#a33a2a',g:'^'},
   frostcap:{name:'Frost Cap',type:'head',def:5,b:{vit:2},price:5000,lv:40,slots:0,col:'#6fa8d8',g:'^'},
   crown:{name:'Ember Crown',type:'head',def:4,b:{str:3,int:3,maxhp:150},price:20000,lv:40,slots:0,col:'#ffcf5a',g:'^'},
+  emberore:{name:'Ember Ore',type:'etc',price:150,col:'#e07a3a',g:'◆',desc:'The smith uses one to refine a weapon.'},
+  glintstone:{name:'Glintstone',type:'etc',price:120,col:'#9fd6ff',g:'◆',desc:'The smith uses one to refine armour, a hat or an accessory.'},
   fang:{name:'Rime Fang',type:'etc',price:260,col:'#cfe3f0',g:'•'}, shard:{name:'Frost Shard',type:'etc',price:280,col:'#9fd6ff',g:'•'}, fur:{name:'Snowhulk Fur',type:'etc',price:310,col:'#f0f4f8',g:'•'},
   ring:{name:'Brass Ring',type:'accessory',b:{str:2},price:300,lv:1,slots:1,col:'#d9b45a',g:'O'},
   clip:{name:'Silver Clip',type:'accessory',b:{maxsp:30},price:900,lv:10,slots:1,col:'#cfd6de',g:'O'},
@@ -65,6 +67,20 @@ const WEAPON_W={club:40,sword:80,axe:150,wand:30,bow:50,mace:70},ARMOR_W={tunic:
 function itemWeight(id){const it=ITEMS[id];if(!it)return 0;if(it.w!=null)return it.w;
   if(it.type==='weapon')return WEAPON_W[it.wt]||50;if(it.type==='armor')return ARMOR_W[id]||50;if(it.type==='head')return 15;if(it.type==='accessory')return 10;
   if(it.type==='sigil')return 1;if(it.type==='use')return id==='scroll'||id==='leaf'?1:5;return id==='crest'?20:2;}
+/* ---- #20 rarity: colour-coded item names ---- */
+const RARITY=[{name:'Common',col:'#e8e2d2'},{name:'Uncommon',col:'#7fd38a'},{name:'Rare',col:'#6fb0ff'},{name:'Epic',col:'#c58cff'},{name:'Legendary',col:'#ffb347'}];
+const LEGENDARY=new Set(['crest','crown']),RARE_DROPS=new Set(['sprout','lupeears','turban','imphorns','frostcap']);
+function rarityOf(id){const it=ITEMS[id];if(!it)return 0;if(LEGENDARY.has(id))return 4;if(it.type==='sigil')return 3;if(RARE_DROPS.has(id))return 2;
+  if((it.type==='weapon'||it.type==='armor'||it.type==='accessory')&&it.price>=3000)return 1;return 0;}
+const rarityCol=id=>RARITY[rarityOf(id)].col;
+/* ---- #18 refining ---- */
+const REFINE_CHANCE=[0,1,1,1,1,.9,.75,.55,.4,.25,.15]; // chance to reach +N
+const refineFee=n=>200*n;
+const refineMat=id=>ITEMS[id].type==='weapon'?'emberore':'glintstone';
+function refineBonus(e){const r=e.r||0;if(!r)return {};const it=ITEMS[e.id];
+  if(it.type==='weapon'){const o={atk:r*Math.max(3,Math.round((it.atk||0)*.06))};if(it.matk)o.matk=r*Math.max(2,Math.round(it.matk*.06));return o;}
+  return {def:r};}
+function itemName(e){return (e.r?`+${e.r} `:'')+ITEMS[e.id].name;}
 const SHOP=['red','orange','blue','leaf','scroll','strawhat','ribbon','spiked','sword','wand','bow','mace','bastion','rod','longbow','sunmace','axe','tunic','vest','robe','scale','plate','ring','clip','charm'];
 
 const MOBS={

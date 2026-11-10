@@ -306,7 +306,7 @@ function drawLoot(l){
     ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.arc(x-2.5,y-2.5,1.8,0,7);ctx.fill();}
   ctx.shadowBlur=0;
   if(k>=1&&(now+l.uid*.7)%2.4<.25){ctx.fillStyle='rgba(255,255,255,.9)';const gx=x+5,gy=y-6;ctx.beginPath();ctx.moveTo(gx,gy-4);ctx.lineTo(gx+1,gy);ctx.lineTo(gx,gy+4);ctx.lineTo(gx-1,gy);ctx.fill();ctx.fillRect(gx-3,gy-.5,6,1);}
-  if(hoverLoot===l||l.rare){ctx.globalAlpha=1;label(l.gold?`${fmt(l.gold)} gold`:ITEMS[l.id].name,l.x,y-12,l.rare?'#ffcf5a':'#f3ead6',11);}
+  if(hoverLoot===l||l.rare){ctx.globalAlpha=1;label(l.gold?`${fmt(l.gold)} gold`:ITEMS[l.id].name,l.x,y-12,l.gold?'#ffcf5a':rarityCol(l.id),11);}
   ctx.globalAlpha=1;}
 function shade(hex,amt){const n=parseInt(hex.slice(1),16);let r=(n>>16)+amt,g=(n>>8&255)+amt,b=(n&255)+amt;return`rgb(${clamp(r,0,255)},${clamp(g,0,255)},${clamp(b,0,255)})`;}
 function drawMob(m){
