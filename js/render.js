@@ -138,6 +138,7 @@ function render(){
     ctx.lineWidth=Math.max(3,t.size/4.5);ctx.strokeStyle='rgba(25,12,4,.92)';ctx.strokeText(t.txt,0,0);ctx.fillStyle=t.col;ctx.fillText(t.txt,0,0);ctx.restore();ctx.globalAlpha=1;});
   ctx.restore();
   drawAmbient();
+  if(THEMES[Z.D.theme].dark&&!(P&&ailOn('blind'))){const g=ctx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.22,VW/2,VH/2,Math.max(VW,VH)*.7);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(5,4,10,.62)');ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);ctx.restore();}
   if(P&&ailOn('blind'))drawBlind();
 }
 const amb=[];let ambZone=null,ambLast=0;
@@ -262,6 +263,8 @@ function drawHat(id,x,hy,f){
     case 'strawhat':ctx.fillStyle='#d9b45a';ctx.beginPath();ctx.ellipse(x,hy-6,15,4,0,0,7);ctx.fill();ctx.fillStyle='#e8c870';ctx.beginPath();ctx.ellipse(x,hy-9,8,6,0,Math.PI,0);ctx.fill();ctx.fillStyle='#b8473a';ctx.fillRect(x-8,hy-8,16,2);break;
     case 'ribbon':ctx.fillStyle='#f07ca0';ctx.beginPath();ctx.moveTo(x-f*4,hy-12);ctx.lineTo(x-f*13,hy-18);ctx.lineTo(x-f*12,hy-7);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(x-f*4,hy-12);ctx.lineTo(x+f*5,hy-19);ctx.lineTo(x+f*4,hy-8);ctx.closePath();ctx.fill();ctx.fillStyle='#c84a78';ctx.beginPath();ctx.arc(x-f*4,hy-12,2.5,0,7);ctx.fill();break;
     case 'sprout':ctx.strokeStyle='#4e9a3a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,hy-9);ctx.lineTo(x,hy-17);ctx.stroke();ctx.fillStyle='#7fd36a';ctx.beginPath();ctx.ellipse(x-5,hy-18,5,2.5,-.5,0,7);ctx.ellipse(x+5,hy-19,5,2.5,.5,0,7);ctx.fill();break;
+    case 'gloomhat':ctx.fillStyle='#6a4a8a';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(x,hy-9,15,9,0,Math.PI,0);ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.fillStyle='#c8b0f0';for(const[a,b,r]of[[-7,-13,2.2],[2,-15,2.6],[8,-11,1.8],[-1,-10,1.5]]){ctx.beginPath();ctx.arc(x+a,hy+b,r,0,7);ctx.fill();}break;
     case 'thorncrown':ctx.fillStyle='#4e8a3a';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(x,hy-9,11,3.5,0,0,7);ctx.fill();ctx.stroke();
       for(let i=-2;i<=2;i++){ctx.fillStyle=i%2?'#6fb04f':'#4e8a3a';ctx.beginPath();ctx.moveTo(x+i*4.5-2.5,hy-10);ctx.lineTo(x+i*4.5,hy-19+Math.abs(i)*1.5);ctx.lineTo(x+i*4.5+2.5,hy-10);ctx.closePath();ctx.fill();ctx.stroke();}
       ctx.fillStyle='#e04a6a';ctx.beginPath();ctx.arc(x+f*3,hy-10,2,0,7);ctx.fill();break;

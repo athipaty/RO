@@ -17,7 +17,7 @@ vm.createContext(sandbox);
 const code = read('js/data.js') + '\n' + read('js/world.js') + `
 renderZone = () => {};   // drawing needs a browser; the maps themselves do not
 const out = { version: VERSION, tile: TILE, pr: PR, block: BLOCK, zones: {}, mobs: {} };
-for (const id of ZONE_ORDER) {
+for (const id of Object.keys(ZONES)) {
   const D = ZONES[id]; if (!D.mobs) continue;
   const z = getZone(id);
   out.zones[id] = { w: z.w, h: z.h, t: Buffer.from(z.t).toString('base64'), spawnTiles: z.spawnTiles, mobs: D.mobs, safe: !!D.safe };

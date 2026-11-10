@@ -26,5 +26,5 @@ function wbHud(){const el=document.getElementById('wbT');if(!el)return;const w=N
   if(t===wbKey)return;wbKey=t;el.hidden=!t;el.textContent=t;}
 setInterval(()=>{if(running)wbHud();},1000);
 // boss music near a world boss
-setInterval(()=>{if(!running||!P||zoneId==='crypt'||typeof musicPlay!=='function')return;const near=wbMob&&!wbMob.dead&&wbMob.state==='chase'&&dist(wbMob,P)<650;
-  if(near)musicPlay('boss');else if(AU.want==='boss')musicPlay(zoneId);},1000);
+setInterval(()=>{if(!running||!P||zoneId==='crypt'||Z.D.dungeon||typeof musicPlay!=='function')return;const near=wbMob&&!wbMob.dead&&wbMob.state==='chase'&&dist(wbMob,P)<650;
+  if(near)musicPlay('boss');else if(AU.want==='boss')musicPlay(Z.D.music||zoneId);},1000);

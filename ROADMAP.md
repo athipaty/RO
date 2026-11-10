@@ -32,7 +32,7 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 - [x] Second-tier jobs (2 per class) and a skill tree screen (v0.15.0)
 
 ## Stage 5: World and content
-- [ ] New regions and multi-floor dungeons
+- [x] New regions and multi-floor dungeons (Mossdeep Caverns, v0.19.0)
 - [x] Story quests with NPC dialogue, daily quests (v0.16.0)
 - [x] World bosses on timers with an MVP reward for top damage (v0.17.0)
 - [ ] Timed events (EXP weekends, seasonal map)
@@ -95,7 +95,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 ### World and exploration
 - [ ] 32. M A capital city with districts, themed towns
 - [ ] 33. M Named warp portals and a teleport NPC network
-- [ ] 34. M Multi-floor dungeons
+- [x] 34. M Multi-floor dungeons (v0.19.0)
 - [ ] 35. S More teleport items
 - [ ] 36. M Day/night and weather per map
 - [ ] 37. S Bigger minimap and a world map

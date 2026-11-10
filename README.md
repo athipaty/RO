@@ -32,6 +32,7 @@ Play online: https://ro-six-bay.vercel.app/ (add `?room=yourname` to the link fo
 - **Quests**: a 10-chapter story, *The Ember Below*, that starts with Elder Hollis by the fountain and leads through every region to the Ashen Warlord, plus daily quests from Warden Pell, Ilsa and Scout Kade. NPCs talk in a dialogue window, a gold **!** marks a new quest and **?** one to hand in. Press J for the quest log; the pinned quest shows in your status box.
 - 11 monster types across 4 regions, plus the Ashen Warlord world boss, who telegraphs a ground slam
 - **Party support**: Mend, Blessing, Sanctuary, Divine Grace, Holy Aegis, War Cry and Swift Step also reach party members standing nearby.
+- **Dungeon**: stairs in Whispering Woods lead down into the Mossdeep Caverns, three dark floors (Lv 18–37) with six new monsters and the Gloomcap King at the bottom.
 - **World bosses** (run by the game server): the Thornmother, Dune Tyrant or Rimeheart Colossus appears in its region about every 30 minutes and everyone online is told where. The top damage dealer is the MVP and wins a rare hat.
 - **Ground loot**: monsters drop items and gold on the ground with a set chance (shown when you target them); click to pick it up, auto-hunt collects it too
 - Rare **sigils**: every monster can drop one. Socket it into gear with a free slot for a permanent bonus.

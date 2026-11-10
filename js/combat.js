@@ -38,7 +38,7 @@ function killMob(m){
   if(m.d.boss)announce('boss',m.d.id);
   if(!serverSim())for(const [id,ch] of m.d.drops)if(Math.random()<ch)dropLoot(m,id);
   if(!serverSim()&&Math.random()<(m.d.sigChance||.02)){dropLoot(m,m.d.id+'_sig',{rare:true});addLog(`A ${m.d.name} Sigil dropped! Pick it up.`,'l-rare');sfx('rare');announce('sig',m.d.id);fx.push({k:'beam',x:m.x,y:m.y,t0:now,dur:1.6});}
-  if(m.d.boss&&!m.d.world){addLog(`The ${m.d.name} has been defeated! It will rise again in 3 minutes.`,'l-rare');}
+  if(m.d.boss&&!m.d.world){const r=(m.d.respawn||180)/60;addLog(`The ${m.d.name} has been defeated! It will rise again in ${Math.round(r*2)/2} minutes.`,'l-rare');}
   if(!serverSim())dropLoot(m,null,{gold:Math.round(m.d.lv*rnd(1.5,3))});
 }
 function dropLoot(m,id,o={}){
@@ -201,12 +201,12 @@ function enterZone(id,from){
   zoneId=id;Z=getZone(id);P.zone=id;mobs=[];wbMob=null;fx=[];shots=[];loot=[];P.lootGoal=null;hoverLoot=null;
   if(Z.D.mobs)for(const [type,n] of Z.D.mobs)for(let k=0;k<n;k++)mobs.push(spawnMob(type));
   mobs.forEach((m,i)=>m.idx=i);NET.srv=null;NET.zt=Date.now();NET.evs=[];NET.hits=[];NET.evSeen.clear();NET.wasClient=false;NET.lastSent='';NET.sendT=0;
-  if(mobs.some(m=>m.d.boss))addLog('The ground smoulders. The Ashen Warlord stirs somewhere in this crypt.','l-rare');
+  {const b=mobs.find(m=>m.d.boss);if(b)addLog(b.d.id==='warlord'?'The ground smoulders. The Ashen Warlord stirs somewhere in this crypt.':`Something stirs on this floor. The ${b.d.name} is here.`,'l-rare');}
   let pos=Z.spawn;
-  if(from){const pt=Z.portals.find(p=>p.to===from);if(pt)pos={x:pt.x+(pt.side==='west'?2.6:-2.6)*TILE,y:pt.y};}
+  if(from){const pt=Z.portals.find(p=>p.to===from);if(pt)pos=pt.side==='down'?{x:pt.x,y:pt.y-2.4*TILE}:{x:pt.x+(pt.side==='west'?2.6:-2.6)*TILE,y:pt.y};}
   P.casting=null;P.x=pos.x;P.y=pos.y;P.path=[];P.target=null;P.queued=null;P.npcGoal=null;P.portalLock=now+.6;
   if(!P.visited.includes(id))P.visited.push(id);
-  if(from)sfx('portal');musicPlay(id);
+  if(from)sfx('portal');musicPlay(Z.D.music||id);
   $('#zName').textContent=Z.D.name;$('#zLv').textContent=Z.D.lvl;
   addLog(`You enter ${Z.D.name} (${Z.D.lvl}).`);showBanner(Z.D.name,Z.D.lvl);
   if(!['shop','job','heal','warp'].includes(panelKind)||!Z.D.safe)closePanel();
@@ -216,7 +216,7 @@ function enterZone(id,from){
 const keys={};
 function update(dt){
   netTick(dt);
-  if(P&&zoneId==='crypt'){const b=mobs.find(m=>m.d.boss&&!m.dead);musicPlay(b&&b.state==='chase'&&dist(b,P)<650?'boss':'crypt');}
+  if(P&&(zoneId==='crypt'||Z.D.dungeon)){const b=mobs.find(m=>m.d.boss&&!m.d.world&&!m.dead);musicPlay(b&&b.state==='chase'&&dist(b,P)<650?'boss':Z.D.music||zoneId);}
   if(!P||P.dead){if(P&&Z)mobsTick(dt);updateFx();return;}
   S=computeStats();
   for(const k in P.buffs)if(P.buffs[k].until<now){addLog(`${P.buffs[k].name} has worn off.`);delete P.buffs[k];S=computeStats();}
@@ -277,7 +277,7 @@ function mobTargets(){const t=[];if(P&&!P.dead&&!Z.D.safe)t.push(P);
 function slamLand(m){fx.push({k:'ring',x:m.x,y:m.y,r:130,col:'#ff7a3a',t0:now,dur:.4});sfx('slam');shakeUntil=now+.35;
   if(!P.dead&&dist(m,P)<130+PR){hurtPlayer(Math.round(m.d.atk*1.5-S.def*.6),m.d.name);tryAilment(['stun',1,1.5]);}}
 function updateMob(m,dt,T){
-  if(m.dead){if(now>=m.respawnAt){spawnMob(m.d.id,m);if(m.d.boss)addLog('The Ashen Warlord has risen again in the Cinder Crypt!','l-rare');}return;}
+  if(m.dead){if(now>=m.respawnAt){spawnMob(m.d.id,m);if(m.d.boss)addLog(`The ${m.d.name} has risen again in ${Z.D.name}!`,'l-rare');}return;}
   if(m.ailUntil>now){m.moving=false;return;}
   let tg=null,dp=1e9;for(const t of T){const q=dist(m,t);if(q<dp){dp=q;tg=t;}}
   const d=m.d, slow=m.slowUntil>now?.4:1;

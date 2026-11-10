@@ -19,7 +19,7 @@ function getZone(id){
   const D=ZONES[id], W=D.w, H=D.h, r=seeded(D.seed||7), t=new Uint8Array(W*H);
   const set=(x,y,v)=>{if(x>=0&&y>=0&&x<W&&y<H)t[y*W+x]=v;};
   const get=(x,y)=>(x<0||y<0||x>=W||y>=H)?2:t[y*W+x];
-  const obst=(D.theme==='dunes'||D.theme==='crypt')?4:2;
+  const obst=(D.theme==='dunes'||D.theme==='crypt'||D.theme==='cave')?4:2;
   const zone={id,D,w:W,h:H,t,portals:[],npcs:[],buildings:[],spawn:null};
   for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(x===0||y===0||x===W-1||y===H-1)set(x,y,obst);
   if(D.theme==='town'){
@@ -42,7 +42,7 @@ function getZone(id){
     const clusters=Math.floor(W*H*D.density/5);
     for(let i=0;i<clusters;i++){let cx=1+Math.floor(r()*(W-2)),cy=1+Math.floor(r()*(H-2));const n=2+Math.floor(r()*6);
       for(let k=0;k<n;k++){set(cx,cy,obst);cx+=Math.floor(r()*3)-1;cy+=Math.floor(r()*3)-1;}}
-    for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(get(x,y)===0&&r()<D.density*.25)set(x,y,obst);else if(get(x,y)===0&&D.theme!=='crypt'&&D.theme!=='frost'&&r()<.035)set(x,y,7);}
+    for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(get(x,y)===0&&r()<D.density*.25)set(x,y,obst);else if(get(x,y)===0&&D.theme!=='crypt'&&D.theme!=='frost'&&D.theme!=='cave'&&r()<.035)set(x,y,7);}
     for(let i=0;i<D.ponds;i++){const cx=6+Math.floor(r()*(W-12)),cy=5+Math.floor(r()*(H-10)),rx=2+r()*3,ry=2+r()*2.5;
       for(let y=Math.floor(cy-ry);y<=cy+ry;y++)for(let x=Math.floor(cx-rx);x<=cx+rx;x++){const q=((x-cx)/rx)**2+((y-cy)/ry)**2;if(q<1)set(x,y,3);}}
     const mid=H>>1; let y=mid; const ys=[];
@@ -56,6 +56,11 @@ function getZone(id){
     if(D.links.east)zone.portals.push({x:(W-1.5)*TILE,y:(ys[W-1]+.5)*TILE,to:D.links.east,side:'east'});
     else for(let k=-1;k<=1;k++)set(W-1,ys[W-1]+k,obst);
     zone.spawn={x:4.5*TILE,y:(ys[4]+.5)*TILE};
+    // #34 stairs down to a dungeon: a clearing south of the road, joined to it by a path
+    if(D.stairs){const sx=Math.floor(W*.62),road=ys[sx],sy=clamp(road+9,road+4,H-5);
+      for(let yy=road;yy<=sy;yy++)for(let k=-1;k<=1;k++)set(sx+k,yy,1);
+      for(let yy=sy-2;yy<=sy+2;yy++)for(let xx=sx-2;xx<=sx+2;xx++)set(xx,yy,1);
+      zone.portals.push({x:(sx+.5)*TILE,y:(sy+.5)*TILE,to:D.stairs,side:'down'});}
   }
   // reachable spawn tiles
   const seen=new Uint8Array(W*H), q=[]; const sx=Math.floor(zone.spawn.x/TILE), sy=Math.floor(zone.spawn.y/TILE);
@@ -96,7 +101,7 @@ function renderZone(z, r){
   // upright objects (drawn per frame in the isometric view, depth-sorted with characters)
   z.objs=[];
   for(const [px,py,kind] of tops){const th2=z.D.theme;let k;
-    if(kind==='rock')k=th2==='crypt'?'pillar':(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':'tree';
+    if(kind==='rock')k=th2==='crypt'?'pillar':th2==='cave'?'rock':(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':'tree';
     z.objs.push({x:px+16,y:py+16,kind:k,v:Math.floor(R()*3),sc:.85+R()*.3});}
   for(const b of z.buildings){mg.fillStyle=b.roof;mg.fillRect(b.x,b.y,b.w,b.h);}
   if(z.D.theme==='town')z.objs.push({x:20*TILE,y:14*TILE,kind:'fountain',v:0,sc:1});
