@@ -778,7 +778,7 @@ function computeStats(){
 }
 
 /* ================= combat ================= */
-function floatT(x,y,txt,col,size=15){texts.push({x:x+rnd(-6,6),y,txt,col,size,t0:now,dur:.9});}
+function floatT(x,y,txt,col,size=15){texts.push({x:x+rnd(-6,6),y,txt,col,size,t0:now,dur:.9,vx:rnd(-28,28)});}
 function addLog(msg,cls='l-sys'){const el=$('#log');const d=document.createElement('div');d.className=cls;d.textContent=msg;el.appendChild(d);while(el.children.length>40)el.firstChild.remove();el.scrollTop=el.scrollHeight;}
 function aoe(x,y,r,fn){for(const m of mobs)if(!m.dead&&Math.hypot(m.x-x,m.y-y)<=r+m.d.size)fn(m);}
 function shoot(from,to,kind,col,onHit,hostile){shots.push({x:from.x,y:from.y-10,to,kind,col,onHit,spd:kind==='arrow'?620:440,hostile});}
@@ -791,7 +791,9 @@ function dealMag(m,mult,holy){
   if(m.dead)return;let dmg=S.matk*mult*rnd(.92,1.08)-m.d.def*.3;if(holy&&m.d.undead)dmg*=2;
   hurtMob(m,Math.max(1,Math.round(dmg)),false,'mag');}
 function provoke(m){if(!m.dead){m.state='chase';m.aggroed=true;}}
-function hurtMob(m,dmg,crit,kind){m.hitF=now;m.myDmg=(m.myDmg||0)+dmg;const client=!!zoneHost();
+function knock(m,src){const dx=m.x-src.x,dy=m.y-src.y,sx=(dx-dy)*ISO,sy=(dx+dy)*ISO/2,n=Math.hypot(sx,sy)||1;
+  m.kbX=sx/n;m.kbY=sy/n;m.kbT=now;m.stunUntil=now+.22;fx.push({k:'spark',x:m.x,y:m.y-m.d.size*.9,t0:now,dur:.22,r:rnd(0,6)});}
+function hurtMob(m,dmg,crit,kind){m.hitF=now;m.myDmg=(m.myDmg||0)+dmg;const client=!!zoneHost();knock(m,P);
   if(client){m.hp=Math.max(1,m.hp-dmg);sendHit(m,dmg,0);}else{m.hp-=dmg;provoke(m);}
   if(crit){sfx('crit');shakeUntil=now+.2;fx.push({k:'critburst',x:m.x,y:m.y-m.d.size,t0:now,dur:.35});
     texts.push({x:m.x,y:m.y-m.d.size-34,txt:'CRITICAL',col:'#ffe27a',size:13,t0:now,dur:.9});
@@ -814,7 +816,7 @@ function killMob(m){
   const g=Math.round(m.d.lv*rnd(1.5,3));P.gold+=g;
 }
 function hurtPlayer(dmg,src){
-  if(P.dead)return;P.hp-=dmg;P.sitting=false;sfx('hurt');floatT(P.x,P.y-30,fmt(dmg),'#ff6a5a',16);
+  if(P.dead)return;P.hp-=dmg;P.sitting=false;P.hurtT=now;fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});sfx('hurt');floatT(P.x,P.y-30,fmt(dmg),'#ff6a5a',16);
   if(P.hp<=0){P.hp=0;die(src);}
 }
 function mobAttack(m){
@@ -1002,7 +1004,8 @@ function basicAttack(t){
   const c=CLASSES[P.cls];
   if(c.magic){sfx('cast');shoot(P,t,'orb','#b8a0ff',()=>dealMag(t,.85));}
   else if(S.range>100){sfx('bow');shoot(P,t,'arrow','#e8dcb0',()=>dealPhys(t,1));}
-  else{P.swingT=now;dealPhys(t,1);}
+  else{P.swingT=now;const dx=t.x-P.x,dy=t.y-P.y,sx=(dx-dy)*ISO,sy=(dx+dy)*ISO/2,n=Math.hypot(sx,sy)||1;P.lgX=sx/n;P.lgY=sy/n;P.lungeT=now;
+    fx.push({k:'slash',x:t.x,y:t.y,t0:now,dur:.2});dealPhys(t,1);}
 }
 function mobTargets(){const t=[];if(P&&!P.dead&&!Z.D.safe)t.push(P);
   if(NET.room&&!Z.D.safe)for(const o of NET.others.values())if(o.z===zoneId&&!o.dead&&o.id)t.push(o);return t;}
@@ -1024,7 +1027,7 @@ function updateMob(m,dt,T){
       if(dp<=reach){m.face=sface(tg.x-m.x,tg.y-m.y);m.moving=false;if(m.atkT<=0){m.atkT=d.boss?1.3:1.6;m.lunge=now;
           if(tg===P){if(d.range)shoot(m,P,'arrow','#d8d0b8',()=>mobAttack(m),true);else mobAttack(m);}
           else{netEvent('a',m,tg.id);if(d.range)shoot(m,tg,'arrow','#d8d0b8',()=>{},true);}}}
-      else{const dx=tg.x-m.x,dy=tg.y-m.y,n=Math.hypot(dx,dy),s=d.spd*slow*dt*1.15;moveEnt(m,dx/n*s,dy/n*s,Math.min(d.size*.6,11));m.face=sface(dx,dy);m.moving=true;}
+      else if(!(m.stunUntil>now)){const dx=tg.x-m.x,dy=tg.y-m.y,n=Math.hypot(dx,dy),s=d.spd*slow*dt*1.15;moveEnt(m,dx/n*s,dy/n*s,Math.min(d.size*.6,11));m.face=sface(dx,dy);m.moving=true;}
     }
   }
   if(m.state==='return'){const dx=m.sx-m.x,dy=m.sy-m.y,n=Math.hypot(dx,dy);if(n<8){m.state='idle';m.hp=d.hp;}else{const s=d.spd*1.6*dt;if(!moveEnt(m,dx/n*s,dy/n*s,Math.min(d.size*.6,11))){m.x=m.sx;m.y=m.sy;}m.hp=Math.min(d.hp,m.hp+d.hp*dt*.5);}}
@@ -1048,7 +1051,7 @@ function applyHits(apply){
     for(const h of hx){if(!h||fin(h.i)<=o.hxSeen)continue;o.hxSeen=fin(h.i);const m=mobs[fin(h.m)|0];if(!m||m.dead)continue;
       provoke(m);if(h.sl)m.slowUntil=now+clamp(fin(h.sl),0,6);
       const dmg=clamp(Math.round(fin(h.d)),0,99999);
-      if(dmg>0){m.hp-=dmg;m.hitF=now;floatT(m.x,m.y-m.d.size-8,fmt(dmg),'#cfe0ff',13);if(m.hp<=0)killMob(m);}}}}
+      if(dmg>0){m.hp-=dmg;m.hitF=now;knock(m,o);floatT(m.x,m.y-m.d.size-8,fmt(dmg),'#cfe0ff',13);if(m.hp<=0)killMob(m);}}}}
 function syncMobs(host,dt){
   const mb=host.mb;if(!mb||mb.length!==mobs.length)return;
   for(let i=0;i<mobs.length;i++){const m=mobs[i],st=mb[i];if(!Array.isArray(st))continue;
@@ -1201,8 +1204,10 @@ function render(){
   if(!P.dead)at(P.x,P.y,()=>{label(P.name,P.x,P.y+22,'#ffffff',12);
     if(P.bubble&&now<P.bubble.until)bubble(P.bubble.txt,P.x,P.y-58);
     if(P.emote&&now-P.emote.start<3)drawEmote(P.emote.k,P.x+20,P.y-52,now-P.emote.start);});
-  for(const t of texts)at(t.x,t.y,()=>{const a=(now-t.t0)/t.dur;ctx.globalAlpha=1-a*a;ctx.font=`800 ${t.size}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.8)';
-    const y=t.y-a*34;ctx.strokeText(t.txt,t.x,y);ctx.fillStyle=t.col;ctx.fillText(t.txt,t.x,y);ctx.globalAlpha=1;});
+  for(const t of texts)at(t.x,t.y,()=>{const e=now-t.t0,a=e/t.dur;ctx.globalAlpha=a<.65?1:Math.max(0,1-(a-.65)/.35);
+    const pop=e<.1?1.8-8*e:1,x=t.x+(t.vx||0)*e,y=t.y-120*e+125*e*e;
+    ctx.save();ctx.translate(x,y);ctx.scale(pop,pop);ctx.font=`900 ${t.size}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.lineJoin='round';
+    ctx.lineWidth=Math.max(3,t.size/4.5);ctx.strokeStyle='rgba(25,12,4,.92)';ctx.strokeText(t.txt,0,0);ctx.fillStyle=t.col;ctx.fillText(t.txt,0,0);ctx.restore();ctx.globalAlpha=1;});
   ctx.restore();
   drawAmbient();
 }
@@ -1323,6 +1328,10 @@ function drawHat(id,x,hy,f){
 }
 function drawOther(o){drawPlayer({name:o.n,x:o.rx,y:o.ry,cls:o.cls,face:o.face,moving:o.moving,walkT:o.walkT,sitting:o.sitting,hat:o.hat},o.wid);}
 function drawPlayer(P,wid){
+  const lg=P.lungeT&&now-P.lungeT<.2?Math.sin((now-P.lungeT)/.2*Math.PI)*7:0,hr=P.hurtT&&now-P.hurtT<.2?Math.sin((now-P.hurtT)/.2*Math.PI*3)*2.5:0;
+  if(!lg&&!hr)return drawPlayerBody(P,wid);
+  ctx.save();ctx.translate((P.lgX||0)*lg+hr,(P.lgY||0)*lg);drawPlayerBody(P,wid);ctx.restore();}
+function drawPlayerBody(P,wid){
   const c=CLASSES[P.cls],w=wid?ITEMS[wid]:null;
   const hat=P.hat!==undefined?P.hat:(P.eq&&P.eq.head?P.eq.head.id:null);
   const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?P.walkT:0,{sit:P.sitting,hat,look:lookFor(P.name),outfit:P.cls});
@@ -1345,7 +1354,8 @@ function drawMob(m){
   const d=m.d,s=d.size,x=m.x,f=m.face,t=now+m.ph;let y=m.y;
   const flash=now-m.hitF<.12;
   const lunge=m.lunge&&now-m.lunge<.18?Math.sin((now-m.lunge)/.18*Math.PI)*6*f:0;
-  ctx.save();ctx.translate(lunge,0);
+  const kb=m.kbT&&now-m.kbT<.25?Math.sin((now-m.kbT)/.25*Math.PI)*7:0;
+  ctx.save();ctx.translate(lunge+(m.kbX||0)*kb,(m.kbY||0)*kb);
   const col=flash?'#ffffff':d.col, dark=flash?'#ffffff':shade(d.col,-45);
   if(m.slowUntil>now){ctx.globalAlpha=.85;}
   switch(d.shape){
@@ -1409,6 +1419,9 @@ function drawFx(){
     ctx.save();const sp=proj(ax,ay);ctx.translate(sp.x-ax,sp.y-ay);
     switch(f.k){
       case 'critburst':ctx.strokeStyle=`rgba(255,226,120,${1-a})`;ctx.lineWidth=3;for(let k=0;k<10;k++){const ang=k/10*Math.PI*2+.3,r1=8+a*18,r2=18+a*40;ctx.beginPath();ctx.moveTo(f.x+Math.cos(ang)*r1,f.y+Math.sin(ang)*r1);ctx.lineTo(f.x+Math.cos(ang)*r2,f.y+Math.sin(ang)*r2);ctx.stroke();}break;
+      case 'spark':{ctx.globalAlpha=1-a;ctx.strokeStyle=f.col||'#fff6d0';ctx.lineWidth=2.5;ctx.lineCap='round';
+        for(let k=0;k<6;k++){const ang=k/6*Math.PI*2+f.r,r1=4+a*10,r2=10+a*20;ctx.beginPath();ctx.moveTo(f.x+Math.cos(ang)*r1,f.y+Math.sin(ang)*r1*.8);ctx.lineTo(f.x+Math.cos(ang)*r2,f.y+Math.sin(ang)*r2*.8);ctx.stroke();}
+        ctx.fillStyle='#fffbe8';ctx.beginPath();ctx.arc(f.x,f.y,7*(1-a)+1,0,7);ctx.fill();ctx.globalAlpha=1;break;}
       case 'ring':ctx.strokeStyle=f.col;ctx.globalAlpha=1-a;ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(f.x,f.y,f.r*(.4+.6*a),f.r*(.4+.6*a)*.6,0,0,7);ctx.stroke();ctx.globalAlpha=1;break;
       case 'nova':ctx.globalAlpha=(1-a)*.6;ctx.fillStyle='#bfe8ff';ctx.beginPath();ctx.ellipse(f.x,f.y,f.r*a,f.r*a*.6,0,0,7);ctx.fill();ctx.globalAlpha=1;
         ctx.fillStyle='#e8f8ff';for(let k=0;k<10;k++){const ang=k/10*Math.PI*2;ctx.fillRect(f.x+Math.cos(ang)*f.r*a-2,f.y+Math.sin(ang)*f.r*a*.6-6,4,10);}break;
