@@ -130,6 +130,7 @@ function refreshPanel(){
     <b>Regions:</b> Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45), home of the Ashen Warlord → Frostpeak Pass (42+).<br>
     <b>Quests:</b> people with a gold <b>!</b> over their head have a quest for you, and a <b>?</b> means you can hand one in. Start the story with Elder Hollis by the fountain. Press J for your quest log.<br>
     <b>Second jobs:</b> at Job Lv 40, Corvin can test you for an advanced calling.<br>
+    <b>World bosses:</b> every so often a huge boss appears somewhere and everyone online is told where. Whoever deals the most damage is the MVP and wins a rare hat. Bring friends.<br>
     <b>Hunting contracts:</b> Guildmaster Corvin offers hunts that suit your level for bonus EXP and gold.<br>
     <b>Hats:</b> rare headgear drops from some monsters (and the Straw Hat and Ribbon Bow from the store). Everyone online sees what you wear.<br>
     <b>Auto-hunt:</b> the Auto button fights the nearest monster for you and drinks tonics when HP runs low. It's handy on a phone.<br>
@@ -171,7 +172,7 @@ function refreshPanel(){
   else if(panelKind==='warp'){
     h+=`<h2>Waystation</h2><div class="say">“I can send you to any road you've already walked. The fare depends on how far you go.” — Tobin</div>`;
     ZONE_ORDER.slice(1).forEach((id,i)=>{const D=ZONES[id];const ok=P.visited.includes(id);const cost=(i+1)*60;
-      h+=`<div class="row"><div class="grow"><div class="nm">${D.name}</div><div class="ds">${D.lvl}${ok?'':' · not visited yet'}</div></div><span class="gold">${cost}</span><button class="btn small" data-act="warp" data-arg="${id}" ${ok&&P.gold>=cost?'':'disabled'}>Travel</button></div>`;});
+      h+=`<div class="row"><div class="grow"><div class="nm">${D.name}</div><div class="ds">${D.lvl}${ok?'':' · not visited yet'}${NET.wb&&NET.wb.z===id?` · <span style="color:#ff9a7a">World boss: ${MOBS[NET.wb.b].name}</span>`:''}</div></div><span class="gold">${cost}</span><button class="btn small" data-act="warp" data-arg="${id}" ${ok&&P.gold>=cost?'':'disabled'}>Travel</button></div>`;});
   }
   if(PANELS[panelKind])h+=PANELS[panelKind]();
   panel.innerHTML=h;

@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='0.16.0';
+const VERSION='0.17.0';
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
 const BLOCK=[0,0,1,1,1,1,0,0]; // 0 ground 1 path 2 tree 3 water 4 rock 5 building 6 cobble 7 flowers
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
@@ -55,6 +55,9 @@ const ITEMS={
   turban:{name:'Sand Turban',type:'head',def:3,b:{int:2},price:2400,lv:20,slots:0,col:'#efe6d2',g:'^'},
   imphorns:{name:'Imp Horns',type:'head',b:{atk:6,matk:15},price:4000,lv:30,slots:0,col:'#a33a2a',g:'^'},
   frostcap:{name:'Frost Cap',type:'head',def:5,b:{vit:2},price:5000,lv:40,slots:0,col:'#6fa8d8',g:'^'},
+  thorncrown:{name:'Thorn Crown',type:'head',def:4,b:{vit:3,maxhp:250,regen:3},price:15000,lv:20,slots:0,col:'#5a9b48',g:'^',desc:'MVP prize from the Thornmother. DEF 4 · VIT +3 · Max HP +250 · HP regen +3.'},
+  tyranthelm:{name:'Tyrant Helm',type:'head',def:7,b:{str:4,atk:20},price:25000,lv:32,slots:0,col:'#a07a42',g:'^',desc:'MVP prize from the Dune Tyrant. DEF 7 · STR +4 · ATK +20.'},
+  rimehalo:{name:'Rime Halo',type:'head',def:5,b:{int:5,matk:50,maxsp:100},price:40000,lv:45,slots:0,col:'#bfe6ff',g:'^',desc:'MVP prize from the Rimeheart Colossus. DEF 5 · INT +5 · MATK +50 · Max SP +100.'},
   crown:{name:'Ember Crown',type:'head',def:4,b:{str:3,int:3,maxhp:150},price:20000,lv:40,slots:0,col:'#ffcf5a',g:'^'},
   emberore:{name:'Ember Ore',type:'etc',price:150,col:'#e07a3a',g:'◆',desc:'The smith uses one to refine a weapon.'},
   glintstone:{name:'Glintstone',type:'etc',price:120,col:'#9fd6ff',g:'◆',desc:'The smith uses one to refine armour, a hat or an accessory.'},
@@ -99,6 +102,13 @@ const MOBS={
   rimestalker:{name:'Rime Stalker',lv:44,hp:3000,atk:190,def:55,flee:60,exp:1700,jexp:1150,spd:110,aggro:true,shape:'beast',col:'#a9c6dc',size:15,drops:[['fang',.4],['orange',.1]],sig:{kind:'accessory',b:{agi:3,crit:5},txt:'+3 AGI, +5 CRIT'}},
   frostwisp:{name:'Frost Wisp',lv:47,hp:2800,atk:210,def:30,flee:80,exp:1900,jexp:1300,spd:90,aggro:true,range:160,shape:'ghost',col:'#bfe6ff',size:13,drops:[['shard',.4],['blue',.1]],sig:{kind:'weapon',b:{matk:50,int:2},txt:'+50 MATK, +2 INT'}},
   snowhulk:{name:'Snowhulk',lv:50,hp:5200,atk:240,def:85,flee:25,exp:2600,jexp:1800,spd:45,shape:'blob',col:'#e8f2f8',size:19,drops:[['fur',.4],['frostcap',.02]],sig:{kind:'armor',b:{vit:4,def:6},txt:'+4 VIT, +6 DEF'}},
+  // #40 world bosses: the game server spawns one at a time in its region and announces it; the top damage dealer is the MVP
+  thornmother:{name:'Thornmother',lv:24,hp:120000,atk:170,def:40,flee:30,exp:40000,jexp:26000,spd:50,aggro:true,boss:true,world:'woods',shape:'blob',col:'#3f7a2a',size:30,leaf:true,sigChance:.2,
+    drops:[['orange',1],['spore',1],['thorn',1],['lupeears',.15]],mvp:[['thorncrown',1],['emberore',1],['glintstone',1]],sig:{kind:'armor',b:{vit:4,maxhp:300},txt:'+4 VIT, +300 Max HP'}},
+  dunetyrant:{name:'Dune Tyrant',lv:36,hp:260000,atk:270,def:75,flee:35,exp:90000,jexp:60000,spd:55,aggro:true,boss:true,world:'dunes',shape:'bug',col:'#8a6a3a',size:32,sigChance:.2,
+    drops:[['orange',1],['carapace',1],['needle',1],['turban',.15]],mvp:[['tyranthelm',1],['emberore',2],['glintstone',2]],sig:{kind:'weapon',b:{atk:30,str:3},txt:'+30 ATK, +3 STR'}},
+  rimeheart:{name:'Rimeheart Colossus',lv:55,hp:600000,atk:400,def:110,flee:40,exp:220000,jexp:150000,spd:45,aggro:true,boss:true,world:'frost',shape:'golem',col:'#8fc8e8',size:36,sigChance:.2,
+    drops:[['orange',1],['shard',1],['fur',1],['frostcap',.15]],mvp:[['rimehalo',1],['emberore',3],['glintstone',3]],sig:{kind:'accessory',b:{int:5,matk:60},txt:'+5 INT, +60 MATK'}},
   warlord:{name:'Ashen Warlord',lv:45,hp:20000,atk:300,def:80,flee:40,exp:30000,jexp:20000,spd:70,aggro:true,boss:true,shape:'golem',col:'#7a2e1f',size:30,respawn:180,sigChance:.25,drops:[['crest',1],['orange',1],['blue',.6],['crown',.3]],sig:{kind:'armor',b:{str:5,vit:5,hppct:15},txt:'+5 STR, +5 VIT, +15% Max HP'}},
 };
 for(const id in MOBS){const m=MOBS[id];m.id=id;m.hit=m.lv*2+12;

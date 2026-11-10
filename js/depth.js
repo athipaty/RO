@@ -10,7 +10,7 @@ const ELEM_CHART={
   earth:{wind:1.5,fire:.5,earth:.25},holy:{shadow:2,holy:0},shadow:{holy:2,shadow:0}};
 const elemMult=(a,d)=>{const r=ELEM_CHART[a||'neutral'];return r&&r[d||'neutral']!==undefined?r[d||'neutral']:1;};
 const MOB_ELEM={sproutling:'earth',hopper:'neutral',mossbug:'earth',thornling:'earth',greylupe:'wind',mushcap:'earth',
-  scarab:'earth',wraith:'shadow',cactoid:'earth',bonearcher:'shadow',emberimp:'fire',rimestalker:'water',frostwisp:'water',snowhulk:'water',warlord:'fire'};
+  scarab:'earth',wraith:'shadow',cactoid:'earth',bonearcher:'shadow',emberimp:'fire',rimestalker:'water',frostwisp:'water',snowhulk:'water',warlord:'fire',thornmother:'earth',dunetyrant:'earth',rimeheart:'water'};
 for(const id in MOB_ELEM)if(MOBS[id])MOBS[id].el=MOB_ELEM[id];
 function weakTo(el){return Object.keys(ELEM_CHART).filter(a=>elemMult(a,el)>1);}
 function elemHint(m,mult){if(mult>1)floatT(m.x+12,m.y-m.d.size-26,'Weak!','#ffcf5a',11);else if(mult<1)floatT(m.x+12,m.y-m.d.size-26,mult===0?'Immune':'Resist','#9aa3b2',11);}

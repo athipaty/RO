@@ -38,7 +38,7 @@ function killMob(m){
   if(m.d.boss)announce('boss',m.d.id);
   if(!serverSim())for(const [id,ch] of m.d.drops)if(Math.random()<ch)dropLoot(m,id);
   if(!serverSim()&&Math.random()<(m.d.sigChance||.02)){dropLoot(m,m.d.id+'_sig',{rare:true});addLog(`A ${m.d.name} Sigil dropped! Pick it up.`,'l-rare');sfx('rare');announce('sig',m.d.id);fx.push({k:'beam',x:m.x,y:m.y,t0:now,dur:1.6});}
-  if(m.d.boss){addLog(`The ${m.d.name} has been defeated! It will rise again in 3 minutes.`,'l-rare');}
+  if(m.d.boss&&!m.d.world){addLog(`The ${m.d.name} has been defeated! It will rise again in 3 minutes.`,'l-rare');}
   if(!serverSim())dropLoot(m,null,{gold:Math.round(m.d.lv*rnd(1.5,3))});
 }
 function dropLoot(m,id,o={}){
@@ -198,7 +198,7 @@ function spawnMob(type,m){
   return m;
 }
 function enterZone(id,from){
-  zoneId=id;Z=getZone(id);P.zone=id;mobs=[];fx=[];shots=[];loot=[];P.lootGoal=null;hoverLoot=null;
+  zoneId=id;Z=getZone(id);P.zone=id;mobs=[];wbMob=null;fx=[];shots=[];loot=[];P.lootGoal=null;hoverLoot=null;
   if(Z.D.mobs)for(const [type,n] of Z.D.mobs)for(let k=0;k<n;k++)mobs.push(spawnMob(type));
   mobs.forEach((m,i)=>m.idx=i);NET.srv=null;NET.zt=Date.now();NET.evs=[];NET.hits=[];NET.evSeen.clear();NET.wasClient=false;NET.lastSent='';NET.sendT=0;
   if(mobs.some(m=>m.d.boss))addLog('The ground smoulders. The Ashen Warlord stirs somewhere in this crypt.','l-rare');
@@ -321,8 +321,9 @@ function applyHits(apply){
       const dmg=clamp(Math.round(fin(h.d)),0,99999);
       if(dmg>0){m.hp-=dmg;m.hitF=now;knock(m,o);floatT(m.x,m.y-m.d.size-8,fmt(dmg),'#cfe0ff',13);if(m.hp<=0)killMob(m);}}}}
 function syncMobs(host,dt){
-  const mb=host.mb;if(!mb||mb.length!==mobs.length)return;
-  for(let i=0;i<mobs.length;i++){const m=mobs[i],st=mb[i];if(!Array.isArray(st))continue;
+  const mb=host.mb;if(!mb)return;
+  if(typeof syncWorldBoss==='function')syncWorldBoss(host,mb.length);if(mb.length!==mobs.length-(wbMob?1:0))return;
+  for(let i=0;i<mobs.length;i++){const m=mobs[i],st=i<mb.length?mb[i]:host.wb&&host.wb.s;if(!Array.isArray(st))continue;
     const f=fin(st[3])|0,dead=!!(f&1),nx=fin(st[0]),ny=fin(st[1]);
     if(dead){if(!m.dead)killMob(m);continue;}
     if(m.dead){m.dead=false;m.x=nx;m.y=ny;m.hp=m.d.hp;m.myDmg=0;}
@@ -333,7 +334,7 @@ function syncMobs(host,dt){
   const evs=host.ev||[];let seen=NET.evSeen.get(host.id);
   if(seen===undefined)seen=Math.max(0,...evs.map(e=>fin(e&&e.i)));
   for(const e of evs){if(!e||fin(e.i)<=seen)continue;seen=fin(e.i);const m=mobs[fin(e.m)|0];if(!m)continue;
-    if(e.k==='d'){if(e.t===NET.myId)serverLoot(m,e);continue;}
+    if(e.k==='d'){if(e.t===NET.myId){serverLoot(m,e);if(e.mvp&&typeof mvpWin==='function')mvpWin(m);}continue;}
     if(m.dead)continue;
     if(e.k==='a'){m.lunge=now;
       if(e.t===NET.myId){if(!P.dead){if(m.d.range)shoot(m,P,'arrow','#d8d0b8',()=>mobAttack(m),true);else mobAttack(m);}}
@@ -349,6 +350,7 @@ function serverLoot(m,e){const l=Array.isArray(e.l)?e.l.slice(0,12):[];
   const g=clamp(Math.round(fin(e.g)),0,100000);if(g)dropLoot(m,null,{gold:g});}
 function mobsTick(dt){const host=zoneHost();
   if(host){NET.wasClient=true;applyHits(false);syncMobs(host,dt);return;}
+  if(wbMob&&typeof dropWorldBoss==='function')dropWorldBoss(); // only the server runs world bosses
   if(NET.wasClient){NET.wasClient=false;for(const m of mobs){m.sx=m.x;m.sy=m.y;m.atkT=1;if(m.dead)m.respawnAt=now+rnd(4,9);}}
   applyHits(true);const T=mobTargets();for(const m of mobs)updateMob(m,dt,T);}
 function updateFx(){fx=fx.filter(f=>now<f.t0+f.dur);texts=texts.filter(f=>now<f.t0+f.dur);}

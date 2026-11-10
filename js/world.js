@@ -1,6 +1,7 @@
 "use strict";
 /* ================= state ================= */
 let loot=[], lootId=0, hoverLoot=null;
+let wbMob=null; // the world boss in this region, when the server has one here
 let P=null, S=null, zoneId='town', Z=null, mobs=[], fx=[], texts=[], shots=[], now=0, running=false;
 const zoneCache={};
 let uid=1;

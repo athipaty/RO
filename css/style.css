@@ -195,3 +195,4 @@ button{font:inherit;color:inherit}
 .qrew{color:#e8d7a6}
 .qrow{align-items:flex-start}.qbtns{display:flex;flex-direction:column;gap:4px}
 .thead{display:flex;align-items:center;gap:10px}.thead h2{margin:0}#talkCv{width:56px;height:56px;border:1px solid var(--edge);border-radius:50%;background:radial-gradient(#2a3140,#10141b);flex:none}
+#wbT{color:#ff9a7a;margin-top:3px;font-weight:700}

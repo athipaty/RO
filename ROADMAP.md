@@ -34,7 +34,7 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 ## Stage 5: World and content
 - [ ] New regions and multi-floor dungeons
 - [x] Story quests with NPC dialogue, daily quests (v0.16.0)
-- [ ] World bosses on timers with an MVP reward for top damage
+- [x] World bosses on timers with an MVP reward for top damage (v0.17.0)
 - [ ] Timed events (EXP weekends, seasonal map)
 
 ## Stage 6: Guilds and PvP
@@ -103,7 +103,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 39. M 40+ monsters with elements, sizes, races
 
 ### Monsters and bosses
-- [ ] 40. L (server) Timed world bosses with an MVP reward
+- [x] 40. L (server) Timed world bosses with an MVP reward (v0.17.0)
 - [ ] 41. M Mini-bosses with minions
 - [x] 42. S Monster info window (right-click or the Info button)
 - [ ] 43. M Pets

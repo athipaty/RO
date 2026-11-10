@@ -24,7 +24,7 @@ for (const id of ZONE_ORDER) {
 }
 for (const id in MOBS) { const m = MOBS[id];
   out.mobs[id] = { lv: m.lv, hp: m.hp, atk: m.atk, def: m.def, flee: m.flee, hit: m.hit, spd: m.spd, size: m.size, range: m.range || 0,
-    aggro: !!m.aggro, boss: !!m.boss, undead: !!m.undead, respawn: m.respawn || 0, drops: m.drops, sigChance: m.sigChance || 0.02 }; }
+    aggro: !!m.aggro, boss: !!m.boss, world: m.world || null, mvp: m.mvp || [], name: m.name, undead: !!m.undead, respawn: m.respawn || 0, drops: m.drops, sigChance: m.sigChance || 0.02 }; }
 globalThis.__out = out;`;
 sandbox.Buffer = Buffer;
 vm.runInContext(code.replace(/^"use strict";/gm, ''), sandbox, { filename: 'export-world' });

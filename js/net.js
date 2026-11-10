@@ -54,12 +54,10 @@ function serverRoom(){
       if(last)sock.emit('presence',last);
       if(!ready){ready=true;clearTimeout(fail);res(room);}else updateOnline();});
     sock.on('peer',p=>{if(!p||!p.peer)return;const was=seen.has(p.peer);seen.set(p.peer,p);if(cb)cb({joined:was?[]:[p],updated:was?[p]:[],left:[]});});
-    // server-run monsters: the server acts as the region's monster host
+    // server-run monsters: the server acts as the region's monster host (wb: the world boss, if one is in this region)
     sock.on('mobs',m=>{if(!m||typeof m.z!=='string'||!Array.isArray(m.mb)||m.mb.length>120)return;
-      NET.srv={id:'server',z:m.z,mb:m.mb,ev:Array.isArray(m.ev)?m.ev.slice(-40):[],at:now};});
-    // server-run monsters: the server acts as the region's monster host
-    sock.on('mobs',m=>{if(!m||typeof m.z!=='string'||!Array.isArray(m.mb)||m.mb.length>120)return;
-      NET.srv={id:'server',z:m.z,mb:m.mb,ev:Array.isArray(m.ev)?m.ev.slice(-40):[],at:now};});
+      NET.srv={id:'server',z:m.z,mb:m.mb,ev:Array.isArray(m.ev)?m.ev.slice(-40):[],at:now,wb:m.wb&&typeof m.wb==='object'?m.wb:null};});
+    sock.on('wboss',m=>{if(m&&typeof m==='object'&&typeof onWorldBoss==='function')onWorldBoss(m);});
     sock.on('left',p=>{if(cb&&p&&seen.delete(p.peer))cb({joined:[],updated:[],left:[{peer:p.peer}]});});
     sock.on('disconnect',()=>{if(ready){NET.status='connecting';updateWho();}});
     sock.on('connect_error',()=>{if(!ready){ready=true;clearTimeout(fail);sock.close();rej(new Error('connect failed'));}});
