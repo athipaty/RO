@@ -1,6 +1,7 @@
 // #40 world bosses. Runs only against a local game server started with short boss timers, e.g.
 //   EMBER_WB_FIRST_MS=4000 EMBER_WB_EVERY_MS=600000 EMBER_WB_LIFE_MS=600000 (server)
 //   EMBER_SERVER=http://localhost:5055 GAME_URL=http://localhost:8080/index.html npm test -- serverboss
+// Against the live server, allow for the real 5-minute first spawn: WB_WAIT_S=400
 const { player, wait, newRoom } = require('./helpers');
 
 module.exports = async t => {
@@ -9,7 +10,7 @@ module.exports = async t => {
   const A = await player('BossA', room, { zone: 'town' }), B = await player('BossB', room, { zone: 'town' });
   try {
     let wb = null;
-    for (let i = 0; i < 30 && !wb; i++) { await wait(500); wb = await A.ev(() => NET.wb); }
+    for (let i = 0; i < (+process.env.WB_WAIT_S || 15) * 2 && !wb; i++) { await wait(500); wb = await A.ev(() => NET.wb); }
     t.ok(wb && MOBS_OK(wb), `the server announces a world boss to the channel (${wb && wb.b} in ${wb && wb.z})`);
     const msg = await B.ev(() => ({ wb: NET.wb, log: document.getElementById('log').textContent, hud: document.getElementById('wbT').textContent }));
     t.ok(msg.wb && /has appeared/.test(msg.log) && /m$/.test(msg.hud), 'everyone in the channel gets the announcement and a status line with the time left');
