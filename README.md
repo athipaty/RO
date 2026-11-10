@@ -16,7 +16,7 @@ An original browser action RPG in the style of classic 2.5D MMORPGs (isometric c
 - Minimap, hotbar, sitting to regenerate, death penalty, and autosave to localStorage
 - **Original soundtrack**: a theme for each region plus a boss battle theme, synthesised live with the Web Audio API (no audio files)
 - **Sound effects** for hits, misses, magic, arrows, level-ups, loot and rare sigil drops, plus a ringing critical hit with screen shake
-- **Play together**: everyone who has the shared page open sees each other walk around, with chat bubbles over their heads and in the log. This uses the claude.ai artifact live room; the standalone file runs solo.
+- **Play together**: everyone who has the shared page open sees each other walk around, with chat bubbles over their heads and in the log. On claude.ai this uses the artifact live room; anywhere else (e.g. Vercel) players meet through a free public MQTT broker, so anyone with the link can join. Chat over the public broker is not private.
 - **Emotes**: 12 hand-drawn emotes (heart, GG, sweat drop, and more), shown over your head to everyone nearby. Use the Emote button, the E key, or /heart, /gg and so on in chat.
 - **Party bonus**: hunting near another player gives you both +25% EXP, and you can see each other's HP bars
 - **World announcements**: everyone online hears about level milestones, class changes, rare sigils, finished contracts and boss kills

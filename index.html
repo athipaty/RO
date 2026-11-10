@@ -457,8 +457,43 @@ function setAudio(music,fxOn){AU.music=music;AU.sfx=fxOn;saveAudio();
 const NET={myEmote:null,room:null,others:new Map(),chatId:Date.now(),myChat:[],lastSent:'',sendT:0,warned:false};
 const clean=(s,n)=>String(s??'').replace(/[\u0000-\u001f\u007f-\u009f­​-‏‪-‮⁠-⁯﻿]/g,'').trim().slice(0,n);
 const fin=v=>Number.isFinite(+v)?+v:0;
+/* Outside claude.ai (e.g. on Vercel) players meet through a free public MQTT broker.
+   Each player keeps one retained message with their presence; the broker clears it when they leave. */
+const NET_BROKER='wss://broker.emqx.io:8084/mqtt',NET_TOPIC='embervale-game/v1/world';
+function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s);});}
+function mqttRoom(){
+  return (window.mqtt?Promise.resolve():loadScript('https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js')).then(()=>new Promise((res,rej)=>{
+    const me=Math.random().toString(36).slice(2,12),base=NET_TOPIC+'/p/',topic=base+me,seen=new Map();
+    let cb=null,onClose=null,last=null,ready=false;
+    const c=mqtt.connect(NET_BROKER,{clientId:'ev_'+me,clean:true,keepalive:20,reconnectPeriod:3000,connectTimeout:10000,
+      will:{topic,payload:'',retain:true,qos:0}});
+    const pub=()=>{if(last&&c.connected)c.publish(topic,JSON.stringify({...last,_t:Date.now()}),{retain:true,qos:0});};
+    const leave=id=>{if(seen.delete(id)&&cb)cb({joined:[],updated:[],left:[{peer:id}]});};
+    const room={presence(s){last=s;pub();return Promise.resolve();},
+      onPeers(f,closed){cb=f;onClose=closed;}};
+    c.on('connect',()=>{c.subscribe(base+'+');pub();if(!ready){ready=true;res(room);}});
+    c.on('error',e=>{if(!ready){ready=true;c.end(true);rej(e);}});
+    c.on('message',(t,buf)=>{const id=t.slice(base.length);if(id===me||!cb||buf.length>4000)return;
+      if(!buf.length)return leave(id);
+      let p;try{p=JSON.parse(buf.toString());}catch(e){return;}
+      if(!p||typeof p!=='object'||Math.abs(Date.now()-fin(p._t))>30000)return;
+      const was=seen.has(id);seen.set(id,Date.now());const e={peer:id,presence:p};
+      cb({joined:was?[]:[e],updated:was?[e]:[],left:[]});});
+    setInterval(()=>{pub();const cut=Date.now()-15000;for(const[id,t]of seen)if(t<cut)leave(id);},5000);
+    addEventListener('pagehide',()=>{try{c.publish(topic,'',{retain:true,qos:0});c.end();}catch(e){}});
+  }));
+}
 function netConnect(tries=0){
-  if(!window.claude?.use){if(tries<12)setTimeout(()=>netConnect(tries+1),500);else updateOnline();return;}
+  if(!window.claude?.use){
+    let framed=true;try{framed=window.top!==window;}catch(e){}
+    if(framed&&tries<12){setTimeout(()=>netConnect(tries+1),500);return;}
+    NET.relay=true;$('#online').textContent='Connecting…';
+    mqttRoom().then(room=>{NET.room=room;
+      room.onPeers(ch=>{
+        for(const p of ch.left){const o=NET.others.get(p.peer);if(o&&o.n)addLog(`${o.n} left.`);NET.others.delete(p.peer);}
+        for(const p of ch.joined)ingest(p);for(const p of ch.updated)ingest(p);updateOnline();});
+      updateOnline();NET.lastSent='';}).catch(()=>{NET.relay=false;updateOnline();});
+    return;}
   window.claude.use('room').then(room=>{
     if(!room){updateOnline();return;}
     NET.room=room;
@@ -491,7 +526,7 @@ function ingest(p){
   }
 }
 function updateOnline(){const el=$('#online');
-  if(!NET.room){el.textContent=window.claude?.use?'Solo · chat offline':'Solo';return;}
+  if(!NET.room){el.textContent=window.claude?.use||NET.relay===false?'Solo · chat offline':'Solo';return;}
   const n=NET.others.size;el.textContent=n?`${n+1} adventurers online`:'Online · nobody else here yet';}
 function chatLog(name,txt,zone,mine,guest){
   const el=$('#log'),d=document.createElement('div');d.className='l-chat'+(mine?' me':'');
@@ -517,7 +552,7 @@ function netTick(dt){
   for(const o of NET.others.values()){if(o.z!==zoneId)continue;const d=Math.hypot(o.x-o.rx,o.y-o.ry);
     if(d>300){o.rx=o.x;o.ry=o.y;}else{const k=Math.min(1,dt*9);o.rx+=(o.x-o.rx)*k;o.ry+=(o.y-o.ry)*k;}
     if(o.moving||d>2)o.walkT+=dt;if(Math.abs((o.x-o.rx)-(o.y-o.ry))>1)o.face=sface(o.x-o.rx,o.y-o.ry);}
-  if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+.12;
+  if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+(NET.relay?.15:.12);
   const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,lv:P.lv,mv:P.moving?1:0,st:P.sitting?1:0,d:P.dead?1:0,
     w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),ch:NET.myChat,em:NET.myEmote||null};
   const j=JSON.stringify(s);if(j===NET.lastSent)return;NET.lastSent=j;NET.room.presence(s).catch(()=>{});
