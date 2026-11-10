@@ -20,6 +20,7 @@
   <div class="lbl"><span id="jlT">Job Lv 1</span><span id="jxT">0%</span></div>
   <div class="bar thin jxb"><i id="jxI"></i><span></span></div>
   <div id="gold">0 gold</div>
+  <div id="weight" class="lbl"></div>
   <div id="party" class="lbl" hidden></div>
   <div id="quest" class="lbl" hidden></div>
 </div>
@@ -42,9 +43,11 @@
 <div id="target" class="frame" hidden>
   <div class="tn" id="tName"></div><div class="tl" id="tLv"></div>
   <div class="td" id="tDrops"></div>
+  <button class="btn small" id="tInfo" title="Monster info (right-click a monster)">Info</button>
   <div class="bar hpb"><i id="tI"></i><span id="tT"></span></div>
 </div>
 
+<div id="zoneBanner" hidden aria-live="polite"><b></b><span></span></div>
 <div id="log"></div>
 <div id="hotbar" class="frame"></div>
 <div id="panel" class="frame" hidden></div>

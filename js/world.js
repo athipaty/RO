@@ -138,6 +138,8 @@ function pathTo(x,y,exact){
 
 /* ================= derived stats ================= */
 function addB(b,src){if(!src)return;for(const k in src)b[k]=(b[k]||0)+src[k];}
+function carryWeight(){let w=0;for(const e of P.inv)w+=itemWeight(e.id)*(e.n||1);for(const k in P.eq)if(P.eq[k])w+=itemWeight(P.eq[k].id);return w;}
+function maxWeight(){return 800+((S&&S.str)||P.st.str)*30;}
 function computeStats(){
   const c=CLASSES[P.cls], b={}, lv=P.lv;
   for(const slot of ['weapon','armor','accessory','head']){const e=P.eq[slot];if(!e)continue;const it=ITEMS[e.id];

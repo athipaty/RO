@@ -45,6 +45,14 @@ button{font:inherit;color:inherit}
 .who{display:flex;flex-direction:column;padding:5px 0;border-bottom:1px solid rgba(184,146,79,.14)}.who:last-child{border-bottom:0}
 .who b{color:#9fd3ff}.who.me b{color:var(--exp)}.who span{font-size:11.5px;color:var(--muted)}
 #target{position:fixed;top:calc(max(10px,env(safe-area-inset-top)) + 40px);left:50%;transform:translateX(-50%);width:220px;padding:6px 10px;text-align:center;pointer-events:none}
+#tInfo{pointer-events:auto;margin-top:4px}
+#weight{margin-top:2px}#weight.heavy{color:var(--warn);font-weight:700}
+#zoneBanner{position:fixed;left:50%;top:20%;transform:translateX(-50%);text-align:center;pointer-events:none;z-index:3;opacity:0;white-space:nowrap}
+#zoneBanner.show{animation:zoneb 3.2s ease forwards}
+#zoneBanner b{display:block;font-family:var(--display);font-weight:700;font-size:clamp(30px,7vw,48px);color:var(--exp);text-shadow:0 2px 0 #3a2a10,0 0 26px rgba(0,0,0,.7)}
+#zoneBanner span{font-size:14px;letter-spacing:.12em;color:var(--ink);text-shadow:0 1px 3px #000}
+@keyframes zoneb{0%{opacity:0;transform:translate(-50%,10px)}12%{opacity:1;transform:translate(-50%,0)}75%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){#zoneBanner.show{animation:none;opacity:1}}
 #target .td{font-size:11px;color:#e8d7a6;margin-top:3px;line-height:1.3}
 #target .tn{font-weight:800}#target .tl{color:var(--muted);font-size:11px}
 /* log */

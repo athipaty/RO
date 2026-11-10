@@ -46,3 +46,98 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 - [ ] Moderation: report, mute, admin panel
 - [ ] Error logging, backups, hosting cost review
 - [ ] Public landing page
+
+---
+
+# Feature backlog (classic 2.5D MMO feel, all original content)
+Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are live.
+
+### Characters and look
+- [ ] 1. M Male/female body choice in the creator
+- [ ] 2. M Equipped gear visible on the body (armour colour, cape, shield, weapon on back)
+- [ ] 3. S Lower/middle headgear slots (glasses, masks, mouth items)
+- [ ] 4. M Hair dye / stylist NPC
+- [ ] 5. M More animations: casting pose, hurt frame, death pose, per-weapon attacks
+- [ ] 6. S Status icons over heads (buffs, poison, stun)
+
+### Combat feel
+- [x] 7. S Attack speed you can see (swing speed follows ASPD, Attacks/sec in Stats)
+- [x] 8. S Cast bars for spells, cancelled by moving, interrupted by being hit
+- [x] 9. S "Dodge" and "Lucky!" dodge text (LUK)
+- [ ] 10. M Elements and an element damage chart
+- [ ] 11. M Monster size and race bonuses
+- [ ] 12. M Status ailments (poison, stun, freeze, sleep, silence, blind)
+- [x] 13. S Weight penalties: 50%+ no regen, 90%+ cannot fight
+- [ ] 14. S Potion cooldowns tuned for melee play
+- [ ] 15. M Monster skills (heal, summon, ranged spells, teleport)
+- [ ] 16. M Looter monsters and monsters that call friends
+
+### Items and economy
+- [x] 17. S Item weight and carry limit (STR raises it)
+- [ ] 18. M Refining +1 to +10 with failure chance
+- [ ] 19. M Slotted gear variants (0-4 sigil slots)
+- [ ] 20. S Rarity colours and world announcements for rare drops
+- [ ] 21. M Storage NPC and a cart
+- [ ] 22. M Crafting and brewing
+- [ ] 23. L (server) Player shops while sitting
+- [ ] 24. L (server) Trade window
+- [ ] 25. S Gold sinks: teleport service, inn, repair
+
+### Classes and skills
+- [ ] 26. M Skill tree screen with prerequisites
+- [ ] 27. L Second jobs (2 per class) with a job quest
+- [ ] 28. L Rebirth / third tier
+- [ ] 29. M Support skills on other players (needs parties)
+- [ ] 30. M Ground-target skills (walls, traps, safe zones)
+- [ ] 31. S Choose which skill level to cast
+
+### World and exploration
+- [ ] 32. M A capital city with districts, themed towns
+- [ ] 33. M Named warp portals and a teleport NPC network
+- [ ] 34. M Multi-floor dungeons
+- [ ] 35. S More teleport items
+- [ ] 36. M Day/night and weather per map
+- [ ] 37. S Bigger minimap and a world map
+- [x] 38. S Region name banner on entry
+- [ ] 39. M 40+ monsters with elements, sizes, races
+
+### Monsters and bosses
+- [ ] 40. L (server) Timed world bosses with an MVP reward
+- [ ] 41. M Mini-bosses with minions
+- [x] 42. S Monster info window (right-click or the Info button)
+- [ ] 43. M Pets
+- [ ] 44. M Mounts
+
+### Social
+- [ ] 45. M (server) Parties
+- [ ] 46. M (server) Whispers, friends, block list
+- [x] 47. S Chat commands: /help /where /who /sit /stand /exp /roll /emotes /clear
+- [ ] 48. M (server) Chat rooms
+- [ ] 49. L (server) Guilds with emblems
+- [ ] 50. L (server) Guild war
+- [ ] 51. M (server) PvP arenas and duels
+- [ ] 52. S More emotes and an emote bar
+- [ ] 53. S Partner system
+
+### Quests and events
+- [ ] 54. M NPC dialog windows with portraits and choices
+- [ ] 55. M Quest log with tracking
+- [ ] 56. M Daily hunting board
+- [ ] 57. M Seasonal events
+- [ ] 58. S Achievements and titles
+
+### Interface
+- [ ] 59. M Classic basic-info window
+- [ ] 60. M Equipment window with a paper doll
+- [ ] 61. S Draggable windows that remember their place
+- [ ] 62. S Several hotbar rows with drag and drop
+- [x] 63. S Floating "+EXP / +Job" gains, EXP per hour (/exp)
+- [x] 64. S Name colours (players, nearby allies, guests, calm/aggressive monsters, bosses)
+- [ ] 65. S Shift-click to attack in place
+- [ ] 66. S Screenshot key
+
+### Sound and atmosphere
+- [ ] 67. S Footsteps that change with the ground
+- [ ] 68. S Ambient sounds per map
+- [ ] 69. M More original music themes
+- [ ] 70. S Level-up light pillar

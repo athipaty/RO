@@ -41,7 +41,9 @@ function killMob(m){
 function dropLoot(m,id,o={}){
   let x=m.x,y=m.y;for(let k=0;k<6;k++){const a=rnd(0,7),r=rnd(14,36),tx=m.x+Math.cos(a)*r,ty=m.y+Math.sin(a)*r;if(canStand(tx,ty,4)){x=tx;y=ty;break;}}
   loot.push({id,gold:o.gold||0,rare:!!o.rare,x,y,fx:m.x,fy:m.y,t0:now+loot.length%6*.04,exp:now+120,uid:++lootId});}
-function pickUp(l){const i=loot.indexOf(l);if(i<0)return;loot.splice(i,1);
+function pickUp(l){const i=loot.indexOf(l);if(i<0)return;
+  if(!l.gold&&carryWeight()+itemWeight(l.id)>maxWeight()){l.tooHeavy=true;floatT(P.x,P.y-40,'Too heavy!','#ff9a6a',13);addLog(`You are carrying too much to pick up ${ITEMS[l.id].name}.`,'l-bad');return;}
+  loot.splice(i,1);
   if(l.gold){P.gold+=l.gold;sfx('coin');floatT(P.x,P.y-40,`+${fmt(l.gold)} gold`,'#ffcf5a',13);}
   else{giveItem(l.id,1,true);if(l.rare)sfx('rare');}}
 function lootAt(sc){let best=null,bd=1e9;const pad=touchPick?26:15;for(const l of loot){const q=proj(l.x,l.y),d=Math.hypot(q.x-sc.x,q.y-6-sc.y);if(d<pad&&d<bd){bd=d;best=l;}}return best;}
@@ -49,18 +51,22 @@ function goLoot(l){P.target=null;P.queued=null;P.npcGoal=null;P.lootGoal=l;if(di
 function dropText(d){const pc=c=>{const v=c*100;return(v>=10||v===Math.round(v)?Math.round(v):v.toFixed(1))+'%';};
   return [...d.drops.map(([id,c])=>`${ITEMS[id].name} ${pc(c)}`),`Sigil ${pc(d.sigChance||.02)}`].join(' · ');}
 function hurtPlayer(dmg,src){
-  if(P.dead)return;P.hp-=dmg;P.sitting=false;P.hurtT=now;fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});sfx('hurt');floatT(P.x,P.y-30,fmt(dmg),'#ff6a5a',16);
+  if(P.dead)return;P.hp-=dmg;P.sitting=false;P.hurtT=now;interruptCast();fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});sfx('hurt');floatT(P.x,P.y-30,fmt(dmg),'#ff6a5a',16);
   if(P.hp<=0){P.hp=0;die(src);}
 }
 function mobAttack(m){
+  if(Math.random()*100<Math.min(10,1+S.luk*.1)){floatT(P.x,P.y-30,'Lucky!','#7fe08a',14);fx.push({k:'ring',x:P.x,y:P.y,r:26,col:'#9ff0a8',t0:now,dur:.3});return;}
   const hc=clamp(85+m.d.hit-S.flee,5,95);
-  if(Math.random()*100>hc){floatT(P.x,P.y-30,'Miss','#aab4c4',13);return;}
+  if(Math.random()*100>hc){floatT(P.x,P.y-30,'Dodge','#9fd3ff',13);return;}
   hurtPlayer(Math.max(1,Math.round(m.d.atk*rnd(.85,1.1)-S.def*.6)),m.d.name);
 }
 function healP(n){n=Math.max(1,Math.round(n));P.hp=Math.min(S.maxhp,P.hp+n);floatT(P.x,P.y-30,'+'+fmt(n),'#7fd38a',16);fx.push({k:'heal',x:P.x,y:P.y,t0:now,dur:.6});sfx('heal');}
 function buff(id,name,dur,b){P.buffs[id]={name,until:now+dur,b};fx.push({k:'ring',x:P.x,y:P.y,r:40,col:'#f0e0a0',t0:now,dur:.5});addLog(`${name} is active for ${dur}s.`,'l-good');S=computeStats();}
 
+const EXPLOG=[];
 function gainExp(e,j){
+  if(e>0){texts.push({x:P.x,y:P.y-52,txt:`+${fmt(e)} EXP`,col:'#ffe27a',size:12,t0:now,dur:1.3,vx:-6});EXPLOG.push({t:Date.now(),e});while(EXPLOG.length>500)EXPLOG.shift();}
+  if(j>0&&P.jl<jobMax(P.cls))texts.push({x:P.x+4,y:P.y-40,txt:`+${fmt(j)} Job`,col:'#8fe0a8',size:11,t0:now,dur:1.3,vx:8});
   P.exp+=e;
   const jm=jobMax(P.cls);if(P.jl<jm)P.jexp+=j;
   let lvUp=false,jUp=false;
@@ -74,7 +80,7 @@ function gainExp(e,j){
   if(lvUp)refreshPanel();
 }
 function die(src){
-  P.dead=true;P.target=null;P.path=[];P.queued=null;
+  P.dead=true;P.casting=null;P.target=null;P.path=[];P.queued=null;
   const loss=P.lv>1?Math.floor(expNeed(P.lv)*.01):0;P.exp=Math.max(0,P.exp-loss);
   $('#deathMsg').textContent=`Struck down by ${src}.`+(loss?` You lost ${fmt(loss)} experience.`:'');
   $('#death').hidden=false;sfx('death');addLog(`You were defeated by ${src}.`,'l-bad');
@@ -129,19 +135,29 @@ const sellValue=id=>{const it=ITEMS[id];return it.type==='etc'?it.price:it.type=
 /* ================= skills use ================= */
 function skillReady(id){return (P.cd[id]||0)<=now;}
 function useSkill(id){
-  const l=P.skills[id]||0;if(!l||P.dead)return;const sk=SKILLS[id];
+  const l=P.skills[id]||0;if(!l||P.dead||P.casting)return;const sk=SKILLS[id];
   if(!skillReady(id))return;
+  if(P.heavy>1){tooHeavy();return;}
   const cost=sk.sp(l);
   if(P.sp<cost){floatT(P.x,P.y-30,'Not enough SP','#7ab0f0',13);return;}
   if(sk.kind==='target'||sk.kind==='area'){
     const t=P.target&&!P.target.dead?P.target:null;
     if(sk.kind==='target'&&!t){addLog(`Select a target for ${sk.name} first.`,'l-bad');return;}
     if(t&&dist(P,t)>sk.range+t.d.size){P.queued=id;return;}
-    if(sk.kind==='area'){const x=t?t.x:P.x,y=t?t.y:P.y;castNow(id,l,cost,()=>sk.run(l,x,y));return;}
-    P.face=sface(t.x-P.x,t.y-P.y);castNow(id,l,cost,()=>sk.run(l,t));return;
+    if(sk.kind==='area'){const x=t?t.x:P.x,y=t?t.y:P.y;beginCast(id,l,cost,()=>sk.run(l,x,y));return;}
+    P.face=sface(t.x-P.x,t.y-P.y);beginCast(id,l,cost,()=>sk.run(l,t));return;
   }
-  castNow(id,l,cost,()=>sk.run(l));
+  beginCast(id,l,cost,()=>sk.run(l));
 }
+function castTime(id){const c=CAST[id];return c?c*Math.max(.25,1-S.dex/120):0;}
+function beginCast(id,l,cost,fn){const ct=castTime(id);if(!ct)return castNow(id,l,cost,fn);
+  P.casting={id,l,cost,fn,t0:now,dur:ct,tgt:P.target};P.queued=null;P.sitting=false;P.path=[];sfx('cast');}
+function castTick(){const c=P.casting;if(!c)return;
+  if(P.moving){P.casting=null;floatT(P.x,P.y-44,'Cast cancelled','#aab4c4',12);return;}
+  if(SKILLS[c.id].kind==='target'&&(!c.tgt||c.tgt.dead)){P.casting=null;return;}
+  if(now>=c.t0+c.dur){P.casting=null;if(P.sp<c.cost){floatT(P.x,P.y-30,'Not enough SP','#7ab0f0',13);return;}castNow(c.id,c.l,c.cost,c.fn);}}
+function interruptCast(){if(P.casting){P.casting=null;floatT(P.x,P.y-44,'Interrupted!','#ff9a6a',13);}}
+let heavyMsgT=0;function tooHeavy(){if(now<heavyMsgT)return;heavyMsgT=now+4;floatT(P.x,P.y-40,'Too heavy!','#ff9a6a',13);addLog('You are carrying over 90% of your weight limit and cannot fight. Sell or drop something.','l-bad');}
 function castNow(id,l,cost,fn){P.sp-=cost;P.cd[id]=now+SKILLS[id].cd;P.queued=null;P.sitting=false;P.atkT=Math.max(P.atkT,.25);
   floatT(P.x,P.y-44,SKILLS[id].name+(l>1?' '+l:''),'#f0e0a0',12);sfx('skill');fn();}
 
@@ -162,7 +178,7 @@ function autoHunt(){
   const f=P.hp/S.maxhp;
   if(f<.4&&(P.cd['item']||0)<=now){const pot=invFind('orange')?'orange':invFind('red')?'red':null;
     if(pot)useItem(pot);else if(f<.3){P.auto=false;$('#autoBtn').classList.remove('on');addLog('Auto-hunt paused: you are out of tonics. Rest with Sit or buy more in town.','l-bad');return;}}
-  if((!P.target||P.target.dead)&&!P.path.length&&!P.lootGoal){let bl=null,bd=320;for(const l of loot)if(now>l.t0+.4){const d=dist(l,P);if(d<bd){bd=d;bl=l;}}if(bl){goLoot(bl);return;}}
+  if((!P.target||P.target.dead)&&!P.path.length&&!P.lootGoal){let bl=null,bd=320;for(const l of loot)if(now>l.t0+.4&&!l.tooHeavy){const d=dist(l,P);if(d<bd){bd=d;bl=l;}}if(bl){goLoot(bl);return;}}
   if((!P.target||P.target.dead)&&!P.path.length&&f>=.3){let best=null,bd=650;for(const m of mobs)if(!m.dead){const d=dist(m,P);if(d<bd){bd=d;best=m;}}if(best){P.target=best;P.queued=null;P.sitting=false;}}
 }
 
@@ -180,11 +196,11 @@ function enterZone(id,from){
   if(mobs.some(m=>m.d.boss))addLog('The ground smoulders. The Ashen Warlord stirs somewhere in this crypt.','l-rare');
   let pos=Z.spawn;
   if(from){const pt=Z.portals.find(p=>p.to===from);if(pt)pos={x:pt.x+(pt.side==='west'?2.6:-2.6)*TILE,y:pt.y};}
-  P.x=pos.x;P.y=pos.y;P.path=[];P.target=null;P.queued=null;P.npcGoal=null;P.portalLock=now+.6;
+  P.casting=null;P.x=pos.x;P.y=pos.y;P.path=[];P.target=null;P.queued=null;P.npcGoal=null;P.portalLock=now+.6;
   if(!P.visited.includes(id))P.visited.push(id);
   if(from)sfx('portal');musicPlay(id);
   $('#zName').textContent=Z.D.name;$('#zLv').textContent=Z.D.lvl;
-  addLog(`You enter ${Z.D.name} (${Z.D.lvl}).`);
+  addLog(`You enter ${Z.D.name} (${Z.D.lvl}).`);showBanner(Z.D.name,Z.D.lvl);
   if(!['shop','job','heal','warp'].includes(panelKind)||!Z.D.safe)closePanel();
 }
 
@@ -198,7 +214,8 @@ function update(dt){
   for(const k in P.buffs)if(P.buffs[k].until<now){addLog(`${P.buffs[k].name} has worn off.`);delete P.buffs[k];S=computeStats();}
   // regen
   const rm=P.sitting?2.5:1;
-  P.hp=Math.min(S.maxhp,P.hp+S.regen*rm*dt);P.sp=Math.min(S.maxsp,P.sp+S.spregen*rm*dt);
+  const wp=carryWeight()/maxWeight();P.heavy=wp>=.9?2:wp>=.5?1:0;
+  if(!P.heavy){P.hp=Math.min(S.maxhp,P.hp+S.regen*rm*dt);P.sp=Math.min(S.maxsp,P.sp+S.spregen*rm*dt);}
   // keyboard
   let kx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0), ky=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
   P.moving=false;
@@ -213,7 +230,7 @@ function update(dt){
     if(d<=need&&(!S.ranged&&!P.queued?true:clearLine(P.x,P.y,t.x,t.y)||d<60)){
       P.path=[];faceTo(P,t.x-P.x,t.y-P.y);
       if(P.queued){useSkill(P.queued);}
-      else if(P.atkT<=0){basicAttack(t);P.atkT=S.delay;}
+      else if(P.atkT<=0&&!P.casting){if(P.heavy>1){tooHeavy();P.atkT=1;}else{basicAttack(t);P.atkT=S.delay;}}
     } else {P.repathT=(P.repathT||0)-dt;if(P.repathT<=0||!P.path.length){pathTo(t.x,t.y,true);P.repathT=.35;}}
   } else if(t&&t.dead){P.target=null;}
   P.atkT-=dt;
@@ -222,6 +239,7 @@ function update(dt){
     if(d<=st){if(!moveEnt(P,dx,dy,PR))P.path=[];else P.path.shift();}else{moveEnt(P,dx/d*st,dy/d*st,PR);}
     P.moving=true;if(d>2)faceTo(P,dx,dy);}
   if(P.moving)P.walkT+=dt;
+  castTick();
   // loot
   loot=loot.filter(l=>now<l.exp);
   if(P.lootGoal){if(!loot.includes(P.lootGoal))P.lootGoal=null;else if(dist(P,P.lootGoal)<30){pickUp(P.lootGoal);P.lootGoal=null;P.path=[];}else if(!P.path.length)P.lootGoal=null;}
@@ -239,7 +257,7 @@ function update(dt){
   updateFx();
 }
 function basicAttack(t){
-  const c=CLASSES[P.cls];
+  const c=CLASSES[P.cls];P.swingT=now;P.swingDur=clamp(S.delay*.45,.1,.28);
   if(c.magic){sfx('cast');shoot(P,t,'orb','#b8a0ff',()=>dealMag(t,.85));}
   else if(S.range>100){sfx('bow');shoot(P,t,'arrow','#e8dcb0',()=>dealPhys(t,1));}
   else{P.swingT=now;const dx=t.x-P.x,dy=t.y-P.y,sx=(dx-dy)*ISO,sy=(dx+dy)*ISO/2,n=Math.hypot(sx,sy)||1;P.lgX=sx/n;P.lgY=sy/n;P.lungeT=now;

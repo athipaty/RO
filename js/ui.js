@@ -11,6 +11,8 @@ function updateHud(){
   const en=expNeed(P.lv),jn=jexpNeed(P.jl),jm=P.jl>=jobMax(P.cls);
   setT('lvT',`Base Lv ${P.lv}`);setT('exT',(P.exp/en*100).toFixed(1)+'%');setW('exI',P.exp/en);
   setT('jlT',`Job Lv ${P.jl}`);setT('jxT',jm?'max':(P.jexp/jn*100).toFixed(1)+'%');setW('jxI',jm?1:P.jexp/jn);
+  setT('weight',`Weight ${fmt(carryWeight())} / ${fmt(maxWeight())}`+(P.heavy===2?' · too heavy to fight':P.heavy?' · no regen':''));
+  {const we=$('#weight'),hv=!!P.heavy;if(we.classList.contains('heavy')!==hv)we.classList.toggle('heavy',hv);}
   setT('gold',`${fmt(P.gold)} gold`+(P.statPts?` · ${P.statPts} stat pts`:'')+(P.skillPts?` · ${P.skillPts} skill pts`:''));
   const pc=partyCount();const pe=$('#party');if(pe.hidden!==!pc)pe.hidden=!pc;if(pc)setT('party',`Party bonus +25% EXP · ${pc} ally${pc>1?'s':''} nearby`);
   const qe=$('#quest');if(qe.hidden!==!P.quest)qe.hidden=!P.quest;if(P.quest)setT('quest',`Contract: ${MOBS[P.quest.mob].name} ${P.quest.have}/${P.quest.need}`);
@@ -58,7 +60,7 @@ function refreshPanel(){
     h+=`<div class="sub">Stat points: <span class="gold">${P.statPts}</span></div>`;
     for(const k of STATS){const v=P.st[k],bonus=S[k]-v,cost=statCost(v);
       h+=`<div class="st"><b>${k.toUpperCase()}</b><span class="muted" style="font-size:12px">${STAT_DESC[k]}</span><span>${v}${bonus?`<span class="gold"> +${bonus}</span>`:''}</span><button class="btn small" data-act="stat" data-arg="${k}" ${P.statPts<cost||v>=99?'disabled':''} title="Costs ${cost} points">+${cost>2?' ('+cost+')':''}</button></div>`;}
-    h+=`<h3>Combat</h3><div class="dv"><div><span>ATK</span><span>${S.atk}</span></div><div><span>MATK</span><span>${S.matk}</span></div><div><span>DEF</span><span>${S.def}</span></div><div><span>HIT</span><span>${S.hit}</span></div><div><span>FLEE</span><span>${S.flee}</span></div><div><span>CRIT</span><span>${S.crit}%</span></div><div><span>Attacks/s</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Range</span><span>${S.range}px</span></div></div>`;
+    h+=`<h3>Combat</h3><div class="dv"><div><span>ATK</span><span>${S.atk}</span></div><div><span>Attacks/sec</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Weight</span><span>${fmt(carryWeight())}/${fmt(maxWeight())}</span></div><div><span>MATK</span><span>${S.matk}</span></div><div><span>DEF</span><span>${S.def}</span></div><div><span>HIT</span><span>${S.hit}</span></div><div><span>FLEE</span><span>${S.flee}</span></div><div><span>CRIT</span><span>${S.crit}%</span></div><div><span>Attacks/s</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Range</span><span>${S.range}px</span></div></div>`;
     h+=`<h3>Equipment</h3>`;
     for(const slot of ['head','weapon','armor','accessory']){const e=P.eq[slot];
       h+=`<div class="row">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="nm">${e?ITEMS[e.id].name:'<span class="muted">No '+slot+'</span>'}</div><div class="ds">${e?itemDesc(e):''}</div></div>${e?`<button class="btn small" data-act="unequip" data-arg="${slot}">Remove</button>`:''}</div>`;}
@@ -76,6 +78,16 @@ function refreshPanel(){
       h+=`<div class="row"><span class="ico" style="background:${sk.col}">${sk.g}</span><div class="grow"><div class="nm">${sk.name} <span class="muted">${l}/${sk.max}</span></div><div class="ds">${l?sk.desc(l):'Next: '+sk.desc(1)} · ${sk.sp(nl)} SP${l&&l<sk.max?` · next level: ${sk.desc(nl)}`:''}</div></div><button class="btn small" data-act="learn" data-arg="${id}" ${!P.skillPts||l>=sk.max?'disabled':''}>Learn</button></div>`;}
     if(P.cls==='novice')h+=`<p class="muted">Reach Job Lv 10, then talk to Guildmaster Corvin in Hearthvale to choose a calling and unlock its skills.</p>`;
   }
+  else if(panelKind==='mob'){const d=MOBS[panelArg];if(!d){closePanel();return;}S=computeStats();
+    const pc=c=>{const v=c*100;return(v>=10||v===Math.round(v)?Math.round(v):v.toFixed(1))+'%';};
+    const where=Object.values(ZONES).filter(z=>z.mobs&&z.mobs.some(([t])=>t===d.id)).map(z=>z.name).join(', ');
+    h+=`<h2>${esc(d.name)}</h2><div class="sub">Lv ${d.lv}${d.boss?' · boss':''}${d.undead?' · undead':''} · ${d.aggro?'attacks on sight':'passive until hit'}${d.range?' · ranged':''}</div>`;
+    h+=`<div class="dv"><div><span>HP</span><span>${fmt(d.hp)}</span></div><div><span>ATK</span><span>${d.atk}</span></div><div><span>DEF</span><span>${d.def}</span></div><div><span>FLEE</span><span>${d.flee}</span></div>`+
+      `<div><span>Base EXP</span><span>${fmt(d.exp)}</span></div><div><span>Job EXP</span><span>${fmt(d.jexp)}</span></div>`+
+      `<div><span>Your hit chance</span><span>${clamp(80+S.hit-d.flee,5,100)}%</span></div><div><span>You dodge</span><span>${100-clamp(85+d.hit-S.flee,5,95)}%</span></div></div>`;
+    h+=`<h3>Drops</h3>`+d.drops.map(([id,c])=>`<div class="row">${icon(ITEMS[id])}<div class="grow"><div class="nm">${ITEMS[id].name}</div></div><span>${pc(c)}</span></div>`).join('')+
+      `<div class="row">${icon(ITEMS[d.id+'_sig'])}<div class="grow"><div class="nm">${d.name} Sigil</div><div class="ds">${d.sig.kind}: ${d.sig.txt}</div></div><span>${pc(d.sigChance||.02)}</span></div>`;
+    h+=`<h3>Found in</h3><div class="sub">${where||'Unknown'}</div>`;}
   else if(panelKind==='help'){
     h+=`<h2>How to play</h2><p class="say">Embervale is a click-to-move action RPG. Hunt monsters for experience, gold, loot and rare sigils.</p>
     <div class="ds" style="line-height:1.7"><b>Moving and fighting:</b> click the ground to walk, click a monster to attack it until it falls. WASD and the arrow keys also move you. Tab targets the nearest monster.<br>
@@ -87,7 +99,7 @@ function refreshPanel(){
     <b>Hats:</b> rare headgear drops from some monsters (and the Straw Hat and Ribbon Bow from the store). Everyone online sees what you wear.<br>
     <b>Auto-hunt:</b> the Auto button fights the nearest monster for you and drinks tonics when HP runs low. It's handy on a phone.<br>
     <b>Saving:</b> your progress saves automatically in this browser.</div>
-    <h3>Keys</h3><div class="dv"><div><span>F1–F8</span><span>hotbar</span></div><div><span>Insert</span><span>sit / stand</span></div><div><span>Alt+E</span><span>items</span></div><div><span>Alt+S</span><span>skills</span></div><div><span>Alt+A</span><span>stats</span></div><div><span>Alt+L</span><span>emotes</span></div><div><span>Alt+V</span><span>hide status box</span></div><div><span>F12</span><span>hide hotbar</span></div><div><span>Click item</span><span>pick it up</span></div><div><span>Enter</span><span>chat</span></div><div><span>E</span><span>emotes</span></div><div><span>1–4</span><span>skills</span></div><div><span>5–8</span><span>tonics, scroll</span></div><div><span>C / I / K</span><span>windows</span></div><div><span>X</span><span>sit</span></div><div><span>Tab</span><span>target</span></div><div><span>Esc</span><span>close</span></div></div>
+    <h3>Name colours</h3><div class="sub">Blue: players · green: players near you (party bonus) · grey: guests · white: calm monsters · red: monsters that attack on sight · gold: bosses</div><h3>Chat commands</h3><div class="sub">/help · /where · /who · /sit · /stand · /exp · /roll · /emotes · /clear</div><h3>Keys</h3><div class="dv"><div><span>Right-click monster</span><span>monster info</span></div><div><span>F1–F8</span><span>hotbar</span></div><div><span>Insert</span><span>sit / stand</span></div><div><span>Alt+E</span><span>items</span></div><div><span>Alt+S</span><span>skills</span></div><div><span>Alt+A</span><span>stats</span></div><div><span>Alt+L</span><span>emotes</span></div><div><span>Alt+V</span><span>hide status box</span></div><div><span>F12</span><span>hide hotbar</span></div><div><span>Click item</span><span>pick it up</span></div><div><span>Enter</span><span>chat</span></div><div><span>E</span><span>emotes</span></div><div><span>1–4</span><span>skills</span></div><div><span>5–8</span><span>tonics, scroll</span></div><div><span>C / I / K</span><span>windows</span></div><div><span>X</span><span>sit</span></div><div><span>Tab</span><span>target</span></div><div><span>Esc</span><span>close</span></div></div>
     <h3>Sound</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" data-act="music">Music: ${AU.music?'on':'off'}</button><button class="btn small" data-act="sfxt">Sound effects: ${AU.sfx?'on':'off'}</button></div>
     <h3>Playing together</h3><p class="ds">Everyone who has this page open at the same time shares the world. You can see each other walking around, chat with Enter or the Chat button, and send emotes (E). Hunting near another player gives you both a party bonus of +25% EXP. The log announces big moments like level milestones, rare sigils and boss kills to everyone. ${NET.room?`<span class="gold">You are connected.</span>`:'Chat is offline in this view, so you are playing solo.'}</p>
     <h3>Adventure</h3><button class="btn" data-act="newgame">Start a new adventure</button>`;
@@ -138,7 +150,7 @@ panel.addEventListener('click',ev=>{
   if(a==='unequip')unequip(arg);
   if(a==='learn'){if(P.skillPts>0){P.skills[arg]=(P.skills[arg]||0)+1;P.skillPts--;rebuildHotbar();addLog(`Learned ${SKILLS[arg].name} level ${P.skills[arg]}.`,'l-good');}}
   if(a==='tab')shopTab=arg;
-  if(a==='buy'){const it=ITEMS[arg];if(P.gold>=it.price){P.gold-=it.price;giveItem(arg,1);sfx('coin');addLog(`Bought ${it.name}.`,'l-loot');}}
+  if(a==='buy'){const it=ITEMS[arg];if(carryWeight()+itemWeight(arg)>maxWeight()){addLog(`You cannot carry ${it.name}: too heavy.`,'l-bad');}else if(P.gold>=it.price){P.gold-=it.price;giveItem(arg,1);sfx('coin');addLog(`Bought ${it.name}.`,'l-loot');}}
   if(a==='sell'){const e=P.inv[+arg];if(e){sfx('coin');P.gold+=sellValue(e.id);if(e.n!==undefined)takeItem(e.id);else P.inv.splice(+arg,1);}}
   if(a==='sellall'){let g=0;P.inv=P.inv.filter(e=>{if(ITEMS[e.id].type==='etc'){g+=sellValue(e.id)*e.n;return false;}return true;});P.gold+=g;sfx('coin');addLog(`Sold your loot for ${fmt(g)} gold.`,'l-loot');}
   if(a==='job'&&P.cls==='novice'&&P.jl>=10){const k=CLASSES[arg];P.cls=arg;P.jl=1;P.jexp=0;P.skillPts=0;giveItem(k.gift,1);
@@ -298,6 +310,10 @@ let hitStopUntil=0;function hitStop(sec){hitStopUntil=Math.max(hitStopUntil,perf
 function frame(ts){let dt=Math.min(.05,(ts-last)/1000);last=ts;if(ts<hitStopUntil)dt*=.06;now+=dt;
   if(running){update(dt);updateHud();}
   render();if(running)renderMini();else drawLookPreview();requestAnimationFrame(frame);}
+function showBanner(a,b){const el=$('#zoneBanner');el.querySelector('b').textContent=a;el.querySelector('span').textContent=b;
+  el.hidden=false;el.classList.remove('show');void el.offsetWidth;el.classList.add('show');clearTimeout(showBanner.t);showBanner.t=setTimeout(()=>{el.hidden=true;},3300);}
+cv.addEventListener('contextmenu',ev=>{ev.preventDefault();if(!P||!running)return;const m=mobAt(screenAt(ev));if(m)openPanel('mob',m.d.id);});
+$('#tInfo').addEventListener('click',()=>{if(P&&P.target&&P.target.d)openPanel('mob',P.target.d.id);});
 let newLook=null,lookTouched=false;
 function setNewLook(lk,touched){newLook={style:lk.style,hair:lk.hair,eye:lk.eye,skin:lk.skin};if(touched)lookTouched=true;refreshCreator();}
 function refreshCreator(){

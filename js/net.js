@@ -126,11 +126,30 @@ function chatLog(name,txt,zone,mine,guest){
   d.appendChild(document.createTextNode(': '+txt));el.appendChild(d);while(el.children.length>60)el.firstChild.remove();el.scrollTop=el.scrollHeight;}
 function sendChat(raw){
   const txt=clean(raw,120);if(!txt||!P)return;
-  if(txt[0]==='/'){const k=txt.slice(1).toLowerCase();if(EMOTE_KEYS.includes(k)){doEmote(k);return;}addLog('Emotes: '+EMOTE_KEYS.map(e=>'/'+e).join(' '));return;}
+  if(txt[0]==='/'){const[cmd,...rest]=txt.slice(1).split(/\s+/);const k=(cmd||'').toLowerCase();
+    if(EMOTE_KEYS.includes(k)){doEmote(k);return;}
+    if(chatCommand(k,rest.join(' ')))return;
+    addLog(`Unknown command /${k}. Type /help to see them all.`,'l-bad');return;}
   NET.myChat=[...NET.myChat,{i:++NET.chatId,s:txt,t:Date.now()}].slice(-4);
   P.bubble={txt,until:now+7};chatLog(P.name,txt,zoneId,true);sfx('click');NET.lastSent='';NET.sendT=0;
   if(!NET.room&&!NET.warned){NET.warned=true;addLog('Nobody else can hear you here. Open the shared Embervale page to chat with other players.');}
 }
+const CMD_HELP=[['/help','this list'],['/where','your region, position and channel'],['/who','who is online and where'],['/sit, /stand','sit down or get up'],
+  ['/exp','your EXP per hour'],['/roll','roll a number from 1 to 100 for everyone to see'],['/emotes','list emotes (e.g. /heart, /gg)'],['/clear','clear this log']];
+function chatCommand(k,arg){
+  if(k==='help'||k==='?'||k==='h'){addLog('Commands: '+CMD_HELP.map(([c,d])=>`${c} (${d})`).join(' · '));return true;}
+  if(k==='where'){addLog(`You are in ${Z.D.name} at (${Math.round(P.x/TILE)}, ${Math.round(P.y/TILE)})`+(NET.channel?`, channel ${NET.channel}`:'')+(ROOM?`, room "${ROOM}"`:'')+'.');return true;}
+  if(k==='who'||k==='online'){const list=[...NET.others.values()].map(o=>`${o.n} (Lv ${o.lv}, ${ZONES[o.z]?.name||'?'})`);
+    addLog(list.length?`${list.length+1} online: you, ${list.join(', ')}`:'Nobody else is online right now.');return true;}
+  if(k==='sit'||k==='stand'){if(!P.dead){P.sitting=k==='sit';P.path=[];P.target=null;}return true;}
+  if(k==='clear'){$('#log').textContent='';return true;}
+  if(k==='emotes'||k==='emote'||k==='em'){addLog('Emotes: '+EMOTE_KEYS.map(e=>'/'+e).join(' '));return true;}
+  if(k==='exp'){const cut=Date.now()-600000,rec=EXPLOG.filter(x=>x.t>=cut);
+    if(!rec.length){addLog('No EXP earned in the last 10 minutes.');return true;}
+    const sum=rec.reduce((a,x)=>a+x.e,0),span=Math.max(60000,Date.now()-rec[0].t);
+    addLog(`EXP per hour (last ${Math.round(span/60000)} min): ${fmt(sum*3600000/span)} · next level in ${fmt(Math.max(0,expNeed(P.lv)-P.exp))} EXP.`);return true;}
+  if(k==='roll'){const n=1+Math.floor(Math.random()*100);sendChat(`rolls ${n} (1-100)`);return true;}
+  return false;}
 function announce(k,v){NET.myChat=[...NET.myChat,{i:++NET.chatId,k,v,t:Date.now()}].slice(-4);NET.lastSent='';NET.sendT=0;}
 function announceText(n,k,v){
   if(k==='lv'&&Number.isInteger(v)&&v>1&&v<=99)return `${n} reached base level ${v}!`;

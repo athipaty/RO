@@ -1,11 +1,11 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='0.8.0';
+const VERSION='0.9.0';
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
 const BLOCK=[0,0,1,1,1,1,0,0]; // 0 ground 1 path 2 tree 3 water 4 rock 5 building 6 cobble 7 flowers
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
 const STATS=['str','agi','vit','int','dex','luk'];
-const STAT_DESC={str:'Melee ATK',agi:'Attack speed, FLEE',vit:'Max HP, DEF, regen',int:'MATK, Max SP',dex:'HIT, bow ATK',luk:'Critical hits'};
+const STAT_DESC={str:'Melee ATK, carry weight',agi:'Attack speed, FLEE',vit:'Max HP, DEF, regen',int:'MATK, Max SP',dex:'HIT, bow ATK',luk:'Critical hits'};
 
 const CLASSES={
   novice:{name:'Novice',hp:1,sp:1,aspd:1.1,weapons:['club'],col:'#c9b38f',hair:'#6b4a2a',skills:['firstaid']},
@@ -60,6 +60,11 @@ const ITEMS={
   clip:{name:'Silver Clip',type:'accessory',b:{maxsp:30},price:900,lv:10,slots:1,col:'#cfd6de',g:'O'},
   charm:{name:'Clover Charm',type:'accessory',b:{luk:4,crit:3},price:900,lv:10,slots:1,col:'#7fd38a',g:'O'},
 };
+// #17 item weight (explicit `w` wins, otherwise a default by type)
+const WEAPON_W={club:40,sword:80,axe:150,wand:30,bow:50,mace:70},ARMOR_W={tunic:10,vest:40,robe:30,scale:120,plate:180};
+function itemWeight(id){const it=ITEMS[id];if(!it)return 0;if(it.w!=null)return it.w;
+  if(it.type==='weapon')return WEAPON_W[it.wt]||50;if(it.type==='armor')return ARMOR_W[id]||50;if(it.type==='head')return 15;if(it.type==='accessory')return 10;
+  if(it.type==='sigil')return 1;if(it.type==='use')return id==='scroll'||id==='leaf'?1:5;return id==='crest'?20:2;}
 const SHOP=['red','orange','blue','leaf','scroll','strawhat','ribbon','spiked','sword','wand','bow','mace','bastion','rod','longbow','sunmace','axe','tunic','vest','robe','scale','plate','ring','clip','charm'];
 
 const MOBS={
@@ -129,6 +134,8 @@ const SKILLS={
     run:l=>buff('blessing','Blessing',120,{str:l,int:l,dex:l})},
 };
 
+// #8 spells take time to cast (seconds before DEX); everything else is instant
+const CAST={emberbolt:.6,frostnova:.8,arcstorm:1.4,smite:.5,mend:.7,arrowrain:.4};
 /* ================= utilities ================= */
 const $=s=>document.querySelector(s);
 const rnd=(a,b)=>a+Math.random()*(b-a);
