@@ -1,7 +1,9 @@
 "use strict";
 /* ================= combat ================= */
 function floatT(x,y,txt,col,size=15){texts.push({x:x+rnd(-6,6),y,txt,col,size,t0:now,dur:.9,vx:rnd(-28,28)});}
-function addLog(msg,cls='l-sys'){const el=$('#log');const d=document.createElement('div');d.className=cls;d.textContent=msg;el.appendChild(d);while(el.children.length>40)el.firstChild.remove();el.scrollTop=el.scrollHeight;}
+// keep the log short, but never remove the chat tabs at its top
+function trimLog(el,max){while(el.children.length>max){const f=el.firstElementChild&&el.firstElementChild.id==='logTabs'?el.children[1]:el.firstElementChild;if(!f)break;f.remove();}}
+function addLog(msg,cls='l-sys'){const el=$('#log');const d=document.createElement('div');d.className=cls;d.textContent=msg;el.appendChild(d);trimLog(el,60);el.scrollTop=el.scrollHeight;}
 function aoe(x,y,r,fn){for(const m of mobs)if(!m.dead&&Math.hypot(m.x-x,m.y-y)<=r+m.d.size)fn(m);}
 function shoot(from,to,kind,col,onHit,hostile){shots.push({x:from.x,y:from.y-10,to,kind,col,onHit,spd:kind==='arrow'?620:440,hostile});}
 function dealPhys(m,mult,o={}){
@@ -29,8 +31,7 @@ function killMob(m){
   fx.push({k:'poof',x:m.x,y:m.y,col:m.d.col,t0:now,dur:.45});
   const mine=(m.myDmg||0)>0;m.myDmg=0;if(!mine)return; // in a shared world you are rewarded for monsters you hit
   sfx('kill');
-  const pb=partyCount()>0?1.25:1;
-  gainExp(Math.round(m.d.exp*pb),Math.round(m.d.jexp*pb));
+  const sh=partyExpShare(m.d.exp,m.d.jexp);gainExp(sh.e,sh.j);
   questKill(m.d.id);
   if(m.d.boss)announce('boss',m.d.id);
   if(!serverSim())for(const [id,ch] of m.d.drops)if(Math.random()<ch)dropLoot(m,id);
@@ -163,7 +164,7 @@ function castNow(id,l,cost,fn){P.sp-=cost;P.cd[id]=now+SKILLS[id].cd;P.queued=nu
   floatT(P.x,P.y-44,SKILLS[id].name+(l>1?' '+l:''),'#f0e0a0',12);sfx('skill');fn();}
 
 /* ================= party, contracts, auto-hunt ================= */
-function partyCount(){let n=0;if(!P)return 0;for(const o of NET.others.values())if(o.z===zoneId&&!o.dead&&Math.hypot(o.x-P.x,o.y-P.y)<520)n++;return n;}
+function partyCount(){return P?partyMatesHere().length:0;}
 function contractOffers(){
   const all=Object.values(MOBS).filter(m=>!m.boss);
   return all.map(m=>({m,d:Math.abs(m.lv-P.lv)})).sort((a,b)=>a.d-b.d).slice(0,3).map(({m})=>{

@@ -14,7 +14,7 @@ function updateHud(){
   setT('weight',`Weight ${fmt(carryWeight())} / ${fmt(maxWeight())}`+(P.heavy===2?' · too heavy to fight':P.heavy?' · no regen':''));
   {const we=$('#weight'),hv=!!P.heavy;if(we.classList.contains('heavy')!==hv)we.classList.toggle('heavy',hv);}
   setT('gold',`${fmt(P.gold)} gold`+(P.statPts?` · ${P.statPts} stat pts`:'')+(P.skillPts?` · ${P.skillPts} skill pts`:''));
-  const pc=partyCount();const pe=$('#party');if(pe.hidden!==!pc)pe.hidden=!pc;if(pc)setT('party',`Party bonus +25% EXP · ${pc} ally${pc>1?'s':''} nearby`);
+  const pc=partyCount();const pe=$('#party');if(pe.hidden!==!pc)pe.hidden=!pc;if(pc)setT('party',`Party: ${SOC.party.mode==='share'?'sharing EXP':'+25% EXP each'} · ${pc} member${pc>1?'s':''} here`);
   const qe=$('#quest');if(qe.hidden!==!P.quest)qe.hidden=!P.quest;if(P.quest)setT('quest',`Contract: ${MOBS[P.quest.mob].name} ${P.quest.have}/${P.quest.need}`);
   const t=P.target&&!P.target.dead?P.target:null;const te=$('#target');
   if(!!t===te.hidden)te.hidden=!t;
@@ -132,7 +132,7 @@ function refreshPanel(){
     <b>Hats:</b> rare headgear drops from some monsters (and the Straw Hat and Ribbon Bow from the store). Everyone online sees what you wear.<br>
     <b>Auto-hunt:</b> the Auto button fights the nearest monster for you and drinks tonics when HP runs low. It's handy on a phone.<br>
     <b>Saving:</b> your progress saves automatically in this browser.</div>
-    <h3>Name colours</h3><div class="sub">Blue: players · green: players near you (party bonus) · grey: guests · white: calm monsters · red: monsters that attack on sight · gold: bosses</div><h3>Chat commands</h3><div class="sub">/help · /where · /who · /sit · /stand · /exp · /roll · /emotes · /clear</div><h3>Keys</h3><div class="dv"><div><span>Right-click monster</span><span>monster info</span></div><div><span>F1–F8</span><span>hotbar</span></div><div><span>Insert</span><span>sit / stand</span></div><div><span>Alt+E</span><span>items</span></div><div><span>Alt+S</span><span>skills</span></div><div><span>Alt+A</span><span>stats</span></div><div><span>Alt+L</span><span>emotes</span></div><div><span>Alt+V</span><span>hide status box</span></div><div><span>F12</span><span>hide hotbar</span></div><div><span>Click item</span><span>pick it up</span></div><div><span>Enter</span><span>chat</span></div><div><span>E</span><span>emotes</span></div><div><span>1–4</span><span>skills</span></div><div><span>5–8</span><span>tonics, scroll</span></div><div><span>C / I / K</span><span>windows</span></div><div><span>X</span><span>sit</span></div><div><span>Tab</span><span>target</span></div><div><span>Esc</span><span>close</span></div></div>
+    <h3>Name colours</h3><div class="sub">Blue: players · green: your party · grey: guests · white: calm monsters · red: monsters that attack on sight · gold: bosses</div><h3>Chat commands</h3><div class="sub">/help · /where · /who · /sit · /stand · /exp · /roll · /emotes · /clear<br>/w Name text · /r text · /invite Name · /p text · /leave · /kick Name · /friend Name · /friends</div><h3>Keys</h3><div class="dv"><div><span>Right-click monster</span><span>monster info</span></div><div><span>F1–F8</span><span>hotbar</span></div><div><span>Insert</span><span>sit / stand</span></div><div><span>Alt+E</span><span>items</span></div><div><span>Alt+S</span><span>skills</span></div><div><span>Alt+A</span><span>stats</span></div><div><span>Alt+L</span><span>emotes</span></div><div><span>Alt+V</span><span>hide status box</span></div><div><span>F12</span><span>hide hotbar</span></div><div><span>Click item</span><span>pick it up</span></div><div><span>Enter</span><span>chat</span></div><div><span>E</span><span>emotes</span></div><div><span>1–4</span><span>skills</span></div><div><span>5–8</span><span>tonics, scroll</span></div><div><span>C / I / K</span><span>windows</span></div><div><span>X</span><span>sit</span></div><div><span>Tab</span><span>target</span></div><div><span>Esc</span><span>close</span></div></div>
     <h3>Sound</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" data-act="music">Music: ${AU.music?'on':'off'}</button><button class="btn small" data-act="sfxt">Sound effects: ${AU.sfx?'on':'off'}</button></div>
     <h3>Playing together</h3><p class="ds">Everyone who has this page open at the same time shares the world. You can see each other walking around, chat with Enter or the Chat button, and send emotes (E). Hunting near another player gives you both a party bonus of +25% EXP. The log announces big moments like level milestones, rare sigils and boss kills to everyone. ${NET.room?`<span class="gold">You are connected.</span>`:'Chat is offline in this view, so you are playing solo.'}</p>
     <h3>Adventure</h3><button class="btn" data-act="newgame">Start a new adventure</button>`;
@@ -282,7 +282,7 @@ $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDef
 
 /* ================= save / load ================= */
 function snapshot(){if(!P)return null;
-  const keep=['name','look','storage','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest'];
+  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest'];
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;return {v:1,p:JSON.parse(JSON.stringify(o))};}
 function save(force){const s=snapshot();if(!s)return;
   if(ACC.token){ACC.cloud=s;cloudSave(force);}else try{localStorage.setItem(SAVE_KEY,JSON.stringify(s));}catch(e){}}
@@ -343,6 +343,7 @@ function startWith(data){
   P=newPlayer(data?data.p.name:($('#nameIn').value.trim()||'Wanderer'));
   if(data){Object.assign(P,data.p);uid=Math.max(uid,data.p.uid||1);if(!('head' in P.eq))P.eq.head=null;P.look=lookDecode(lookCode(P.look))&&P.look;}
   else P.look={...newLook};
+  if(!Array.isArray(P.friends))P.friends=[];
   S=computeStats();if(!data||P.hp<=0){P.hp=S.maxhp;P.sp=S.maxsp;}
   $('#title').hidden=true;running=true;rebuildHotbar();
   enterZone(data&&ZONES[P.zone]?P.zone:'town');

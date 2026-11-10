@@ -39,6 +39,7 @@ const SERVER=(()=>{const s=new URLSearchParams(location.search).get('server');re
 function serverRoom(){
   return (window.io?Promise.resolve():loadScript('https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js')).then(()=>new Promise((res,rej)=>{
     const sock=io(SERVER+'/embervale',{transports:['websocket'],auth:{token:ACC.token||undefined},reconnectionDelayMax:8000});
+    socialAttach(sock);
     const seen=new Map();let cb=null,last=null,ready=false; // peer id -> latest {peer,presence,guest}
     const fail=setTimeout(()=>{if(!ready){ready=true;sock.close();rej(new Error('timeout'));}},9000);
     // players already in the channel arrive before the game listens, so hand them over when it does
@@ -90,7 +91,7 @@ function netConnect(tries=0){
 function ingest(p){
   const s=p.presence||{};if(s.v!==1)return;
   let o=NET.others.get(p.peer);const fresh=!o;
-  if(!o){o={rx:fin(s.x),ry:fin(s.y),seen:0,bubble:null,walkT:0};NET.others.set(p.peer,o);}
+  if(!o){o={peer:p.peer,rx:fin(s.x),ry:fin(s.y),seen:0,bubble:null,walkT:0};NET.others.set(p.peer,o);}
   o.n=clean(s.n,16)||'Traveller';o.cls=CLASSES[s.c]?s.c:'novice';o.z=ZONES[s.z]?s.z:'town';
   o.x=clamp(fin(s.x),0,4000);o.y=clamp(fin(s.y),0,4000);o.face=s.f<0?-1:1;o.lv=clamp(Math.floor(fin(s.lv)),1,99);
   o.moving=!!s.mv;o.sitting=!!s.st;o.back=!!s.b;o.look=lookDecode(s.lk);o.dead=!!s.d;o.wid=typeof s.w==='string'&&ITEMS[s.w]&&ITEMS[s.w].type==='weapon'?s.w:null;o.guest=!!p.guest;
@@ -98,7 +99,7 @@ function ingest(p){
   o.id=clean(s.id,16)||null;o.zt=fin(s.zt);o.hd=!!s.hd;
   o.mb=Array.isArray(s.mb)&&s.mb.length<=80?s.mb:null;o.ev=Array.isArray(s.ev)?s.ev.slice(-24):[];o.hx=Array.isArray(s.hx)?s.hx.slice(-24):[];
   if(s.em&&typeof s.em==='object'&&EMOTE_KEYS.includes(s.em.k)){const id=fin(s.em.i);if(id>(o.emSeen||0)){const first=!o.emSeen;o.emSeen=id;if(!(fresh&&first&&Math.abs(Date.now()-fin(s.em.t))>4000)){o.emote={k:s.em.k,start:now};if(o.z===zoneId)sfx('pop');}}}
-  if(fresh){addLog(`${o.n} (${CLASSES[o.cls].name} Lv ${o.lv}) is online.`,'l-good');}
+  if(fresh){addLog(`${o.n} (${CLASSES[o.cls].name} Lv ${o.lv}) is online.`,'l-good');friendSeen(o.n);}
   const msgs=Array.isArray(s.ch)?s.ch.slice(-4):[];
   for(const m of msgs){
     if(!m||typeof m!=='object')continue;const id=fin(m.i);if(id<=o.seen)continue;o.seen=id;
@@ -117,21 +118,29 @@ function updateWho(){
   if(!NET.room){b.textContent=NET.status==='connecting'?'○ Connecting…':'○ Offline · solo';b.classList.add('off');list.hidden=true;return;}
   b.classList.remove('off');b.textContent=`● ${NET.others.size+1} online`+(NET.channel?` · ch ${NET.channel}`:'');
   list.textContent='';
-  const row=(name,o,me)=>{const d=document.createElement('div');d.className='who'+(me?' me':'');
+  const row=(name,o,me,peer)=>{const d=document.createElement('div');d.className='who'+(me?' me':'')+(peer&&inParty(peer)?' party':'');
     const nm=document.createElement('b');nm.textContent=name+(me?' (you)':'');
     const info=document.createElement('span');const z=o.z||zoneId;info.textContent=`${CLASSES[o.cls]?.name||'Novice'} Lv ${o.lv||1} · ${ZONES[z]?.name||''}${!me&&z===zoneId?' · here':''}`;
-    d.append(nm,info);list.appendChild(d);};
+    d.append(nm,info);
+    if(peer&&NET.room&&NET.room.server){const bs=document.createElement('div');bs.className='wb';
+      const mk=(label,fn)=>{const b=document.createElement('button');b.className='btn small';b.type='button';b.textContent=label;b.addEventListener('click',ev=>{ev.stopPropagation();fn();});bs.appendChild(b);};
+      if(!inParty(peer)&&(!SOC.party||SOC.party.leader===selfPeer()))mk('Invite',()=>soc('partyInvite',{peer}));
+      mk('Whisper',()=>{openChat();$('#chatIn').value=`/w ${name} `;});
+      if(!P.friends.some(f=>f.toLowerCase()===String(name).toLowerCase()))mk('+ Friend',()=>{friendToggle(name,true);updateWho();});
+      d.appendChild(bs);}
+    list.appendChild(d);};
   if(P)row(P.name,{cls:P.cls,lv:P.lv,z:zoneId},true);
-  for(const o of NET.others.values())row(o.n,o,false);
+  for(const [peer,o] of NET.others)row(o.n,o,false,peer);
   if(!NET.others.size){const d=document.createElement('div');d.className='who muted';d.textContent='Nobody else yet. Send your friend the link!';list.appendChild(d);}
 }
 function chatLog(name,txt,zone,mine,guest){
   const el=$('#log'),d=document.createElement('div');d.className='l-chat'+(mine?' me':'');
   const b=document.createElement('b');b.textContent=name+(guest?' (guest)':'');d.appendChild(b);
   if(zone&&zone!==zoneId){const i=document.createElement('i');i.textContent=` in ${ZONES[zone].name}`;d.appendChild(i);}
-  d.appendChild(document.createTextNode(': '+txt));el.appendChild(d);while(el.children.length>60)el.firstChild.remove();el.scrollTop=el.scrollHeight;}
+  d.appendChild(document.createTextNode(': '+txt));el.appendChild(d);trimLog(el,60);el.scrollTop=el.scrollHeight;}
 function sendChat(raw){
   const txt=clean(raw,120);if(!txt||!P)return;
+  if(txt[0]!=='/'&&SOC.tab==='party'&&SOC.party){soc('partyChat',{text:txt});return;}
   if(txt[0]==='/'){const[cmd,...rest]=txt.slice(1).split(/\s+/);const k=(cmd||'').toLowerCase();
     if(EMOTE_KEYS.includes(k)){doEmote(k);return;}
     if(chatCommand(k,rest.join(' ')))return;
@@ -141,19 +150,29 @@ function sendChat(raw){
   if(!NET.room&&!NET.warned){NET.warned=true;addLog('Nobody else can hear you here. Open the shared Embervale page to chat with other players.');}
 }
 const CMD_HELP=[['/help','this list'],['/where','your region, position and channel'],['/who','who is online and where'],['/sit, /stand','sit down or get up'],
-  ['/exp','your EXP per hour'],['/roll','roll a number from 1 to 100 for everyone to see'],['/emotes','list emotes (e.g. /heart, /gg)'],['/clear','clear this log']];
+  ['/exp','your EXP per hour'],['/w Name text, /r text','whisper, reply'],['/invite Name, /p text, /leave, /kick Name','party'],['/friend Name, /unfriend Name, /friends','friends'],['/roll','roll a number from 1 to 100 for everyone to see'],['/emotes','list emotes (e.g. /heart, /gg)'],['/clear','clear this log']];
 function chatCommand(k,arg){
   if(k==='help'||k==='?'||k==='h'){addLog('Commands: '+CMD_HELP.map(([c,d])=>`${c} (${d})`).join(' · '));return true;}
   if(k==='where'){addLog(`You are in ${Z.D.name} at (${Math.round(P.x/TILE)}, ${Math.round(P.y/TILE)})`+(NET.channel?`, channel ${NET.channel}`:'')+(ROOM?`, room "${ROOM}"`:'')+'.');return true;}
   if(k==='who'||k==='online'){const list=[...NET.others.values()].map(o=>`${o.n} (Lv ${o.lv}, ${ZONES[o.z]?.name||'?'})`);
     addLog(list.length?`${list.length+1} online: you, ${list.join(', ')}`:'Nobody else is online right now.');return true;}
   if(k==='sit'||k==='stand'){if(!P.dead){P.sitting=k==='sit';P.path=[];P.target=null;}return true;}
-  if(k==='clear'){$('#log').textContent='';return true;}
+  if(k==='clear'){[...$('#log').children].forEach(c=>{if(c.id!=='logTabs')c.remove();});return true;}
   if(k==='emotes'||k==='emote'||k==='em'){addLog('Emotes: '+EMOTE_KEYS.map(e=>'/'+e).join(' '));return true;}
   if(k==='exp'){const cut=Date.now()-600000,rec=EXPLOG.filter(x=>x.t>=cut);
     if(!rec.length){addLog('No EXP earned in the last 10 minutes.');return true;}
     const sum=rec.reduce((a,x)=>a+x.e,0),span=Math.max(60000,Date.now()-rec[0].t);
     addLog(`EXP per hour (last ${Math.round(span/60000)} min): ${fmt(sum*3600000/span)} · next level in ${fmt(Math.max(0,expNeed(P.lv)-P.exp))} EXP.`);return true;}
+  if(k==='w'||k==='whisper'||k==='tell'){const[to,...r]=arg.split(/\s+/);const text=r.join(' ');if(!to||!text){addLog('Usage: /w Name message');return true;}soc('whisper',{to,text});return true;}
+  if(k==='r'||k==='reply'){if(!SOC.lastWhisper)addLog('Nobody has whispered to you yet.');else if(arg)soc('whisper',{to:SOC.lastWhisper,text:arg});else addLog(`Usage: /r message (replies to ${SOC.lastWhisper})`);return true;}
+  if(k==='p'||k==='party'){if(!SOC.party){addLog('You are not in a party. Invite someone with /invite Name.');return true;}
+    if(arg)soc('partyChat',{text:arg});else addLog('Party: '+SOC.party.members.map(m=>m.name).join(', '));return true;}
+  if(k==='invite'){if(!arg)addLog('Usage: /invite Name');else invite(arg);return true;}
+  if(k==='leave'){if(SOC.party)soc('partyLeave',{});else addLog('You are not in a party.');return true;}
+  if(k==='kick'){const peer=findPeerByName(arg);if(peer&&inParty(peer))soc('partyKick',{peer});else addLog('Usage: /kick Name (party leader only)');return true;}
+  if(k==='friend'){friendToggle(arg,true);return true;}
+  if(k==='unfriend'){friendToggle(arg,false);return true;}
+  if(k==='friends'){if(!P.friends.length)addLog('Your friends list is empty. Add someone with /friend Name.');else soc('friends',{names:P.friends});return true;}
   if(k==='roll'){const n=1+Math.floor(Math.random()*100);sendChat(`rolls ${n} (1-100)`);return true;}
   return false;}
 function announce(k,v){NET.myChat=[...NET.myChat,{i:++NET.chatId,k,v,t:Date.now()}].slice(-4);NET.lastSent='';NET.sendT=0;}

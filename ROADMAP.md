@@ -19,9 +19,9 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 - [x] 2b. Server runs monsters, drops and damage checks (player-hosted monsters only as a backup)
 
 ## Stage 3: Social
-- [ ] Parties: invite, shared EXP, party chat, party members on the minimap
+- [x] Parties: invite, shared EXP, party chat, party members on the minimap
 - [ ] Two-sided trade window (both players confirm)
-- [ ] Whispers, friends list, chat tabs (all / party / whisper)
+- [x] Whispers, friends list, chat tabs (all / party / whisper)
 - [ ] Party loot rules (free-for-all or round-robin)
 
 ## Stage 4: Items and progression
@@ -109,8 +109,8 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 44. M Mounts
 
 ### Social
-- [ ] 45. M (server) Parties
-- [ ] 46. M (server) Whispers, friends, block list
+- [x] 45. M (server) Parties
+- [x] 46. M (server) Whispers and friends (block list still to do)
 - [x] 47. S Chat commands: /help /where /who /sit /stand /exp /roll /emotes /clear
 - [ ] 48. M (server) Chat rooms
 - [ ] 49. L (server) Guilds with emblems

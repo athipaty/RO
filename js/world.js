@@ -7,7 +7,7 @@ let uid=1;
 
 function newPlayer(name){
   return {name:name||'Wanderer',cls:'novice',lv:1,exp:0,jl:1,jexp:0,st:{str:1,agi:1,vit:1,int:1,dex:1,luk:1},statPts:24,skillPts:0,skills:{},
-    gold:200,storage:[],inv:[{id:'red',n:6},{id:'scroll',n:1}],eq:{weapon:{id:'club',uid:uid++,s:[]},armor:{id:'tunic',uid:uid++,s:[]},accessory:null,head:null},quest:null,
+    gold:200,storage:[],friends:[],inv:[{id:'red',n:6},{id:'scroll',n:1}],eq:{weapon:{id:'club',uid:uid++,s:[]},armor:{id:'tunic',uid:uid++,s:[]},accessory:null,head:null},quest:null,
     hp:1,sp:1,zone:'town',x:0,y:0,visited:['town'],buffs:{},cd:{},
     path:[],target:null,npcGoal:null,queued:null,atkT:0,face:1,walkT:0,moving:false,sitting:false,dead:false,regenAcc:0};
 }

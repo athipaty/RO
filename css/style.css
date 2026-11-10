@@ -28,6 +28,19 @@ button{font:inherit;color:inherit}
 .lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 #gold{margin-top:5px;font-size:12.5px;color:var(--exp);font-variant-numeric:tabular-nums}
 #party{color:var(--jexp);margin-top:2px}#quest{color:#e8d7a6;margin-top:2px}
+#partyBox{position:fixed;left:max(10px,env(safe-area-inset-left));top:calc(max(10px,env(safe-area-inset-top)) + 200px);width:230px;padding:6px 8px;font-size:12px;z-index:2;box-sizing:border-box}
+.phd{display:flex;align-items:center;gap:4px;margin-bottom:4px}.phd .pt{flex:1;color:var(--jexp);font-weight:800}
+.pmr{display:grid;grid-template-columns:1fr 54px auto auto;gap:6px;align-items:center;padding:2px 0}
+.pn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pz{color:var(--muted);font-size:11px}
+.ph{display:block;height:6px;border:1px solid #000;border-radius:3px;background:linear-gradient(90deg,#62bf86 var(--hp,100%),#0b0e13 var(--hp,100%))}
+#invite{position:fixed;top:calc(max(10px,env(safe-area-inset-top)) + 44px);left:50%;transform:translateX(-50%);z-index:6;padding:8px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100vw - 24px)}
+#invite b{color:var(--exp)}
+#logTabs{position:sticky;top:-6px;display:flex;gap:4px;padding:2px 0 4px;background:rgba(10,13,18,.95);z-index:1}
+#logTabs .btn{padding:0 8px;font-size:11px}#logTabs .btn.on{border-color:var(--exp);color:var(--exp)}
+#log.f-party>div:not(#logTabs):not(.l-party){display:none}#log.f-whisper>div:not(#logTabs):not(.l-whisper){display:none}
+.l-party{color:#8fe0a8}.l-whisper{color:#f2a6d8}.l-party b,.l-whisper b{color:inherit}
+.who .wb{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}.who.party b{color:#8fe0a8}
+@media (max-width:760px){#partyBox{top:calc(max(10px,env(safe-area-inset-top)) + 150px);width:175px}}
 .emgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .emb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;background:#10141b;border:1px solid var(--edge-dim);border-radius:6px;cursor:pointer;color:var(--ink);font-size:11.5px}
 .emb:hover,.emb:focus-visible{border-color:var(--exp)}.emb img{width:32px;height:32px}
