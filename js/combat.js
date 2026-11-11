@@ -331,8 +331,12 @@ function applyHits(apply){
       if(dmg>0){m.hp-=dmg;m.hitF=now;knock(m,o);floatT(m.x,m.y-m.d.size-8,fmt(dmg),'#cfe0ff',13);if(m.hp<=0)killMob(m);}}}}
 function syncMobs(host,dt){
   const mb=host.mb;if(!mb)return;
-  if(typeof syncWorldBoss==='function')syncWorldBoss(host,mb.length);if(mb.length!==mobs.length-(wbMob?1:0))return;
-  for(let i=0;i<mobs.length;i++){const m=mobs[i],st=i<mb.length?mb[i]:host.wb&&host.wb.s;if(!Array.isArray(st))continue;
+  // an older server knows fewer monsters here (new ones are always added at the end of a region's list):
+  // sync the ones it knows and keep the rest out of the world until it catches up
+  const base=mobs.length-(wbMob?1:0);if(mb.length>base)return;
+  if(mb.length<base){for(let i=mb.length;i<base;i++){const m=mobs[i];if(!m.dead){m.dead=true;if(P.target===m)P.target=null;}m.respawnAt=now+1e9;}}
+  else if(typeof syncWorldBoss==='function')syncWorldBoss(host,mb.length);
+  for(let i=0;i<mobs.length;i++){const m=mobs[i],st=i<mb.length?mb[i]:wbMob&&m===wbMob&&host.wb&&host.wb.s;if(!Array.isArray(st))continue;
     const f=fin(st[3])|0,dead=!!(f&1),nx=fin(st[0]),ny=fin(st[1]);
     if(dead){if(!m.dead)killMob(m);continue;}
     if(m.dead){m.dead=false;m.x=nx;m.y=ny;m.hp=m.d.hp;m.myDmg=0;}
