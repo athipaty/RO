@@ -118,7 +118,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 50. L (server) Guild war
 - [ ] 51. M (server) PvP arenas and duels (duels done in v0.21.0; arena and rankings still to do)
 - [x] 52. S More emotes and an emote bar (v0.51.0: 24 emotes, quick bar of favourites on E)
-- [ ] 53. S Partner system
+- [x] 53. S Partner system (v0.55.0: the Kindred Bond, /bond)
 
 ### Quests and events
 - [x] 54. M NPC dialog windows with portraits and choices (v0.16.0)
@@ -140,5 +140,5 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 ### Sound and atmosphere
 - [x] 67. S Footsteps that change with the ground (v0.53.0)
 - [x] 68. S Ambient sounds per map (v0.53.0: switch in Settings)
-- [ ] 69. M More original music themes
+- [x] 69. M More original music themes (v0.55.0: Arena, Emberkeep, Mossdeep Caverns)
 - [x] 70. S Level-up light pillar, also seen on other players (v0.32.0)
