@@ -138,7 +138,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 66. S Screenshot key (v0.52.0: P, or Photo in the phone menu)
 
 ### Sound and atmosphere
-- [ ] 67. S Footsteps that change with the ground
-- [ ] 68. S Ambient sounds per map
+- [x] 67. S Footsteps that change with the ground (v0.53.0)
+- [x] 68. S Ambient sounds per map (v0.53.0: switch in Settings)
 - [ ] 69. M More original music themes
 - [x] 70. S Level-up light pillar, also seen on other players (v0.32.0)
