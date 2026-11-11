@@ -33,7 +33,8 @@ module.exports = async t => {
     t.ok(r.saved && r.saved.emberbolt === 2, 'the chosen level is saved');
     const c = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); P.target = null; P.cd = {}; P.casting = null;
       // Ember Bolt needs a target; spawn one next to us
-      const m = mobs.find(m => !m.dead && !m.d.boss); if (!m) return null; m.d = { ...m.d, spd: 0, hp: 99999, aggro: false }; m.hp = 99999; m.state = 'idle'; m.tx = null; m.x = P.x + 30; m.y = P.y; P.target = m; P.sp = S.maxsp; await w(100);
+      const m = mobs.find(m => !m.dead && !m.d.boss); if (!m) return null; for (const o of mobs) if (o !== m) { o.dead = true; o.respawnAt = now + 1e9; } // nothing may interrupt the cast
+      m.d = { ...m.d, spd: 0, hp: 99999, aggro: false }; m.hp = 99999; m.state = 'idle'; m.tx = null; m.x = m.sx = P.x + 30; m.y = m.sy = P.y; m.lead = null; P.target = m; P.sp = S.maxsp; await w(100);
       const s0 = P.sp; useSkill('emberbolt'); for (let i = 0; i < 40 && P.casting; i++) await w(100); return { spent: s0 - P.sp, lv: castLv('emberbolt') }; });
     if (c) t.ok(Math.abs(c.spent - r.cost2) < 1 && r.cost2 < r.cost5, `casting at level 2 costs ${Math.round(c.spent)} SP instead of ${r.cost5}`);
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
