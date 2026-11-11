@@ -19,7 +19,7 @@ function getZone(id){
   const D=ZONES[id], W=D.w, H=D.h, r=seeded(D.seed||7), t=new Uint8Array(W*H);
   const set=(x,y,v)=>{if(x>=0&&y>=0&&x<W&&y<H)t[y*W+x]=v;};
   const get=(x,y)=>(x<0||y<0||x>=W||y>=H)?2:t[y*W+x];
-  const obst=(D.theme==='dunes'||D.theme==='crypt'||D.theme==='cave')?4:2;
+  const obst=(D.theme==='dunes'||D.theme==='crypt'||D.theme==='cave'||D.theme==='arena')?4:2;
   const zone={id,D,w:W,h:H,t,portals:[],npcs:[],buildings:[],spawn:null};
   for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(x===0||y===0||x===W-1||y===H-1)set(x,y,obst);
   if(D.theme==='town'){
@@ -37,7 +37,16 @@ function getZone(id){
     for(let y=12;y<16;y++)for(let x=18;x<22;x++)set(x,y,3);
     for(let y=13;y<=16;y++)for(let x=W-5;x<W;x++)set(x,y,1);
     zone.portals.push({x:(W-2+.5)*TILE,y:15*TILE,to:'meadow',side:'east'});
+    // Stage 6: the Arena Master by the fountain sends players to the Ember Arena
+    zone.npcs.push({name:'Arena Master Vexa',role:'arena',col:'#a8323a',hair:'#1c1c1c',x:24.5*TILE,y:14.5*TILE});
     zone.spawn={x:20*TILE,y:19*TILE};
+  } else if(D.theme==='arena'){
+    for(const [cx,cy] of ARENA_PITS){
+      for(let y=cy-7;y<=cy+7;y++)for(let x=cx-9;x<=cx+9;x++){const q=((x-cx)/9)**2+((y-cy)/6.5)**2;if(q<1)set(x,y,6);else if(q<1.18&&(Math.abs(x-cx)>3)&&(Math.abs(y-cy)>2))set(x,y,4);}}
+    for(let y=15;y<=19;y++)for(let x=0;x<W-2;x++)if(t[y*W+x]!==6)set(x,y,1);
+    for(let x=21;x<=26;x++)for(let y=2;y<H-2;y++)if(t[y*W+x]===0)set(x,y,1);
+    zone.portals.push({x:1.5*TILE,y:17.5*TILE,to:'town',side:'west'});
+    zone.spawn={x:4.5*TILE,y:17.5*TILE};
   } else {
     const clusters=Math.floor(W*H*D.density/5);
     for(let i=0;i<clusters;i++){let cx=1+Math.floor(r()*(W-2)),cy=1+Math.floor(r()*(H-2));const n=2+Math.floor(r()*6);
@@ -83,7 +92,7 @@ function renderZone(z, r){
     const v=z.t[y*W+x], px=x*TILE, py=y*TILE;
     g.fillStyle=th.g[Math.floor(R()*th.g.length)]; g.fillRect(px,py,TILE,TILE);
     // ground texture
-    if(z.D.theme==='dunes'){g.strokeStyle='rgba(150,110,60,.18)';g.lineWidth=1;g.beginPath();const oy=R()*TILE;g.moveTo(px,py+oy);g.quadraticCurveTo(px+16,py+oy-4,px+32,py+oy);g.stroke();}
+    if(z.D.theme==='dunes'||z.D.theme==='arena'){g.strokeStyle='rgba(150,110,60,.18)';g.lineWidth=1;g.beginPath();const oy=R()*TILE;g.moveTo(px,py+oy);g.quadraticCurveTo(px+16,py+oy-4,px+32,py+oy);g.stroke();}
     else if(z.D.theme==='crypt'){g.strokeStyle='rgba(0,0,0,.25)';g.strokeRect(px+.5,py+.5,TILE-1,TILE-1);if(R()<.15){g.beginPath();g.moveTo(px+R()*32,py+R()*32);g.lineTo(px+R()*32,py+R()*32);g.stroke();}}
     else if(z.D.theme==='frost'){for(let k=0;k<3;k++){g.fillStyle='rgba(110,140,170,.2)';g.fillRect(px+R()*30,py+R()*30,2,2);}}
     else{for(let k=0;k<3;k++){g.fillStyle='rgba(0,40,0,.18)';const gx=px+R()*30,gy=py+R()*30;g.fillRect(gx,gy,1.5,4);g.fillRect(gx+2,gy+1,1.5,3);}}
@@ -101,7 +110,7 @@ function renderZone(z, r){
   // upright objects (drawn per frame in the isometric view, depth-sorted with characters)
   z.objs=[];
   for(const [px,py,kind] of tops){const th2=z.D.theme;let k;
-    if(kind==='rock')k=th2==='crypt'?'pillar':th2==='cave'?'rock':(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':'tree';
+    if(kind==='rock')k=th2==='crypt'||th2==='arena'?'pillar':th2==='cave'?'rock':(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':'tree';
     z.objs.push({x:px+16,y:py+16,kind:k,v:Math.floor(R()*3),sc:.85+R()*.3});}
   for(const b of z.buildings){mg.fillStyle=b.roof;mg.fillRect(b.x,b.y,b.w,b.h);}
   if(z.D.theme==='town')z.objs.push({x:20*TILE,y:14*TILE,kind:'fountain',v:0,sc:1});

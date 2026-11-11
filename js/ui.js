@@ -19,7 +19,7 @@ function updateHud(){
   const qe=$('#quest');if(qe.hidden!==!P.quest)qe.hidden=!P.quest;if(P.quest)setT('quest',`Contract: ${MOBS[P.quest.mob].name} ${P.quest.have}/${P.quest.need}`);
   const t=P.target&&!P.target.dead?P.target:null;const te=$('#target');
   if(!!t===te.hidden)te.hidden=!t;
-  if(t&&t.pvp){setT('tDrops','Duel: first to fall to 1 HP loses');setT('tName',t.d.name);setT('tLv',`Lv ${t.d.lv} · player`);setW('tI',t.hp/100);setT('tT',`${Math.round(t.hp)}%`);}
+  if(t&&t.pvp){setT('tDrops',t.arena?'Arena: fall to 1 HP and you are out':'Duel: first to fall to 1 HP loses');setT('tName',t.d.name);setT('tLv',`Lv ${t.d.lv} · player`);setW('tI',t.hp/100);setT('tT',`${Math.round(t.hp)}%`);}
   else if(t){setT('tDrops','Drops: '+dropText(t.d));setT('tName',t.d.name);setT('tLv',`Lv ${t.d.lv} · ${ELEM[t.d.el||'neutral'].name}`+(t.d.undead?' · undead':'')+(t.d.boss?' · boss':''));setW('tI',t.hp/t.d.hp);setT('tT',`${fmt(t.hp)} / ${fmt(t.d.hp)}`);}
   // hotbar cooldowns & counts
   for(const el of hotEls){const s=el._slot;let frac=0,off=false,n='';

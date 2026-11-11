@@ -427,3 +427,12 @@ body.ui-l #panel{zoom:1.1}
 #modNotice{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(5,7,10,.78)}
 #modNotice[hidden]{display:none}
 #modNotice .card{padding:22px 26px;text-align:center;max-width:340px}
+
+/* ===== Stage 6: arena ===== */
+.arstats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.arstats div{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:8px;text-align:center}
+.arstats b{display:block;font-size:20px;font-variant-numeric:tabular-nums}.arstats span{font-size:11px;color:var(--muted)}
+.arbox{margin:8px 0;padding:8px 10px;border-radius:8px;background:rgba(240,181,74,.1);border:1px solid rgba(240,181,74,.3);display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.artop{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.artop th{text-align:left;color:var(--muted);font-weight:600;padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.1)}
+.artop td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.05)}.artop tr.me td{color:var(--accent,#f0b54a);font-weight:600}

@@ -39,7 +39,7 @@ const SERVER=(()=>{const s=new URLSearchParams(location.search).get('server');re
 function serverRoom(){
   return (window.io?Promise.resolve():loadScript('https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js')).then(()=>new Promise((res,rej)=>{
     const sock=io(SERVER+'/embervale',{transports:['websocket'],auth:{token:ACC.token||undefined},reconnectionDelayMax:8000});
-    socialAttach(sock);if(typeof guildAttach==='function')guildAttach(sock);if(typeof modAttach==='function')modAttach(sock);
+    socialAttach(sock);if(typeof guildAttach==='function')guildAttach(sock);if(typeof modAttach==='function')modAttach(sock);if(typeof arenaAttach==='function')arenaAttach(sock);
     const seen=new Map();let cb=null,last=null,ready=false; // peer id -> latest {peer,presence,guest}
     const fail=setTimeout(()=>{if(!ready){ready=true;sock.close();rej(new Error('timeout'));}},9000);
     // players already in the channel arrive before the game listens, so hand them over when it does
@@ -191,6 +191,7 @@ function chatCommand(k,arg){
 function announce(k,v){NET.myChat=[...NET.myChat,{i:++NET.chatId,k,v,t:Date.now()}].slice(-4);NET.lastSent='';NET.sendT=0;}
 function announceText(n,k,v){
   if(k==='lv'&&Number.isInteger(v)&&v>1&&v<=99)return `${n} reached base level ${v}!`;
+  if(k==='arena'&&typeof v==='string'&&v)return `${n} won an arena match against ${clean(v,40)}!`;
   if(k==='job'&&CLASSES[v])return `${n} became a ${CLASSES[v].name}!`;
   if(k==='sig'&&MOBS[v])return `${n} found a ${MOBS[v].name} Sigil!`;
   if(k==='boss'&&MOBS[v]&&MOBS[v].boss)return `${n} helped defeat the ${MOBS[v].name}!`;
