@@ -448,7 +448,9 @@ function drawFx(){
 }
 const mctx=$('#mini').getContext('2d');
 function renderMini(){
-  if(!Z)return;const w=mctx.canvas.width,h=mctx.canvas.height;mctx.fillStyle='#0b0e13';mctx.fillRect(0,0,w,h);
+  if(!Z)return;const w=mctx.canvas.width;
+  // the minimap takes the region's own shape, so the map always fills its border
+  {const want=Math.round(w*Z.h/Z.w);if(mctx.canvas.height!==want)mctx.canvas.height=want;}const h=mctx.canvas.height;mctx.fillStyle='#0b0e13';mctx.fillRect(0,0,w,h);
   const sc=Math.min(w/Z.w,h/Z.h),ox=(w-Z.w*sc)/2,oy=(h-Z.h*sc)/2;mctx.imageSmoothingEnabled=false;mctx.drawImage(Z.mini,ox,oy,Z.w*sc,Z.h*sc);
   const k=sc/TILE;
   for(const pt of Z.portals){mctx.fillStyle='#8ff0ff';mctx.fillRect(ox+pt.x*k-2,oy+pt.y*k-2,4,4);}

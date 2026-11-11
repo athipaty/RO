@@ -35,16 +35,6 @@
   <canvas id="mini" width="150" height="104"></canvas>
   <div class="zl" id="zLv">Safe town</div>
   <div id="online">Solo</div>
-  <div id="menu">
-    <button class="btn" data-open="status" title="Status (C)">Stats</button>
-    <button class="btn" data-open="items" title="Items (I)">Items</button>
-    <button class="btn" data-open="skills" title="Skills (K)">Skills</button>
-    <button class="btn" data-open="equip" title="Equipment (Alt+Q)">Equip</button>
-    <button class="btn" data-open="quests" title="Quest log (J)">Quests</button>
-    <button class="btn" data-open="guild" title="Guild (G)">Guild</button>
-    <button class="btn" data-open="worldmap" title="World map (M)">Map</button>
-    <button class="btn" data-open="help" title="Help (H)">?</button>
-  </div>
 </div>
 
 <button id="onlineBadge" class="off" aria-label="Players online" title="Who is online">○ Solo</button>
@@ -63,8 +53,24 @@
 <div id="invite" class="frame" hidden role="dialog" aria-label="Party invitation"><span><b></b> invites you to their party.</span><button class="btn small" id="invYes">Join</button><button class="btn small" id="invNo">No thanks</button></div>
 <div id="log"><div id="logTabs" role="tablist"><button class="btn small on" data-tab="all">All</button><button class="btn small" data-tab="party">Party</button><button class="btn small" data-tab="whisper">Whisper</button><button class="btn small" data-tab="guild">Guild</button></div></div>
 <div id="hotbar" class="frame"></div>
+<div id="dock" class="frame">
+  <div id="menu" role="menu" aria-label="Game menu">
+    <button class="dk" data-open="status" title="Stats (C)"><i>◆</i><span>Stats</span></button>
+    <button class="dk" data-open="items" title="Items (I)"><i>▣</i><span>Items</span></button>
+    <button class="dk" data-open="skills" title="Skills (K)"><i>✦</i><span>Skills</span></button>
+    <button class="dk" data-open="equip" title="Equipment (Alt+Q)"><i>⛨</i><span>Equip</span></button>
+    <button class="dk" data-open="quests" title="Quest log (J)"><i>❖</i><span>Quests</span></button>
+    <button class="dk" data-open="guild" title="Guild (G)"><i>⚑</i><span>Guild</span></button>
+    <button class="dk" data-open="worldmap" title="World map (M)"><i>⌖</i><span>Map</span></button>
+    <button class="dk" data-open="emote" title="Emotes (E)"><i>☺</i><span>Emotes</span></button>
+    <button class="dk only-touch" id="mSound" title="Music and sound"><i>♪</i><span>Sound</span></button>
+    <button class="dk" data-open="help" title="Help (H)"><i>?</i><span>Help</span></button>
+  </div>
+  <div id="dockExtra"></div>
+</div>
 <div id="panel" class="frame" hidden></div>
 <div id="actions">
+  <button class="act small" id="menuBtn" aria-label="Menu" aria-expanded="false" aria-controls="dock" title="Menu">☰</button>
   <button class="act small" id="muteBtn" aria-label="Music and sound on or off" title="Music and sound">♪</button>
   <button class="act" id="emoteBtn" aria-label="Emotes" title="Emotes">Emote</button>
   <button class="act" id="autoBtn" aria-label="Auto-hunt on or off" title="Auto-hunt">Auto</button>
@@ -171,5 +177,6 @@
 <script src="js/buffs.js"></script>
 <script src="js/sharedloot.js"></script>
 <script src="js/drag.js"></script>
+<script src="js/layout.js"></script>
 </body>
 </html>
