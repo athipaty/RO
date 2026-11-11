@@ -294,9 +294,11 @@ function drawPlayerBody(P,wid){
   if(baseOf(P.cls)==='warden'){ctx.fillStyle='#9aa0aa';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(P.x-P.face*13-5,by-14,10,14,3);ctx.fill();ctx.stroke();ctx.fillStyle='#e8c25a';ctx.beginPath();ctx.arc(P.x-P.face*13,by-7,2,0,7);ctx.fill();}
   if(!w)return;
   const sd=P.swingDur||.2,sw=P.swingT&&now-P.swingT<sd?(now-P.swingT)/sd:0;
-  ctx.save();ctx.translate(P.x+P.face*10,by-6);ctx.scale(P.face,1);ctx.rotate(-.9+sw*2);
+  // held low at the side, tilted forward and away from the face; a swing lifts it briefly, then strikes down
+  const ang=sw?(sw<.3?.6-sw/.3*.7:-.1+(sw-.3)/.7*1.9):.6;
+  ctx.save();ctx.translate(P.x+P.face*11,by-3);ctx.scale(P.face,1);ctx.rotate(ang);
   ctx.lineCap='round';
-  if(w.wt==='bow'){ctx.rotate(.9-sw*2);ctx.strokeStyle='#8a5a2a';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,0,13,-1.3,1.3);ctx.stroke();ctx.strokeStyle='#eee';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(Math.cos(-1.3)*13,Math.sin(-1.3)*13);ctx.lineTo(Math.cos(1.3)*13,Math.sin(1.3)*13);ctx.stroke();}
+  if(w.wt==='bow'){ctx.rotate(-ang);ctx.strokeStyle='#8a5a2a';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,0,13,-1.3,1.3);ctx.stroke();ctx.strokeStyle='#eee';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(Math.cos(-1.3)*13,Math.sin(-1.3)*13);ctx.lineTo(Math.cos(1.3)*13,Math.sin(1.3)*13);ctx.stroke();}
   else if(w.wt==='wand'){ctx.strokeStyle='#6b4a2a';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,4);ctx.lineTo(0,-18);ctx.stroke();ctx.fillStyle=`hsl(${260+Math.sin(now*4)*20},80%,70%)`;ctx.beginPath();ctx.arc(0,-20,4,0,7);ctx.fill();}
   else if(w.wt==='sword'||w.wt==='axe'){ctx.strokeStyle='#5a3d24';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,4);ctx.lineTo(0,-2);ctx.stroke();ctx.fillStyle='#d0d6de';
     if(w.wt==='sword'){ctx.fillRect(-2,-22,4,20);ctx.fillStyle='#b8924f';ctx.fillRect(-6,-3,12,3);}else{ctx.strokeStyle='#5a3d24';ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(0,-22);ctx.stroke();ctx.beginPath();ctx.moveTo(0,-20);ctx.quadraticCurveTo(12,-16,0,-8);ctx.fill();}}
