@@ -91,7 +91,7 @@ function ingest(p){
   let o=NET.others.get(p.peer);const fresh=!o;
   if(!o){o={peer:p.peer,rx:fin(s.x),ry:fin(s.y),seen:0,bubble:null,walkT:0};NET.others.set(p.peer,o);}
   o.n=clean(s.n,16)||'Traveller';o.cls=CLASSES[s.c]?s.c:'novice';o.z=ZONES[s.z]?s.z:'town';
-  o.x=clamp(fin(s.x),0,4000);o.y=clamp(fin(s.y),0,4000);o.face=s.f<0?-1:1;o.lv=clamp(Math.floor(fin(s.lv)),1,99);
+  o.x=clamp(fin(s.x),0,4000);o.y=clamp(fin(s.y),0,4000);o.face=s.f<0?-1:1;netSnap(o,fin(s.ts),o.z!==o.lastZ);o.lastZ=o.z;o.lv=clamp(Math.floor(fin(s.lv)),1,99);
   o.moving=!!s.mv;o.sitting=!!s.st;o.back=!!s.b;o.look=lookDecode(s.lk);o.vd=s.vd?clean(s.vd,30):null;o.dead=!!s.d;o.wid=typeof s.w==='string'&&ITEMS[s.w]&&ITEMS[s.w].type==='weapon'?s.w:null;o.guest=!!p.guest;
   o.hat=typeof s.h==='string'&&ITEMS[s.h]&&ITEMS[s.h].type==='head'?s.h:null;o.hp=clamp(fin(s.hp),0,100);
   o.guild=typeof guildTag==='function'?guildTag(p.guild):null;o.id=clean(s.id,16)||null;o.zt=fin(s.zt);o.hd=!!s.hd;
@@ -192,17 +192,31 @@ function announceText(n,k,v){
   if(k==='story'&&v==='warlord')return `${n} finished the story “The Ember Below” and saved Hearthvale!`;
   if(k==='quest'&&MOBS[v])return `${n} finished a ${MOBS[v].name} hunting contract.`;
   return null;}
+/* ---- smooth movement for other players: show them a moment in the past and glide between the positions received ---- */
+const NET_DELAY=150; // ms behind real time; covers the gap between updates and a little network jitter
+function netSnap(o,ts,jump){const t=Date.now();let at=t;
+  if(ts>0){const off=t-ts;o.off=o.off===undefined||off<o.off?off:o.off+(off-o.off)*.02;at=ts+o.off;} // sender's clock mapped onto ours
+  const b=o.buf||(o.buf=[]),last=b[b.length-1];
+  if(jump||!last){b.length=0;b.push({t:at-1,x:o.x,y:o.y});}
+  else if(at-last.t>300&&(last.x!==o.x||last.y!==o.y))b.push({t:at-110,x:last.x,y:last.y}); // starting to walk after standing still: ease in
+  if(last&&at<=last.t)return;b.push({t:at,x:o.x,y:o.y});if(b.length>20)b.splice(0,b.length-20);}
+function netPos(o){const b=o.buf;if(!b||!b.length)return [o.x,o.y];const rt=Date.now()-NET_DELAY;
+  if(rt<=b[0].t)return [b[0].x,b[0].y];
+  for(let i=b.length-1;i>0;i--){const a=b[i-1],c=b[i];if(rt>=a.t&&rt<=c.t){if(Math.hypot(c.x-a.x,c.y-a.y)>300)return [c.x,c.y];const k=(rt-a.t)/Math.max(1,c.t-a.t);return [a.x+(c.x-a.x)*k,a.y+(c.y-a.y)*k];}}
+  const l=b[b.length-1],p=b[b.length-2];
+  if(p&&rt-l.t<120&&l.t-p.t>0&&l.t-p.t<300){const k=(rt-l.t)/(l.t-p.t);return [l.x+(l.x-p.x)*k,l.y+(l.y-p.y)*k];} // a short guess past the newest update
+  return [l.x,l.y];}
 function netTick(dt){
-  for(const o of NET.others.values()){if(o.z!==zoneId)continue;const d=Math.hypot(o.x-o.rx,o.y-o.ry);
-    if(d>300){o.rx=o.x;o.ry=o.y;}else{const k=Math.min(1,dt*9);o.rx+=(o.x-o.rx)*k;o.ry+=(o.y-o.ry)*k;}
-    if(o.moving||d>2)o.walkT+=dt;if(Math.abs((o.x-o.rx)-(o.y-o.ry))>1)o.face=sface(o.x-o.rx,o.y-o.ry);}
-  if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+(NET.relay?.15:.12);
+  for(const o of NET.others.values()){if(o.z!==zoneId)continue;const[nx,ny]=netPos(o),dx=nx-o.rx,dy=ny-o.ry,d=Math.hypot(dx,dy);
+    if(d>300){o.rx=nx;o.ry=ny;}else{o.rx=nx;o.ry=ny;}
+    if(o.moving||d>.5)o.walkT+=dt;if(Math.abs(dx-dy)>.3)o.face=sface(dx,dy);}
+  if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+(NET.viaBroker?.15:.1);
   const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,b:P.back?1:0,lk:lookCode(P.look),lv:P.lv,mv:P.moving?1:0,st:P.sitting?1:0,d:P.dead?1:0,
     w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),ch:NET.myChat,em:NET.myEmote||null,
     id:NET.myId,zt:NET.zt,vd:typeof TR!=='undefined'&&TR.vend?TR.vend.title:null,hd:document.hidden?1:0,hx:NET.hits};if(NET.sp&&NET.sp.length)s.sp=NET.sp;if(NET.dl&&NET.dl.length)s.dl=NET.dl;
   if(!zoneHost()&&othersHere()&&mobs.length){s.ev=NET.evs;
     s.mb=mobs.map(m=>[Math.round(m.x),Math.round(m.y),m.dead?0:Math.round(clamp(m.hp/m.d.hp,0,1)*1000),(m.dead?1:0)|(m.moving?2:0)|(m.face<0?4:0)|(m.state==='chase'?8:0)|(m.slowUntil>now?16:0)|(m.ailUntil>now?(m.ail==='freeze'?32:64):0)]);}
-  const j=JSON.stringify(s);if(j===NET.lastSent)return;NET.lastSent=j;NET.room.presence(s).catch(()=>{});
+  const j=JSON.stringify(s);if(j===NET.lastSent)return;NET.lastSent=j;s.ts=Date.now();NET.room.presence(s).catch(()=>{});
 }
 
 /* ================= emotes ================= */
