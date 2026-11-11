@@ -44,11 +44,18 @@ function pressSlot(i){const s=hotSlots()[i];if(!s)return;if(s.skill){if(!P.skill
 
 /* ================= panels ================= */
 const panel=$('#panel');let panelKind=null,panelArg=null,shopTab='buy';
+const itemCat=id=>{const t=ITEMS[id].type;return t==='use'?'use':t==='sigil'?'sigil':t==='etc'?'etc':'equip';};
+const CAT_TABS=[['use','Use'],['equip','Equip'],['sigil','Sigils'],['etc','Etc']];
+let shopCat='use';
 let invTab=(()=>{try{return localStorage.getItem('embervale.invTab')||'use';}catch(e){return 'use';}})();
 // other files (trade.js) register extra windows here: render, button actions, and what to do on close
 const PANELS={},PANEL_ACTS={},PANEL_CLOSE={};
+PANEL_ACTS.shopcat=k=>{shopCat=k;refreshPanel();};
 PANEL_ACTS.invtab=k=>{invTab=k;try{localStorage.setItem('embervale.invTab',k);}catch(e){}refreshPanel();};
-function openPanel(kind,arg){panelKind=kind;panelArg=arg;panel.hidden=false;refreshPanel();}
+const NPC_PANELS=['talk','shop','smith','storage','job','heal','warp'];
+const npcBusy=()=>!!P&&NPC_PANELS.includes(panelKind)&&!panel.hidden;
+let busyHintT=0;function busyHint(){if(now<busyHintT)return;busyHintT=now+3;floatT(P.x,P.y-50,'Close the window to walk','#ffe7a0',12);}
+function openPanel(kind,arg){panelKind=kind;panelArg=arg;panel.hidden=false;if(NPC_PANELS.includes(kind)&&P){P.path=[];P.moving=false;P.target=null;P.queued=null;}refreshPanel();}
 function closePanel(){const k=panelKind;panelKind=null;panel.hidden=true;if(PANEL_CLOSE[k])PANEL_CLOSE[k]();}
 function togglePanel(kind){if(panelKind===kind)closePanel();else openPanel(kind);}
 function icon(it){return `<span class="ico" style="background:${it.col}">${it.g}</span>`;}
@@ -74,11 +81,11 @@ function refreshPanel(){
   }
   else if(panelKind==='items'){
     h+=`<h2>Items</h2><div class="sub">${fmt(P.gold)} gold · click an item to use, equip or socket it</div><div class="tbtns" style="justify-content:flex-start;margin:0 0 6px"><button class="btn small" data-act="vendsetup">Open a shop</button></div>`;
-    const cat=e=>{const t=ITEMS[e.id].type;return t==='use'?'use':t==='etc'||t==='sigil'?'etc':'equip';};
-    const cnt={use:0,equip:0,etc:0};for(const e of P.inv)cnt[cat(e)]++;
-    h+=`<div class="tabs itabs" role="tablist">`+[['use','Use'],['equip','Equip'],['etc','Etc']].map(([k,l])=>`<button class="btn small ${invTab===k?'on':''}" role="tab" aria-selected="${invTab===k}" data-act="invtab" data-arg="${k}">${l} <span class="muted">${cnt[k]}</span></button>`).join('')+`</div>`;
+    const cat=e=>itemCat(e.id);
+    const cnt={use:0,equip:0,sigil:0,etc:0};for(const e of P.inv)cnt[cat(e)]++;
+    h+=`<div class="tabs itabs" role="tablist">`+[['use','Use'],['equip','Equip'],['sigil','Sigils'],['etc','Etc']].map(([k,l])=>`<button class="btn small ${invTab===k?'on':''}" role="tab" aria-selected="${invTab===k}" data-act="invtab" data-arg="${k}">${l} <span class="muted">${cnt[k]}</span></button>`).join('')+`</div>`;
     if(!P.inv.length)h+=`<p class="muted">Your bag is empty.</p>`;
-    else if(!cnt[invTab])h+=`<p class="muted">${{use:'No potions or scrolls. Ilsa sells them at the General Store.',equip:'No spare gear. What you wear is in the Equip window.',etc:'No monster loot yet.'}[invTab]}</p>`;
+    else if(!cnt[invTab])h+=`<p class="muted">${{use:'No potions or scrolls. Ilsa sells them at the General Store.',equip:'No spare gear. What you wear is in the Equip window.',sigil:'No sigils yet. Every monster has a small chance to drop its sigil; socket it into gear with a free slot.',etc:'No monster loot yet.'}[invTab]}</p>`;
     P.inv.forEach((e,i)=>{const it=ITEMS[e.id];if(cat(e)!==invTab)return;const verb=it.type==='use'?'Use':it.type==='sigil'?'Socket':it.type==='etc'?'':'Equip';
       h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div><div class="ds">${itemDesc(e)}</div></div>${verb?`<button class="btn small" data-act="use" data-arg="${i}">${verb}</button>`:''}</div>`;});
   }
@@ -158,11 +165,16 @@ function refreshPanel(){
   else if(panelKind==='shop'){
     h+=`<h2>General Store</h2><div class="say">“Tonics, steel and sturdy cloth. And I'll buy whatever you dragged out of the wilds.” — Ilsa</div>`;
     h+=`<div class="tabs"><button class="btn small ${shopTab==='buy'?'on':''}" data-act="tab" data-arg="buy">Buy</button><button class="btn small ${shopTab==='sell'?'on':''}" data-act="tab" data-arg="sell">Sell</button><span class="gold" style="margin-left:auto">${fmt(P.gold)} gold</span></div>`;
-    if(shopTab==='buy'){for(const id of SHOP){const it=ITEMS[id];const why=it.type==='use'?null:canEquip(it);
+    // type tabs under Buy / Sell: Use, Equip, Sigils, Etc (only the ones that have something)
+    {const ids=shopTab==='buy'?SHOP:P.inv.map(e=>e.id);const cnt={};for(const id of ids){const c=itemCat(id);cnt[c]=(cnt[c]||0)+1;}
+      const tabs=CAT_TABS.filter(([k])=>cnt[k]);if(tabs.length&&!cnt[shopCat])shopCat=tabs[0][0];
+      if(tabs.length>1)h+=`<div class="tabs itabs" role="tablist">`+tabs.map(([k,l])=>`<button class="btn small ${shopCat===k?'on':''}" role="tab" aria-selected="${shopCat===k}" data-act="shopcat" data-arg="${k}">${l} <span class="muted">${cnt[k]}</span></button>`).join('')+`</div>`;}
+    if(shopTab==='buy'){for(const id of SHOP){if(itemCat(id)!==shopCat)continue;const it=ITEMS[id];const why=it.type==='use'?null:canEquip(it);
       h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name}</div><div class="ds">${itemDesc({id,s:it.slots?Array(it.slots).fill(null):[]})}${why&&it.type!=='use'?` · <span style="color:#ef7a6f">${why.replace('Requires ','')}</span>`:''}</div></div><span class="gold" style="font-variant-numeric:tabular-nums">${fmt(it.price)}</span><button class="btn small" data-act="buy" data-arg="${id}" ${P.gold<it.price?'disabled':''}>Buy</button></div>`;}}
     else{const etc=P.inv.filter(e=>ITEMS[e.id].type==='etc');const tot=etc.reduce((a,e)=>a+sellValue(e.id)*e.n,0);
-      h+=`<div class="row"><div class="grow">Sell all monster loot</div><span class="gold">${fmt(tot)}</span><button class="btn small" data-act="sellall" ${tot?'':'disabled'}>Sell all</button></div>`;
-      P.inv.forEach((e,i)=>{const it=ITEMS[e.id];h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><span class="gold">${fmt(sellValue(e.id))}</span><button class="btn small" data-act="sell" data-arg="${i}">Sell 1</button></div>`;});}
+      if(shopCat==='etc')h+=`<div class="row"><div class="grow">Sell all monster loot</div><span class="gold">${fmt(tot)}</span><button class="btn small" data-act="sellall" ${tot?'':'disabled'}>Sell all</button></div>`;
+      if(!P.inv.length)h+=`<p class="muted">Nothing to sell.</p>`;
+      P.inv.forEach((e,i)=>{const it=ITEMS[e.id];if(itemCat(e.id)!==shopCat)return;h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><span class="gold">${fmt(sellValue(e.id))}</span><button class="btn small" data-act="sell" data-arg="${i}">Sell 1</button>${e.n>1?`<button class="btn small" data-act="sellstack" data-arg="${i}" title="Sell all ${e.n} for ${fmt(sellValue(e.id)*e.n)} gold">Sell all</button>`:''}</div>`;});}
   }
   else if(panelKind==='job'){
     h+=`<h2>Guild Hall</h2>`;
@@ -226,8 +238,9 @@ panel.addEventListener('click',ev=>{
   if(a==='use')useInv(+arg);
   if(a==='unequip')unequip(arg);
   if(a==='learn'){if(P.skillPts>0&&skillUnlocked(arg)&&(P.skills[arg]||0)<SKILLS[arg].max){P.skills[arg]=(P.skills[arg]||0)+1;P.skillPts--;rebuildHotbar();addLog(`Learned ${SKILLS[arg].name} level ${P.skills[arg]}.`,'l-good');}}
-  if(a==='tab')shopTab=arg;
+  if(a==='tab'){shopTab=arg;shopCat=arg==='sell'?'etc':'use';}
   if(a==='buy'){const it=ITEMS[arg];if(carryWeight()+itemWeight(arg)>maxWeight()){addLog(`You cannot carry ${it.name}: too heavy.`,'l-bad');}else if(P.gold>=it.price){P.gold-=it.price;giveItem(arg,1);sfx('coin');addLog(`Bought ${it.name}.`,'l-loot');}}
+  if(a==='sellstack'){const e=P.inv[+arg];if(e&&e.n>0){const g=sellValue(e.id)*e.n;P.gold+=g;P.inv.splice(+arg,1);sfx('coin');addLog(`Sold ${e.n} ${ITEMS[e.id].name} for ${fmt(g)} gold.`,'l-loot');}}
   if(a==='sell'){const e=P.inv[+arg];if(e){sfx('coin');P.gold+=sellValue(e.id);if(e.n!==undefined)takeItem(e.id);else P.inv.splice(+arg,1);}}
   if(a==='sellall'){let g=0;P.inv=P.inv.filter(e=>{if(ITEMS[e.id].type==='etc'){g+=sellValue(e.id)*e.n;return false;}return true;});P.gold+=g;sfx('coin');addLog(`Sold your loot for ${fmt(g)} gold.`,'l-loot');}
   if(a==='job'&&P.cls==='novice'&&P.jl>=10){const k=CLASSES[arg];P.cls=arg;P.jl=1;P.jexp=0;P.skillPts=0;giveItem(k.gift,1);
@@ -253,7 +266,7 @@ let touchPick=false;
 function mobAt(sc){let best=null,bd=1e9;const pad=touchPick?28:14;for(const m of mobs){if(m.dead)continue;const p=proj(m.x,m.y);const d=Math.hypot(p.x-sc.x,p.y-m.d.size*.9-sc.y);if(d<m.d.size+pad&&d<bd){bd=d;best=m;}}return best;}
 cv.addEventListener('pointerdown',ev=>{
   audioInit();touchPick=ev.pointerType==='touch';closeChat(true);
-  if(!P||P.dead||!running)return;const sc=screenAt(ev),w=unproj(sc.x,sc.y);
+  if(!P||P.dead||!running)return;if(npcBusy()){busyHint();return;}const sc=screenAt(ev),w=unproj(sc.x,sc.y);
   P.lootGoal=null;
   {const sp=shopAt(sc);if(sp){soc('vendView',{peer:sp});return;}}
   const m=mobAt(sc);
@@ -274,7 +287,7 @@ window.addEventListener('keydown',ev=>{
   if(/^f[1-9]$/.test(k)){ev.preventDefault();const i=+k.slice(1)-1;if(i<8)pressSlot(i);return;}
   if(k==='f12'){ev.preventDefault();$('#hotbar').hidden=!$('#hotbar').hidden;return;}
   if(k==='insert'){ev.preventDefault();if(!P.dead){P.sitting=!P.sitting;P.path=[];P.target=null;}return;}
-  if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){keys[k]=true;ev.preventDefault();return;}
+  if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){ev.preventDefault();if(npcBusy()){busyHint();return;}keys[k]=true;return;}
   if(k==='enter'){ev.preventDefault();openChat();return;}
   if(k==='e'){togglePanel('emote');return;}
   if(k>='1'&&k<='8'){pressSlot(+k-1);return;}
