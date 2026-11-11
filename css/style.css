@@ -196,3 +196,12 @@ button{font:inherit;color:inherit}
 .qrow{align-items:flex-start}.qbtns{display:flex;flex-direction:column;gap:4px}
 .thead{display:flex;align-items:center;gap:10px}.thead h2{margin:0}#talkCv{width:56px;height:56px;border:1px solid var(--edge);border-radius:50%;background:radial-gradient(#2a3140,#10141b);flex:none}
 #wbT{color:#ff9a7a;margin-top:3px;font-weight:700}
+#log.f-guild>div:not(#logTabs):not(.l-guild){display:none}.l-guild{color:#e8c25a}.l-guild b{color:inherit}
+#ginvite{position:fixed;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + 110px);transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:8px 10px;z-index:5;max-width:calc(100vw - 32px);box-sizing:border-box}
+#ginvite canvas{width:28px;height:28px;flex:none}
+.gform{display:flex;gap:12px;align-items:flex-start;margin:8px 0}.gform input,.grow2 input{width:100%;box-sizing:border-box;padding:6px 8px;border-radius:6px;border:1px solid var(--edge-dim);background:#10141b;color:inherit;font:inherit}
+#embCv{width:64px;height:64px;flex:none}.thead #embCv{width:56px;height:56px;border:0;border-radius:0;background:none}
+.epick{display:flex;flex-direction:column;gap:4px;margin:8px 0}.erow{display:flex;flex-wrap:wrap;gap:4px}
+.esw{width:24px;height:24px;border-radius:5px;border:2px solid #1a120a;cursor:pointer;padding:0}.esw.on{outline:2px solid #ffcf5a;outline-offset:1px}
+.gnote{min-height:auto}.grow2{display:flex;gap:6px;margin:6px 0}.grow2 input{flex:1}
+.gm .gdot{width:9px;height:9px;border-radius:50%;background:#4a4f5a;flex:none}.gm.on .gdot{background:#62bf86}

@@ -38,7 +38,7 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 - [ ] Timed events (EXP weekends, seasonal map)
 
 ## Stage 6: Guilds and PvP
-- [ ] Guilds: create, emblem, ranks, guild chat
+- [x] Guilds: create, emblem, ranks, guild chat (v0.20.0)
 - [ ] Arena: 1v1 and team duels with rankings
 - [ ] Guild-versus-guild territory event
 
@@ -114,7 +114,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 46. M (server) Whispers and friends (block list still to do)
 - [x] 47. S Chat commands: /help /where /who /sit /stand /exp /roll /emotes /clear
 - [ ] 48. M (server) Chat rooms
-- [ ] 49. L (server) Guilds with emblems
+- [x] 49. L (server) Guilds with emblems (v0.20.0)
 - [ ] 50. L (server) Guild war
 - [ ] 51. M (server) PvP arenas and duels
 - [ ] 52. S More emotes and an emote bar

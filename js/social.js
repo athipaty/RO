@@ -78,5 +78,5 @@ function friendSeen(name){if(P&&P.friends&&P.friends.some(f=>f.toLowerCase()===S
 function logLine(kind,prefix,text){const el=$('#log'),d=document.createElement('div');d.className='l-'+kind;
   const b=document.createElement('b');b.textContent=prefix;d.append(b,document.createTextNode(text));el.appendChild(d);trimLog(el,60);el.scrollTop=el.scrollHeight;}
 document.querySelectorAll('#logTabs [data-tab]').forEach(b=>b.addEventListener('click',()=>{SOC.tab=b.dataset.tab;
-  const log=$('#log');log.classList.remove('f-party','f-whisper');if(SOC.tab!=='all')log.classList.add('f-'+SOC.tab);
+  const log=$('#log');log.classList.remove('f-party','f-whisper','f-guild');if(SOC.tab!=='all')log.classList.add('f-'+SOC.tab);
   document.querySelectorAll('#logTabs [data-tab]').forEach(x=>x.classList.toggle('on',x===b));log.scrollTop=log.scrollHeight;}));

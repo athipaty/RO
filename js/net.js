@@ -39,7 +39,7 @@ const SERVER=(()=>{const s=new URLSearchParams(location.search).get('server');re
 function serverRoom(){
   return (window.io?Promise.resolve():loadScript('https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js')).then(()=>new Promise((res,rej)=>{
     const sock=io(SERVER+'/embervale',{transports:['websocket'],auth:{token:ACC.token||undefined},reconnectionDelayMax:8000});
-    socialAttach(sock);
+    socialAttach(sock);if(typeof guildAttach==='function')guildAttach(sock);
     const seen=new Map();let cb=null,last=null,ready=false; // peer id -> latest {peer,presence,guest}
     const fail=setTimeout(()=>{if(!ready){ready=true;sock.close();rej(new Error('timeout'));}},9000);
     // players already in the channel arrive before the game listens, so hand them over when it does
@@ -94,7 +94,7 @@ function ingest(p){
   o.x=clamp(fin(s.x),0,4000);o.y=clamp(fin(s.y),0,4000);o.face=s.f<0?-1:1;o.lv=clamp(Math.floor(fin(s.lv)),1,99);
   o.moving=!!s.mv;o.sitting=!!s.st;o.back=!!s.b;o.look=lookDecode(s.lk);o.vd=s.vd?clean(s.vd,30):null;o.dead=!!s.d;o.wid=typeof s.w==='string'&&ITEMS[s.w]&&ITEMS[s.w].type==='weapon'?s.w:null;o.guest=!!p.guest;
   o.hat=typeof s.h==='string'&&ITEMS[s.h]&&ITEMS[s.h].type==='head'?s.h:null;o.hp=clamp(fin(s.hp),0,100);
-  o.id=clean(s.id,16)||null;o.zt=fin(s.zt);o.hd=!!s.hd;
+  o.guild=typeof guildTag==='function'?guildTag(p.guild):null;o.id=clean(s.id,16)||null;o.zt=fin(s.zt);o.hd=!!s.hd;
   o.mb=Array.isArray(s.mb)&&s.mb.length<=80?s.mb:null;o.ev=Array.isArray(s.ev)?s.ev.slice(-24):[];o.hx=Array.isArray(s.hx)?s.hx.slice(-24):[];
   if(s.em&&typeof s.em==='object'&&EMOTE_KEYS.includes(s.em.k)){const id=fin(s.em.i);if(id>(o.emSeen||0)){const first=!o.emSeen;o.emSeen=id;if(!(fresh&&first&&Math.abs(Date.now()-fin(s.em.t))>4000)){o.emote={k:s.em.k,start:now};if(o.z===zoneId)sfx('pop');}}}
   if(typeof supportRecv==='function')supportRecv(o,s.sp,fresh);
@@ -119,17 +119,18 @@ function updateWho(){
   list.textContent='';
   const row=(name,o,me,peer)=>{const d=document.createElement('div');d.className='who'+(me?' me':'')+(peer&&inParty(peer)?' party':'');
     const nm=document.createElement('b');nm.textContent=name+(me?' (you)':'');
-    const info=document.createElement('span');const z=o.z||zoneId;info.textContent=`${CLASSES[o.cls]?.name||'Novice'} Lv ${o.lv||1} · ${ZONES[z]?.name||''}${!me&&z===zoneId?' · here':''}`;
+    const info=document.createElement('span');const z=o.z||zoneId;info.textContent=`${CLASSES[o.cls]?.name||'Novice'} Lv ${o.lv||1} · ${ZONES[z]?.name||''}${!me&&z===zoneId?' · here':''}${o.guild?' · '+o.guild.n:''}`;
     d.append(nm,info);
     if(peer&&P&&NET.room&&NET.room.server){const bs=document.createElement('div');bs.className='wb';
       const mk=(label,fn)=>{const b=document.createElement('button');b.className='btn small';b.type='button';b.textContent=label;b.addEventListener('click',ev=>{ev.stopPropagation();fn();});bs.appendChild(b);};
       if(!inParty(peer)&&(!SOC.party||SOC.party.leader===selfPeer()))mk('Invite',()=>soc('partyInvite',{peer}));
+      if(typeof canInvite==='function'&&canInvite()&&!o.guild&&!o.guest)mk('Guild',()=>gsoc('guildInvite',{peer}));
       mk('Whisper',()=>{openChat();$('#chatIn').value=`/w ${name} `;});
       if(o.vd)mk('Shop',()=>soc('vendView',{peer}));else if(o.z===zoneId)mk('Trade',()=>soc('tradeRequest',{peer}));
       if(!P.friends.some(f=>f.toLowerCase()===String(name).toLowerCase()))mk('+ Friend',()=>{friendToggle(name,true);updateWho();});
       d.appendChild(bs);}
     list.appendChild(d);};
-  if(P)row(P.name,{cls:P.cls,lv:P.lv,z:zoneId},true);
+  if(P)row(P.name,{cls:P.cls,lv:P.lv,z:zoneId,guild:typeof myGuildTag==='function'?myGuildTag():null},true);
   for(const [peer,o] of NET.others)row(o.n,o,false,peer);
   if(!NET.others.size){const d=document.createElement('div');d.className='who muted';d.textContent='Nobody else yet. Send your friend the link!';list.appendChild(d);}
 }

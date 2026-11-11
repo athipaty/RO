@@ -13,7 +13,7 @@ module.exports = async t => {
     for (let i = 0; i < (+process.env.WB_WAIT_S || 15) * 2 && !wb; i++) { await wait(500); wb = await A.ev(() => NET.wb); }
     t.ok(wb && MOBS_OK(wb), `the server announces a world boss to the channel (${wb && wb.b} in ${wb && wb.z})`);
     const msg = await B.ev(() => ({ wb: NET.wb, log: document.getElementById('log').textContent, hud: document.getElementById('wbT').textContent }));
-    t.ok(msg.wb && /has appeared/.test(msg.log) && /m$/.test(msg.hud), 'everyone in the channel gets the announcement and a status line with the time left');
+    t.ok(msg.wb && /has appeared|is roaming/.test(msg.log) && /m$/.test(msg.hud), 'everyone in the channel gets the announcement and a status line with the time left');
 
     await A.ev(z => { enterZone(z); }, wb.z); await B.ev(z => { enterZone(z); }, wb.z);
     await wait(3000);

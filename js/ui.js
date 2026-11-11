@@ -132,6 +132,7 @@ function refreshPanel(){
     <b>Quests:</b> people with a gold <b>!</b> over their head have a quest for you, and a <b>?</b> means you can hand one in. Start the story with Elder Hollis by the fountain. Press J for your quest log.<br>
     <b>Second jobs:</b> at Job Lv 40, Corvin can test you for an advanced calling.<br>
     <b>Party support:</b> healing and buff skills marked “party” in the skill tree also land on party members standing near you.<br>
+    <b>Guilds:</b> with an account you can found a guild (G) for 10,000 gold, pick its emblem, invite players from the online list, and chat with /g. Leaders can name officers, who can invite and post the guild notice.<br>
     <b>World bosses:</b> every so often a huge boss appears somewhere and everyone online is told where. Whoever deals the most damage is the MVP and wins a rare hat. Bring friends.<br>
     <b>Hunting contracts:</b> Guildmaster Corvin offers hunts that suit your level for bonus EXP and gold.<br>
     <b>Hats:</b> rare headgear drops from some monsters (and the Straw Hat and Ribbon Bow from the store). Everyone online sees what you wear.<br>
@@ -254,7 +255,7 @@ cv.addEventListener('pointermove',ev=>{if(!P)return;const sc=screenAt(ev);hoverM
 window.addEventListener('keydown',ev=>{
   if(!running||ev.target.tagName==='INPUT')return;const k=ev.key.toLowerCase();
   // classic MMO desktop shortcuts (the single-letter keys below keep working too)
-  if(ev.altKey){const pn={e:'items',q:'equip',s:'skills',a:'status',l:'emote',h:'help',u:'quests'}[k];
+  if(ev.altKey){const pn={e:'items',q:'equip',s:'skills',a:'status',l:'emote',h:'help',u:'quests',g:'guild'}[k];
     if(pn){ev.preventDefault();togglePanel(pn);return;}
     if(k==='v'){ev.preventDefault();$('#hud').hidden=!$('#hud').hidden;return;}}
   if(/^f[1-9]$/.test(k)){ev.preventDefault();const i=+k.slice(1)-1;if(i<8)pressSlot(i);return;}
@@ -264,7 +265,7 @@ window.addEventListener('keydown',ev=>{
   if(k==='enter'){ev.preventDefault();openChat();return;}
   if(k==='e'){togglePanel('emote');return;}
   if(k>='1'&&k<='8'){pressSlot(+k-1);return;}
-  if(k==='c')togglePanel('status');else if(k==='i')togglePanel('items');else if(k==='k')togglePanel('skills');else if(k==='h')togglePanel('help');else if(k==='j')togglePanel('quests');
+  if(k==='c')togglePanel('status');else if(k==='i')togglePanel('items');else if(k==='k')togglePanel('skills');else if(k==='h')togglePanel('help');else if(k==='j')togglePanel('quests');else if(k==='g')togglePanel('guild');
   else if(k==='escape'){closePanel();P.target=null;}
   else if(k==='x'&&!P.dead){P.sitting=!P.sitting;P.path=[];P.target=null;}
   else if(k==='tab'){ev.preventDefault();targetNearest(false);}
