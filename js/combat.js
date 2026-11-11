@@ -80,7 +80,7 @@ function gainExp(e,j){
   while(P.lv<99&&P.exp>=expNeed(P.lv)){P.exp-=expNeed(P.lv);P.lv++;P.statPts+=Math.floor(P.lv/5)+3;lvUp=true;if(P.lv%5===0)mile=P.lv;}
   while(P.jl<jm&&P.jexp>=jexpNeed(P.jl)){P.jexp-=jexpNeed(P.jl);P.jl++;P.skillPts++;jUp=true;}
   if(P.jl>=jm)P.jexp=0;
-  if(lvUp){sfx('levelup');if(mile)announce('lv',mile);S=computeStats();P.hp=S.maxhp;P.sp=S.maxsp;fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:1.6,txt:'LEVEL UP'});addLog(`Base level ${P.lv}! You have ${P.statPts} stat points to spend (C).`,'l-lvl');save();}
+  if(lvUp){sfx('levelup');fx.push({k:'lvpillar',o:P,x:P.x,y:P.y,t0:now,dur:2.6});if(mile)announce('lv',mile);S=computeStats();P.hp=S.maxhp;P.sp=S.maxsp;fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:1.6,txt:'LEVEL UP'});addLog(`Base level ${P.lv}! You have ${P.statPts} stat points to spend (C).`,'l-lvl');save();}
   if(jUp){if(!lvUp)sfx('jobup');fx.push({k:'lvl',x:P.x,y:P.y-18,t0:now,dur:1.6,txt:'JOB UP',col:'#62bf86'});addLog(`Job level ${P.jl}! You have ${P.skillPts} skill points (K).`,'l-lvl');
     if(P.cls==='novice'&&P.jl>=10)addLog('You can now choose a calling. Talk to Guildmaster Corvin in Hearthvale.','l-rare');
     if(TRIALS[P.cls]&&P.jl===JOB2_LV&&!P.trial)addLog('You are ready for an advanced calling. Talk to Guildmaster Corvin in Hearthvale to begin your trial.','l-rare');refreshPanel();}
@@ -189,7 +189,7 @@ function autoHunt(){
   if(f<.4&&(P.cd['item']||0)<=now){const pot=invFind('orange')?'orange':invFind('red')?'red':null;
     if(pot)useItem(pot);else if(f<.3){P.auto=false;$('#autoBtn').classList.remove('on');addLog('Auto-hunt paused: you are out of tonics. Rest with Sit or buy more in town.','l-bad');return;}}
   if((!P.target||P.target.dead)&&!P.path.length&&!P.lootGoal){let bl=null,bd=320;for(const l of loot)if(now>l.t0+.4&&!l.tooHeavy){const d=dist(l,P);if(d<bd){bd=d;bl=l;}}if(bl){goLoot(bl);return;}}
-  if((!P.target||P.target.dead)&&!P.path.length&&f>=.3){let best=null,bd=650;for(const m of mobs)if(!m.dead){const d=dist(m,P);if(d<bd){bd=d;best=m;}}if(best){P.target=best;P.queued=null;P.sitting=false;}}
+  if((!P.target||P.target.dead)&&!P.path.length&&f>=.3){let best=null,bd=650;for(const m of mobs)if(!m.dead){const d=dist(m,P);if(d<bd){bd=d;best=m;}}if(best){P.target=best;P.queued=null;P.sitting=false;P.holdPos=false;}}
 }
 
 /* ================= zones & entities ================= */
@@ -247,7 +247,8 @@ function update(dt){
       P.path=[];faceTo(P,t.x-P.x,t.y-P.y);
       if(P.queued){useSkill(P.queued);}
       else if(P.atkT<=0&&!P.casting){if(P.heavy>1){tooHeavy();P.atkT=1;}else{basicAttack(t);P.atkT=S.delay;}}
-    } else {P.repathT=(P.repathT||0)-dt;if(P.repathT<=0||!P.path.length){pathTo(t.x,t.y,true);P.repathT=.35;}}
+    } else if(P.holdPos){P.path=[];faceTo(P,t.x-P.x,t.y-P.y);if(now>(P.reachHintT||0)){P.reachHintT=now+2;floatT(P.x,P.y-44,'Out of reach','#aab4c4',12);}}
+    else {P.repathT=(P.repathT||0)-dt;if(P.repathT<=0||!P.path.length){pathTo(t.x,t.y,true);P.repathT=.35;}}
   } else if(t&&t.dead){P.target=null;}
   P.atkT-=dt;
   // follow path
@@ -387,5 +388,9 @@ function mobsTick(dt){const host=zoneHost();
   if(wbMob&&typeof dropWorldBoss==='function')dropWorldBoss(); // only the server runs world bosses
   if(NET.wasClient){NET.wasClient=false;for(const m of mobs){m.sx=m.x;m.sy=m.y;m.atkT=1;if(m.dead)m.respawnAt=now+rnd(4,9);}}
   applyHits(true);const T=mobTargets();for(const m of mobs)updateMob(m,dt,T);}
+// another player levelled up: everyone in the region sees their pillar of light
+function otherLevelUp(o,lv){if(!P||o.z!==zoneId)return;fx.push({k:'lvpillar',o,x:o.rx,y:o.ry,t0:now,dur:2.6});
+  texts.push({x:o.rx,y:o.ry-60,txt:'LEVEL UP',col:'#ffe27a',size:15,t0:now,dur:1.8,vx:0});if(dist({x:o.rx,y:o.ry},P)<600)sfx('levelup');
+  addLog(`${o.n} reached base level ${lv}!`,inParty(o.peer)?'l-good':'');}
 function updateFx(){fx=fx.filter(f=>now<f.t0+f.dur);texts=texts.filter(f=>now<f.t0+f.dur);}
 

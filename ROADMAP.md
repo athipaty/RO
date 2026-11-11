@@ -134,11 +134,11 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 62. S Several hotbar rows with drag and drop
 - [x] 63. S Floating "+EXP / +Job" gains, EXP per hour (/exp)
 - [x] 64. S Name colours (players, nearby allies, guests, calm/aggressive monsters, bosses)
-- [ ] 65. S Shift-click to attack in place
+- [x] 65. S Shift-click to attack in place (v0.32.0)
 - [ ] 66. S Screenshot key
 
 ### Sound and atmosphere
 - [ ] 67. S Footsteps that change with the ground
 - [ ] 68. S Ambient sounds per map
 - [ ] 69. M More original music themes
-- [ ] 70. S Level-up light pillar
+- [x] 70. S Level-up light pillar, also seen on other players (v0.32.0)
