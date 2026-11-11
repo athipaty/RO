@@ -28,4 +28,4 @@ function supportRecv(o,arr,fresh){if(!Array.isArray(arr))return;
     const s=SUP[e.k];if(!s||!P||P.dead||!inParty(o.peer)||o.z!==zoneId)continue;
     if(Math.hypot(o.x-P.x,o.y-P.y)>s.r+150)continue;
     const l=clamp(fin(e.l)|0,1,10),v=clamp(Math.round(fin(e.v)),0,50000);
-    s.apply(l,v);floatT(P.x,P.y-62,SKILLS[e.k].name,'#f0e0a0',12);addLog(`${o.n} cast ${SKILLS[e.k].name} on you.`,'l-good');}}
+    s.apply(l,v);if(P.buffs[e.k])P.buffs[e.k].from=o.n;floatT(P.x,P.y-62,SKILLS[e.k].name,'#f0e0a0',12);addLog(`${o.n} cast ${SKILLS[e.k].name} on you.`,'l-good');}}
