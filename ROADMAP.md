@@ -104,7 +104,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 
 ### Monsters and bosses
 - [x] 40. L (server) Timed world bosses with an MVP reward (v0.17.0)
-- [ ] 41. M Mini-bosses with minions
+- [x] 41. M Mini-bosses with minions (v0.22.0)
 - [x] 42. S Monster info window (right-click or the Info button)
 - [ ] 43. M Pets
 - [ ] 44. M Mounts

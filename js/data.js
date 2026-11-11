@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='0.21.0';
+const VERSION='0.22.0';
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
 const BLOCK=[0,0,1,1,1,1,0,0]; // 0 ground 1 path 2 tree 3 water 4 rock 5 building 6 cobble 7 flowers
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
@@ -55,6 +55,10 @@ const ITEMS={
   turban:{name:'Sand Turban',type:'head',def:3,b:{int:2},price:2400,lv:20,slots:0,col:'#efe6d2',g:'^'},
   imphorns:{name:'Imp Horns',type:'head',b:{atk:6,matk:15},price:4000,lv:30,slots:0,col:'#a33a2a',g:'^'},
   frostcap:{name:'Frost Cap',type:'head',def:5,b:{vit:2},price:5000,lv:40,slots:0,col:'#6fa8d8',g:'^'},
+  hopcharm:{name:'Chieftain Charm',type:'accessory',b:{agi:3,luk:3,crit:2},price:4000,lv:10,slots:1,col:'#c89a6a',g:'O',desc:'Dropped by the Hopper Chieftain. AGI +3 · LUK +3 · CRIT +2.'},
+  alphafang:{name:'Alpha Fang',type:'accessory',b:{str:3,atk:15,crit:3},price:8000,lv:18,slots:1,col:'#d8dce4',g:'O',desc:'Dropped by the Greymane Alpha. STR +3 · ATK +15 · CRIT +3.'},
+  queenamulet:{name:'Queen\'s Amulet',type:'accessory',b:{vit:3,def:6,maxhp:200},price:14000,lv:28,slots:1,col:'#4f86aa',g:'O',desc:'Dropped by the Scarab Queen. VIT +3 · DEF +6 · Max HP +200.'},
+  frostheart:{name:'Frostheart Pendant',type:'accessory',b:{int:4,matk:35,maxsp:80},price:30000,lv:48,slots:1,col:'#bfe6ff',g:'O',desc:'Dropped by the Frost Matron. INT +4 · MATK +35 · Max SP +80.'},
   glowsilk:{name:'Glow Silk',type:'etc',price:70,col:'#c8f0a0',g:'•'}, batwing:{name:'Bat Wing',type:'etc',price:80,col:'#7a6a8a',g:'•'},
   crabshell:{name:'Crab Shell',type:'etc',price:120,col:'#a8a090',g:'•'}, gloomspore:{name:'Gloom Spore',type:'etc',price:135,col:'#9a7ac0',g:'•'},
   shadeveil:{name:'Shade Veil',type:'etc',price:160,col:'#5a5a7a',g:'•'}, trollhide:{name:'Troll Hide',type:'etc',price:190,col:'#7a8a6a',g:'•'},
@@ -106,6 +110,15 @@ const MOBS={
   rimestalker:{name:'Rime Stalker',lv:44,hp:3000,atk:190,def:55,flee:60,exp:1700,jexp:1150,spd:110,aggro:true,shape:'beast',col:'#a9c6dc',size:15,drops:[['fang',.4],['orange',.1]],sig:{kind:'accessory',b:{agi:3,crit:5},txt:'+3 AGI, +5 CRIT'}},
   frostwisp:{name:'Frost Wisp',lv:47,hp:2800,atk:210,def:30,flee:80,exp:1900,jexp:1300,spd:90,aggro:true,range:160,shape:'ghost',col:'#bfe6ff',size:13,drops:[['shard',.4],['blue',.1]],sig:{kind:'weapon',b:{matk:50,int:2},txt:'+50 MATK, +2 INT'}},
   snowhulk:{name:'Snowhulk',lv:50,hp:5200,atk:240,def:85,flee:25,exp:2600,jexp:1800,spd:45,shape:'blob',col:'#e8f2f8',size:19,drops:[['fur',.4],['frostcap',.02]],sig:{kind:'armor',b:{vit:4,def:6},txt:'+4 VIT, +6 DEF'}},
+  // #41 mini-bosses: each leads an escort pack and calls fallen escorts back below 60% and 30% HP
+  hopperchief:{name:'Hopper Chieftain',lv:12,hp:3200,atk:75,def:15,flee:25,exp:2200,jexp:1500,spd:60,boss:true,mini:true,calls:true,shape:'beast',col:'#c89a6a',size:20,respawn:120,sigChance:.15,
+    drops:[['hopcharm',.2],['tuft',1],['orange',.5],['emberore',.15]],sig:{kind:'accessory',b:{agi:3,luk:2},txt:'+3 AGI, +2 LUK'}},
+  lupealpha:{name:'Greymane Alpha',lv:20,hp:7000,atk:130,def:30,flee:45,exp:6000,jexp:4000,spd:85,aggro:true,boss:true,mini:true,calls:true,shape:'beast',col:'#5a606c',size:22,respawn:120,sigChance:.15,
+    drops:[['alphafang',.2],['pelt',1],['orange',.6],['emberore',.2]],sig:{kind:'weapon',b:{atk:18,crit:3},txt:'+18 ATK, +3 CRIT'}},
+  scarabqueen:{name:'Scarab Queen',lv:30,hp:14000,atk:190,def:70,flee:30,exp:13000,jexp:8500,spd:50,aggro:true,boss:true,mini:true,calls:true,shape:'bug',col:'#2a5a7a',size:24,respawn:120,sigChance:.15,
+    drops:[['queenamulet',.2],['carapace',1],['orange',.8],['glintstone',.3]],sig:{kind:'armor',b:{def:8,vit:3},txt:'+8 DEF, +3 VIT'}},
+  frostmatron:{name:'Frost Matron',lv:52,hp:42000,atk:330,def:90,flee:60,exp:40000,jexp:26000,spd:70,aggro:true,boss:true,mini:true,calls:true,shape:'beast',col:'#dff0fa',size:24,respawn:150,sigChance:.15,
+    drops:[['frostheart',.2],['fang',1],['orange',1],['glintstone',.4],['emberore',.4]],sig:{kind:'accessory',b:{int:4,maxsp:80},txt:'+4 INT, +80 Max SP'}},
   // #34 Mossdeep Caverns
   glowworm:{name:'Glowworm',lv:19,hp:900,atk:70,def:12,flee:22,exp:300,jexp:200,spd:40,shape:'bug',col:'#9fe08a',size:12,drops:[['glowsilk',.5],['red',.1]],sig:{kind:'accessory',b:{int:2,maxsp:30},txt:'+2 INT, +30 Max SP'}},
   cavebat:{name:'Cave Bat',lv:22,hp:820,atk:88,def:8,flee:60,exp:360,jexp:240,spd:95,aggro:true,shape:'beast',col:'#6a5a7a',size:11,drops:[['batwing',.45],['leaf',.04]],sig:{kind:'weapon',b:{agi:3},txt:'+3 AGI'}},
@@ -129,15 +142,15 @@ for(const id in MOBS){const m=MOBS[id];m.id=id;m.hit=m.lv*2+12;
 
 const ZONES={
   town:{name:'Hearthvale',w:40,h:30,theme:'town',safe:true,lvl:'Safe town',links:{east:'meadow'}},
-  meadow:{name:'Greenmoss Meadow',w:64,h:44,theme:'meadow',seed:11,density:.045,ponds:3,lvl:'Lv 1–10',mobs:[['sproutling',16],['hopper',10],['mossbug',9]],links:{west:'town',east:'woods'}},
-  woods:{name:'Whispering Woods',w:64,h:46,theme:'woods',seed:23,density:.11,ponds:2,lvl:'Lv 10–20',mobs:[['thornling',13],['greylupe',10],['mushcap',9]],links:{west:'meadow',east:'dunes'},stairs:'deep1'},
+  meadow:{name:'Greenmoss Meadow',w:64,h:44,theme:'meadow',seed:11,density:.045,ponds:3,lvl:'Lv 1–10',mobs:[['sproutling',16],['hopper',10],['mossbug',9],['hopperchief',1],['hopper',4,'hopperchief']],links:{west:'town',east:'woods'}},
+  woods:{name:'Whispering Woods',w:64,h:46,theme:'woods',seed:23,density:.11,ponds:2,lvl:'Lv 10–20',mobs:[['thornling',13],['greylupe',10],['mushcap',9],['lupealpha',1],['greylupe',4,'lupealpha']],links:{west:'meadow',east:'dunes'},stairs:'deep1'},
   // #34 Mossdeep Caverns: a dungeon under the woods; each floor is harder, the Gloomcap King waits at the bottom
   deep1:{name:'Mossdeep Caverns B1',w:54,h:38,theme:'cave',music:'crypt',dungeon:1,seed:81,density:.13,ponds:1,lvl:'Lv 18–25 · dungeon',mobs:[['glowworm',13],['cavebat',11]],links:{west:'woods',east:'deep2'}},
   deep2:{name:'Mossdeep Caverns B2',w:54,h:38,theme:'cave',music:'crypt',dungeon:2,seed:93,density:.14,ponds:2,lvl:'Lv 25–31 · dungeon',mobs:[['stonecrab',12],['gloomcap',11],['cavebat',5]],links:{west:'deep1',east:'deep3'}},
   deep3:{name:'Mossdeep Caverns B3',w:54,h:38,theme:'cave',music:'crypt',dungeon:3,seed:107,density:.15,ponds:1,lvl:'Lv 31–37 · boss',mobs:[['deepshade',11],['cavetroll',9],['gloomcap',4],['gloomking',1]],links:{west:'deep2'}},
-  dunes:{name:'Ashen Dunes',w:68,h:46,theme:'dunes',seed:37,density:.04,ponds:1,lvl:'Lv 20–32',mobs:[['scarab',13],['wraith',10],['cactoid',9]],links:{west:'woods',east:'crypt'}},
+  dunes:{name:'Ashen Dunes',w:68,h:46,theme:'dunes',seed:37,density:.04,ponds:1,lvl:'Lv 20–32',mobs:[['scarab',13],['wraith',10],['cactoid',9],['scarabqueen',1],['scarab',4,'scarabqueen']],links:{west:'woods',east:'crypt'}},
   crypt:{name:'Cinder Crypt',w:60,h:44,theme:'crypt',seed:51,density:.07,ponds:3,lvl:'Lv 32–45 · boss',mobs:[['bonearcher',12],['emberimp',11],['warlord',1]],links:{west:'dunes',east:'frost'}},
-  frost:{name:'Frostpeak Pass',w:64,h:44,theme:'frost',seed:67,density:.08,ponds:3,lvl:'Lv 42+',mobs:[['rimestalker',12],['frostwisp',11],['snowhulk',9]],links:{west:'crypt'}},
+  frost:{name:'Frostpeak Pass',w:64,h:44,theme:'frost',seed:67,density:.08,ponds:3,lvl:'Lv 42+',mobs:[['rimestalker',12],['frostwisp',11],['snowhulk',9],['frostmatron',1],['rimestalker',3,'frostmatron']],links:{west:'crypt'}},
 };
 const ZONE_ORDER=['town','meadow','woods','dunes','crypt','frost'];
 const THEMES={

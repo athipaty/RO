@@ -191,17 +191,22 @@ function autoHunt(){
 }
 
 /* ================= zones & entities ================= */
-function spawnMob(type,m){
-  const i=Z.spawnTiles[Math.floor(Math.random()*Z.spawnTiles.length)];
+function spawnMob(type,m,lead){
+  let i=Z.spawnTiles[Math.floor(Math.random()*Z.spawnTiles.length)];
+  m=m||{};if(lead)m.lead=lead;
+  // an escort appears beside its living leader
+  const L=m.lead&&mobs.find(o=>o.d&&o.d.id===m.lead&&!o.dead);
+  if(L){const lx=Math.floor(L.x/TILE),ly=Math.floor(L.y/TILE);for(let k=0;k<20;k++){const tx=lx+Math.round(rnd(-2.4,2.4)),ty=ly+Math.round(rnd(-2.4,2.4)),j=ty*Z.w+tx;
+    if(tx>0&&ty>0&&tx<Z.w-1&&ty<Z.h-1&&!BLOCK[Z.t[j]]&&Z.reach[j]){i=j;break;}}}
   const d=MOBS[type];const x=(i%Z.w+.5)*TILE,y=(((i/Z.w)|0)+.5)*TILE;
-  m=m||{};Object.assign(m,{d,x,y,sx:x,sy:y,hp:d.hp,state:'idle',atkT:0,wT:rnd(0,3),tx:null,ty:null,face:1,hitF:-9,dead:false,slowUntil:0,aggroed:false,ph:Math.random()*6,slamT:now+6,slamAt:0});
+  Object.assign(m,{calls:0,d,x,y,sx:x,sy:y,hp:d.hp,state:'idle',atkT:0,wT:rnd(0,3),tx:null,ty:null,face:1,hitF:-9,dead:false,slowUntil:0,aggroed:false,ph:Math.random()*6,slamT:now+6,slamAt:0});
   return m;
 }
 function enterZone(id,from){
   zoneId=id;Z=getZone(id);P.zone=id;mobs=[];wbMob=null;fx=[];shots=[];loot=[];P.lootGoal=null;hoverLoot=null;
-  if(Z.D.mobs)for(const [type,n] of Z.D.mobs)for(let k=0;k<n;k++)mobs.push(spawnMob(type));
+  if(Z.D.mobs)for(const [type,n,lead] of Z.D.mobs)for(let k=0;k<n;k++)mobs.push(spawnMob(type,null,lead));
   mobs.forEach((m,i)=>m.idx=i);NET.srv=null;NET.zt=Date.now();NET.evs=[];NET.hits=[];NET.evSeen.clear();NET.wasClient=false;NET.lastSent='';NET.sendT=0;
-  {const b=mobs.find(m=>m.d.boss);if(b)addLog(b.d.id==='warlord'?'The ground smoulders. The Ashen Warlord stirs somewhere in this crypt.':`Something stirs on this floor. The ${b.d.name} is here.`,'l-rare');}
+  {const b=mobs.find(m=>m.d.boss);if(b)addLog(b.d.id==='warlord'?'The ground smoulders. The Ashen Warlord stirs somewhere in this crypt.':b.d.mini?`The ${b.d.name} and its pack roam this region.`:`Something stirs on this floor. The ${b.d.name} is here.`,'l-rare');}
   let pos=Z.spawn;
   if(from){const pt=Z.portals.find(p=>p.to===from);if(pt)pos=pt.side==='down'?{x:pt.x,y:pt.y-2.4*TILE}:{x:pt.x+(pt.side==='west'?2.6:-2.6)*TILE,y:pt.y};}
   P.casting=null;P.x=pos.x;P.y=pos.y;P.path=[];P.target=null;P.queued=null;P.npcGoal=null;P.portalLock=now+.6;
@@ -274,10 +279,14 @@ function basicAttack(t){
 }
 function mobTargets(){const t=[];if(P&&!P.dead&&!Z.D.safe)t.push(P);
   if(NET.room&&!Z.D.safe)for(const o of NET.others.values())if(o.z===zoneId&&!o.dead&&o.id)t.push(o);return t;}
+function callMinions(m,fxOnly){if(!fxOnly)for(const o of mobs)if(o.lead===m.d.id&&o.dead){spawnMob(o.d.id,o);o.state='chase';o.aggroed=true;}
+  fx.push({k:'ring',x:m.x,y:m.y,r:90,col:'#ffcf5a',t0:now,dur:.6});floatT(m.x,m.y-m.d.size-30,'Calls its pack!','#ffcf5a',14);
+  if(dist(m,P)<700)addLog(`The ${m.d.name} calls its pack to its side!`,'l-bad');sfx('rare');}
 function slamLand(m){fx.push({k:'ring',x:m.x,y:m.y,r:130,col:'#ff7a3a',t0:now,dur:.4});sfx('slam');shakeUntil=now+.35;
   if(!P.dead&&dist(m,P)<130+PR){hurtPlayer(Math.round(m.d.atk*1.5-S.def*.6),m.d.name);tryAilment(['stun',1,1.5]);}}
 function updateMob(m,dt,T){
   if(m.dead){if(now>=m.respawnAt){spawnMob(m.d.id,m);if(m.d.boss)addLog(`The ${m.d.name} has risen again in ${Z.D.name}!`,'l-rare');}return;}
+  if(m.d.calls&&m.calls<2&&m.hp<m.d.hp*(m.calls?.3:.6)){m.calls++;callMinions(m);netEvent('c',m);}
   if(m.ailUntil>now){m.moving=false;return;}
   let tg=null,dp=1e9;for(const t of T){const q=dist(m,t);if(q<dp){dp=q;tg=t;}}
   const d=m.d, slow=m.slowUntil>now?.4:1;
@@ -340,7 +349,8 @@ function syncMobs(host,dt){
       if(e.t===NET.myId){if(!P.dead){if(m.d.range)shoot(m,P,'arrow','#d8d0b8',()=>mobAttack(m),true);else mobAttack(m);}}
       else if(m.d.range){for(const o of NET.others.values())if(o.id===e.t){shoot(m,{x:o.rx,y:o.ry},'arrow','#d8d0b8',()=>{},true);break;}}}
     else if(e.k==='w')fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});
-    else if(e.k==='s')slamLand(m);}
+    else if(e.k==='s')slamLand(m);
+    else if(e.k==='c')callMinions(m,true);}
   NET.evSeen.set(host.id,seen);}
 // loot the server rolled for us when a monster we hit died
 function serverLoot(m,e){const l=Array.isArray(e.l)?e.l.slice(0,12):[];
