@@ -130,7 +130,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 ### Interface
 - [ ] 59. M Classic basic-info window
 - [x] 60. M Equipment window with a paper doll
-- [ ] 61. S Draggable windows that remember their place
+- [x] 61. S Draggable windows that remember their place (v0.34.0)
 - [ ] 62. S Several hotbar rows with drag and drop
 - [x] 63. S Floating "+EXP / +Job" gains, EXP per hour (/exp)
 - [x] 64. S Name colours (players, nearby allies, guests, calm/aggressive monsters, bosses)

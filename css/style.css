@@ -253,3 +253,6 @@ button{font:inherit;color:inherit}
 #buffs .buff.ending{animation:buffBlink .5s steps(2) infinite}
 @keyframes buffBlink{50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){#buffs .buff.ending{animation:none;opacity:.6}}
+/* #61 draggable windows (desktop) */
+@media (min-width:701px) and (pointer:fine){#panel h2{cursor:move;user-select:none}}
+#panel.dragging{opacity:.92;box-shadow:0 12px 32px rgba(0,0,0,.6)}
