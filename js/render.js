@@ -282,7 +282,8 @@ function drawHat(id,x,hy,f){
   }
   ctx.restore();
 }
-function drawOther(o){drawPlayer({name:o.n,look:o.look,x:o.rx,y:o.ry,cls:o.cls,face:o.face,moving:o.moving,walkT:o.walkT,sitting:o.sitting,hat:o.hat,back:o.back},o.wid);}
+function drawOther(o){const atk=o.atkFaceT&&now-o.atkFaceT<.4;
+  drawPlayer({name:o.n,look:o.look,x:o.rx,y:o.ry,cls:o.cls,face:atk?o.atkFace:o.face,moving:o.moving,walkT:o.walkT,sitting:o.sitting,hat:o.hat,back:o.back,swingT:o.swingT,swingDur:o.swingDur,lungeT:o.lungeT,lgX:o.lgX,lgY:o.lgY},o.wid);}
 function drawPlayer(P,wid){
   const lg=P.lungeT&&now-P.lungeT<.2?Math.sin((now-P.lungeT)/.2*Math.PI)*7:0,hr=P.hurtT&&now-P.hurtT<.2?Math.sin((now-P.hurtT)/.2*Math.PI*3)*2.5:0;
   if(!lg&&!hr)return drawPlayerBody(P,wid);

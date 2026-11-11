@@ -20,7 +20,7 @@ function provoke(m){if(!m.dead){m.state='chase';m.aggroed=true;}}
 function knock(m,src){const dx=m.x-src.x,dy=m.y-src.y,sx=(dx-dy)*ISO,sy=(dx+dy)*ISO/2,n=Math.hypot(sx,sy)||1;
   m.kbX=sx/n;m.kbY=sy/n;m.kbT=now;m.stunUntil=now+.22;fx.push({k:'spark',x:m.x,y:m.y-m.d.size*.9,t0:now,dur:.22,r:rnd(0,6)});}
 function hurtMob(m,dmg,crit,kind){m.hitF=now;m.myDmg=(m.myDmg||0)+dmg;const client=!!zoneHost();knock(m,P);
-  if(client){m.hp=Math.max(1,m.hp-dmg);sendHit(m,dmg,0);}else{m.hp-=dmg;provoke(m);}
+  if(client){m.hp=Math.max(1,m.hp-dmg);sendHit(m,dmg,0);}else{m.hp-=dmg;provoke(m);showHit(m,dmg);}
   if(crit){sfx('crit');hitStop(.09);shakeUntil=now+.2;fx.push({k:'critburst',x:m.x,y:m.y-m.d.size,t0:now,dur:.35});
     texts.push({x:m.x,y:m.y-m.d.size-34,txt:'CRITICAL',col:'#ffe27a',size:13,t0:now,dur:.9});
     texts.push({x:m.x,y:m.y-m.d.size-12,txt:fmt(dmg),col:'#ffb03a',size:26,t0:now,dur:1});}
@@ -323,14 +323,32 @@ function zoneHost(){
   return best;}
 function netEvent(k,m,t){if(!NET.room)return;NET.evs=[...NET.evs,{i:++NET.evId,k,m:m.idx,t:t||null}].slice(-24);NET.lastSent='';NET.sendT=0;}
 function sendHit(m,d,sl,ex){NET.hits=[...NET.hits,{i:++NET.hitId,m:m.idx,d,sl,...(ex||{})}].slice(-24);NET.lastSent='';NET.sendT=0;}
+// a hit others only need to SEE (we run the monsters, so it is already applied); kept apart from hx so nobody applies it twice
+function showHit(m,d){if(!NET.room)return;NET.vh=[...(NET.vh||[]),{i:++NET.hitId,m:m.idx,d}].slice(-12);NET.lastSent='';NET.sendT=0;}
 function slowMob(m,t){if(zoneHost())sendHit(m,0,t);m.slowUntil=now+t;}
+// another player's hits: whoever runs the monsters applies the damage; everyone in the region sees the attack
 function applyHits(apply){
-  for(const o of NET.others.values()){const hx=o.hx||[];if(o.hxSeen===undefined)o.hxSeen=0;
-    if(!apply||o.z!==zoneId){for(const h of hx)o.hxSeen=Math.max(o.hxSeen,fin(h&&h.i));continue;}
+  for(const o of NET.others.values()){const hx=o.hx||[];
+    // first time we hear from them (or they are elsewhere): don't replay old hits
+    if(o.hxSeen===undefined&&!apply)o.hxSeen=Math.max(0,...hx.map(h=>fin(h&&h.i)));if(o.hxSeen===undefined)o.hxSeen=0;
+    if(o.z!==zoneId){for(const h of hx)o.hxSeen=Math.max(o.hxSeen,fin(h&&h.i));for(const h of o.hv||[])o.hvSeen=Math.max(o.hvSeen||0,fin(h&&h.i));continue;}
     for(const h of hx){if(!h||fin(h.i)<=o.hxSeen)continue;o.hxSeen=fin(h.i);const m=mobs[fin(h.m)|0];if(!m||m.dead)continue;
-      provoke(m);if(h.sl)m.slowUntil=now+clamp(fin(h.sl),0,6);if(h.sk==='freeze'||h.sk==='stun'){m.ail=h.sk;m.ailUntil=now+clamp(fin(h.st),0,5);}
       const dmg=clamp(Math.round(fin(h.d)),0,99999);
-      if(dmg>0){m.hp-=dmg;m.hitF=now;knock(m,o);floatT(m.x,m.y-m.d.size-8,fmt(dmg),'#cfe0ff',13);if(m.hp<=0)killMob(m);}}}}
+      if(dmg>0)otherHitFx(o,m,dmg,apply);
+      if(!apply)continue;
+      provoke(m);if(h.sl)m.slowUntil=now+clamp(fin(h.sl),0,6);if(h.sk==='freeze'||h.sk==='stun'){m.ail=h.sk;m.ailUntil=now+clamp(fin(h.st),0,5);}
+      if(dmg>0){m.hp-=dmg;m.hitF=now;knock(m,o);if(m.hp<=0)killMob(m);}}
+    // hits the region's host already applied: just show them
+    const hv=o.hv||[];if(o.hvSeen===undefined)o.hvSeen=Math.max(0,...hv.map(h=>fin(h&&h.i)));
+    for(const h of hv){if(!h||fin(h.i)<=o.hvSeen)continue;o.hvSeen=fin(h.i);const m=mobs[fin(h.m)|0],dmg=clamp(Math.round(fin(h.d)),0,99999);if(m&&!m.dead&&dmg>0)otherHitFx(o,m,dmg,false);}}}
+// show another player attacking: they swing (or shoot), then the monster flashes with the damage number
+function otherHitFx(o,m,dmg,applied){
+  const ox=o.rx!==undefined?o.rx:o.x,oy=o.ry!==undefined?o.ry:o.y,dx=m.x-ox,dy=m.y-oy,far=Math.hypot(dx,dy)>m.d.size+PR+60;
+  o.swingT=now;o.swingDur=.22;o.atkFace=sface(dx,dy);o.atkFaceT=now;
+  const near=dist(m,P)<520;
+  const land=()=>{if(m.dead&&!applied)return;m.hitF=now;floatT(m.x,m.y-m.d.size-8,fmt(dmg),'#cfe0ff',13);if(near)sfx('hit');};
+  if(far){const b=baseOf(o.cls),mag=CLASSES[b]&&CLASSES[b].magic;shoot({x:ox,y:oy},m,mag?'orb':'arrow',mag?'#b8a0ff':'#e8dcb0',land,true);if(near)sfx(mag?'cast':'bow');}
+  else{const sx=(dx-dy)*ISO,sy=(dx+dy)*ISO/2,n=Math.hypot(sx,sy)||1;o.lgX=sx/n;o.lgY=sy/n;o.lungeT=now;fx.push({k:'slash',x:m.x,y:m.y,t0:now,dur:.2});land();}}
 function syncMobs(host,dt){
   const mb=host.mb;if(!mb)return;
   // an older server knows fewer monsters here (new ones are always added at the end of a region's list):
