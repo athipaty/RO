@@ -40,7 +40,7 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 ## Stage 6: Guilds and PvP
 - [x] Guilds: create, emblem, ranks, guild chat (v0.20.0)
 - [x] Arena: 1v1 and team duels with rankings (v0.43.0: Ember Arena, ranked 1v1 and 2v2, top 20)
-- [ ] Guild-versus-guild territory event
+- [x] Guild-versus-guild territory event (v0.44.0: Emberkeep guild war, nightly 20:00)
 
 ## Stage 7: Polish and launch
 - [x] Phone performance, settings menu, key remapping (v0.40.0: Settings window with volumes, interface size, performance mode and key remapping)

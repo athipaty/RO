@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='0.43.0';
+const VERSION='0.44.0';
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
 const BLOCK=[0,0,1,1,1,1,0,0]; // 0 ground 1 path 2 tree 3 water 4 rock 5 building 6 cobble 7 flowers
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
@@ -153,9 +153,12 @@ const ZONES={
   dunes:{name:'Ashen Dunes',w:68,h:46,theme:'dunes',seed:37,density:.04,ponds:1,lvl:'Lv 20–32',mobs:[['scarab',13],['wraith',10],['cactoid',9],['scarabqueen',1],['scarab',4,'scarabqueen']],links:{west:'woods',east:'crypt'}},
   crypt:{name:'Cinder Crypt',w:60,h:44,theme:'crypt',seed:51,density:.07,ponds:3,lvl:'Lv 32–45 · boss',mobs:[['bonearcher',12],['emberimp',11],['warlord',1]],links:{west:'dunes',east:'frost'}},
   // Stage 6 arena: four pits for ranked matches (js/arena.js); reached from the Arena Master in Hearthvale
+  // Stage 6 guild war: the Ember Crystal sits in a ring at the centre (js/guildwar.js); reached from the Keep Herald in Hearthvale
+  keep:{name:'Emberkeep',w:44,h:34,theme:'keep',music:'crypt',safe:true,lvl:'Guild war',links:{}},
   arena:{name:'Ember Arena',w:48,h:34,theme:'arena',music:'boss',safe:true,lvl:'Ranked PvP',links:{}},
   frost:{name:'Frostpeak Pass',w:64,h:44,theme:'frost',seed:67,density:.08,ponds:3,lvl:'Lv 42+',mobs:[['rimestalker',12],['frostwisp',11],['snowhulk',9],['frostmatron',1],['rimestalker',3,'frostmatron']],links:{west:'crypt'}},
 };
+const KEEP_C=[22,17],KEEP_R=4; // the crystal (tile) and its capture ring (tiles); the server uses the same numbers
 const ARENA_PITS=[[12,9],[35,9],[12,26],[35,26]];
 const ZONE_ORDER=['town','meadow','woods','dunes','crypt','frost'];
 const THEMES={
@@ -165,6 +168,7 @@ const THEMES={
   dunes:{g:['#d9bf85','#dcc38a','#d4b97e'],path:'#c2a46c',rock:['#9c7b55','#7d6043'],water:'#3ea0b0'},
   frost:{g:['#e6edf2','#edf2f6','#e1e9ef'],path:'#b7c6d2',canopy:['#9fb8c8','#f5f9fc'],water:'#8fc0dc'},
   cave:{g:['#3b3530','#3f3833','#37312c'],path:'#55493e',rock:['#2c2622','#4d443b'],water:'#2a5f6a',dark:true},
+  keep:{g:['#5d5a62','#615e66','#59565e'],path:'#c9a24a',cob:'#7a7480',rock:['#3e3a44','#5a5560'],water:'#d4521f',lava:true},
   arena:{g:['#d2b483','#d6b98a','#cdae7c'],path:'#b8925e',cob:'#8f8375',rock:['#6e5a48','#8a735c'],water:'#3ea0b0'},
   crypt:{g:['#3a3842','#3d3b46','#37353f'],path:'#55505e',rock:['#26242c','#4a4654'],water:'#d4521f',lava:true},
 };

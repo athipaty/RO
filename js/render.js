@@ -33,6 +33,18 @@ function sprite(theme,kind,v){const key=theme+kind+v;if(SPR[key])return SPR[key]
     if(v===0){g.fillStyle='rgba(0,0,0,.4)';g.beginPath();g.moveTo(ax+4,ay-70);g.lineTo(ax-2,ay-50);g.lineTo(ax+3,ay-40);g.lineWidth=1.5;g.strokeStyle='rgba(0,0,0,.45)';g.stroke();}}
   SPR[key]={c,ax,ay};return SPR[key];}
 function drawObj(o){
+  if(o.kind==='crystal'){const p=proj(o.x,o.y),col=typeof keepColour==='function'?keepColour():'#ff9a3a',b=Math.sin(now*2)*3,r=KEEP_R*TILE;
+    ctx.save();ctx.globalAlpha=.55+Math.sin(now*3)*.15;ctx.strokeStyle=col;ctx.lineWidth=3;ctx.setLineDash([10,8]);ctx.lineDashOffset=-now*20;
+    ctx.beginPath();ctx.ellipse(p.x,p.y,r*ISO*1.41,r*ISO*.71,0,0,7);ctx.stroke();ctx.restore();
+    ctx.save();ctx.translate(p.x,p.y);ctx.scale(1.4,1.4);ctx.translate(-p.x,-p.y);
+    ctx.fillStyle='#3e3a44';ctx.beginPath();ctx.ellipse(p.x,p.y,20,9,0,0,7);ctx.fill();ctx.fillStyle='#5a5560';ctx.fillRect(p.x-14,p.y-12,28,12);ctx.beginPath();ctx.ellipse(p.x,p.y-12,14,6,0,0,7);ctx.fill();
+    ctx.save();ctx.shadowColor=col;ctx.shadowBlur=24+Math.sin(now*3)*8;const y0=p.y-30+b;
+    const g=ctx.createLinearGradient(p.x-12,y0-34,p.x+12,y0+20);g.addColorStop(0,'#fff8e8');g.addColorStop(.45,col);g.addColorStop(1,'#3a1a10');ctx.fillStyle=g;
+    ctx.beginPath();ctx.moveTo(p.x,y0-38);ctx.lineTo(p.x+13,y0-8);ctx.lineTo(p.x+6,y0+16);ctx.lineTo(p.x-6,y0+16);ctx.lineTo(p.x-13,y0-8);ctx.closePath();ctx.fill();
+    ctx.shadowBlur=0;ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.moveTo(p.x-2,y0-32);ctx.lineTo(p.x-9,y0-8);ctx.lineTo(p.x-3,y0-6);ctx.closePath();ctx.fill();ctx.restore();
+    ctx.restore();
+    const name=typeof keepLabel==='function'?keepLabel():'';if(name)label(name,p.x,p.y-100+b,col,13);
+    return;}
   if(o.kind==='fountain'){const p=proj(o.x,o.y);
     ctx.fillStyle='#cfc6b4';ctx.fillRect(p.x-8,p.y-40,16,40);ctx.fillStyle='#e8e0d0';ctx.beginPath();ctx.ellipse(p.x,p.y-40,16,6,0,0,7);ctx.fill();
     ctx.fillStyle='#bfe0f0';ctx.beginPath();ctx.ellipse(p.x,p.y-41,11,4,0,0,7);ctx.fill();
