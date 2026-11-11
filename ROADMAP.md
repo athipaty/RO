@@ -46,7 +46,7 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 - [x] Phone performance, settings menu, key remapping (v0.40.0: Settings window with volumes, interface size, performance mode and key remapping)
 - [x] Moderation: report, mute, admin panel (mute v0.41.0; reports and admin window v0.42.0, server PR needed)
 - [x] Error logging, backups, hosting cost review (v0.45.0: Admin → Errors, backup download, docs/OPERATIONS.md)
-- [ ] Public landing page
+- [x] Public landing page (v0.46.0: welcome.html)
 
 ---
 

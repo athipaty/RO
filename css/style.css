@@ -483,3 +483,5 @@ body.touchui #hotbar .slot.edit{transform:translate(0px,-200px)}
 body.touchui #log{width:max(140px,calc(100vw - 262px));max-width:none}
 
 .modcard pre{white-space:pre-wrap;word-break:break-word;margin:4px 0 0;font:11px/1.4 ui-monospace,Consolas,monospace;color:var(--muted)}
+
+.aboutLink{display:block;text-align:center;margin-top:6px;font:500 12px Inter,var(--ui);color:var(--muted);text-decoration:none}.aboutLink:hover{color:var(--accent,#f0b54a);text-decoration:underline}
