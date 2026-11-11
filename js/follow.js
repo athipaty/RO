@@ -4,14 +4,20 @@ let FOL=null; // {peer, name, repathT}
 
 function followStart(peer){const o=NET.others.get(peer);if(!o||!inParty(peer)){addLog('You can only follow party members.','l-bad');return;}
   if(P.dead)return;FOL={peer,name:o.n,repathT:0};P.target=null;P.queued=null;P.npcGoal=null;P.sitting=false;
-  addLog(`Following ${o.n}. Click the ground, move, or attack to stop.`,'l-good');sfx('click');if(typeof renderParty==='function')renderParty();}
-function followStop(msg){if(!FOL)return;FOL=null;P.path=[];if(msg)addLog(msg);if(typeof renderParty==='function')renderParty();}
+  addLog(`Following ${o.n}. Skills go at what ${o.n} is fighting. Click the ground, move, or attack to stop.`,'l-good');sfx('click');if(typeof renderParty==='function')renderParty();}
+function followStop(msg){if(!FOL)return;FOL=null;P.path=[];if(P.assist){P.assist=false;P.target=null;P.queued=null;}if(msg)addLog(msg);if(typeof renderParty==='function')renderParty();}
 const following=peer=>!!FOL&&FOL.peer===peer;
+// while following, a skill with no target of our own goes at whatever the leader is fighting
+function followAssist(){if(!FOL)return false;const o=NET.others.get(FOL.peer);if(!o||o.z!==zoneId||!(o.tg>=0))return false;
+  const m=mobs[o.tg];if(!m||m.dead)return false;P.target=m;P.assist=true;P.holdPos=false;return true;}
 
 function followTick(dt){if(!FOL||!P)return;const o=NET.others.get(FOL.peer);
   if(!o||!inParty(FOL.peer)){followStop(`${FOL.name} is no longer in your party, so you stopped following.`);return;}
   if(P.dead){followStop();return;}
-  if(P.target){followStop(`You stopped following ${FOL.name} to fight.`);return;}
+  if(P.assist){ // a skill on the leader's target: done once it fired (or the target is gone)
+    if(!P.target||P.target.dead||(!P.casting&&!P.queued)){P.assist=false;P.target=null;P.queued=null;}}
+  if(P.target&&!P.assist){followStop(`You stopped following ${FOL.name} to fight.`);return;}
+  if(P.casting){P.path=[];return;} // stand still while casting so the walk does not cancel it
   FOL.repathT-=dt;if(FOL.repathT>0)return;FOL.repathT=.4;
   if(o.z!==zoneId){ // they went through a gate: take the same one
     const pt=Z.portals.find(p=>p.to===o.z);

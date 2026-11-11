@@ -145,6 +145,7 @@ const sellValue=id=>{const it=ITEMS[id];return it.type==='etc'?it.price:it.type=
 function skillReady(id){return (P.cd[id]||0)<=now;}
 function useSkill(id){
   const l=castLv(id);if(!l||P.dead||P.casting)return;const sk=SKILLS[id];
+  if((sk.kind==='target'||sk.kind==='area')&&(!P.target||P.target.dead)&&typeof followAssist==='function')followAssist();
   if(!skillReady(id))return;
   if(P.heavy>1){tooHeavy();return;}
   if(ailHeld()||ailOn('silence')){floatT(P.x,P.y-40,ailOn('silence')?'Silenced':'Cannot act','#c58cff',12);return;}
@@ -246,8 +247,9 @@ function update(dt){
     if(d<=need&&(!S.ranged&&!P.queued?true:clearLine(P.x,P.y,t.x,t.y)||d<60)){
       P.path=[];faceTo(P,t.x-P.x,t.y-P.y);
       if(P.queued){useSkill(P.queued);}
-      else if(P.atkT<=0&&!P.casting){if(P.heavy>1){tooHeavy();P.atkT=1;}else{basicAttack(t);P.atkT=S.delay;}}
-    } else if(P.holdPos){P.path=[];faceTo(P,t.x-P.x,t.y-P.y);if(now>(P.reachHintT||0)){P.reachHintT=now+2;floatT(P.x,P.y-44,'Out of reach','#aab4c4',12);}}
+      else if(P.atkT<=0&&!P.casting&&!P.assist){if(P.heavy>1){tooHeavy();P.atkT=1;}else{basicAttack(t);P.atkT=S.delay;}}
+    } else if(P.assist){/* following: the leader's walk brings us in range, then the queued skill fires */}
+    else if(P.holdPos){P.path=[];faceTo(P,t.x-P.x,t.y-P.y);if(now>(P.reachHintT||0)){P.reachHintT=now+2;floatT(P.x,P.y-44,'Out of reach','#aab4c4',12);}}
     else {P.repathT=(P.repathT||0)-dt;if(P.repathT<=0||!P.path.length){pathTo(t.x,t.y,true);P.repathT=.35;}}
   } else if(t&&t.dead){P.target=null;}
   P.atkT-=dt;
