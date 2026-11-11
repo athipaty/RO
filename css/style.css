@@ -388,3 +388,4 @@ body.touchui .dk i{font-size:18px}
 body.touchui #dock{background:rgba(14,18,26,.97)}
 @media (max-width:1040px){body:not(.touchui) #log{width:min(270px,calc(50vw - 245px))}}
 #panel{background:rgba(14,18,26,.96)}
+#evT{color:var(--accent,#f0b54a);font-weight:600;font-size:11px;margin-top:3px;max-width:200px;margin-inline:auto}

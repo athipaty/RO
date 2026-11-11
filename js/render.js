@@ -141,6 +141,7 @@ function render(){
   drawAmbient();
   if(THEMES[Z.D.theme].dark&&!(P&&ailOn('blind'))){const g=ctx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.22,VW/2,VH/2,Math.max(VW,VH)*.7);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(5,4,10,.62)');ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);ctx.restore();}
   if(typeof drawSky==='function')drawSky();
+  if(typeof drawSeason==='function'&&(typeof skyOn==='undefined'||skyOn)){ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);drawSeason();ctx.restore();}
   if(P&&ailOn('blind'))drawBlind();
 }
 const amb=[];let ambZone=null,ambLast=0;

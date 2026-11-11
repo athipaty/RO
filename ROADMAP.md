@@ -35,7 +35,7 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 - [x] New regions and multi-floor dungeons (Mossdeep Caverns, v0.19.0)
 - [x] Story quests with NPC dialogue, daily quests (v0.16.0)
 - [x] World bosses on timers with an MVP reward for top damage (v0.17.0)
-- [ ] Timed events (EXP weekends, seasonal map)
+- [x] Timed events: EXP Weekend, Golden Hour, seasonal Hearthvale (v0.39.0)
 
 ## Stage 6: Guilds and PvP
 - [x] Guilds: create, emblem, ranks, guild chat (v0.20.0)
