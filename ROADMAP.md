@@ -116,7 +116,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 48. M (server) Chat rooms
 - [x] 49. L (server) Guilds with emblems (v0.20.0)
 - [ ] 50. L (server) Guild war
-- [ ] 51. M (server) PvP arenas and duels
+- [ ] 51. M (server) PvP arenas and duels (duels done in v0.21.0; arena and rankings still to do)
 - [ ] 52. S More emotes and an emote bar
 - [ ] 53. S Partner system
 

@@ -217,3 +217,4 @@ button{font:inherit;color:inherit}
 #target .tn{padding:0 18px}
 #target.mini .tl,#target.mini .td,#target.mini #tInfo{display:none}
 #target.mini{padding:4px 10px 6px}
+#duelAsk{position:fixed;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + 110px);transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:8px 10px;z-index:5;max-width:calc(100vw - 32px);box-sizing:border-box;border-color:#ff7a5a}

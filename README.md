@@ -34,6 +34,7 @@ Play online: https://ro-six-bay.vercel.app/ (add `?room=yourname` to the link fo
 - **Party support**: Mend, Blessing, Sanctuary, Divine Grace, Holy Aegis, War Cry and Swift Step also reach party members standing nearby.
 - **Dungeon**: stairs in Whispering Woods lead down into the Mossdeep Caverns, three dark floors (Lv 18–37) with six new monsters and the Gloomcap King at the bottom.
 - **Guilds** (accounts, saved on the game server): found one for 10,000 gold with a name and emblem, invite from the online list, leader/officer/member ranks, a guild notice, and guild chat (/g or the Guild tab) across every channel. The guild name and emblem show under each member's name.
+- **Duels**: challenge a player in the same region (online list or /duel Name); after a countdown, fight until one falls to 1 HP. Nobody dies or loses EXP, and the winner is announced.
 - **World bosses** (run by the game server): the Thornmother, Dune Tyrant or Rimeheart Colossus appears in its region about every 30 minutes and everyone online is told where. The top damage dealer is the MVP and wins a rare hat.
 - **Ground loot**: monsters drop items and gold on the ground with a set chance (shown when you target them); click to pick it up, auto-hunt collects it too
 - Rare **sigils**: every monster can drop one. Socket it into gear with a free slot for a permanent bonus.

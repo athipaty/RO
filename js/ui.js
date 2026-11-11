@@ -19,7 +19,8 @@ function updateHud(){
   const qe=$('#quest');if(qe.hidden!==!P.quest)qe.hidden=!P.quest;if(P.quest)setT('quest',`Contract: ${MOBS[P.quest.mob].name} ${P.quest.have}/${P.quest.need}`);
   const t=P.target&&!P.target.dead?P.target:null;const te=$('#target');
   if(!!t===te.hidden)te.hidden=!t;
-  if(t){setT('tDrops','Drops: '+dropText(t.d));setT('tName',t.d.name);setT('tLv',`Lv ${t.d.lv} · ${ELEM[t.d.el||'neutral'].name}`+(t.d.undead?' · undead':'')+(t.d.boss?' · boss':''));setW('tI',t.hp/t.d.hp);setT('tT',`${fmt(t.hp)} / ${fmt(t.d.hp)}`);}
+  if(t&&t.pvp){setT('tDrops','Duel: first to fall to 1 HP loses');setT('tName',t.d.name);setT('tLv',`Lv ${t.d.lv} · player`);setW('tI',t.hp/100);setT('tT',`${Math.round(t.hp)}%`);}
+  else if(t){setT('tDrops','Drops: '+dropText(t.d));setT('tName',t.d.name);setT('tLv',`Lv ${t.d.lv} · ${ELEM[t.d.el||'neutral'].name}`+(t.d.undead?' · undead':'')+(t.d.boss?' · boss':''));setW('tI',t.hp/t.d.hp);setT('tT',`${fmt(t.hp)} / ${fmt(t.d.hp)}`);}
   // hotbar cooldowns & counts
   for(const el of hotEls){const s=el._slot;let frac=0,off=false,n='';
     if(s.skill){const l=P.skills[s.skill]||0;off=!l||P.sp<SKILLS[s.skill].sp(l||1);const r=(P.cd[s.skill]||0)-now;if(r>0)frac=r/SKILLS[s.skill].cd;n=l?String(l):'';}
@@ -127,6 +128,7 @@ function refreshPanel(){
     <b>Levels:</b> base levels give stat points (C). Job levels give skill points (K). At Job Lv 10, talk to Guildmaster Corvin to become a Warden, Arcanist, Ranger or Cleric.<br>
     <b>Sigils:</b> every monster has a small chance to drop its sigil. Socket it into equipment with a free slot to gain its bonus for good.<br>
     <b>Resting:</b> press X to sit and recover HP and SP faster.<br>
+    <b>Duels:</b> challenge someone in the same region with the Duel button in the online list or /duel Name. After a 3-second countdown, click them to fight. The first to fall to 1 HP loses; nobody dies or loses EXP.<br>
     <b>Monster box:</b> the box at the top shows your target's name and HP; + shows its level, element, drops and an Info button.<br>
     <b>Status box:</b> the − button in its corner (or B) shrinks it to just your name, HP and SP; + brings it back.<br>
     <b>Regions:</b> Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45), home of the Ashen Warlord → Frostpeak Pass (42+).<br>
@@ -248,7 +250,7 @@ cv.addEventListener('pointerdown',ev=>{
   {const sp=shopAt(sc);if(sp){soc('vendView',{peer:sp});return;}}
   const m=mobAt(sc);
   if(!m){const l=lootAt(sc);if(l){if(P.sitting)P.sitting=false;goLoot(l);return;}}
-  if(m){if(Z.D.safe)return;P.target=m;P.queued=null;P.npcGoal=null;P.sitting=false;return;}
+  if(m){if(Z.D.safe&&!m.pvp)return;P.target=m;P.queued=null;P.npcGoal=null;P.sitting=false;return;}
   for(const n of Z.npcs){const np=proj(n.x,n.y);if(Math.hypot(np.x-sc.x,np.y-22-sc.y)<(touchPick?34:26)){P.target=null;P.npcGoal=n;if(dist(P,n)<48){openNpc(n);P.npcGoal=null;}else pathTo(n.x,n.y+14,true);return;}}
   if(P.sitting){faceTo(P,w.x-P.x,w.y-P.y);return;}
   P.target=null;P.queued=null;P.npcGoal=null;clickMark={x:w.x,y:w.y,t:now};pathTo(w.x,w.y,true);
@@ -386,7 +388,7 @@ function frame(ts){let dt=Math.min(.05,(ts-last)/1000);last=ts;if(ts<hitStopUnti
 function showBanner(a,b){const el=$('#zoneBanner');el.querySelector('b').textContent=a;el.querySelector('span').textContent=b;
   el.hidden=false;el.classList.remove('show');void el.offsetWidth;el.classList.add('show');clearTimeout(showBanner.t);showBanner.t=setTimeout(()=>{el.hidden=true;},3300);}
 cv.addEventListener('contextmenu',ev=>{ev.preventDefault();if(!P||!running)return;const m=mobAt(screenAt(ev));if(m)openPanel('mob',m.d.id);});
-$('#tInfo').addEventListener('click',()=>{if(P&&P.target&&P.target.d)openPanel('mob',P.target.d.id);});
+$('#tInfo').addEventListener('click',()=>{if(P&&P.target&&P.target.d&&MOBS[P.target.d.id])openPanel('mob',P.target.d.id);});
 let newLook=null,lookTouched=false;
 function setNewLook(lk,touched){newLook={style:lk.style,hair:lk.hair,eye:lk.eye,skin:lk.skin};if(touched)lookTouched=true;refreshCreator();}
 function refreshCreator(){
