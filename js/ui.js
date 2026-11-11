@@ -434,3 +434,12 @@ function targetMini(on,quiet){const t=$('#target'),b=$('#tToggle');t.classList.t
   if(!quiet){sfx('click');try{localStorage.setItem('embervale.targetFull',on?'0':'1');}catch(e){}}}
 $('#tToggle').addEventListener('click',ev=>{ev.stopPropagation();targetMini(!$('#target').classList.contains('mini'));});
 try{if(localStorage.getItem('embervale.targetFull')==='1')targetMini(false,true);}catch(e){}
+
+/* ---- the game open in two tabs of one browser: they share one saved character and only the front tab runs ---- */
+const TABS=(()=>{try{return new BroadcastChannel('embervale-tabs');}catch(e){return null;}})();
+let tabWarned=false;
+function tabWarn(){if(tabWarned||!running)return;tabWarned=true;
+  addLog('Embervale is also open in another tab of this browser. Tabs in one browser share one saved character and would overwrite each other, and the browser pauses whichever tab is in the background. For a second character, use a different browser, a private window, or another device.','l-bad');
+  showBanner('Open in another tab','Use another browser or device for a second character');}
+if(TABS){TABS.onmessage=ev=>{const m=ev.data||{};if(m.k==='hello'&&running){TABS.postMessage({k:'here'});tabWarn();}else if(m.k==='here')tabWarn();};
+  setInterval(()=>{if(running&&!tabWarned)TABS.postMessage({k:'hello'});},3000);}
