@@ -14,7 +14,7 @@ function updateHud(){
   setT('ailT',ailText());
   setT('weight',`Weight ${fmt(carryWeight())} / ${fmt(maxWeight())}`+(P.heavy===2?' · too heavy to fight':P.heavy?' · no regen':''));
   {const we=$('#weight'),hv=!!P.heavy;if(we.classList.contains('heavy')!==hv)we.classList.toggle('heavy',hv);}
-  setT('gold',`${fmt(P.gold)} gold`+(P.statPts?` · ${P.statPts} stat pts`:'')+(P.skillPts?` · ${P.skillPts} skill pts`:''));
+  setT('gold',`${fmt(P.gold)} gold`+(P.statPts?` · ${P.statPts} stat pts`:'')+(P.skillPts?` · ${P.skillPts} skill pts`:'')+(isRested()?` · ${restedText()}`:''));
   const pc=partyCount();const pe=$('#party');if(pe.hidden!==!pc)pe.hidden=!pc;if(pc)setT('party',`Party: ${SOC.party.mode==='share'?'sharing EXP':'+25% EXP each'} · ${pc} member${pc>1?'s':''} here`);
   const qe=$('#quest');if(qe.hidden!==!P.quest)qe.hidden=!P.quest;if(P.quest)setT('quest',`Contract: ${MOBS[P.quest.mob].name} ${P.quest.have}/${P.quest.need}`);
   const t=P.target&&!P.target.dead?P.target:null;const te=$('#target');
@@ -184,6 +184,7 @@ function refreshPanel(){
     else{h+=`<div class="say">“You've earned it. Choose your calling. The choice is for life, so choose with care.” — Corvin</div><div class="choice">`;
       for(const id of ['warden','arcanist','ranger','cleric']){const k=CLASSES[id];h+=`<button data-act="job" data-arg="${id}"><b style="color:${k.col}">${k.name}</b><small>${k.desc}</small><small>Starts with: ${ITEMS[k.gift].name}</small></button>`;}
       h+=`</div>`;}
+    h+=respecHtml();
     h+=`<h3>Hunting contracts</h3>`;
     if(P.quest){const q=P.quest,m=MOBS[q.mob];h+=`<div class="row"><div class="grow"><div class="nm">Defeat ${q.need} ${m.name}</div><div class="ds">Progress ${q.have}/${q.need} · Reward ${fmt(q.exp)} EXP, ${fmt(q.gold)} gold · found in ${Object.values(ZONES).find(z=>(z.mobs||[]).some(x=>x[0]===q.mob)).name}</div></div><button class="btn small" data-act="qdrop">Abandon</button></div>`;}
     else{h+=`<div class="ds" style="margin-bottom:4px">Take one contract at a time. It completes automatically wherever you are.</div>`;
@@ -198,9 +199,10 @@ function refreshPanel(){
     h+=`<h2>Chapel</h2><div class="say">“Rest a moment, traveller. The light asks nothing of you.” — Sister Maren</div><button class="btn" data-act="heal">Receive a blessing (full HP and SP)</button>`;
   }
   else if(panelKind==='warp'){
-    h+=`<h2>Waystation</h2><div class="say">“I can send you to any road you've already walked. The fare depends on how far you go.” — Tobin</div>`;
+    h+=`<h2>Waystation</h2><div class="say">“I can send you to any road you've already walked. The fare depends on how far you go. And if your feet are sore, the bunks upstairs are clean.” — Tobin</div>`;
     ZONE_ORDER.slice(1).forEach((id,i)=>{const D=ZONES[id];const ok=P.visited.includes(id);const cost=(i+1)*60;
       h+=`<div class="row"><div class="grow"><div class="nm">${D.name}</div><div class="ds">${D.lvl}${ok?'':' · not visited yet'}${NET.wb&&NET.wb.z===id?` · <span style="color:#ff9a7a">World boss: ${MOBS[NET.wb.b].name}</span>`:''}</div></div><span class="gold">${cost}</span><button class="btn small" data-act="warp" data-arg="${id}" ${ok&&P.gold>=cost?'':'disabled'}>Travel</button></div>`;});
+    h+=innHtml();
   }
   if(PANELS[panelKind])h+=PANELS[panelKind]();
   panel.innerHTML=h;
@@ -320,7 +322,7 @@ $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDef
 
 /* ================= save / load ================= */
 function snapshot(){if(!P)return null;
-  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','useLv','qs','track'];
+  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','useLv','rested','qs','track'];
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;
   if(typeof pendingEscrow==='function'){const ex=pendingEscrow();if(ex.items.length||ex.gold){o.inv=[...P.inv,...ex.items];o.gold=P.gold+ex.gold;}}
   return {v:1,p:JSON.parse(JSON.stringify(o))};}

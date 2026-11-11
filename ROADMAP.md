@@ -82,7 +82,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 22. M Crafting and brewing
 - [x] 23. L (server) Player shops while sitting
 - [x] 24. L (server) Trade window
-- [ ] 25. S Gold sinks: teleport service, inn, repair
+- [x] 25. S Gold sinks: inn with a Well rested EXP bonus, stat and skill resets (v0.28.0; travel fares already existed, no repairs)
 
 ### Classes and skills
 - [x] 26. M Skill tree screen with prerequisites

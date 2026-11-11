@@ -70,6 +70,7 @@ function buff(id,name,dur,b){P.buffs[id]={name,until:now+dur,b};fx.push({k:'ring
 
 const EXPLOG=[];
 function gainExp(e,j){
+  if(isRested()){e=Math.round(e*(1+REST_BONUS));j=Math.round(j*(1+REST_BONUS));}
   if(e>0){texts.push({x:P.x,y:P.y-52,txt:`+${fmt(e)} EXP`,col:'#ffe27a',size:12,t0:now,dur:1.3,vx:-6});EXPLOG.push({t:Date.now(),e});while(EXPLOG.length>500)EXPLOG.shift();}
   if(j>0&&P.jl<jobMax(P.cls))texts.push({x:P.x+4,y:P.y-40,txt:`+${fmt(j)} Job`,col:'#8fe0a8',size:11,t0:now,dur:1.3,vx:8});
   P.exp+=e;

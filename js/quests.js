@@ -122,7 +122,7 @@ PANELS.talk=()=>{if(!talk)return '';const key=talk.npc,n=npcName(key);let h=`<di
   h+=`</div><div class="tbtns">`;
   if(talk.role&&talk.role!=='talk')h+=`<button class="btn" data-act="tservice">${SERVICE[talk.role]||'Talk'}</button>`;
   return h+`<button class="btn" data-act="close">Goodbye</button></div>`;};
-const SERVICE={shop:'Browse the store',job:'Guild business',heal:'Ask for a blessing',warp:'Travel',smith:'Smithing',storage:'Open storage'};
+const SERVICE={shop:'Browse the store',job:'Guild business',heal:'Ask for a blessing',warp:'Travel or rest',smith:'Smithing',storage:'Open storage'};
 function greeting(key){return {hollis:'The fountain has seen a lot of heroes come and go. Sit a while.',pell:'Keep your eyes on the grass. The Hoppers bite.',
   ysolde:'Step softly. The woods are listening.',kade:'Sand gets everywhere. Watch your footing.',brannoc:'Mind the sparks.',ilsa:'Welcome back, friend!'}[key]||'Well met, traveller.';}
 function questBox(id,reward){const q=QUESTS[id],r=q.reward;let h=`<div class="qbox">`;
