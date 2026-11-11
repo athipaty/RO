@@ -68,7 +68,7 @@ function skillTiers(list){let h='';const tiers=[];for(const id of list){const d=
   tiers.filter(Boolean).forEach((ids,ti)=>{if(ti)h+=`<div class="tarrow" aria-hidden="true">▼</div>`;h+=`<div class="ttier">`;
     for(const id of ids){const sk=SKILLS[id],l=P.skills[id]||0,nl=Math.min(sk.max,l+1),miss=skillMissing(id),locked=miss.length>0;
       const el=SKILL_ELEM[id];
-      h+=`<div class="snode${locked?' locked':''}${l?' has':''}"><div class="snh"><span class="ico" style="background:${sk.col}">${sk.g}</span><div class="grow"><div class="nm">${sk.name}</div>`+
+      h+=`<div class="snode${locked?' locked':''}${l?' has':''}"><div class="snh">${typeof skillIconURL==='function'?`<img class="ico img sk" src="${skillIconURL(id)}" alt="">`:`<span class="ico" style="background:${sk.col}">${sk.g}</span>`}<div class="grow"><div class="nm">${sk.name}</div>`+
         `<div class="slv">Lv ${l}/${sk.max}${el?` · <span style="color:${ELEM[el].col}">${ELEM[el].name}</span>`:''}${CAST[id]?' · cast':''}${sk.party?' · <span style="color:#8fe0a8">party</span>':''}</div></div></div>`+
         `<div class="ds">${l?sk.desc(l):sk.desc(1)} · ${sk.sp(nl)} SP</div>`+
         (locked?`<div class="sreq">Needs ${miss.join(' and ')}</div>`:'')+

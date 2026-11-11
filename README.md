@@ -35,6 +35,7 @@ Play online: https://ro-six-bay.vercel.app/ (add `?room=yourname` to the link fo
 - **Dungeon**: stairs in Whispering Woods lead down into the Mossdeep Caverns, three dark floors (Lv 18–37) with six new monsters and the Gloomcap King at the bottom.
 - **Guilds** (accounts, saved on the game server): found one for 10,000 gold with a name and emblem, invite from the online list, leader/officer/member ranks, a guild notice, and guild chat (/g or the Guild tab) across every channel. The guild name and emblem show under each member's name.
 - **Follow**: press Follow next to a party member (or /follow Name) to walk behind them, through gates into other regions too.
+- **Day and night, weather**: a 24-minute day with dark nights; rain, fog, sandstorms, snow and blizzards by region, the same for everyone. /time tells the time; weather effects can be turned off.
 - **Duels**: challenge a player in the same region (online list or /duel Name); after a countdown, fight until one falls to 1 HP. Nobody dies or loses EXP, and the winner is announced.
 - **Mini-bosses**: the Hopper Chieftain (meadow), Greymane Alpha (woods), Scarab Queen (dunes) and Frost Matron (Frostpeak) each lead an escort pack, call fallen escorts back below 60% and 30% HP, and drop their own accessory.
 - **World bosses** (run by the game server): the Thornmother, Dune Tyrant or Rimeheart Colossus appears in its region about every 30 minutes and everyone online is told where. The top damage dealer is the MVP and wins a rare hat.

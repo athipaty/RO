@@ -97,7 +97,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 33. M Named warp portals and a teleport NPC network
 - [x] 34. M Multi-floor dungeons (v0.19.0)
 - [ ] 35. S More teleport items
-- [ ] 36. M Day/night and weather per map
+- [x] 36. M Day/night and weather per map (v0.26.0)
 - [ ] 37. S Bigger minimap and a world map
 - [x] 38. S Region name banner on entry
 - [ ] 39. M 40+ monsters with elements, sizes, races
