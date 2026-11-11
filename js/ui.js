@@ -127,6 +127,7 @@ function refreshPanel(){
     <b>Levels:</b> base levels give stat points (C). Job levels give skill points (K). At Job Lv 10, talk to Guildmaster Corvin to become a Warden, Arcanist, Ranger or Cleric.<br>
     <b>Sigils:</b> every monster has a small chance to drop its sigil. Socket it into equipment with a free slot to gain its bonus for good.<br>
     <b>Resting:</b> press X to sit and recover HP and SP faster.<br>
+    <b>Monster box:</b> the box at the top shows your target's name and HP; + shows its level, element, drops and an Info button.<br>
     <b>Status box:</b> the − button in its corner (or B) shrinks it to just your name, HP and SP; + brings it back.<br>
     <b>Regions:</b> Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45), home of the Ashen Warlord → Frostpeak Pass (42+).<br>
     <b>Dungeon:</b> stairs in a clearing in Whispering Woods lead down into the Mossdeep Caverns: three dark floors (Lv 18–37) that get harder as you go deeper, with the Gloomcap King at the bottom.<br>
@@ -424,3 +425,10 @@ function hudMini(on,quiet){const h=$('#hud'),b=$('#hudToggle');h.classList.toggl
   if(!quiet){sfx('click');try{localStorage.setItem('embervale.hudMini',on?'1':'0');}catch(e){}}}
 $('#hudToggle').addEventListener('click',ev=>{ev.stopPropagation();hudMini(!$('#hud').classList.contains('mini'));});
 try{if(localStorage.getItem('embervale.hudMini')==='1')hudMini(true,true);}catch(e){}
+
+/* ---- monster box: compact (name + HP) by default, details on demand; remembered on this device ---- */
+function targetMini(on,quiet){const t=$('#target'),b=$('#tToggle');t.classList.toggle('mini',on);b.textContent=on?'+':'−';b.setAttribute('aria-expanded',String(!on));
+  const l=on?'Show monster details':'Hide monster details';b.setAttribute('aria-label',l);b.title=l;
+  if(!quiet){sfx('click');try{localStorage.setItem('embervale.targetFull',on?'0':'1');}catch(e){}}}
+$('#tToggle').addEventListener('click',ev=>{ev.stopPropagation();targetMini(!$('#target').classList.contains('mini'));});
+try{if(localStorage.getItem('embervale.targetFull')==='1')targetMini(false,true);}catch(e){}

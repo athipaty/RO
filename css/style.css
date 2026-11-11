@@ -212,3 +212,8 @@ button{font:inherit;color:inherit}
 #hud.mini .name{font-size:16px;margin-bottom:4px}
 @media (max-width:760px){#minibox{max-width:176px;box-sizing:border-box}#menu{flex-wrap:wrap}#menu .btn{padding:2px 6px}}
 @media (max-width:760px){#onlineBadge{top:calc(max(10px,env(safe-area-inset-top)) + 222px);left:auto;right:max(10px,env(safe-area-inset-right));transform:none}#whoList{top:calc(max(10px,env(safe-area-inset-top)) + 256px);left:auto;right:max(10px,env(safe-area-inset-right));transform:none}}
+#tToggle{position:absolute;top:4px;right:4px;width:20px;height:20px;padding:0;border-radius:4px;border:1px solid var(--edge-dim);background:#1a2029;color:var(--exp);font:800 13px/1 inherit;cursor:pointer;pointer-events:auto}
+#tToggle:hover,#tToggle:focus-visible{border-color:var(--edge)}
+#target .tn{padding:0 18px}
+#target.mini .tl,#target.mini .td,#target.mini #tInfo{display:none}
+#target.mini{padding:4px 10px 6px}
