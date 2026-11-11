@@ -12,7 +12,7 @@ function socialAttach(sock){SOCK=sock;tradeAttach(sock);
     if(m.ok)logLine('whisper',`[To ${to}] `,clean(m.text,120));else addLog(`${to} is not online.`,'l-bad');});
   sock.on('partyInvite',m=>{if(m&&m.fromPeer)showInvite(String(m.fromPeer),clean(m.from,16)||'Someone');});
   sock.on('party',st=>{const was=SOC.party;
-    SOC.party=st&&Array.isArray(st.members)?{id:String(st.id),leader:String(st.leader),mode:st.mode==='each'?'each':'share',
+    SOC.party=st&&Array.isArray(st.members)?{id:String(st.id),leader:String(st.leader),mode:st.mode==='each'?'each':'share',loot:st.loot==='turns'?'turns':st.loot==='each'?'each':null,
       members:st.members.slice(0,12).map(x=>({peer:String(x.peer),name:clean(x.name,16)}))}:null;
     if(!was&&SOC.party){addLog(`You are in a party with ${SOC.party.members.filter(x=>x.peer!==selfPeer()).map(x=>x.name).join(', ')}.`,'l-good');sfx('jobup');}
     else if(was&&!SOC.party)addLog('You are no longer in a party.');
@@ -47,12 +47,15 @@ $('#invYes').addEventListener('click',()=>{if(SOC.invite)soc('partyAccept',{peer
 $('#invNo').addEventListener('click',()=>{if(SOC.invite)soc('partyDecline',{peer:SOC.invite.peer});hideInvite();});
 $('#pLeave').addEventListener('click',()=>soc('partyLeave',{}));
 $('#pMode').addEventListener('click',()=>{if(SOC.party)soc('partyMode',{mode:SOC.party.mode==='share'?'each':'share'});});
+$('#pLoot').addEventListener('click',()=>{if(SOC.party)soc('partyLoot',{loot:SOC.party.loot==='turns'?'each':'turns'});});
 function renderParty(){const box=$('#partyBox'),p=SOC.party;box.hidden=!p;if(!p)return;
   const me=selfPeer(),lead=p.leader===me,list=box.querySelector('.pm');
   // sit just under the status box, whatever its size
   const hud=$('#hud');box.style.top=(hud.hidden?10:hud.getBoundingClientRect().bottom+6)+'px';
   const fold=box.classList.contains('fold'),f=$('#pFold');f.textContent=fold?'+':'−';f.setAttribute('aria-expanded',String(!fold));f.title=fold?'Show party members':'Fold the party box';
-  box.querySelector('.pt').textContent=fold?`Party (${p.members.length})`:`Party · ${p.mode==='share'?'sharing EXP':'each keeps own EXP'}`;
+  box.querySelector('.pt').textContent=fold?`Party (${p.members.length})`:`Party · ${p.mode==='share'?'sharing EXP':'each keeps own EXP'}${p.loot==='turns'?' · loot by turns':''}`;
+  // the loot rule needs a server that knows it (older ones send no loot field)
+  const lb=$('#pLoot');lb.hidden=!lead||!p.loot;lb.textContent=p.loot==='turns'?'Loot: each own':'Loot: take turns';lb.title=p.loot==='turns'?'Everyone rolls their own drops again':'One drop roll per kill, given to each member in turn';
   const mb=$('#pMode');mb.hidden=!lead;mb.textContent=p.mode==='share'?'Each keeps own':'Share EXP';
   list.textContent='';
   for(const m of p.members){const isMe=m.peer===me,o=NET.others.get(m.peer);

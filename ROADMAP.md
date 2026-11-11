@@ -23,7 +23,7 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 - [x] Parties: invite, shared EXP, party chat, party members on the minimap
 - [x] Two-sided trade window (both players confirm)
 - [x] Whispers, friends list, chat tabs (all / party / whisper)
-- [ ] Party loot rules (free-for-all or round-robin)
+- [x] Party loot rules: each their own or take turns (v0.35.0, server)
 
 ## Stage 4: Items and progression
 - [ ] Equipped gear visible on the character, item tooltips, equipment window

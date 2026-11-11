@@ -370,7 +370,8 @@ function syncMobs(host,dt){
   const evs=host.ev||[];let seen=NET.evSeen.get(host.id);
   if(seen===undefined)seen=Math.max(0,...evs.map(e=>fin(e&&e.i)));
   for(const e of evs){if(!e||fin(e.i)<=seen)continue;seen=fin(e.i);const m=mobs[fin(e.m)|0];if(!m)continue;
-    if(e.k==='d'){if(e.t===NET.myId){serverLoot(m,e);if(e.mvp&&typeof mvpWin==='function')mvpWin(m);}continue;}
+    if(e.k==='d'){if(e.t===NET.myId){if(e.w&&fin(e.n)>0){if(e.w===NET.myId)addLog(`Your turn: the party's drop from the ${m.d.name} is yours.`,'l-loot');else{let nm='a party member';for(const o of NET.others.values())if(o.id===e.w){nm=o.n;break;}addLog(`${nm} gets this drop (the party takes turns).`);}}
+      serverLoot(m,e);if(e.mvp&&typeof mvpWin==='function')mvpWin(m);}continue;}
     if(m.dead)continue;
     if(e.k==='a'){m.lunge=now;
       if(e.t===NET.myId){if(!P.dead){if(m.d.range)shoot(m,P,'arrow','#d8d0b8',()=>mobAttack(m),true);else mobAttack(m);}}
