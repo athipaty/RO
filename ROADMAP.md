@@ -90,7 +90,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 28. L Rebirth / third tier
 - [x] 29. M Support skills on other players (needs parties) (v0.18.0)
 - [ ] 30. M Ground-target skills (walls, traps, safe zones)
-- [ ] 31. S Choose which skill level to cast
+- [x] 31. S Choose which skill level to cast (v0.27.0)
 
 ### World and exploration
 - [ ] 32. M A capital city with districts, themed towns

@@ -148,6 +148,16 @@ PANEL_ACTS.hot=arg=>{const[id,i]=arg.split(':');if(!SKILLS[id]||!P.skills[id]||!
 function hotPicker(id){if(!P.skills[id])return '';const h=hotSkills();
   return `<div class="hotpick" aria-label="Put on hotbar key">${[0,1,2,3].map(i=>`<button class="hk${h[i]===id?' on':''}" data-act="hot" data-arg="${id}:${i}" title="Put on key ${i+1}">${i+1}</button>`).join('')}</div>`;}
 
+/* ---- cast level: use a skill below the level you learned (cheaper SP, smaller effect) ---- */
+function castLv(id){const l=P.skills[id]||0,u=P.useLv?+P.useLv[id]:0;return u>=1&&u<l?u:l;}
+function setCastLv(id,v,quiet){const l=P.skills[id]||0;if(!l)return;if(v>l)v=1;if(v<1)v=l;
+  P.useLv=P.useLv||{};if(v>=l)delete P.useLv[id];else P.useLv[id]=v;
+  if(!quiet){floatT(P.x,P.y-44,`${SKILLS[id].name}: Lv ${v}${v<l?' / '+l:''}`,'#f0e0a0',12);addLog(`${SKILLS[id].name} now casts at level ${v} of ${l} (${SKILLS[id].sp(v)} SP).`);}
+  if(typeof hotEls!=='undefined')for(const el of hotEls)el._k='';refreshPanel();save();}
+PANEL_ACTS.castlv=arg=>{const[id,d]=arg.split(':');if(SKILLS[id])setCastLv(id,castLv(id)+(+d),true);};
+function castLvPicker(id){const l=P.skills[id]||0;if(l<2)return '';const c=castLv(id);
+  return `<div class="castlv" aria-label="Cast level"><button class="hk" data-act="castlv" data-arg="${id}:-1" title="Cast one level lower" ${c<=1?'disabled':''}>−</button><span class="${c<l?'low':''}">Cast Lv ${c}</span><button class="hk" data-act="castlv" data-arg="${id}:1" title="Cast one level higher" ${c>=l?'disabled':''}>+</button></div>`;}
+
 /* ---- drawing: a second job wears its first job's outfit plus a mantle in its own colour ---- */
 function drawJobMantle(c,x,y,face,back){if(!c||c.tier!==2)return;const f=face<0?-1:1,by=y-7;
   ctx.lineWidth=1.5;ctx.strokeStyle='#2a1c14';ctx.fillStyle=c.acc;

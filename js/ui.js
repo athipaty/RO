@@ -23,7 +23,7 @@ function updateHud(){
   else if(t){setT('tDrops','Drops: '+dropText(t.d));setT('tName',t.d.name);setT('tLv',`Lv ${t.d.lv} · ${ELEM[t.d.el||'neutral'].name}`+(t.d.undead?' · undead':'')+(t.d.boss?' · boss':''));setW('tI',t.hp/t.d.hp);setT('tT',`${fmt(t.hp)} / ${fmt(t.d.hp)}`);}
   // hotbar cooldowns & counts
   for(const el of hotEls){const s=el._slot;let frac=0,off=false,n='';
-    if(s.skill){const l=P.skills[s.skill]||0;off=!l||P.sp<SKILLS[s.skill].sp(l||1);const r=(P.cd[s.skill]||0)-now;if(r>0)frac=r/SKILLS[s.skill].cd;n=l?String(l):'';}
+    if(s.skill){const L=P.skills[s.skill]||0,l=L?castLv(s.skill):0;off=!l||P.sp<SKILLS[s.skill].sp(l||1);const r=(P.cd[s.skill]||0)-now;if(r>0)frac=r/SKILLS[s.skill].cd;n=l?(l<L?l+'/'+L:String(l)):'';}
     else{const e=invFind(s.item);n=e?String(e.n):'0';off=!e;}
     const key=frac.toFixed(2)+off+n;if(el._k!==key){el._k=key;el.querySelector('.cd').style.height=(frac*100)+'%';el.classList.toggle('off',off);el.querySelector('.n').textContent=n;}}
 }
@@ -38,8 +38,9 @@ function rebuildHotbar(){
     const d=s.skill?SKILLS[s.skill]:ITEMS[s.item];
     b.title=(s.skill?d.name:d.name+' — '+d.desc)+` (${i+1})`;b.setAttribute('aria-label',b.title);
     b.innerHTML=(s.item&&typeof itemIconURL==='function'?`<img class="ic img" src="${itemIconURL(s.item)}" alt="">`:s.skill&&typeof skillIconURL==='function'?`<img class="ic img" src="${skillIconURL(s.skill)}" alt="">`:`<span class="ic" style="background:${d.col}">${d.g}</span>`)+`<span class="k">${i+1}</span><span class="cd"></span><span class="n"></span>`;
-    b._slot=s;b.addEventListener('click',()=>pressSlot(i));hb.appendChild(b);hotEls.push(b);});
+    b._slot=s;b.addEventListener('click',()=>pressSlot(i));if(s.skill)b.addEventListener('contextmenu',ev=>{ev.preventDefault();lowerSlot(i);});hb.appendChild(b);hotEls.push(b);});
 }
+function lowerSlot(i){const s=hotSlots()[i];if(!s||!s.skill)return;if(!P.skills[s.skill]){addLog(`Learn ${SKILLS[s.skill].name} in the Skills window (K).`);return;}if(P.skills[s.skill]<2){floatT(P.x,P.y-44,`${SKILLS[s.skill].name} has only level 1`,'#aab4c4',12);return;}setCastLv(s.skill,castLv(s.skill)-1);}
 function pressSlot(i){const s=hotSlots()[i];if(!s)return;if(s.skill){if(!P.skills[s.skill]){addLog(`Learn ${SKILLS[s.skill].name} in the Skills window (K).`);return;}useSkill(s.skill);}else useItem(s.item);}
 
 /* ================= panels ================= */
@@ -290,6 +291,7 @@ window.addEventListener('keydown',ev=>{
   if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){ev.preventDefault();if(npcBusy()){busyHint();return;}keys[k]=true;return;}
   if(k==='enter'){ev.preventDefault();openChat();return;}
   if(k==='e'){togglePanel('emote');return;}
+  if(ev.shiftKey&&/^Digit[1-4]$/.test(ev.code)){ev.preventDefault();lowerSlot(+ev.code.slice(5)-1);return;}
   if(k>='1'&&k<='8'){pressSlot(+k-1);return;}
   if(k==='c')togglePanel('status');else if(k==='i')togglePanel('items');else if(k==='k')togglePanel('skills');else if(k==='h')togglePanel('help');else if(k==='j')togglePanel('quests');else if(k==='g')togglePanel('guild');
   else if(k==='escape'){closePanel();P.target=null;}
@@ -318,7 +320,7 @@ $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDef
 
 /* ================= save / load ================= */
 function snapshot(){if(!P)return null;
-  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','qs','track'];
+  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','useLv','qs','track'];
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;
   if(typeof pendingEscrow==='function'){const ex=pendingEscrow();if(ex.items.length||ex.gold){o.inv=[...P.inv,...ex.items];o.gold=P.gold+ex.gold;}}
   return {v:1,p:JSON.parse(JSON.stringify(o))};}

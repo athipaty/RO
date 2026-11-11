@@ -59,7 +59,7 @@ function skillMissing(id){const r=SKILL_REQ[id]||{};return Object.keys(r).filter
 const skillUnlocked=id=>!skillMissing(id).length;
 function skillDepth(id){const r=SKILL_REQ[id];return r?1+Math.max(...Object.keys(r).map(skillDepth)):0;}
 function skillTreeHtml(){const c=CLASSES[P.cls],list=P.cls==='novice'?['firstaid']:c.skills;
-  let h=`<h2>Skill tree</h2><div class="sub">${c.name} · Skill points: <span class="gold">${P.skillPts}</span> · press 1–4 under a learned skill to put it on that hotbar key</div>`;
+  let h=`<h2>Skill tree</h2><div class="sub">${c.name} · Skill points: <span class="gold">${P.skillPts}</span> · press 1–4 under a learned skill to put it on that hotbar key · right-click a hotbar skill (or Shift+1–4) to cast it at a lower level</div>`;
   if(c.tier===2){const own=new Set(c.own);h+=`<h3>${CLASSES[c.base].name} skills</h3>`+skillTiers(list.filter(s=>!own.has(s)))+`<h3 style="color:${c.acc}">${c.name} skills</h3>`+skillTiers(c.own);}
   else h+=skillTiers(list);
   if(P.cls==='novice')h+=`<p class="muted">Reach Job Lv 10, then talk to Guildmaster Corvin in Hearthvale to choose a calling and unlock its skill tree.</p>`;
@@ -70,9 +70,9 @@ function skillTiers(list){let h='';const tiers=[];for(const id of list){const d=
       const el=SKILL_ELEM[id];
       h+=`<div class="snode${locked?' locked':''}${l?' has':''}"><div class="snh">${typeof skillIconURL==='function'?`<img class="ico img sk" src="${skillIconURL(id)}" alt="">`:`<span class="ico" style="background:${sk.col}">${sk.g}</span>`}<div class="grow"><div class="nm">${sk.name}</div>`+
         `<div class="slv">Lv ${l}/${sk.max}${el?` · <span style="color:${ELEM[el].col}">${ELEM[el].name}</span>`:''}${CAST[id]?' · cast':''}${sk.party?' · <span style="color:#8fe0a8">party</span>':''}</div></div></div>`+
-        `<div class="ds">${l?sk.desc(l):sk.desc(1)} · ${sk.sp(nl)} SP</div>`+
+        `<div class="ds">${l?sk.desc(castLv(id)):sk.desc(1)} · ${l?sk.sp(castLv(id)):sk.sp(nl)} SP</div>`+
         (locked?`<div class="sreq">Needs ${miss.join(' and ')}</div>`:'')+
-        `<div class="srow"><button class="btn small" data-act="learn" data-arg="${id}" ${locked||!P.skillPts||l>=sk.max?'disabled':''}>${l>=sk.max?'Mastered':l?'Level up':'Learn'}</button>${hotPicker(id)}</div></div>`;}
+        `<div class="srow"><button class="btn small" data-act="learn" data-arg="${id}" ${locked||!P.skillPts||l>=sk.max?'disabled':''}>${l>=sk.max?'Mastered':l?'Level up':'Learn'}</button>${hotPicker(id)}</div>${castLvPicker(id)}</div>`;}
     h+=`</div>`;});
   return h;}
 // the element each damaging skill uses (shown in the tree)

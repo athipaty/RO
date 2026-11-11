@@ -142,7 +142,7 @@ const sellValue=id=>{const it=ITEMS[id];return it.type==='etc'?it.price:it.type=
 /* ================= skills use ================= */
 function skillReady(id){return (P.cd[id]||0)<=now;}
 function useSkill(id){
-  const l=P.skills[id]||0;if(!l||P.dead||P.casting)return;const sk=SKILLS[id];
+  const l=castLv(id);if(!l||P.dead||P.casting)return;const sk=SKILLS[id];
   if(!skillReady(id))return;
   if(P.heavy>1){tooHeavy();return;}
   if(ailHeld()||ailOn('silence')){floatT(P.x,P.y-40,ailOn('silence')?'Silenced':'Cannot act','#c58cff',12);return;}
