@@ -1,8 +1,11 @@
 "use strict";
 /* ================= audio: original soundtrack + sound effects ================= */
-const AU={ctx:null,music:true,sfx:true,song:null,want:null,next:0,step:0};
-try{const a=JSON.parse(localStorage.getItem('embervale.audio')||'null');if(a){AU.music=a.m!==false;AU.sfx=a.s!==false;}}catch(e){}
-function saveAudio(){try{localStorage.setItem('embervale.audio',JSON.stringify({m:AU.music,s:AU.sfx}));}catch(e){}}
+const AU={ctx:null,music:true,sfx:true,mv:1,sv:1,song:null,want:null,next:0,step:0};
+try{const a=JSON.parse(localStorage.getItem('embervale.audio')||'null');if(a){AU.music=a.m!==false;AU.sfx=a.s!==false;if(a.mv>=0&&a.mv<=1)AU.mv=a.mv;if(a.sv>=0&&a.sv<=1)AU.sv=a.sv;}}catch(e){}
+function saveAudio(){try{localStorage.setItem('embervale.audio',JSON.stringify({m:AU.music,s:AU.sfx,mv:AU.mv,sv:AU.sv}));}catch(e){}}
+// music and effects levels (0..1), each with its own volume slider in Settings
+const musGain=()=>AU.music?.3*AU.mv:0,fxGain=()=>AU.sfx?.6*AU.sv:0;
+function applyVolumes(){if(!AU.ctx)return;const c=AU.ctx;AU.mus.gain.cancelScheduledValues(c.currentTime);AU.mus.gain.setValueAtTime(musGain(),c.currentTime);AU.fx.gain.value=fxGain();}
 const mf=m=>440*Math.pow(2,(m-69)/12);
 const PC={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
 function noteNum(s){const r=/^([A-G])([#b]?)(\d)$/.exec(s);if(!r)return null;return 12*(+r[3]+1)+PC[r[1]]+(r[2]==='#'?1:r[2]==='b'?-1:0);}
@@ -31,8 +34,8 @@ function audioInit(){
   const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
   try{AU.ctx=new AC();}catch(e){return;}
   const c=AU.ctx;AU.master=c.createGain();AU.master.gain.value=.8;AU.master.connect(c.destination);
-  AU.mus=c.createGain();AU.mus.gain.value=AU.music?.3:0;AU.mus.connect(AU.master);
-  AU.fx=c.createGain();AU.fx.gain.value=AU.sfx?.6:0;AU.fx.connect(AU.master);
+  AU.mus=c.createGain();AU.mus.gain.value=musGain();AU.mus.connect(AU.master);
+  AU.fx=c.createGain();AU.fx.gain.value=fxGain();AU.fx.connect(AU.master);
   AU.dly=c.createDelay();AU.dly.delayTime.value=.27;const fb=c.createGain();fb.gain.value=.3;const wet=c.createGain();wet.gain.value=.3;AU.dly.connect(fb);fb.connect(AU.dly);AU.dly.connect(wet);wet.connect(AU.mus);
   const buf=c.createBuffer(1,c.sampleRate,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;AU.noise=buf;
   setInterval(schedMusic,25);
@@ -48,7 +51,7 @@ function noise(o){const c=AU.ctx,t=o.t??c.currentTime;const s=c.createBufferSour
   s.connect(f);f.connect(g);g.connect(o.dest||AU.fx);s.start(t,Math.random()*.5);s.stop(t+o.dur+.02);}
 function musicPlay(id){AU.want=id;if(!AU.ctx||AU.song===SONGS[id])return;const c=AU.ctx;
   AU.song=SONGS[id];AU.step=0;AU.next=c.currentTime+.12;
-  if(AU.music){AU.mus.gain.cancelScheduledValues(c.currentTime);AU.mus.gain.setValueAtTime(0,c.currentTime);AU.mus.gain.linearRampToValueAtTime(.3,c.currentTime+.8);}}
+  if(AU.music){AU.mus.gain.cancelScheduledValues(c.currentTime);AU.mus.gain.setValueAtTime(0,c.currentTime);AU.mus.gain.linearRampToValueAtTime(musGain(),c.currentTime+.8);}}
 function schedMusic(){const c=AU.ctx,s=AU.song;if(!c||!s||!AU.music)return;const sd=60/s.bpm/2;
   if(AU.next<c.currentTime)AU.next=c.currentTime+.02;
   while(AU.next<c.currentTime+.15){musicStep(s,AU.step,AU.next,sd);AU.next+=sd;AU.step=(AU.step+1)%s.len;}}
@@ -100,6 +103,6 @@ function sfx(n){
   }
 }
 function setAudio(music,fxOn){AU.music=music;AU.sfx=fxOn;saveAudio();
-  if(AU.ctx){const c=AU.ctx;AU.mus.gain.cancelScheduledValues(c.currentTime);AU.mus.gain.setValueAtTime(music?.3:0,c.currentTime);AU.fx.gain.value=fxOn?.6:0;if(music){AU.next=c.currentTime+.05;}}
+  if(AU.ctx){applyVolumes();if(music){AU.next=AU.ctx.currentTime+.05;}}
   $('#muteBtn').classList.toggle('on',music||fxOn);$('#muteBtn').textContent=(music||fxOn)?'♪':'×';}
 

@@ -1,7 +1,7 @@
 "use strict";
 /* ================= render ================= */
 const cv=$('#cv');let ctx=cv.getContext('2d');let VW=0,VH=0,DPR=1,camX=0,camY=0,clickMark=null,shakeUntil=0;
-function resize(){DPR=Math.min(2,window.devicePixelRatio||1);VW=cv.clientWidth;VH=cv.clientHeight;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR);}
+function resize(){DPR=window.LITE?1:Math.min(2,window.devicePixelRatio||1);VW=cv.clientWidth;VH=cv.clientHeight;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR);}
 window.addEventListener('resize',resize);
 /* ---------- isometric camera: world stays a flat grid, the screen shows it at an angle ---------- */
 const ISO=.78;

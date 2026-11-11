@@ -298,7 +298,7 @@ window.addEventListener('keydown',ev=>{
   if(k==='e'){togglePanel('emote');return;}
   if(ev.shiftKey&&/^Digit[1-4]$/.test(ev.code)){ev.preventDefault();lowerSlot(+ev.code.slice(5)-1);return;}
   if(k>='1'&&k<='8'){pressSlot(+k-1);return;}
-  if(k==='c')togglePanel('status');else if(k==='i')togglePanel('items');else if(k==='k')togglePanel('skills');else if(k==='h')togglePanel('help');else if(k==='j')togglePanel('quests');else if(k==='g')togglePanel('guild');else if(k==='m')togglePanel('worldmap');
+  if(k==='c')togglePanel('status');else if(k==='i')togglePanel('items');else if(k==='k')togglePanel('skills');else if(k==='h')togglePanel('help');else if(k==='j')togglePanel('quests');else if(k==='g')togglePanel('guild');else if(k==='m')togglePanel('worldmap');else if(k==='o')togglePanel('settings');
   else if(k==='escape'){closePanel();P.target=null;}
   else if(k==='x'&&!P.dead){P.sitting=!P.sitting;P.path=[];P.target=null;}
   else if(k==='tab'){ev.preventDefault();P.holdPos=false;targetNearest(false);}

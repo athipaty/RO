@@ -389,3 +389,25 @@ body.touchui #dock{background:rgba(14,18,26,.97)}
 @media (max-width:1040px){body:not(.touchui) #log{width:min(270px,calc(50vw - 245px))}}
 #panel{background:rgba(14,18,26,.96)}
 #evT{color:var(--accent,#f0b54a);font-weight:600;font-size:11px;margin-top:3px;max-width:200px;margin-inline:auto}
+/* ===== Stage 7: settings window ===== */
+.setlist{display:flex;flex-direction:column;gap:2px}
+.setrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.setrow .ds{font-size:11.5px;color:var(--muted)}
+.setrow input[type=range]{width:110px;accent-color:var(--accent,#f0b54a)}
+.setrow input[type=range]:disabled{opacity:.35}
+.setrow .val{width:36px;text-align:right;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tgl{position:relative;width:40px;height:22px;flex:none;border-radius:11px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);cursor:pointer;padding:0;transition:background .15s}
+.tgl i{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#cfd5e0;transition:transform .15s}
+.tgl.on{background:linear-gradient(135deg,#f0b54a,#ff7a45);border-color:transparent}.tgl.on i{transform:translateX(18px);background:#fff}
+.tgl:focus-visible,.seg button:focus-visible{outline:2px solid var(--accent,#f0b54a);outline-offset:2px}
+.seg{display:flex;border:1px solid rgba(255,255,255,.14);border-radius:9px;overflow:hidden;flex:none}
+.seg button{border:0;background:transparent;color:var(--muted);padding:5px 10px;font:600 12px Inter,var(--ui);cursor:pointer}
+.seg button+button{border-left:1px solid rgba(255,255,255,.1)}
+.seg button.on{background:rgba(240,181,74,.16);color:var(--accent,#f0b54a)}
+.keylist{grid-template-columns:1fr}
+@media (prefers-reduced-motion:reduce){.tgl,.tgl i{transition:none}}
+/* interface size */
+body.ui-s :is(#hud,#minibox,#hotbar,#dock,#log,#actions,#partyBox,#target,#onlineBadge){zoom:.88}
+body.ui-l :is(#hud,#minibox,#hotbar,#dock,#log,#actions,#partyBox,#target,#onlineBadge){zoom:1.15}
+body.ui-l #panel{zoom:1.1}
+.setrow .grow{flex:1;min-width:0}.keylist span:first-child{color:var(--ink);font-weight:600}.keylist span:last-child{color:var(--muted)}

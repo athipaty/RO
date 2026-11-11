@@ -43,7 +43,7 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 - [ ] Guild-versus-guild territory event
 
 ## Stage 7: Polish and launch
-- [ ] Phone performance, settings menu, key remapping
+- [x] Phone performance, settings menu, key remapping (v0.40.0: Settings window with volumes, interface size, performance mode and key remapping)
 - [ ] Moderation: report, mute, admin panel
 - [ ] Error logging, backups, hosting cost review
 - [ ] Public landing page
