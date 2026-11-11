@@ -39,7 +39,7 @@ const SERVER=(()=>{const s=new URLSearchParams(location.search).get('server');re
 function serverRoom(){
   return (window.io?Promise.resolve():loadScript('https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js')).then(()=>new Promise((res,rej)=>{
     const sock=io(SERVER+'/embervale',{transports:['websocket'],auth:{token:ACC.token||undefined},reconnectionDelayMax:8000});
-    socialAttach(sock);if(typeof guildAttach==='function')guildAttach(sock);
+    socialAttach(sock);if(typeof guildAttach==='function')guildAttach(sock);if(typeof modAttach==='function')modAttach(sock);
     const seen=new Map();let cb=null,last=null,ready=false; // peer id -> latest {peer,presence,guest}
     const fail=setTimeout(()=>{if(!ready){ready=true;sock.close();rej(new Error('timeout'));}},9000);
     // players already in the channel arrive before the game listens, so hand them over when it does
@@ -60,19 +60,24 @@ function serverRoom(){
     sock.on('wboss',m=>{if(m&&typeof m==='object'&&typeof onWorldBoss==='function')onWorldBoss(m);});
     sock.on('left',p=>{if(cb&&p&&seen.delete(p.peer))cb({joined:[],updated:[],left:[{peer:p.peer}]});});
     sock.on('disconnect',()=>{if(ready){NET.status='connecting';updateWho();}});
-    sock.on('connect_error',()=>{if(!ready){ready=true;clearTimeout(fail);sock.close();rej(new Error('connect failed'));}});
+    // a banned account is turned away with a message; it does not fall back to the public broker
+    sock.on('connect_error',err=>{const msg=String(err&&err.message||'');
+      if(msg.startsWith('banned:')){sock.close();const e=new Error(msg.slice(7).trim());e.banned=true;if(!ready){ready=true;clearTimeout(fail);rej(e);}else if(typeof modNotice==='function')modNotice('Account banned',e.message);return;}
+      if(!ready){ready=true;clearTimeout(fail);sock.close();rej(new Error('connect failed'));}});
   }));
 }
 function netConnect(tries=0){
+  // wait until every script has loaded, so each module (guilds, reports...) can hook into the connection
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',()=>netConnect(tries),{once:true});return;}
   if(!window.claude?.use){
     let framed=true;try{framed=window.top!==window;}catch(e){}
     if(framed&&tries<12){setTimeout(()=>netConnect(tries+1),500);return;}
     NET.relay=true;NET.status='connecting';$('#online').textContent='Connecting…';updateWho();
-    serverRoom().catch(()=>{NET.viaBroker=true;return mqttRoom();}).then(room=>{NET.room=room;
+    serverRoom().catch(e=>{if(e&&e.banned)throw e;NET.viaBroker=true;return mqttRoom();}).then(room=>{NET.room=room;
       room.onPeers(ch=>{
         for(const p of ch.left){const o=NET.others.get(p.peer);if(o&&o.n)addLog(`${o.n} left.`);NET.others.delete(p.peer);}
         for(const p of ch.joined)ingest(p);for(const p of ch.updated)ingest(p);updateOnline();});
-      NET.status='online';updateOnline();NET.lastSent='';}).catch(()=>{NET.relay=false;NET.status='offline';updateOnline();});
+      NET.status='online';updateOnline();NET.lastSent='';}).catch(e=>{NET.relay=false;NET.status='offline';updateOnline();if(e&&e.banned&&typeof modNotice==='function')modNotice('Account banned',e.message);});
     return;}
   window.claude.use('room').then(room=>{
     if(!room){updateOnline();return;}
@@ -132,6 +137,7 @@ function updateWho(){
       if(o.vd)mk('Shop',()=>soc('vendView',{peer}));else if(o.z===zoneId)mk('Trade',()=>soc('tradeRequest',{peer}));
       if(!P.friends.some(f=>f.toLowerCase()===String(name).toLowerCase()))mk('+ Friend',()=>{friendToggle(name,true);updateWho();});
       if(typeof isMuted==='function')mk(isMuted(name)?'Unmute':'Mute',()=>{muteToggle(name,!isMuted(name));updateWho();});
+      if(typeof reportOpen==='function')mk('Report',()=>reportOpen(peer,name));
       d.appendChild(bs);}
     list.appendChild(d);};
   if(P)row(P.name,{cls:P.cls,lv:P.lv,z:zoneId,guild:typeof myGuildTag==='function'?myGuildTag():null},true);
@@ -155,7 +161,7 @@ function sendChat(raw){
   if(!NET.room&&!NET.warned){NET.warned=true;addLog('Nobody else can hear you here. Open the shared Embervale page to chat with other players.');}
 }
 const CMD_HELP=[['/help','this list'],['/where','your region, position and channel'],['/who','who is online and where'],['/sit, /stand','sit down or get up'],
-  ['/exp','your EXP per hour'],['/w Name text, /r text','whisper, reply'],['/invite Name, /p text, /leave, /kick Name','party'],['/friend Name, /unfriend Name, /friends','friends'],['/trade Name, /shop','trade, open a shop'],['/mute Name, /unmute Name, /muted','hide chat, emotes and requests from a player'],['/roll','roll a number from 1 to 100 for everyone to see'],['/emotes','list emotes (e.g. /heart, /gg)'],['/clear','clear this log']];
+  ['/exp','your EXP per hour'],['/w Name text, /r text','whisper, reply'],['/invite Name, /p text, /leave, /kick Name','party'],['/friend Name, /unfriend Name, /friends','friends'],['/trade Name, /shop','trade, open a shop'],['/mute Name, /unmute Name, /muted','hide chat, emotes and requests from a player'],['/report Name','tell the admins about a player'],['/roll','roll a number from 1 to 100 for everyone to see'],['/emotes','list emotes (e.g. /heart, /gg)'],['/clear','clear this log']];
 function chatCommand(k,arg){
   if(k==='help'||k==='?'||k==='h'){addLog('Commands: '+CMD_HELP.map(([c,d])=>`${c} (${d})`).join(' · '));return true;}
   if(k==='where'){addLog(`You are in ${Z.D.name} at (${Math.round(P.x/TILE)}, ${Math.round(P.y/TILE)})`+(NET.channel?`, channel ${NET.channel}`:'')+(ROOM?`, room "${ROOM}"`:'')+'.');return true;}

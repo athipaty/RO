@@ -411,3 +411,19 @@ body.ui-s :is(#hud,#minibox,#hotbar,#dock,#log,#actions,#partyBox,#target,#onlin
 body.ui-l :is(#hud,#minibox,#hotbar,#dock,#log,#actions,#partyBox,#target,#onlineBadge){zoom:1.15}
 body.ui-l #panel{zoom:1.1}
 .setrow .grow{flex:1;min-width:0}.keylist span:first-child{color:var(--ink);font-weight:600}.keylist span:last-child{color:var(--muted)}
+
+/* ===== Stage 7: reports and admin ===== */
+.rptreasons{display:flex;flex-wrap:wrap;gap:6px}
+.rptreasons .btn.on{background:rgba(240,181,74,.16);color:var(--accent,#f0b54a);border-color:rgba(240,181,74,.5)}
+.modcard{border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin:8px 0;background:rgba(255,255,255,.02)}
+.modcard .mhead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.modcard .mt{margin-left:auto;font-size:11.5px}
+.modcard .mnote{margin:6px 0;font-style:italic}
+.modcard .mchat{margin:6px 0;padding:6px 8px;border-radius:6px;background:#0c1016;font-size:12px;max-height:150px;overflow:auto}
+.modcard .mchat .muted{display:inline-block;width:52px;font-size:11px}
+.pill{display:inline-block;padding:1px 7px;border-radius:9px;font-size:11px;font-weight:600;background:rgba(240,181,74,.16);color:var(--accent,#f0b54a)}
+.pill.bad{background:rgba(255,99,99,.16);color:#ff8a8a}
+.btn.bad{background:#a8322d;border-color:#d0463f;color:#fff}
+#adminBtn{position:relative}#adminBtn .badge{position:absolute;top:2px;right:6px;min-width:16px;height:16px;border-radius:8px;background:#e5484d;color:#fff;font:700 10px/16px Inter,var(--ui);font-style:normal;text-align:center;padding:0 3px}
+#modNotice{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(5,7,10,.78)}
+#modNotice[hidden]{display:none}
+#modNotice .card{padding:22px 26px;text-align:center;max-width:340px}
