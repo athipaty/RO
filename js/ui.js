@@ -366,7 +366,7 @@ function refreshTitle(){
   const inAcct=!!ACC.token;$('#acOut').hidden=!inAcct;$('#acIn').hidden=inAcct;$('#acNote').hidden=inAcct;
   if(inAcct)$('#acName').textContent=ACC.username;
   $('#acImport').hidden=!(inAcct&&ACC.loaded&&!ACC.cloud&&loadSave());
-  const s=currentSave(),c=$('#contBtn');c.hidden=!s;
+  const s=currentSave(),c=$('#contBtn');c.hidden=!s;$('#newBtn').classList.toggle('primary',!s);$('#newBtn').classList.toggle('ghost',!!s);
   if(s)c.textContent=`Continue as ${String(s.p.name).slice(0,16)} (Lv ${Math.floor(+s.p.lv)||1})`;
   $('#newBtn').disabled=inAcct&&!ACC.loaded;$('#contBtn').disabled=inAcct&&!ACC.loaded;}
 async function accountSubmit(kind){

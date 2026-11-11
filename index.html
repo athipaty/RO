@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Embervale</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700&family=Alegreya+Sans:wght@400;500;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700&family=Alegreya+Sans:wght@400;500;700;800&family=Inter:wght@400;500;600;800&display=swap">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -75,44 +75,55 @@
 <form id="chatbar" class="frame" hidden><input id="chatIn" maxlength="120" placeholder="Say something to everyone online" autocomplete="off" enterkeyhint="send" aria-label="Chat message"><button class="btn" type="submit">Send</button></form>
 
 <div id="title" class="overlay">
-  <div class="card frame">
-    <h1>Embervale</h1>
-    <p class="tag">Leave Hearthvale with a club and a cotton tunic. Hunt across five regions, take up a calling, and go after the Ashen Warlord in the Cinder Crypt.</p>
-    <div id="acct">
-      <div id="acOut" hidden>Signed in as <b id="acName"></b> · <button class="btn small" id="acLogout">Log out</button></div>
-      <form id="acIn" autocomplete="on">
-        <input id="acUser" maxlength="16" placeholder="Username" autocomplete="username" aria-label="Username">
-        <input id="acPass" type="password" maxlength="100" placeholder="Password" autocomplete="current-password" aria-label="Password">
-        <button class="btn small" id="acLogin" type="submit">Log in</button>
-        <button class="btn small" id="acReg" type="button">Create account</button>
-      </form>
-      <div class="acNote" id="acNote">Log in to keep your character on the server and play from any device, or just play as a guest (saved on this device only).</div>
-      <button class="btn small" id="acImport" hidden>Move my guest character to this account</button>
-      <div class="acMsg" id="acMsg" role="status"></div>
-    </div>
-    <input id="nameIn" maxlength="16" placeholder="Name your adventurer" value="Wanderer" aria-label="Adventurer name">
-    <div id="creator">
-      <canvas id="lookCv" width="240" height="240" aria-label="Preview of your adventurer"></canvas>
-      <div class="lk">
-        <div class="lkrow"><span>Hair</span><button class="btn small" data-style="-1" aria-label="Previous hairstyle">◀</button><b id="lkStyle"></b><button class="btn small" data-style="1" aria-label="Next hairstyle">▶</button></div>
-        <div class="lkrow"><span>Color</span><div class="sw" id="swHair"></div></div>
-        <div class="lkrow"><span>Eyes</span><div class="sw" id="swEye"></div></div>
-        <div class="lkrow"><span>Skin</span><div class="sw" id="swSkin"></div></div>
-        <button class="btn small" id="lkRand">Surprise me</button>
-      </div>
-    </div>
-    <div class="btns">
-      <button class="btn" id="newBtn">New adventure</button>
-      <button class="btn" id="contBtn" hidden>Continue</button>
-    </div>
-    <div class="keys">
-      <b>Click</b> the ground to walk · <b>click</b> a monster to attack · <b>click</b> a townsperson to talk<br>
-      <b>WASD</b> move · <b>1–4</b> skills · <b>5–8</b> tonics &amp; scrolls · <b>Tab</b> nearest foe<br>
-      <b>F1–F8</b> hotbar · <b>Insert</b> sit · <b>Alt+E / S / A</b> items, skills, stats · <b>click</b> dropped loot to pick it up<br>
-      <b>C</b> stats · <b>I</b> items · <b>K</b> skills · <b>X</b> sit to rest · <b>Enter</b> chat · <b>E</b> emotes · <b>Esc</b> close<br>
-      On a phone: tap to walk and attack, and use the round buttons on the right.
-    </div>
-    <div class="ver" id="verT"></div>
+  <div class="t-shell">
+    <header class="t-top">
+      <div class="t-brand"><span class="t-mark" aria-hidden="true"></span><h1>Embervale</h1></div>
+      <div class="ver" id="verT"></div>
+    </header>
+    <main class="t-main">
+      <section class="t-stage" aria-label="Your adventurer">
+        <div class="t-glow" aria-hidden="true"></div>
+        <canvas id="lookCv" width="240" height="240" aria-label="Preview of your adventurer"></canvas>
+        <label class="t-name"><span>Name</span><input id="nameIn" maxlength="16" placeholder="Name your adventurer" value="Wanderer" aria-label="Adventurer name"></label>
+        <p class="tag">Leave Hearthvale with a club and a cotton tunic. Hunt across five regions, take up a calling, and go after the Ashen Warlord in the Cinder Crypt.</p>
+      </section>
+      <section class="t-panel">
+        <div id="acct" class="t-sec">
+          <h2>Account</h2>
+          <div id="acOut" hidden>Signed in as <b id="acName"></b> <button class="btn small ghost" id="acLogout">Log out</button></div>
+          <form id="acIn" autocomplete="on">
+            <input id="acUser" maxlength="16" placeholder="Username" autocomplete="username" aria-label="Username">
+            <input id="acPass" type="password" maxlength="100" placeholder="Password" autocomplete="current-password" aria-label="Password">
+            <div class="t-row"><button class="btn small" id="acLogin" type="submit">Log in</button><button class="btn small ghost" id="acReg" type="button">Create account</button></div>
+          </form>
+          <div class="acNote" id="acNote">Log in to keep your character on the server and play from any device, or just play as a guest (saved on this device only).</div>
+          <button class="btn small ghost" id="acImport" hidden>Move my guest character to this account</button>
+          <div class="acMsg" id="acMsg" role="status"></div>
+        </div>
+        <div id="creator" class="t-sec">
+          <h2>Appearance</h2>
+          <div class="lk">
+            <div class="lkrow"><span>Hair</span><div class="t-step"><button class="btn small ghost" data-style="-1" aria-label="Previous hairstyle">◀</button><b id="lkStyle"></b><button class="btn small ghost" data-style="1" aria-label="Next hairstyle">▶</button></div></div>
+            <div class="lkrow"><span>Color</span><div class="sw" id="swHair"></div></div>
+            <div class="lkrow"><span>Eyes</span><div class="sw" id="swEye"></div></div>
+            <div class="lkrow"><span>Skin</span><div class="sw" id="swSkin"></div></div>
+          </div>
+          <button class="btn small ghost" id="lkRand">Surprise me</button>
+        </div>
+        <div class="btns">
+          <button class="btn primary" id="contBtn" hidden>Continue</button>
+          <button class="btn primary" id="newBtn">New adventure</button>
+        </div>
+        <details class="keys">
+          <summary>Controls</summary>
+          <div><b>Click</b> the ground to walk · <b>click</b> a monster to attack · <b>click</b> a townsperson to talk<br>
+          <b>WASD</b> move · <b>1–4</b> skills · <b>5–8</b> tonics &amp; scrolls · <b>Tab</b> nearest foe<br>
+          <b>F1–F8</b> hotbar · <b>Insert</b> sit · <b>Alt+E / S / A</b> items, skills, stats · <b>click</b> dropped loot to pick it up<br>
+          <b>C</b> stats · <b>I</b> items · <b>K</b> skills · <b>M</b> map · <b>X</b> sit · <b>Enter</b> chat · <b>E</b> emotes · <b>Esc</b> close<br>
+          On a phone: tap to walk and attack, and use the round buttons on the right.</div>
+        </details>
+      </section>
+    </main>
   </div>
 </div>
 
