@@ -213,7 +213,7 @@ function enterZone(id,from){
   {const b=mobs.find(m=>m.d.boss);if(b)addLog(b.d.id==='warlord'?'The ground smoulders. The Ashen Warlord stirs somewhere in this crypt.':b.d.mini?`The ${b.d.name} and its pack roam this region.`:`Something stirs on this floor. The ${b.d.name} is here.`,'l-rare');}
   let pos=Z.spawn;
   if(from){const pt=Z.portals.find(p=>p.to===from);if(pt)pos=pt.side==='down'?{x:pt.x,y:pt.y-2.4*TILE}:{x:pt.x+(pt.side==='west'?2.6:-2.6)*TILE,y:pt.y};}
-  P.casting=null;P.x=pos.x;P.y=pos.y;P.path=[];P.target=null;P.queued=null;P.npcGoal=null;P.portalLock=now+.6;
+  P.casting=null;P.meleeHit=null;P.x=pos.x;P.y=pos.y;P.path=[];P.target=null;P.queued=null;P.npcGoal=null;P.portalLock=now+.6;
   if(!P.visited.includes(id))P.visited.push(id);
   if(from)sfx('portal');musicPlay(Z.D.music||id);
   $('#zName').textContent=Z.D.name;$('#zLv').textContent=Z.D.lvl;
@@ -276,15 +276,20 @@ function update(dt){
     if(!s.hostile&&tg.dead){shots.splice(i,1);continue;}
     const tx=tg.x,ty=tg.y-10,dx=tx-s.x,dy=ty-s.y,d=Math.hypot(dx,dy),st=s.spd*dt;
     if(d<=st+4){shots.splice(i,1);s.onHit();}else{s.x+=dx/d*st;s.y+=dy/d*st;s.ang=Math.atan2((dx+dy)/2,dx-dy);}}
+  meleeImpact();
   updateFx();
 }
 function basicAttack(t){
-  const c=CLASSES[P.cls];P.swingT=now;P.swingDur=clamp(S.delay*.45,.1,.28);
+  const c=CLASSES[P.cls];P.swingT=now;P.swingDur=clamp(S.delay*.55,.16,.34);
   if(c.magic){sfx('cast');shoot(P,t,'orb','#b8a0ff',()=>dealMag(t,.85));}
   else if(S.range>100){sfx('bow');shoot(P,t,'arrow','#e8dcb0',()=>dealPhys(t,1));}
   else{P.swingT=now;const dx=t.x-P.x,dy=t.y-P.y,sx=(dx-dy)*ISO,sy=(dx+dy)*ISO/2,n=Math.hypot(sx,sy)||1;P.lgX=sx/n;P.lgY=sy/n;P.lungeT=now;
-    fx.push({k:'slash',x:t.x,y:t.y,t0:now,dur:.2});dealPhys(t,1);}
+    if(P.meleeHit)meleeImpact(true);P.meleeHit={t,at:now+P.swingDur*SWING_HIT};}
 }
+// melee: wind up, strike, follow through; the blow lands when the weapon comes down (SWING_HIT of the swing)
+const SWING_HIT=.42;
+function meleeImpact(force){const h=P.meleeHit;if(!h||(!force&&now<h.at))return;P.meleeHit=null;const t=h.t;if(!t||t.dead)return;
+  fx.push({k:'slash',x:t.x,y:t.y,t0:now,dur:.22,f:P.face});fx.push({k:'impact',x:t.x,y:t.y-(t.d?t.d.size*.8:14),t0:now,dur:.2});hitStop(.03);dealPhys(t,1);}
 function mobTargets(){const t=[];if(P&&!P.dead&&!Z.D.safe)t.push(P);
   if(NET.room&&!Z.D.safe)for(const o of NET.others.values())if(o.z===zoneId&&!o.dead&&o.id)t.push(o);return t;}
 function callMinions(m,fxOnly){if(!fxOnly)for(const o of mobs)if(o.lead===m.d.id&&o.dead){spawnMob(o.d.id,o);o.state='chase';o.aggroed=true;}

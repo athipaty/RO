@@ -303,10 +303,19 @@ function drawHat(id,x,hy,f){
 }
 function drawOther(o){const atk=o.atkFaceT&&now-o.atkFaceT<.4;
   drawPlayer({name:o.n,look:o.look,x:o.rx,y:o.ry,cls:o.cls,face:atk?o.atkFace:o.face,moving:o.moving,walkT:o.walkT,sitting:o.sitting,hat:o.hat,armor:o.ar||null,back:o.back,swingT:o.swingT,swingDur:o.swingDur,lungeT:o.lungeT,lgX:o.lgX,lgY:o.lgY},o.wid);}
+// where a melee swing is at: p from 0 (start) to 1 (end), or -1 when not swinging; follow-through runs a little past 1
+function swingPhase(P){const sd=P.swingDur||.22;return P.swingT&&now-P.swingT<sd*1.25?(now-P.swingT)/sd:-1;}
+const ease3=k=>k*k*(3-2*k),easeOut=k=>1-(1-k)**3;
 function drawPlayer(P,wid){
-  const lg=P.lungeT&&now-P.lungeT<.2?Math.sin((now-P.lungeT)/.2*Math.PI)*7:0,hr=P.hurtT&&now-P.hurtT<.2?Math.sin((now-P.hurtT)/.2*Math.PI*3)*2.5:0;
-  if(!lg&&!hr)return drawPlayerBody(P,wid);
-  ctx.save();ctx.translate((P.lgX||0)*lg+hr,(P.lgY||0)*lg);drawPlayerBody(P,wid);ctx.restore();}
+  const w=wid?ITEMS[wid]:null,melee=!w||(w.wt!=='bow'&&w.wt!=='wand'),p=swingPhase(P),body=melee&&p>=0&&P.lungeT&&Math.abs(P.lungeT-P.swingT)<.05;
+  let push=0,lean=0;
+  // wind up (lean back), strike (step in and lean into it), recover
+  if(body){if(p<.3){const k=ease3(p/.3);push=-3*k;lean=-.1*k;}else if(p<.55){const k=easeOut((p-.3)/.25);push=-3+15*k;lean=-.1+.26*k;}else{const k=ease3(Math.min(1,(p-.55)/.7));push=12*(1-k);lean=.16*(1-k);}}
+  const lg=!body&&P.lungeT&&now-P.lungeT<.2?Math.sin((now-P.lungeT)/.2*Math.PI)*7:0,hr=P.hurtT&&now-P.hurtT<.2?Math.sin((now-P.hurtT)/.2*Math.PI*3)*2.5:0;
+  if(!lg&&!hr&&!push&&!lean)return drawPlayerBody(P,wid);
+  ctx.save();ctx.translate((P.lgX||0)*(lg+push)+hr,(P.lgY||0)*(lg+push));
+  if(lean){ctx.translate(P.x,P.y);ctx.rotate(lean*(P.face||1));ctx.translate(-P.x,-P.y);}
+  drawPlayerBody(P,wid);ctx.restore();}
 function drawPlayerBody(P,wid){
   const c=CLASSES[P.cls],w=wid?ITEMS[wid]:null;
   const hat=P.hat!==undefined?P.hat:(P.eq&&P.eq.head?P.eq.head.id:null);
@@ -314,10 +323,16 @@ function drawPlayerBody(P,wid){
   drawJobMantle(c,P.x,P.y+(P.sitting?6:0),P.face,!!P.back);
   if(baseOf(P.cls)==='warden'){ctx.fillStyle='#9aa0aa';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(P.x-P.face*13-5,by-14,10,14,3);ctx.fill();ctx.stroke();ctx.fillStyle='#e8c25a';ctx.beginPath();ctx.arc(P.x-P.face*13,by-7,2,0,7);ctx.fill();}
   if(!w)return;
-  const sd=P.swingDur||.2,sw=P.swingT&&now-P.swingT<sd?(now-P.swingT)/sd:0;
-  // held low at the side, tilted forward and away from the face; a swing lifts it briefly, then strikes down
-  const ang=sw?(sw<.3?.6-sw/.3*.7:-.1+(sw-.3)/.7*1.9):.6;
-  ctx.save();ctx.translate(P.x+P.face*11,by-3);ctx.scale(P.face,1);ctx.rotate(ang);
+  const sd=P.swingDur||.2,sw=P.swingT&&now-P.swingT<sd?(now-P.swingT)/sd:0,ranged=w.wt==='bow'||w.wt==='wand',p=swingPhase(P);
+  // held low at the side, tilted forward. Ranged: a small lift. Melee: raised over the shoulder, a fast arc down, then back.
+  let ang=sw?(sw<.3?.6-sw/.3*.7:-.1+(sw-.3)/.7*1.9):.6,lift=0;
+  if(!ranged&&p>=0){if(p<.3){const k=ease3(p/.3);ang=.6-1.6*k;lift=k;}else if(p<.55){const k=easeOut((p-.3)/.25);ang=-1+3.15*k;lift=1-k;}else{const k=ease3(Math.min(1,(p-.55)/.7));ang=2.15-1.55*k;}}
+  ctx.save();ctx.translate(P.x+P.face*(11-lift*15),by-3-lift*9);ctx.scale(P.face,1);
+  // the smear the blade leaves behind as it comes down
+  if(!ranged&&p>=.3&&p<.8&&ang>.1){const al=p<.55?1:1-(p-.55)/.25,a1=ang-Math.PI/2,a0=Math.max(-.15,ang-2.2)-Math.PI/2,R=w.wt==='sword'||w.wt==='axe'?27:22;
+    ctx.fillStyle=`rgba(255,246,220,${.5*al})`;ctx.beginPath();ctx.arc(0,0,R,a0,a1);ctx.arc(0,0,R*.45,a1,a0,true);ctx.closePath();ctx.fill();
+    ctx.fillStyle=`rgba(255,255,255,${.75*al})`;ctx.beginPath();ctx.arc(0,0,R+1,Math.max(a0,a1-.7),a1);ctx.arc(0,0,R*.8,a1,Math.max(a0,a1-.7),true);ctx.closePath();ctx.fill();}
+  ctx.rotate(ang);
   ctx.lineCap='round';
   if(w.wt==='bow'){ctx.rotate(-ang);ctx.strokeStyle='#8a5a2a';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,0,13,-1.3,1.3);ctx.stroke();ctx.strokeStyle='#eee';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(Math.cos(-1.3)*13,Math.sin(-1.3)*13);ctx.lineTo(Math.cos(1.3)*13,Math.sin(1.3)*13);ctx.stroke();}
   else if(w.wt==='wand'){ctx.strokeStyle='#6b4a2a';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,4);ctx.lineTo(0,-18);ctx.stroke();ctx.fillStyle=`hsl(${260+Math.sin(now*4)*20},80%,70%)`;ctx.beginPath();ctx.arc(0,-20,4,0,7);ctx.fill();}
@@ -425,7 +440,11 @@ function drawFx(){
       case 'ring':ctx.strokeStyle=f.col;ctx.globalAlpha=1-a;ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(f.x,f.y,f.r*(.4+.6*a),f.r*(.4+.6*a)*.6,0,0,7);ctx.stroke();ctx.globalAlpha=1;break;
       case 'nova':ctx.globalAlpha=(1-a)*.6;ctx.fillStyle='#bfe8ff';ctx.beginPath();ctx.ellipse(f.x,f.y,f.r*a,f.r*a*.6,0,0,7);ctx.fill();ctx.globalAlpha=1;
         ctx.fillStyle='#e8f8ff';for(let k=0;k<10;k++){const ang=k/10*Math.PI*2;ctx.fillRect(f.x+Math.cos(ang)*f.r*a-2,f.y+Math.sin(ang)*f.r*a*.6-6,4,10);}break;
-      case 'slash':ctx.strokeStyle=`rgba(255,240,200,${1-a})`;ctx.lineWidth=5;ctx.beginPath();ctx.arc(f.x,f.y-14,22,-2.4+a*1.5,-.6+a*1.5);ctx.stroke();break;
+      case 'slash':{const s=f.f===-1?-1:1;ctx.save();ctx.translate(f.x,f.y-16);ctx.scale(s,1);ctx.lineCap='round';
+        ctx.strokeStyle=`rgba(255,236,190,${(1-a)*.9})`;ctx.lineWidth=7*(1-a)+1;ctx.beginPath();ctx.arc(0,0,20+a*6,-2.2+a*1.2,-.2+a*1.2);ctx.stroke();
+        ctx.strokeStyle=`rgba(255,255,255,${1-a})`;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,17+a*6,-2+a*1.2,-.4+a*1.2);ctx.stroke();ctx.restore();break;}
+      case 'impact':{ctx.fillStyle=`rgba(255,255,255,${(1-a)*.95})`;ctx.beginPath();for(let k=0;k<16;k++){const r=k%2?3+a*5:8+a*20,an=k/16*Math.PI*2+.2;ctx.lineTo(f.x+Math.cos(an)*r,f.y+Math.sin(an)*r*.8);}ctx.closePath();ctx.fill();
+        ctx.strokeStyle=`rgba(255,220,150,${(1-a)*.8})`;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(f.x,f.y,10+a*26,(10+a*26)*.6,0,0,7);ctx.stroke();break;}
       case 'bolt':{ctx.strokeStyle=`rgba(220,200,255,${1-a})`;ctx.lineWidth=3;ctx.shadowColor='#c8b0ff';ctx.shadowBlur=12;ctx.beginPath();let bx=f.x,by=f.y-200;ctx.moveTo(bx,by);
         for(let k=0;k<6;k++){bx+=rnd(-12,12);by+=33;ctx.lineTo(bx,by);}ctx.stroke();ctx.shadowBlur=0;break;}
       case 'arrowfall':{const y=f.y-90*(1-a);ctx.strokeStyle='#e8dcb0';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(f.x,y-14);ctx.lineTo(f.x,y);ctx.stroke();break;}
