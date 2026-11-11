@@ -128,6 +128,7 @@ function refreshPanel(){
     <b>Levels:</b> base levels give stat points (C). Job levels give skill points (K). At Job Lv 10, talk to Guildmaster Corvin to become a Warden, Arcanist, Ranger or Cleric.<br>
     <b>Sigils:</b> every monster has a small chance to drop its sigil. Socket it into equipment with a free slot to gain its bonus for good.<br>
     <b>Resting:</b> press X to sit and recover HP and SP faster.<br>
+    <b>Following:</b> press Follow next to a party member in the party box (or /follow Name) to walk behind them, through gates too. Click the ground, move or attack to stop.<br>
     <b>Duels:</b> challenge someone in the same region with the Duel button in the online list or /duel Name. After a 3-second countdown, click them to fight. The first to fall to 1 HP loses; nobody dies or loses EXP.<br>
     <b>Monster box:</b> the box at the top shows your target's name and HP; + shows its level, element, drops and an Info button.<br>
     <b>Status box:</b> the − button in its corner (or B) shrinks it to just your name, HP and SP; + brings it back.<br>

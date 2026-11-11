@@ -30,7 +30,7 @@ button{font:inherit;color:inherit}
 #party{color:var(--jexp);margin-top:2px}#quest{color:#e8d7a6;margin-top:2px}
 #partyBox{position:fixed;left:max(10px,env(safe-area-inset-left));top:calc(max(10px,env(safe-area-inset-top)) + 200px);width:230px;padding:6px 8px;font-size:12px;z-index:2;box-sizing:border-box}
 .phd{display:flex;align-items:center;gap:4px;margin-bottom:4px}.phd .pt{flex:1;color:var(--jexp);font-weight:800}
-.pmr{display:grid;grid-template-columns:1fr 54px auto auto;gap:6px;align-items:center;padding:2px 0}
+.pmr{display:grid;grid-template-columns:1fr 54px auto auto auto;gap:6px;align-items:center;padding:2px 0}
 .pn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pz{color:var(--muted);font-size:11px}
 .ph{display:block;height:6px;border:1px solid #000;border-radius:3px;background:linear-gradient(90deg,#62bf86 var(--hp,100%),#0b0e13 var(--hp,100%))}
 #invite{position:fixed;top:calc(max(10px,env(safe-area-inset-top)) + 44px);left:50%;transform:translateX(-50%);z-index:6;padding:8px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100vw - 24px)}

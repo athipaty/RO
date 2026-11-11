@@ -126,6 +126,7 @@ function updateWho(){
       const mk=(label,fn)=>{const b=document.createElement('button');b.className='btn small';b.type='button';b.textContent=label;b.addEventListener('click',ev=>{ev.stopPropagation();fn();});bs.appendChild(b);};
       if(!inParty(peer)&&(!SOC.party||SOC.party.leader===selfPeer()))mk('Invite',()=>soc('partyInvite',{peer}));
       if(typeof canInvite==='function'&&canInvite()&&!o.guild&&!o.guest)mk('Guild',()=>gsoc('guildInvite',{peer}));
+      if(inParty(peer)&&typeof followStart==='function')mk(following(peer)?'Stop':'Follow',()=>{if(following(peer))followStop(`You stopped following ${name}.`);else followStart(peer);updateWho();});
       mk('Whisper',()=>{openChat();$('#chatIn').value=`/w ${name} `;});
       if(o.z===zoneId&&typeof duelChallenge==='function'&&!DUEL)mk('Duel',()=>duelChallenge(peer));
       if(o.vd)mk('Shop',()=>soc('vendView',{peer}));else if(o.z===zoneId)mk('Trade',()=>soc('tradeRequest',{peer}));
@@ -209,8 +210,11 @@ function netSnap(o,ts,jump){const t=Date.now(),st=ts>0?ts:t; // positions are ke
   else if(st-last.t>300&&(last.x!==o.x||last.y!==o.y))b.push({t:st-110,x:last.x,y:last.y}); // starting to walk after standing still: ease in
   if(last&&st<=last.t)return;b.push({t:st,x:o.x,y:o.y});if(b.length>20)b.splice(0,b.length-20);}
 function netPos(o){const b=o.buf;if(!b||!b.length)return [o.x,o.y];
-  const want=o.dTarget||NET_DELAY;o.delay=o.delay===undefined?want:o.delay+(want-o.delay)*.02; // drift, never jump
+  // if we ever run out of positions while they walk, grow the delay by the shortfall at once, then let it shrink slowly
+  o.bump=(o.bump||0)*.995;
+  const want=Math.min(700,(o.dTarget||NET_DELAY)+o.bump);o.delay=o.delay===undefined?want:o.delay+(want-o.delay)*(want>o.delay?.2:.02);
   const rt=Date.now()-(o.off||0)-o.delay;
+  {const l=b[b.length-1],p=b[b.length-2];if(p&&rt>l.t+20&&(l.x!==p.x||l.y!==p.y)&&rt-l.t<600)o.bump=Math.min(400,o.bump+(rt-l.t)*.5);}
   if(rt<=b[0].t)return [b[0].x,b[0].y];
   for(let i=b.length-1;i>0;i--){const a=b[i-1],c=b[i];if(rt>=a.t&&rt<=c.t){if(Math.hypot(c.x-a.x,c.y-a.y)>300)return [c.x,c.y];const k=(rt-a.t)/Math.max(1,c.t-a.t);return [a.x+(c.x-a.x)*k,a.y+(c.y-a.y)*k];}}
   const l=b[b.length-1],p=b[b.length-2];

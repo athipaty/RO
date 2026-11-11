@@ -17,7 +17,7 @@ module.exports = async t => {
       await new Promise(res => { const t0 = Date.now(); const f = () => { const tm = Date.now(); xs.push([tm, netPos(o)[0]]); if (tm - t0 < 4200) setTimeout(f, 20); else res(); }; f(); });
       return xs; });
     await walk;
-    if (process.env.SMOOTH_DEBUG) console.log('   timeline', JSON.stringify(await B.ev(() => { const o = [...NET.others.values()].find(o => o.n === 'Walker'); return { off: Math.round(o.off), offMin: Math.round(o.offMin), gaps: o.buf.slice(-20).map((b, i, a) => i ? Math.round(b.t - a[i - 1].t) : 0).join(' ') }; })));
+    if (process.env.SMOOTH_DEBUG) console.log('   timeline', JSON.stringify(await B.ev(() => { const o = [...NET.others.values()].find(o => o.n === 'Walker'); return { off: Math.round(o.off), offMin: Math.round(o.offMin), delay: Math.round(o.delay), jit: Math.round(o.jit), int: Math.round(o.int), gaps: o.buf.slice(-20).map((b, i, a) => i ? Math.round(b.t - a[i - 1].t) : 0).join(' ') }; })));
     // look at the middle of the walk, per frame: speed should stay near 140 px/s
     const mid = seen.filter(([tm]) => tm - seen[0][0] > 1300 && tm - seen[0][0] < 3700);
     const speeds = []; for (let i = 3; i < mid.length; i += 3) { const dt = (mid[i][0] - mid[i - 3][0]) / 1000; if (dt > 0) speeds.push((mid[i][1] - mid[i - 3][1]) / dt); } // ~60 ms steps

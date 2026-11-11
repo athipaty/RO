@@ -60,6 +60,9 @@ function renderParty(){const box=$('#partyBox'),p=SOC.party;box.hidden=!p;if(!p)
     const where=document.createElement('span');where.className='pz';
     where.textContent=isMe?'':!o?'away':o.dead?'fallen':o.z!==zoneId?(ZONES[o.z]?.name||''):'';
     row.append(nm,bar,where);
+    if(!isMe&&o&&typeof followStart==='function'){const f=document.createElement('button');f.className='btn small'+(following(m.peer)?' on':'');
+      f.textContent=following(m.peer)?'Stop':'Follow';const lbl=following(m.peer)?`Stop following ${m.name}`:`Follow ${m.name}`;f.title=lbl;f.setAttribute('aria-label',lbl);
+      f.addEventListener('click',ev=>{ev.stopPropagation();if(following(m.peer))followStop(`You stopped following ${m.name}.`);else followStart(m.peer);});row.append(f);}
     if(lead&&!isMe){const k=document.createElement('button');k.className='btn small';k.textContent='×';k.title=`Remove ${m.name} from the party`;
       k.setAttribute('aria-label',`Remove ${m.name} from the party`);k.addEventListener('click',()=>soc('partyKick',{peer:m.peer}));row.append(k);}
     list.append(row);}}
