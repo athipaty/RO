@@ -327,7 +327,7 @@ $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDef
 
 /* ================= save / load ================= */
 function snapshot(){if(!P)return null;
-  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','bar','pet','ach','emofav','useLv','rested','qs','track'];
+  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','bar','pet','ach','emofav','mounts','mountPick','useLv','rested','qs','track'];
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;
   if(typeof pendingEscrow==='function'){const ex=pendingEscrow();if(ex.items.length||ex.gold){o.inv=[...P.inv,...ex.items];o.gold=P.gold+ex.gold;}}
   return {v:1,p:JSON.parse(JSON.stringify(o))};}

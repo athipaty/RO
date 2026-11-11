@@ -107,7 +107,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 41. M Mini-bosses with minions (v0.22.0)
 - [x] 42. S Monster info window (right-click or the Info button)
 - [x] 43. M Pets (v0.47.0: tame with a Taming Charm, Pet Snacks, bonuses, /pet)
-- [ ] 44. M Mounts
+- [x] 44. M Mounts (v0.54.0: Meadow Hopper and Grey Lupe at Tobin's stable, R to ride)
 
 ### Social
 - [x] 45. M (server) Parties
