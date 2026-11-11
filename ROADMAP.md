@@ -106,7 +106,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 40. L (server) Timed world bosses with an MVP reward (v0.17.0)
 - [x] 41. M Mini-bosses with minions (v0.22.0)
 - [x] 42. S Monster info window (right-click or the Info button)
-- [ ] 43. M Pets
+- [x] 43. M Pets (v0.47.0: tame with a Taming Charm, Pet Snacks, bonuses, /pet)
 - [ ] 44. M Mounts
 
 ### Social
@@ -125,7 +125,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 55. M Quest log with tracking (v0.16.0)
 - [ ] 56. M Daily hunting board
 - [ ] 57. M Seasonal events
-- [ ] 58. S Achievements and titles
+- [x] 58. S Achievements and titles (v0.47.0: 23 achievements, titles under names, /ach)
 
 ### Interface
 - [ ] 59. M Classic basic-info window

@@ -4,7 +4,8 @@ module.exports = async t => {
   const g = await player('Goldsink', newRoom(), { zone: 'town', server: 'http://127.0.0.1:9' });
   try {
     await wait(1500);
-    const inn = await g.ev(() => { P.lv = 20; P.gold = 5000; P.hp = 1; P.sp = 0; openPanel('warp');
+    const inn = await g.ev(() => { activeEvents = () => []; // no EXP Weekend or Golden Hour while measuring
+      P.lv = 20; P.gold = 5000; P.hp = 1; P.sp = 0; openPanel('warp');
       const btn = panel.querySelector('[data-act="inn"]'); const has = !!btn; btn.click();
       const paid = 5000 - P.gold; const full = P.hp === S.maxhp && P.sp === S.maxsp; const rest = isRested(); const txt = panel.textContent;
       const e0 = P.exp; gainExp(100, 0); const got = P.exp - e0; closePanel();

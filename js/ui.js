@@ -51,6 +51,7 @@ let shopCat='use';
 let invTab=(()=>{try{return localStorage.getItem('embervale.invTab')||'use';}catch(e){return 'use';}})();
 // other files (trade.js) register extra windows here: render, button actions, and what to do on close
 const PANELS={},PANEL_ACTS={},PANEL_CLOSE={};
+PANEL_ACTS.openach=()=>openPanel('ach');
 PANEL_ACTS.shopcat=k=>{shopCat=k;refreshPanel();};
 PANEL_ACTS.invtab=k=>{invTab=k;try{localStorage.setItem('embervale.invTab',k);}catch(e){}refreshPanel();};
 const NPC_PANELS=['talk','shop','smith','storage','job','heal','warp'];
@@ -72,7 +73,7 @@ function refreshPanel(){
   const c=CLASSES[P.cls];
   if(panelKind==='status'){S=computeStats();
     h+=`<h2>${esc(P.name)}</h2><div class="sub">${c.name} · Base Lv ${P.lv} · Job Lv ${P.jl}</div>`;
-    h+=`<div class="sub">Stat points: <span class="gold">${P.statPts}</span></div>`;
+    h+=`<div class="sub">Stat points: <span class="gold">${P.statPts}</span>${typeof ACH!=='undefined'?` · <button class="btn small" data-act="openach">★ Achievements &amp; titles</button>`:''}</div>`;
     for(const k of STATS){const v=P.st[k],bonus=S[k]-v,cost=statCost(v);
       h+=`<div class="st"><b>${k.toUpperCase()}</b><span class="muted" style="font-size:12px">${STAT_DESC[k]}</span><span>${v}${bonus?`<span class="gold"> +${bonus}</span>`:''}</span><button class="btn small" data-act="stat" data-arg="${k}" ${P.statPts<cost||v>=99?'disabled':''} title="Costs ${cost} points">+${cost>2?' ('+cost+')':''}</button></div>`;}
     h+=`<h3>Combat</h3><div class="dv"><div><span>ATK</span><span>${S.atk}</span></div><div><span>Attacks/sec</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Weight</span><span>${fmt(carryWeight())}/${fmt(maxWeight())}</span></div><div><span>MATK</span><span>${S.matk}</span></div><div><span>DEF</span><span>${S.def}</span></div><div><span>HIT</span><span>${S.hit}</span></div><div><span>FLEE</span><span>${S.flee}</span></div><div><span>CRIT</span><span>${S.crit}%</span></div><div><span>Attacks/s</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Range</span><span>${S.range}px</span></div></div>`;
@@ -325,7 +326,7 @@ $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDef
 
 /* ================= save / load ================= */
 function snapshot(){if(!P)return null;
-  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','bar','useLv','rested','qs','track'];
+  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','bar','pet','ach','useLv','rested','qs','track'];
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;
   if(typeof pendingEscrow==='function'){const ex=pendingEscrow();if(ex.items.length||ex.gold){o.inv=[...P.inv,...ex.items];o.gold=P.gold+ex.gold;}}
   return {v:1,p:JSON.parse(JSON.stringify(o))};}
