@@ -96,7 +96,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 32. M A capital city with districts, themed towns
 - [ ] 33. M Named warp portals and a teleport NPC network
 - [x] 34. M Multi-floor dungeons (v0.19.0)
-- [ ] 35. S More teleport items
+- [x] 35. S More teleport items: Waystone Shard, Kinship Charm (v0.30.0)
 - [x] 36. M Day/night and weather per map (v0.26.0)
 - [x] 37. S Bigger minimap and a world map (v0.29.0)
 - [x] 38. S Region name banner on entry

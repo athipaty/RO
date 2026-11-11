@@ -130,6 +130,7 @@ function useItem(id){
   if(P.dead)return;const it=ITEMS[id];
   if(!invFind(id)){addLog(`You have no ${it.name}.`,'l-bad');return;}
   if((P.cd['item']||0)>now)return;
+  if(typeof useTravelItem==='function'&&useTravelItem(id))return;
   if(it.cure){if(!Object.keys(P.ail||{}).some(ailOn)){addLog('You have no ailments to cure.');return;}cureAll();}
   else if(it.heal){if(P.hp>=S.maxhp)return;healP(it.heal);}
   else if(it.sp){if(P.sp>=S.maxsp)return;P.sp=Math.min(S.maxsp,P.sp+it.sp);floatT(P.x,P.y-30,'+'+it.sp+' SP','#7ab0f0',15);}

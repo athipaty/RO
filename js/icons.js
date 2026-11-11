@@ -14,6 +14,10 @@ function drawItemIcon(g,id){const it=ITEMS[id];if(!it)return;const c=it.col||'#c
   if(T==='use'){
     if(it.tele){g.beginPath();g.moveTo(16,4);g.quadraticCurveTo(29,10,22,24);g.quadraticCurveTo(16,30,9,26);g.quadraticCurveTo(4,14,16,4);P_(c);
       g.strokeStyle=shade(c,-.45);g.beginPath();g.moveTo(10,25);g.quadraticCurveTo(15,15,20,9);g.stroke();return;}
+    if(it.pick){g.beginPath();g.moveTo(16,3);g.lineTo(24,13);g.lineTo(19,29);g.lineTo(12,29);g.lineTo(8,13);g.closePath();P_(c);
+      g.fillStyle='rgba(255,255,255,.55)';g.beginPath();g.moveTo(16,6);g.lineTo(20,13);g.lineTo(16,25);g.closePath();g.fill();return;}
+    if(it.kin){g.strokeStyle=OL;g.lineWidth=1.6;for(const [x,y] of [[12,13],[20,13]]){g.beginPath();g.arc(x,y,6,0,7);P_(c);}
+      g.beginPath();g.moveTo(10,18);g.lineTo(16,29);g.lineTo(22,18);P_(shade(c,-.2));g.fillStyle='rgba(255,255,255,.6)';g.beginPath();g.arc(10,11,1.8,0,7);g.fill();return;}
     if(it.home){g.beginPath();g.roundRect(6,8,20,16,3);P_('#efe2bf');g.fillStyle=c;g.beginPath();g.arc(16,16,4,0,7);g.fill();
       for(const x of [5,27]){g.beginPath();g.ellipse(x,16,2.5,8.5,0,0,7);P_('#d9c79a');}return;}
     // a tonic bottle with its liquid

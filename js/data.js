@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='0.29.0';
+const VERSION='0.30.0';
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
 const BLOCK=[0,0,1,1,1,1,0,0]; // 0 ground 1 path 2 tree 3 water 4 rock 5 building 6 cobble 7 flowers
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
@@ -24,6 +24,8 @@ const ITEMS={
   orange:{name:'Amber Tonic',type:'use',price:70,heal:180,col:'#e08a3a',g:'A',desc:'Restores 180 HP.'},
   blue:{name:'Blue Tonic',type:'use',price:150,sp:60,col:'#4a8fd9',g:'B',desc:'Restores 60 SP.'},
   leaf:{name:'Drift Leaf',type:'use',price:40,tele:true,col:'#7fd36a',g:'L',desc:'Teleports you to a random spot in this region.'},
+  waystone:{name:'Waystone Shard',type:'use',price:450,pick:true,col:'#8ff0ff',g:'W',desc:'Carries you to any region you have visited, dungeon floors too.'},
+  kinship:{name:'Kinship Charm',type:'use',price:300,kin:true,col:'#8fe0a8',g:'K',desc:'Pulls you to the side of a party member, wherever they are.'},
   remedy:{name:'Remedy Draught',type:'use',price:50,cure:true,col:'#c58cff',g:'C',desc:'Cures poison, stun, sleep, freeze, silence and blindness.'},
   scroll:{name:'Hearth Scroll',type:'use',price:120,home:true,col:'#e0b84a',g:'H',desc:'Returns you to Hearthvale.'},
   sap:{name:'Sap Drop',type:'etc',price:6,col:'#9be38a',g:'•'}, tuft:{name:'Hopper Tuft',type:'etc',price:10,col:'#e3cfae',g:'•'},
@@ -78,7 +80,7 @@ const ITEMS={
 const WEAPON_W={club:40,sword:80,axe:150,wand:30,bow:50,mace:70},ARMOR_W={tunic:10,vest:40,robe:30,scale:120,plate:180};
 function itemWeight(id){const it=ITEMS[id];if(!it)return 0;if(it.w!=null)return it.w;
   if(it.type==='weapon')return WEAPON_W[it.wt]||50;if(it.type==='armor')return ARMOR_W[id]||50;if(it.type==='head')return 15;if(it.type==='accessory')return 10;
-  if(it.type==='sigil')return 1;if(it.type==='use')return id==='scroll'||id==='leaf'?1:5;return id==='crest'?20:2;}
+  if(it.type==='sigil')return 1;if(it.type==='use')return id==='scroll'||id==='leaf'||id==='waystone'||id==='kinship'?1:5;return id==='crest'?20:2;}
 /* ---- #20 rarity: colour-coded item names ---- */
 const RARITY=[{name:'Common',col:'#e8e2d2'},{name:'Uncommon',col:'#7fd38a'},{name:'Rare',col:'#6fb0ff'},{name:'Epic',col:'#c58cff'},{name:'Legendary',col:'#ffb347'}];
 const LEGENDARY=new Set(['crest','crown']),RARE_DROPS=new Set(['sprout','lupeears','turban','imphorns','frostcap']);
@@ -93,7 +95,7 @@ function refineBonus(e){const r=e.r||0;if(!r)return {};const it=ITEMS[e.id];
   if(it.type==='weapon'){const o={atk:r*Math.max(3,Math.round((it.atk||0)*.06))};if(it.matk)o.matk=r*Math.max(2,Math.round(it.matk*.06));return o;}
   return {def:r};}
 function itemName(e){return (e.r?`+${e.r} `:'')+ITEMS[e.id].name;}
-const SHOP=['red','orange','blue','remedy','leaf','scroll','strawhat','ribbon','spiked','sword','wand','bow','mace','bastion','rod','longbow','sunmace','axe','tunic','vest','robe','scale','plate','ring','clip','charm'];
+const SHOP=['red','orange','blue','remedy','leaf','scroll','waystone','kinship','strawhat','ribbon','spiked','sword','wand','bow','mace','bastion','rod','longbow','sunmace','axe','tunic','vest','robe','scale','plate','ring','clip','charm'];
 
 const MOBS={
   sproutling:{name:'Sproutling',lv:2,hp:42,atk:6,def:0,flee:3,exp:12,jexp:10,spd:38,shape:'blob',col:'#8fd16a',size:12,leaf:true,drops:[['sap',.55],['red',.08],['sprout',.012]],sig:{kind:'armor',b:{maxhp:80},txt:'+80 Max HP'}},
