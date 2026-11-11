@@ -229,3 +229,17 @@ button{font:inherit;color:inherit}
 #partyBox.fold{width:auto;padding:4px 8px}
 .pmr{font-size:11.5px}.pmr .btn.small{padding:1px 6px;font-size:11px}
 .ico.img.sk{border:0;background:none;border-radius:50%;width:32px;height:32px}
+/* #37 bigger minimap and world map */
+#mini{cursor:zoom-in}#minibox.big #mini{width:260px;height:180px;cursor:zoom-out}
+@media (max-width:700px){#minibox.big #mini{width:200px;height:138px}}
+.wroad{display:flex;flex-direction:column;gap:0}
+.wnode{display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border:1px solid var(--edge-dim);border-radius:6px;background:#10141b}
+.wnode.here{border-color:var(--exp);box-shadow:0 0 0 1px var(--exp) inset}
+.wnode.unseen{opacity:.55}.wnode.unseen .wsw{filter:grayscale(1)}
+.wnode .wsw{flex:none;width:14px;height:14px;border-radius:3px;margin-top:3px;border:1px solid #000}
+.wnode .where{font-size:11px;color:var(--exp);font-weight:700;margin-left:4px}
+.wnode .wmobs{font-size:11.5px}
+.wnode .wppl{flex:none;font-size:12px;color:#9fd3ff;font-variant-numeric:tabular-nums}
+.wlink{text-align:center;color:var(--muted);line-height:14px;font-size:12px}
+.wbranch{margin:4px 0 0 22px;padding-left:10px;border-left:2px dashed var(--edge-dim);display:flex;flex-direction:column;gap:4px}
+.wbranch .wbl{font-size:11.5px}

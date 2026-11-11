@@ -420,7 +420,7 @@ function drawFx(){
 }
 const mctx=$('#mini').getContext('2d');
 function renderMini(){
-  if(!Z)return;const w=150,h=104;mctx.fillStyle='#0b0e13';mctx.fillRect(0,0,w,h);
+  if(!Z)return;const w=mctx.canvas.width,h=mctx.canvas.height;mctx.fillStyle='#0b0e13';mctx.fillRect(0,0,w,h);
   const sc=Math.min(w/Z.w,h/Z.h),ox=(w-Z.w*sc)/2,oy=(h-Z.h*sc)/2;mctx.imageSmoothingEnabled=false;mctx.drawImage(Z.mini,ox,oy,Z.w*sc,Z.h*sc);
   const k=sc/TILE;
   for(const pt of Z.portals){mctx.fillStyle='#8ff0ff';mctx.fillRect(ox+pt.x*k-2,oy+pt.y*k-2,4,4);}
@@ -428,5 +428,6 @@ function renderMini(){
   for(const m of mobs)if(!m.dead){mctx.fillStyle=m.d.boss?'#ff5a3a':'#e05050';const s=m.d.boss?5:2;mctx.fillRect(ox+m.x*k-s/2,oy+m.y*k-s/2,s,s);}
   for(const [peer,o] of NET.others)if(o.z===zoneId&&!o.dead){mctx.fillStyle=inParty(peer)?'#8fe0a8':'#9fd3ff';mctx.fillRect(ox+o.x*k-1.5,oy+o.y*k-1.5,3,3);}
   mctx.fillStyle='#fff';mctx.fillRect(ox+P.x*k-2,oy+P.y*k-2,4,4);
+  if(typeof miniLabels==='function')miniLabels(ox,oy,k);
 }
 
