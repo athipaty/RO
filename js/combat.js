@@ -324,10 +324,12 @@ function zoneHost(){
   for(const o of NET.others.values())if(o.z===zoneId&&o.id&&o.zt&&!o.hd&&(!best||o.zt<best.zt||(o.zt===best.zt&&o.id<best.id)))best=o;
   if(!best||NET.zt<best.zt||(NET.zt===best.zt&&NET.myId<best.id))return null;
   return best;}
-function netEvent(k,m,t){if(!NET.room)return;NET.evs=[...NET.evs,{i:++NET.evId,k,m:m.idx,t:t||null}].slice(-24);NET.lastSent='';NET.sendT=0;}
-function sendHit(m,d,sl,ex){NET.hits=[...NET.hits,{i:++NET.hitId,m:m.idx,d,sl,...(ex||{})}].slice(-24);NET.lastSent='';NET.sendT=0;}
+// when each shared hit/event was made (not sent): updates only carry the last few seconds of them
+const NET_AGE=new WeakMap(),netStamp=o=>(NET_AGE.set(o,now),o),netFresh=a=>(a||[]).filter(o=>now-(NET_AGE.has(o)?NET_AGE.get(o):now)<4);
+function netEvent(k,m,t){if(!NET.room)return;NET.evs=[...NET.evs,netStamp({i:++NET.evId,k,m:m.idx,t:t||null})].slice(-24);NET.lastSent='';NET.sendT=0;}
+function sendHit(m,d,sl,ex){NET.hits=[...NET.hits,netStamp({i:++NET.hitId,m:m.idx,d,sl,...(ex||{})})].slice(-24);NET.lastSent='';NET.sendT=0;}
 // a hit others only need to SEE (we run the monsters, so it is already applied); kept apart from hx so nobody applies it twice
-function showHit(m,d){if(!NET.room)return;NET.vh=[...(NET.vh||[]),{i:++NET.hitId,m:m.idx,d}].slice(-12);NET.lastSent='';NET.sendT=0;}
+function showHit(m,d){if(!NET.room)return;NET.vh=[...(NET.vh||[]),netStamp({i:++NET.hitId,m:m.idx,d})].slice(-12);NET.lastSent='';NET.sendT=0;}
 function slowMob(m,t){if(zoneHost())sendHit(m,0,t);m.slowUntil=now+t;}
 // another player's hits: whoever runs the monsters applies the damage; everyone in the region sees the attack
 function applyHits(apply){

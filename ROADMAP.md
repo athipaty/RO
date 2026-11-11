@@ -26,9 +26,9 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 - [x] Party loot rules: each their own or take turns (v0.35.0, server)
 
 ## Stage 4: Items and progression
-- [ ] Equipped gear visible on the character, item tooltips, equipment window
-- [ ] Gear upgrading +1 to +10 with failure chance at high levels
-- [ ] Storage NPC, weight limit, item rarity colours
+- [x] Equipped gear visible on the character (body armour v0.36.0; weapons and hats earlier), item details, equipment window
+- [x] Gear upgrading +1 to +10 with failure chance at high levels (smith)
+- [x] Storage NPC, weight limit, item rarity colours
 - [x] Second-tier jobs (2 per class) and a skill tree screen (v0.15.0)
 
 ## Stage 5: World and content
