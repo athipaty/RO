@@ -450,3 +450,34 @@ body.ui-l #panel{zoom:1.1}
 #gwBar[hidden]{display:none}#gwBar .t{color:#ffb070}#gwBar b.me{color:var(--accent,#f0b54a)}#gwBar .hot{color:#ff6a5a}#gwBar .top{color:var(--muted);font-weight:500}
 #gwBar i{display:inline-block;vertical-align:middle;width:60px;height:6px;border-radius:3px;background:linear-gradient(90deg,#ffb070 var(--p),rgba(255,255,255,.15) var(--p));margin-left:4px}
 body.touchui #gwBar{top:calc(max(10px,env(safe-area-inset-top)) + 182px);font-size:11.5px}
+
+/* ===== free hotbar: editor, empty slots, edit button ===== */
+#hotbar .slot.empty{opacity:.55;border-style:dashed;cursor:pointer}
+#hotbar .slot.edit{font-size:16px;color:var(--muted);background:rgba(255,255,255,.04)}
+#hotbar .slot[draggable=true]{cursor:grab}
+.hbslots{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin:8px 0}
+.hbs{position:relative;aspect-ratio:1;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);display:grid;place-items:center;cursor:pointer;padding:0;color:var(--ink)}
+.hbs img{width:70%;height:70%;object-fit:contain}.hbs em{position:absolute;left:4px;top:2px;font:600 10px Inter,var(--ui);color:var(--muted);font-style:normal}
+.hbs.on{border-color:var(--accent,#f0b54a);box-shadow:0 0 0 2px rgba(240,181,74,.35)}
+.hbpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.hbp{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--ink);cursor:pointer;text-align:left;font:500 12.5px Inter,var(--ui)}
+.hbp img{width:26px;height:26px;object-fit:contain;flex:none}.hbp.used{border-color:rgba(240,181,74,.45)}.hbp i{color:var(--muted);font-style:normal}
+.hbp:hover,.hbs:hover{background:rgba(255,255,255,.08)}
+/* ===== phone: the slots sit in two arcs around the Attack button ===== */
+body.touchui #actions{gap:6px}
+body.touchui #atkBtn{margin-top:190px}
+body.touchui #hotbar{position:absolute;left:auto;right:30px;bottom:30px;width:0;height:0;padding:0;margin:0;transform:none;background:none;border:0;box-shadow:none;backdrop-filter:none;display:block;z-index:1}
+body.touchui #hotbar .slot{position:absolute;left:-22px;top:-22px;width:44px;height:44px;margin:0;border-radius:50%;background:rgba(14,18,26,.82);border:1px solid rgba(255,255,255,.18);box-shadow:0 4px 14px rgba(0,0,0,.35)}
+body.touchui #hotbar .slot .k{display:none}
+body.touchui #hotbar .slot.edit{width:32px;height:32px;left:-16px;top:-16px;font-size:13px}
+body.touchui #hotbar .slot:nth-child(1){transform:translate(-90px,0px)}
+body.touchui #hotbar .slot:nth-child(2){transform:translate(-78px,-45px)}
+body.touchui #hotbar .slot:nth-child(3){transform:translate(-45px,-78px)}
+body.touchui #hotbar .slot:nth-child(4){transform:translate(0px,-90px)}
+body.touchui #hotbar .slot:nth-child(5){transform:translate(-150px,-10px)}
+body.touchui #hotbar .slot:nth-child(6){transform:translate(-127px,-79px)}
+body.touchui #hotbar .slot:nth-child(7){transform:translate(-75px,-130px)}
+body.touchui #hotbar .slot:nth-child(8){transform:translate(-5px,-150px)}
+body.touchui #hotbar .slot.edit{transform:translate(0px,-200px)}
+/* the chat log keeps to the left of the arcs */
+body.touchui #log{width:max(140px,calc(100vw - 262px));max-width:none}

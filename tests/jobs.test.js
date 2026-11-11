@@ -47,7 +47,7 @@ module.exports = async t => {
     t.ok(fight.hit > 0, `Rending Blow lands from the hotbar (${fight.hit} damage)`);
     t.ok(fight.atkUp && fight.buff, 'Frenzy raises ATK');
 
-    const sv = await g.ev(() => { const s = snapshot(); return { cls: s.p.cls, hot: s.p.hot }; });
+    const sv = await g.ev(() => { const s = snapshot(); return { cls: s.p.cls, hot: s.p.bar.map(e => e && e.s) }; });
     t.ok(sv.cls === 'ravager' && sv.hot[0] === 'rendingblow', 'class and hotbar choices are saved');
 
     // others see the new job

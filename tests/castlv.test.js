@@ -5,7 +5,7 @@ module.exports = async t => {
   try {
     await wait(1500);
     const r = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms));
-      P.cls = 'arcanist'; P.skills = { emberbolt: 5, frostnova: 1 }; P.hot = ['emberbolt', 'frostnova', null, null]; rebuildHotbar(); await w(200);
+      P.cls = 'arcanist'; P.skills = { emberbolt: 5, frostnova: 1 }; P.hot = ['emberbolt', 'frostnova', null, null]; P.bar = null; rebuildHotbar(); await w(200);
       const slot = () => document.querySelectorAll('#hotbar .slot')[0].querySelector('.n').textContent;
       const full = slot();
       document.querySelectorAll('#hotbar .slot')[0].dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true })); await w(200);
