@@ -218,3 +218,12 @@ button{font:inherit;color:inherit}
 #target.mini .tl,#target.mini .td,#target.mini #tInfo{display:none}
 #target.mini{padding:4px 10px 6px}
 #duelAsk{position:fixed;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + 110px);transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:8px 10px;z-index:5;max-width:calc(100vw - 32px);box-sizing:border-box;border-color:#ff7a5a}
+
+.ico.img{width:30px;height:30px;border-radius:6px;background:radial-gradient(#26303d,#141920);border:1px solid var(--edge-dim);padding:0;box-sizing:border-box}
+.slot .ic.img{width:30px;height:30px;border-radius:5px;background:none;border:0}
+.itabs{display:flex;gap:4px;margin:0 0 8px}
+#pFold{width:20px;height:20px;padding:0;border-radius:4px;border:1px solid var(--edge-dim);background:#1a2029;color:var(--exp);font:800 13px/1 inherit;cursor:pointer;flex:none}
+#partyBox .phd{display:flex;align-items:center;gap:6px}#partyBox .phd .pt{flex:1}
+#partyBox.fold .pm,#partyBox.fold #pMode,#partyBox.fold #pLeave{display:none}
+#partyBox.fold{width:auto;padding:4px 8px}
+.pmr{font-size:11.5px}.pmr .btn.small{padding:1px 6px;font-size:11px}

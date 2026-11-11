@@ -37,15 +37,17 @@ function rebuildHotbar(){
     if(!s){b.classList.add('off');b.innerHTML=`<span class="k">${i+1}</span><span class="cd"></span><span class="n"></span>`;b.disabled=true;hb.appendChild(b);return;}
     const d=s.skill?SKILLS[s.skill]:ITEMS[s.item];
     b.title=(s.skill?d.name:d.name+' — '+d.desc)+` (${i+1})`;b.setAttribute('aria-label',b.title);
-    b.innerHTML=`<span class="ic" style="background:${d.col}">${d.g}</span><span class="k">${i+1}</span><span class="cd"></span><span class="n"></span>`;
+    b.innerHTML=(s.item&&typeof itemIconURL==='function'?`<img class="ic img" src="${itemIconURL(s.item)}" alt="">`:`<span class="ic" style="background:${d.col}">${d.g}</span>`)+`<span class="k">${i+1}</span><span class="cd"></span><span class="n"></span>`;
     b._slot=s;b.addEventListener('click',()=>pressSlot(i));hb.appendChild(b);hotEls.push(b);});
 }
 function pressSlot(i){const s=hotSlots()[i];if(!s)return;if(s.skill){if(!P.skills[s.skill]){addLog(`Learn ${SKILLS[s.skill].name} in the Skills window (K).`);return;}useSkill(s.skill);}else useItem(s.item);}
 
 /* ================= panels ================= */
 const panel=$('#panel');let panelKind=null,panelArg=null,shopTab='buy';
+let invTab=(()=>{try{return localStorage.getItem('embervale.invTab')||'use';}catch(e){return 'use';}})();
 // other files (trade.js) register extra windows here: render, button actions, and what to do on close
 const PANELS={},PANEL_ACTS={},PANEL_CLOSE={};
+PANEL_ACTS.invtab=k=>{invTab=k;try{localStorage.setItem('embervale.invTab',k);}catch(e){}refreshPanel();};
 function openPanel(kind,arg){panelKind=kind;panelArg=arg;panel.hidden=false;refreshPanel();}
 function closePanel(){const k=panelKind;panelKind=null;panel.hidden=true;if(PANEL_CLOSE[k])PANEL_CLOSE[k]();}
 function togglePanel(kind){if(panelKind===kind)closePanel();else openPanel(kind);}
@@ -72,8 +74,12 @@ function refreshPanel(){
   }
   else if(panelKind==='items'){
     h+=`<h2>Items</h2><div class="sub">${fmt(P.gold)} gold · click an item to use, equip or socket it</div><div class="tbtns" style="justify-content:flex-start;margin:0 0 6px"><button class="btn small" data-act="vendsetup">Open a shop</button></div>`;
+    const cat=e=>{const t=ITEMS[e.id].type;return t==='use'?'use':t==='etc'||t==='sigil'?'etc':'equip';};
+    const cnt={use:0,equip:0,etc:0};for(const e of P.inv)cnt[cat(e)]++;
+    h+=`<div class="tabs itabs" role="tablist">`+[['use','Use'],['equip','Equip'],['etc','Etc']].map(([k,l])=>`<button class="btn small ${invTab===k?'on':''}" role="tab" aria-selected="${invTab===k}" data-act="invtab" data-arg="${k}">${l} <span class="muted">${cnt[k]}</span></button>`).join('')+`</div>`;
     if(!P.inv.length)h+=`<p class="muted">Your bag is empty.</p>`;
-    P.inv.forEach((e,i)=>{const it=ITEMS[e.id];const verb=it.type==='use'?'Use':it.type==='sigil'?'Socket':it.type==='etc'?'':'Equip';
+    else if(!cnt[invTab])h+=`<p class="muted">${{use:'No potions or scrolls. Ilsa sells them at the General Store.',equip:'No spare gear. What you wear is in the Equip window.',etc:'No monster loot yet.'}[invTab]}</p>`;
+    P.inv.forEach((e,i)=>{const it=ITEMS[e.id];if(cat(e)!==invTab)return;const verb=it.type==='use'?'Use':it.type==='sigil'?'Socket':it.type==='etc'?'':'Equip';
       h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div><div class="ds">${itemDesc(e)}</div></div>${verb?`<button class="btn small" data-act="use" data-arg="${i}">${verb}</button>`:''}</div>`;});
   }
   else if(panelKind==='skills'){
@@ -423,7 +429,7 @@ window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.
 window.__game={get cam(){return {x:camX,y:camY}},get P(){return P},get mobs(){return mobs},get Z(){return Z},enterZone,gainExp,useSkill,startWith};
 
 /* ---- status box: full or compact (name, HP, SP and ailments); remembered on this device ---- */
-function hudMini(on,quiet){const h=$('#hud'),b=$('#hudToggle');h.classList.toggle('mini',on);b.textContent=on?'+':'−';b.setAttribute('aria-expanded',String(!on));
+function hudMini(on,quiet){const h=$('#hud'),b=$('#hudToggle');h.classList.toggle('mini',on);if(typeof renderParty==='function')setTimeout(renderParty,0);b.textContent=on?'+':'−';b.setAttribute('aria-expanded',String(!on));
   const t=on?'Expand the status box (B)':'Collapse the status box (B)';b.setAttribute('aria-label',t);b.title=t;
   if(!quiet){sfx('click');try{localStorage.setItem('embervale.hudMini',on?'1':'0');}catch(e){}}}
 $('#hudToggle').addEventListener('click',ev=>{ev.stopPropagation();hudMini(!$('#hud').classList.contains('mini'));});

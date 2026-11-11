@@ -49,7 +49,10 @@ $('#pLeave').addEventListener('click',()=>soc('partyLeave',{}));
 $('#pMode').addEventListener('click',()=>{if(SOC.party)soc('partyMode',{mode:SOC.party.mode==='share'?'each':'share'});});
 function renderParty(){const box=$('#partyBox'),p=SOC.party;box.hidden=!p;if(!p)return;
   const me=selfPeer(),lead=p.leader===me,list=box.querySelector('.pm');
-  box.querySelector('.pt').textContent=`Party · ${p.mode==='share'?'sharing EXP':'each keeps own EXP'}`;
+  // sit just under the status box, whatever its size
+  const hud=$('#hud');box.style.top=(hud.hidden?10:hud.getBoundingClientRect().bottom+6)+'px';
+  const fold=box.classList.contains('fold'),f=$('#pFold');f.textContent=fold?'+':'−';f.setAttribute('aria-expanded',String(!fold));f.title=fold?'Show party members':'Fold the party box';
+  box.querySelector('.pt').textContent=fold?`Party (${p.members.length})`:`Party · ${p.mode==='share'?'sharing EXP':'each keeps own EXP'}`;
   const mb=$('#pMode');mb.hidden=!lead;mb.textContent=p.mode==='share'?'Each keeps own':'Share EXP';
   list.textContent='';
   for(const m of p.members){const isMe=m.peer===me,o=NET.others.get(m.peer);
@@ -83,3 +86,9 @@ function logLine(kind,prefix,text){const el=$('#log'),d=document.createElement('
 document.querySelectorAll('#logTabs [data-tab]').forEach(b=>b.addEventListener('click',()=>{SOC.tab=b.dataset.tab;
   const log=$('#log');log.classList.remove('f-party','f-whisper','f-guild');if(SOC.tab!=='all')log.classList.add('f-'+SOC.tab);
   document.querySelectorAll('#logTabs [data-tab]').forEach(x=>x.classList.toggle('on',x===b));log.scrollTop=log.scrollHeight;}));
+
+// fold the party box down to one line (remembered; starts folded on phones)
+(()=>{let f=null;try{f=localStorage.getItem('embervale.partyFold');}catch(e){}
+  if(f==='1'||(f===null&&window.innerWidth<=760))$('#partyBox').classList.add('fold');})();
+$('#pFold').addEventListener('click',ev=>{ev.stopPropagation();const b=$('#partyBox');b.classList.toggle('fold');
+  try{localStorage.setItem('embervale.partyFold',b.classList.contains('fold')?'1':'0');}catch(e){}sfx('click');renderParty();});
