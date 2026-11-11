@@ -527,3 +527,8 @@ body.touchui #log{width:max(140px,calc(100vw - 262px));max-width:none}
 body.touchui #emoteBar{left:max(10px,env(safe-area-inset-left));transform:none;bottom:calc(max(10px,env(safe-area-inset-bottom)) + 120px);flex-wrap:wrap;max-width:calc(100vw - 250px)}
 .emb{position:relative}.emb .fav{position:absolute;top:2px;right:4px;font-size:14px;color:var(--muted);cursor:pointer;line-height:1}.emb .fav.on{color:var(--accent,#f0b54a)}
 @media (prefers-reduced-motion:reduce){#emoteBar{animation:none}}
+
+/* ===== screenshot flash ===== */
+.shotflash{position:fixed;inset:0;z-index:50;background:#fff;pointer-events:none;animation:shotflash .45s ease-out forwards}
+@keyframes shotflash{from{opacity:.75}to{opacity:0}}
+@media (prefers-reduced-motion:reduce){.shotflash{animation:none;opacity:0}}

@@ -135,7 +135,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 63. S Floating "+EXP / +Job" gains, EXP per hour (/exp)
 - [x] 64. S Name colours (players, nearby allies, guests, calm/aggressive monsters, bosses)
 - [x] 65. S Shift-click to attack in place (v0.32.0)
-- [ ] 66. S Screenshot key
+- [x] 66. S Screenshot key (v0.52.0: P, or Photo in the phone menu)
 
 ### Sound and atmosphere
 - [ ] 67. S Footsteps that change with the ground
