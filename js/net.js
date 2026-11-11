@@ -96,7 +96,7 @@ function ingest(p){
   o.hat=typeof s.h==='string'&&ITEMS[s.h]&&ITEMS[s.h].type==='head'?s.h:null;o.ar=typeof s.ar==='string'&&ITEMS[s.ar]&&ITEMS[s.ar].type==='armor'?s.ar:null;o.hp=clamp(fin(s.hp),0,100);
   o.guild=typeof guildTag==='function'?guildTag(p.guild):null;o.id=clean(s.id,16)||null;o.zt=fin(s.zt);o.hd=!!s.hd;
   o.mb=Array.isArray(s.mb)&&s.mb.length<=80?s.mb:null;o.ev=Array.isArray(s.ev)?s.ev.slice(-24):[];o.hx=Array.isArray(s.hx)?s.hx.slice(-24):[];o.hv=Array.isArray(s.hv)?s.hv.slice(-12):[];o.gl=typeof readGroundLoot==='function'?readGroundLoot(s.gl):[];o.tg=Number.isInteger(s.tg)&&s.tg>=0&&s.tg<500?s.tg:-1;
-  if(s.em&&typeof s.em==='object'&&EMOTE_KEYS.includes(s.em.k)){const id=fin(s.em.i);if(id>(o.emSeen||0)){const first=!o.emSeen;o.emSeen=id;if(!(fresh&&first&&Math.abs(Date.now()-fin(s.em.t))>4000)){o.emote={k:s.em.k,start:now};if(o.z===zoneId)sfx('pop');}}}
+  if(s.em&&typeof s.em==='object'&&EMOTE_KEYS.includes(s.em.k)&&!(typeof isMuted==='function'&&isMuted(o.n))){const id=fin(s.em.i);if(id>(o.emSeen||0)){const first=!o.emSeen;o.emSeen=id;if(!(fresh&&first&&Math.abs(Date.now()-fin(s.em.t))>4000)){o.emote={k:s.em.k,start:now};if(o.z===zoneId)sfx('pop');}}}
   if(typeof supportRecv==='function')supportRecv(o,s.sp,fresh);
   if(typeof duelRecv==='function')duelRecv(o,s.dl,fresh);
   if(fresh){addLog(`${o.n} (${CLASSES[o.cls].name} Lv ${o.lv}) is online.`,'l-good');friendSeen(o.n);}
@@ -105,7 +105,7 @@ function ingest(p){
     if(!m||typeof m!=='object')continue;const id=fin(m.i);if(id<=o.seen)continue;o.seen=id;
     if(fresh&&!(Math.abs(Date.now()-fin(m.t))<120000))continue;
     if(m.k){const t=announceText(o.n,clean(m.k,8),typeof m.v==='number'?m.v:clean(m.v,16));if(t){addLog('★ '+t,'l-rare');sfx('ping');}continue;}
-    const txt=clean(m.s,120);if(!txt)continue;
+    const txt=clean(m.s,120);if(!txt||typeof isMuted==='function'&&isMuted(o.n))continue;
     o.bubble={txt,until:now+7};chatLog(o.n,txt,o.z,false,o.guest);sfx('ping');
   }
 }
@@ -131,6 +131,7 @@ function updateWho(){
       if(o.z===zoneId&&typeof duelChallenge==='function'&&!DUEL)mk('Duel',()=>duelChallenge(peer));
       if(o.vd)mk('Shop',()=>soc('vendView',{peer}));else if(o.z===zoneId)mk('Trade',()=>soc('tradeRequest',{peer}));
       if(!P.friends.some(f=>f.toLowerCase()===String(name).toLowerCase()))mk('+ Friend',()=>{friendToggle(name,true);updateWho();});
+      if(typeof isMuted==='function')mk(isMuted(name)?'Unmute':'Mute',()=>{muteToggle(name,!isMuted(name));updateWho();});
       d.appendChild(bs);}
     list.appendChild(d);};
   if(P)row(P.name,{cls:P.cls,lv:P.lv,z:zoneId,guild:typeof myGuildTag==='function'?myGuildTag():null},true);
@@ -154,7 +155,7 @@ function sendChat(raw){
   if(!NET.room&&!NET.warned){NET.warned=true;addLog('Nobody else can hear you here. Open the shared Embervale page to chat with other players.');}
 }
 const CMD_HELP=[['/help','this list'],['/where','your region, position and channel'],['/who','who is online and where'],['/sit, /stand','sit down or get up'],
-  ['/exp','your EXP per hour'],['/w Name text, /r text','whisper, reply'],['/invite Name, /p text, /leave, /kick Name','party'],['/friend Name, /unfriend Name, /friends','friends'],['/trade Name, /shop','trade, open a shop'],['/roll','roll a number from 1 to 100 for everyone to see'],['/emotes','list emotes (e.g. /heart, /gg)'],['/clear','clear this log']];
+  ['/exp','your EXP per hour'],['/w Name text, /r text','whisper, reply'],['/invite Name, /p text, /leave, /kick Name','party'],['/friend Name, /unfriend Name, /friends','friends'],['/trade Name, /shop','trade, open a shop'],['/mute Name, /unmute Name, /muted','hide chat, emotes and requests from a player'],['/roll','roll a number from 1 to 100 for everyone to see'],['/emotes','list emotes (e.g. /heart, /gg)'],['/clear','clear this log']];
 function chatCommand(k,arg){
   if(k==='help'||k==='?'||k==='h'){addLog('Commands: '+CMD_HELP.map(([c,d])=>`${c} (${d})`).join(' · '));return true;}
   if(k==='where'){addLog(`You are in ${Z.D.name} at (${Math.round(P.x/TILE)}, ${Math.round(P.y/TILE)})`+(NET.channel?`, channel ${NET.channel}`:'')+(ROOM?`, room "${ROOM}"`:'')+'.');return true;}

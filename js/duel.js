@@ -49,6 +49,7 @@ function duelRecv(o,arr,fresh){if(!Array.isArray(arr))return;
   for(const e of arr.slice(-10)){if(!e||typeof e!=='object')continue;const i=fin(e.i);if(i<=(o.dlSeen||0))continue;o.dlSeen=i;
     if(fresh||e.to!==NET.myId||!P)continue;
     if(e.k==='ask'){if(DUEL||DASK.in||P.dead){dlSend(o.id,'busy');continue;}
+      if(typeof isMuted==='function'&&isMuted(o.n)){dlSend(o.id,'busy');continue;}
       DASK.in={id:o.id,peer:o.peer,name:o.n,at:now};showDuelAsk();
       setTimeout(()=>{if(DASK.in&&DASK.in.id===o.id)duelAnswer(false);},20000);}
     else if(e.k==='yes'){if(DASK.out&&DASK.out.id===o.id&&!DUEL&&now-DASK.out.at<40)duelStart(o);}

@@ -6,18 +6,18 @@ const SOC={party:null,lastWhisper:null,invite:null,tab:'all'};
 
 function socialAttach(sock){SOCK=sock;tradeAttach(sock);
   sock.on('connect',()=>{if(SOC.party){SOC.party=null;renderParty();}}); // the server forgets parties when we reconnect
-  sock.on('whisper',m=>{if(!m)return;const from=clean(m.from,16),text=clean(m.text,120);if(!from||!text)return;
+  sock.on('whisper',m=>{if(!m)return;const from=clean(m.from,16),text=clean(m.text,120);if(!from||!text||typeof isMuted==='function'&&isMuted(from))return;
     SOC.lastWhisper=from;logLine('whisper',`[From ${from}] `,text);sfx('ping');});
   sock.on('whisperSent',m=>{if(!m)return;const to=clean(m.to,16);
     if(m.ok)logLine('whisper',`[To ${to}] `,clean(m.text,120));else addLog(`${to} is not online.`,'l-bad');});
-  sock.on('partyInvite',m=>{if(m&&m.fromPeer)showInvite(String(m.fromPeer),clean(m.from,16)||'Someone');});
+  sock.on('partyInvite',m=>{if(m&&m.fromPeer&&!(typeof isMuted==='function'&&isMuted(m.from)))showInvite(String(m.fromPeer),clean(m.from,16)||'Someone');});
   sock.on('party',st=>{const was=SOC.party;
     SOC.party=st&&Array.isArray(st.members)?{id:String(st.id),leader:String(st.leader),mode:st.mode==='each'?'each':'share',loot:st.loot==='turns'?'turns':st.loot==='each'?'each':null,
       members:st.members.slice(0,12).map(x=>({peer:String(x.peer),name:clean(x.name,16)}))}:null;
     if(!was&&SOC.party){addLog(`You are in a party with ${SOC.party.members.filter(x=>x.peer!==selfPeer()).map(x=>x.name).join(', ')}.`,'l-good');sfx('jobup');}
     else if(was&&!SOC.party)addLog('You are no longer in a party.');
     renderParty();});
-  sock.on('partyChat',m=>{if(m)logLine('party',`[Party] ${clean(m.from,16)}: `,clean(m.text,120));});
+  sock.on('partyChat',m=>{if(m&&!(typeof isMuted==='function'&&isMuted(m.from)))logLine('party',`[Party] ${clean(m.from,16)}: `,clean(m.text,120));});
   sock.on('partyExp',m=>{if(!m||!P||P.dead)return;gainExp(clamp(Math.floor(fin(m.exp)),0,5e6),clamp(Math.floor(fin(m.jexp)),0,5e6));});
   sock.on('friends',m=>{if(!m||!P)return;const on=new Set((Array.isArray(m.online)?m.online:[]).map(n=>clean(n,16).toLowerCase()));
     const yes=P.friends.filter(f=>on.has(f.toLowerCase())),no=P.friends.filter(f=>!on.has(f.toLowerCase()));

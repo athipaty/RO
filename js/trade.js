@@ -28,7 +28,7 @@ function afterItemsChanged(){S=computeStats();rebuildHotbar();refreshPanel();sav
 
 /* ---- server messages ---- */
 function tradeAttach(sock){
-  sock.on('tradeRequest',m=>{if(m&&m.fromPeer)showTradeAsk(String(m.fromPeer),clean(m.from,16)||'Someone');});
+  sock.on('tradeRequest',m=>{if(m&&m.fromPeer&&!(typeof isMuted==='function'&&isMuted(m.from)))showTradeAsk(String(m.fromPeer),clean(m.from,16)||'Someone');});
   sock.on('tradeState',st=>{if(!st||!st.me||!st.them)return;
     if(!TR.trade){TR.trade={peer:String(st.peer),name:clean(st.name,16)||'Someone',mine:{items:[],gold:0}};sfx('pop');}
     const th=st.them;

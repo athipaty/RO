@@ -33,8 +33,8 @@ function guildAttach(sock){
     if(panelKind==='guild')refreshPanel();});
   sock.on('guildCreated',m=>{P.gold=Math.max(0,P.gold-GUILD_COST);sfx('fanfare');fx.push({k:'lvl',x:P.x,y:P.y-30,t0:now,dur:2,txt:'GUILD FOUNDED',col:'#ffcf5a'});
     addLog(`You founded ${clean(m&&m.name,20)}! Invite players from the online list (the ● online button).`,'l-rare');save(true);});
-  sock.on('guildInvite',m=>{if(!m||!m.gid)return;GD.invite={gid:String(m.gid),guild:clean(m.guild,20),from:clean(m.from,16),emblem:embOk(m.emblem)};showGuildInvite();});
-  sock.on('guildChat',m=>{if(!m)return;const from=clean(m.from,16),text=clean(m.text,120);if(!text)return;logLine('guild',from?`[Guild] ${from}: `:'[Guild] ',text);if(from)sfx('ping');});
+  sock.on('guildInvite',m=>{if(!m||!m.gid||typeof isMuted==='function'&&isMuted(m.from))return;GD.invite={gid:String(m.gid),guild:clean(m.guild,20),from:clean(m.from,16),emblem:embOk(m.emblem)};showGuildInvite();});
+  sock.on('guildChat',m=>{if(!m)return;const from=clean(m.from,16),text=clean(m.text,120);if(!text||(from&&typeof isMuted==='function'&&isMuted(from)))return;logLine('guild',from?`[Guild] ${from}: `:'[Guild] ',text);if(from)sfx('ping');});
 }
 function gsoc(ev,data){if(!ACC.token){addLog('Guilds need an account. Log in from the title screen to create or join one.','l-bad');return false;}return soc(ev,data);}
 const myGRank=()=>GD.g&&(GD.g.members.find(m=>m.u===GD.g.me)||{}).rank;
