@@ -57,7 +57,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 1. M Male/female body choice in the creator
 - [ ] 2. M Equipped gear visible on the body (armour colour, cape, shield, weapon on back)
 - [ ] 3. S Lower/middle headgear slots (glasses, masks, mouth items)
-- [ ] 4. M Hair dye / stylist NPC
+- [x] 4. M Hair dye / stylist NPC (v0.49.0: Lune the Stylist in Hearthvale)
 - [ ] 5. M More animations: casting pose, hurt frame, death pose, per-weapon attacks
 - [x] 6. S Status icons over heads (buffs, poison, stun)
 
@@ -123,7 +123,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 ### Quests and events
 - [x] 54. M NPC dialog windows with portraits and choices (v0.16.0)
 - [x] 55. M Quest log with tracking (v0.16.0)
-- [ ] 56. M Daily hunting board
+- [x] 56. M Daily hunting board (covered by Guildmaster Corvin's hunting contracts and the daily quests)
 - [ ] 57. M Seasonal events
 - [x] 58. S Achievements and titles (v0.47.0: 23 achievements, titles under names, /ach)
 

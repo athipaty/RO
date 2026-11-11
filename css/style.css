@@ -507,3 +507,13 @@ body.touchui #log{width:max(140px,calc(100vw - 262px));max-width:none}
 .cms{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
 .cm{font-size:11.5px;padding:1px 7px;border-radius:999px;border:1px solid rgba(255,120,100,.35);color:#ffb0a0;background:rgba(255,120,100,.08);cursor:help}
 .cm.ok{border-color:rgba(127,211,106,.4);color:#a8e89a;background:rgba(127,211,106,.1)}
+
+/* ===== the stylist ===== */
+.styl{display:flex;gap:14px;align-items:center;margin:8px 0}
+.styl canvas{width:150px;height:150px;flex:none;border-radius:14px;background:radial-gradient(circle at 50% 70%,rgba(255,154,208,.18),rgba(255,255,255,.03) 70%);border:1px solid rgba(255,255,255,.1)}
+.styl .lkrow{margin:6px 0}.styl .lkrow>span{width:76px}
+.swatches{display:flex;flex-wrap:wrap;gap:4px}
+.swatches button{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.18);cursor:pointer;padding:0}
+.swatches button.on{border-color:#fff;box-shadow:0 0 0 2px var(--accent,#f0b54a)}
+.swatches button:focus-visible{outline:2px solid var(--accent,#f0b54a);outline-offset:2px}
+@media (max-width:520px){.styl{flex-direction:column}}
