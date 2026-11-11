@@ -99,6 +99,7 @@ function refreshPanel(){
     h+=`<h3>Materials</h3>`;
     for(const id of ['emberore','glintstone']){const it=ITEMS[id],have=(invFind(id)||{}).n||0;
       h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name} <span class="muted">×${have}</span></div><div class="ds">${it.desc}</div></div><span class="gold">${it.price}</span><button class="btn small" data-act="buy" data-arg="${id}" ${P.gold<it.price?'disabled':''}>Buy</button></div>`;}
+    if(typeof FORGES!=='undefined')h+=`<div class="tbtns" style="justify-content:flex-start;margin:6px 0"><button class="btn small" data-act="openforge">⚒ Forge gear from monster materials</button></div>`;
     h+=`<h3>Refine</h3><div class="sub">${fmt(P.gold)} gold</div>`;
     const gear=[...['weapon','armor','head','accessory'].filter(s=>P.eq[s]).map(s=>({e:P.eq[s],key:'eq:'+s,where:'equipped'})),
       ...P.inv.filter(e=>e.uid&&['weapon','armor','head','accessory'].includes(ITEMS[e.id].type)).map(e=>({e,key:'inv:'+e.uid,where:'in bag'}))];

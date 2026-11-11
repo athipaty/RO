@@ -19,6 +19,7 @@ const ACH=[
   ['boss10','Bane of Bosses','Help defeat 10 bosses','Giant Slayer',10,a=>a.c.boss,8000],
   ['sig','Lucky Find','Find a monster sigil','Lucky Star',1,a=>a.c.sig,800],
   ['refine','Smith\'s Pride','Refine a piece of gear to +7','Forgemaster',1,a=>a.c.refine,3000],
+  ['craft10','Handy','Brew or forge 10 things','Artisan',10,a=>a.c.craft,800],
   ['explore','Wanderer','Visit every region, down to Mossdeep B3','Explorer',1,()=>[...ZONE_ORDER,'deep3'].every(z=>P.visited.includes(z))?1:0,2000],
   ['rich','Deep Pockets','Hold 100,000 gold at once','Moneybags',100000,()=>P.gold,0],
   ['tame','Animal Friend','Tame a companion','Beast Friend',1,a=>a.c.tame,500],
@@ -31,7 +32,7 @@ const ACH=[
 ];
 const ACH_BY=Object.fromEntries(ACH.map(a=>[a[0],a]));
 const achData=()=>{if(!P.ach||typeof P.ach!=='object')P.ach={};const a=P.ach;
-  a.c=a.c&&typeof a.c==='object'?a.c:{};for(const k of ['kills','boss','sig','refine','tame','duel','arena'])a.c[k]=Math.max(0,Math.floor(fin(a.c[k])));
+  a.c=a.c&&typeof a.c==='object'?a.c:{};for(const k of ['kills','boss','sig','refine','tame','duel','arena','craft'])a.c[k]=Math.max(0,Math.floor(fin(a.c[k])));
   a.kk=a.kk&&typeof a.kk==='object'?a.kk:{};a.got=a.got&&typeof a.got==='object'?a.got:{};if(a.title&&!a.got[a.title])a.title=null;return a;};
 const achTitle=id=>ACH_BY[id]?ACH_BY[id][3]:null;
 

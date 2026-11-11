@@ -79,7 +79,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 19. M Slotted gear variants (0-4 sigil slots)
 - [x] 20. S Rarity colours and world announcements for rare drops
 - [x] 21. M Storage NPC (cart still to do)
-- [ ] 22. M Crafting and brewing
+- [x] 22. M Crafting and brewing (v0.48.0: 9 brews and 9 forged pieces from monster materials, /craft)
 - [x] 23. L (server) Player shops while sitting
 - [x] 24. L (server) Trade window
 - [x] 25. S Gold sinks: inn with a Well rested EXP bonus, stat and skill resets (v0.28.0; travel fares already existed, no repairs)
