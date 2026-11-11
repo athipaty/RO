@@ -103,9 +103,9 @@ function render(){
   for(const f of fx){if(f.k==='warn')at(f.x,f.y,()=>{const a=(now-f.t0)/f.dur;ctx.fillStyle=`rgba(255,80,40,${.12+.18*a})`;ctx.strokeStyle='rgba(255,120,60,.8)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(f.x,f.y,f.r*1.1,f.r*.55,0,0,7);ctx.fill();ctx.stroke();});}
   // entities sorted
   // everything that stands up, sorted back-to-front (x+y is depth in this view)
-  const items=[];for(const m of mobs)if(!m.dead)items.push({e:m,x:m.x,y:m.y});for(const n of Z.npcs)items.push({e:n,x:n.x,y:n.y});if(!P.dead)items.push({e:P,x:P.x,y:P.y});
+  const items=[];for(const m of mobs)if(!m.dead)items.push({e:m,x:m.x,y:m.y});for(const n of Z.npcs)items.push({e:n,x:n.x,y:n.y});items.push({e:P,x:P.x,y:P.y});
   for(const l of loot)if(now>=l.t0)items.push({l,x:l.x,y:l.y});
-  const others=[];for(const o of NET.others.values())if(o.z===zoneId){if(!o.dead){others.push(o);items.push({o,x:o.rx,y:o.ry});}
+  const others=[];for(const o of NET.others.values())if(o.z===zoneId){if(!o.dead)others.push(o);items.push({o,x:o.rx,y:o.ry});
     if(typeof ghostLoot==='function')for(const l of ghostLoot(o))if(now>=l.t0)items.push({l,x:l.x,y:l.y});}
   if(typeof petItems==='function')for(const it of petItems())items.push(it);
   for(const ob of Z.objs){const p=proj(ob.x,ob.y);if(p.x>camX-90&&p.x<camX+VW+90&&p.y>camY-30&&p.y<camY+VH+130)items.push({ob,x:ob.x,y:ob.y});}
@@ -260,7 +260,7 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
   if(opt.armor)drawArmor(x,by,f,bk,opt.armor,OL);
   // hands
   ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=L.skin;
-  for(const k of [-f,f]){ctx.beginPath();if(opt.sit)ctx.arc(x+k*10,y-4,2.6,0,7);else ctx.arc(x+k*9,by-4+(k===f?-1:0),2.6,0,7);fs();}
+  for(const k of [-f,f]){ctx.beginPath();if(opt.sit)ctx.arc(x+k*10,y-4,2.6,0,7);else if(opt.cast)ctx.arc(x+k*11,by-15+Math.sin(now*9+k)*1.2,2.6,0,7);else ctx.arc(x+k*9,by-4+(k===f?-1:0),2.6,0,7);fs();}
   // head: from behind it is all hair
   if(bk){backLayer();ctx.fillStyle=hair;ctx.strokeStyle=OL;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(x,hy,12.8,12.3,0,0,7);fs();
     ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1.2;for(const k of [-7,-2.5,2.5,7]){ctx.beginPath();ctx.moveTo(x+k*.5,hy-10);ctx.quadraticCurveTo(x+k*1.15,hy,x+k,hy+10);ctx.stroke();}
@@ -316,7 +316,7 @@ function drawHat(id,x,hy,f){
   ctx.restore();
 }
 function drawOther(o){const atk=o.atkFaceT&&now-o.atkFaceT<.4;
-  drawPlayer({name:o.n,look:o.look,x:o.rx,y:o.ry,cls:o.cls,face:atk?o.atkFace:o.face,moving:o.moving,walkT:o.walkT,sitting:o.sitting,hat:o.hat,armor:o.ar||null,back:o.back,swingT:o.swingT,swingDur:o.swingDur,lungeT:o.lungeT,lgX:o.lgX,lgY:o.lgY},o.wid);}
+  drawPlayer({name:o.n,look:o.look,x:o.rx,y:o.ry,cls:o.cls,face:atk?o.atkFace:o.face,moving:o.moving,walkT:o.walkT,sitting:o.sitting,hat:o.hat,armor:o.ar||null,back:o.back,swingT:o.swingT,swingDur:o.swingDur,lungeT:o.lungeT,lgX:o.lgX,lgY:o.lgY,casting:o.cs,hurtT:o.hurtT,dead:o.dead,deadT:o.deadT},o.wid);}
 // where a melee swing is at: p from 0 (start) to 1 (end), or -1 when not swinging; follow-through runs a little past 1
 function swingPhase(P){const sd=P.swingDur||.22;return P.swingT&&now-P.swingT<sd*1.25?(now-P.swingT)/sd:-1;}
 const ease3=k=>k*k*(3-2*k),easeOut=k=>1-(1-k)**3;
@@ -333,15 +333,16 @@ function drawPlayer(P,wid){
 function drawPlayerBody(P,wid){
   const c=CLASSES[P.cls],w=wid?ITEMS[wid]:null;
   const hat=P.hat!==undefined?P.hat:(P.eq&&P.eq.head?P.eq.head.id:null);
-  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?P.walkT:0,{sit:P.sitting,hat,look:lookOf(P.name,P.look),outfit:baseOf(P.cls),back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
+  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?P.walkT:0,{sit:P.sitting,cast:!!P.casting,hat,look:lookOf(P.name,P.look),outfit:baseOf(P.cls),back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
   drawJobMantle(c,P.x,P.y+(P.sitting?6:0),P.face,!!P.back);
   if(baseOf(P.cls)==='warden'){ctx.fillStyle='#9aa0aa';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(P.x-P.face*13-5,by-14,10,14,3);ctx.fill();ctx.stroke();ctx.fillStyle='#e8c25a';ctx.beginPath();ctx.arc(P.x-P.face*13,by-7,2,0,7);ctx.fill();}
   if(!w)return;
   const sd=P.swingDur||.2,sw=P.swingT&&now-P.swingT<sd?(now-P.swingT)/sd:0,ranged=w.wt==='bow'||w.wt==='wand',p=swingPhase(P);
   // held low at the side, tilted forward. Ranged: a small lift. Melee: raised over the shoulder, a fast arc down, then back.
   let ang=sw?(sw<.3?.6-sw/.3*.7:-.1+(sw-.3)/.7*1.9):.6,lift=0;
+  let castUp=0;if(P.casting&&!sw){ang=.08;castUp=9;}
   if(!ranged&&p>=0){if(p<.3){const k=ease3(p/.3);ang=.6-1.6*k;lift=k;}else if(p<.55){const k=easeOut((p-.3)/.25);ang=-1+3.15*k;lift=1-k;}else{const k=ease3(Math.min(1,(p-.55)/.7));ang=2.15-1.55*k;}}
-  ctx.save();ctx.translate(P.x+P.face*(11-lift*15),by-3-lift*9);ctx.scale(P.face,1);
+  ctx.save();ctx.translate(P.x+P.face*(11-lift*15),by-3-lift*9-castUp);ctx.scale(P.face,1);
   // the smear the blade leaves behind as it comes down
   if(!ranged&&p>=.3&&p<.8&&ang>.1){const al=p<.55?1:1-(p-.55)/.25,a1=ang-Math.PI/2,a0=Math.max(-.15,ang-2.2)-Math.PI/2,R=w.wt==='sword'||w.wt==='axe'?27:22;
     ctx.fillStyle=`rgba(255,246,220,${.5*al})`;ctx.beginPath();ctx.arc(0,0,R,a0,a1);ctx.arc(0,0,R*.45,a1,a0,true);ctx.closePath();ctx.fill();

@@ -58,7 +58,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 2. M Equipped gear visible on the body (armour colour, cape, shield, weapon on back)
 - [ ] 3. S Lower/middle headgear slots (glasses, masks, mouth items)
 - [x] 4. M Hair dye / stylist NPC (v0.49.0: Lune the Stylist in Hearthvale)
-- [ ] 5. M More animations: casting pose, hurt frame, death pose, per-weapon attacks
+- [x] 5. M More animations: casting pose, hurt frame, death pose, per-weapon attacks (melee swing v0.43.0; casting, flinch and falling v0.50.0)
 - [x] 6. S Status icons over heads (buffs, poison, stun)
 
 ### Combat feel

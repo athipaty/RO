@@ -88,7 +88,7 @@ function gainExp(e,j){
   if(lvUp)refreshPanel();
 }
 function die(src){
-  P.dead=true;P.casting=null;P.ail={};P.target=null;P.path=[];P.queued=null;
+  P.deadT=now;P.dead=true;P.casting=null;P.ail={};P.target=null;P.path=[];P.queued=null;
   const loss=P.lv>1?Math.floor(expNeed(P.lv)*.01):0;P.exp=Math.max(0,P.exp-loss);
   $('#deathMsg').textContent=`Struck down by ${src}.`+(loss?` You lost ${fmt(loss)} experience.`:'');
   $('#death').hidden=false;sfx('death');addLog(`You were defeated by ${src}.`,'l-bad');
