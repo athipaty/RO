@@ -205,3 +205,10 @@ button{font:inherit;color:inherit}
 .esw{width:24px;height:24px;border-radius:5px;border:2px solid #1a120a;cursor:pointer;padding:0}.esw.on{outline:2px solid #ffcf5a;outline-offset:1px}
 .gnote{min-height:auto}.grow2{display:flex;gap:6px;margin:6px 0}.grow2 input{flex:1}
 .gm .gdot{width:9px;height:9px;border-radius:50%;background:#4a4f5a;flex:none}.gm.on .gdot{background:#62bf86}
+#hudToggle{position:absolute;top:4px;right:4px;width:24px;height:24px;padding:0;border-radius:5px;border:1px solid var(--edge-dim);background:#1a2029;color:var(--exp);font:800 15px/1 inherit;cursor:pointer;pointer-events:auto}
+#hudToggle:hover,#hudToggle:focus-visible{border-color:var(--edge)}
+#hud .name{padding-right:26px}
+#hud.mini>:not(.name):not(.hpb):not(.spb):not(#ailT):not(#hudToggle){display:none}
+#hud.mini .name{font-size:16px;margin-bottom:4px}
+@media (max-width:760px){#minibox{max-width:176px;box-sizing:border-box}#menu{flex-wrap:wrap}#menu .btn{padding:2px 6px}}
+@media (max-width:760px){#onlineBadge{top:calc(max(10px,env(safe-area-inset-top)) + 222px);left:auto;right:max(10px,env(safe-area-inset-right));transform:none}#whoList{top:calc(max(10px,env(safe-area-inset-top)) + 256px);left:auto;right:max(10px,env(safe-area-inset-right));transform:none}}

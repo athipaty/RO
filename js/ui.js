@@ -127,6 +127,7 @@ function refreshPanel(){
     <b>Levels:</b> base levels give stat points (C). Job levels give skill points (K). At Job Lv 10, talk to Guildmaster Corvin to become a Warden, Arcanist, Ranger or Cleric.<br>
     <b>Sigils:</b> every monster has a small chance to drop its sigil. Socket it into equipment with a free slot to gain its bonus for good.<br>
     <b>Resting:</b> press X to sit and recover HP and SP faster.<br>
+    <b>Status box:</b> the − button in its corner (or B) shrinks it to just your name, HP and SP; + brings it back.<br>
     <b>Regions:</b> Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45), home of the Ashen Warlord → Frostpeak Pass (42+).<br>
     <b>Dungeon:</b> stairs in a clearing in Whispering Woods lead down into the Mossdeep Caverns: three dark floors (Lv 18–37) that get harder as you go deeper, with the Gloomcap King at the bottom.<br>
     <b>Quests:</b> people with a gold <b>!</b> over their head have a quest for you, and a <b>?</b> means you can hand one in. Start the story with Elder Hollis by the fountain. Press J for your quest log.<br>
@@ -258,6 +259,7 @@ window.addEventListener('keydown',ev=>{
   if(ev.altKey){const pn={e:'items',q:'equip',s:'skills',a:'status',l:'emote',h:'help',u:'quests',g:'guild'}[k];
     if(pn){ev.preventDefault();togglePanel(pn);return;}
     if(k==='v'){ev.preventDefault();$('#hud').hidden=!$('#hud').hidden;return;}}
+  if(k==='b'&&!ev.altKey){hudMini(!$('#hud').classList.contains('mini'));return;}
   if(/^f[1-9]$/.test(k)){ev.preventDefault();const i=+k.slice(1)-1;if(i<8)pressSlot(i);return;}
   if(k==='f12'){ev.preventDefault();$('#hotbar').hidden=!$('#hotbar').hidden;return;}
   if(k==='insert'){ev.preventDefault();if(!P.dead){P.sitting=!P.sitting;P.path=[];P.target=null;}return;}
@@ -415,3 +417,10 @@ function boot(hot){
 window.claude?.hot?.snapshot?.(()=>snapshot());
 window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data);
 window.__game={get cam(){return {x:camX,y:camY}},get P(){return P},get mobs(){return mobs},get Z(){return Z},enterZone,gainExp,useSkill,startWith};
+
+/* ---- status box: full or compact (name, HP, SP and ailments); remembered on this device ---- */
+function hudMini(on,quiet){const h=$('#hud'),b=$('#hudToggle');h.classList.toggle('mini',on);b.textContent=on?'+':'−';b.setAttribute('aria-expanded',String(!on));
+  const t=on?'Expand the status box (B)':'Collapse the status box (B)';b.setAttribute('aria-label',t);b.title=t;
+  if(!quiet){sfx('click');try{localStorage.setItem('embervale.hudMini',on?'1':'0');}catch(e){}}}
+$('#hudToggle').addEventListener('click',ev=>{ev.stopPropagation();hudMini(!$('#hud').classList.contains('mini'));});
+try{if(localStorage.getItem('embervale.hudMini')==='1')hudMini(true,true);}catch(e){}
