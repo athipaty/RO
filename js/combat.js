@@ -235,10 +235,12 @@ function update(dt){
   ailTick(dt);const held=ailHeld();
   if(!P.heavy&&!ailOn('poison')){P.hp=Math.min(S.maxhp,P.hp+S.regen*rm*dt);P.sp=Math.min(S.maxsp,P.sp+S.spregen*rm*dt);}
   // keyboard
-  let kx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0), ky=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
+  let kx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0), ky=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0), ks=1;
+  // phone joystick: an analogue direction on screen; a light push walks slower
+  if(typeof JOY!=='undefined'&&JOY.on){const m=Math.hypot(JOY.x,JOY.y);if(m>.2){kx=JOY.x;ky=JOY.y;ks=clamp((m-.2)/.6,.45,1);}else{kx=ky=0;}}
   P.moving=false;
-  if((kx||ky)&&!held){if(kx)P.face=kx;if(ky)P.back=ky<0;P.lootGoal=null;
-    if(!P.sitting){P.path=[];P.target=null;P.queued=null;P.npcGoal=null;const wx=(kx+2*ky)/2,wy=(2*ky-kx)/2,n=Math.hypot(wx,wy);moveEnt(P,wx/n*S.speed*dt,wy/n*S.speed*dt,PR);P.moving=true;}}
+  if((kx||ky)&&!held){if(Math.abs(kx)>.15)P.face=Math.sign(kx);if(Math.abs(ky)>.15)P.back=ky<0;P.lootGoal=null;
+    if(!P.sitting){P.path=[];P.target=null;P.queued=null;P.npcGoal=null;const wx=(kx+2*ky)/2,wy=(2*ky-kx)/2,n=Math.hypot(wx,wy);moveEnt(P,wx/n*S.speed*ks*dt,wy/n*S.speed*ks*dt,PR);P.moving=true;}}
   if(!held)autoHunt();
   // target behaviour
   const t=P.target;
