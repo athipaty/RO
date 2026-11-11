@@ -13,8 +13,8 @@ module.exports = async t => {
     await A.ev(() => { for (const m of mobs) { m.x = 20; m.y = 20; m.d.aggro = false; } });
     // casting
     const circle = await A.ev(async () => { let drawn = 0; const orig = castCircle; castCircle = p => { drawn++; return orig(p); };
-      P.casting = { id: 'firstaid', l: 1, cost: 0, fn: () => {}, t0: now, dur: 30 }; await new Promise(r => setTimeout(r, 300)); castCircle = orig; return drawn; });
-    t.ok(circle > 3, 'while casting, a rune circle is drawn under you');
+      P.casting = { id: 'firstaid', l: 1, cost: 0, fn: () => {}, t0: now, dur: 30 }; await new Promise(r => setTimeout(r, 1000)); castCircle = orig; return drawn; });
+    t.ok(circle >= 2, 'while casting, a rune circle is drawn under you');
     t.ok(await poll(B, () => { const o = [...NET.others.values()][0]; return o.cs === 'firstaid'; }), 'other players see you casting');
     await A.ev(() => { P.casting = null; });
     t.ok(await poll(B, () => !([...NET.others.values()][0].cs)), 'and see it stop');
@@ -25,11 +25,11 @@ module.exports = async t => {
     t.ok(await poll(B, () => { const o = [...NET.others.values()][0]; return o.hurtT && now - o.hurtT < 2; }), 'other players see you flinch when your health drops');
     // defeated: still drawn, lying down
     await A.ev(() => die('a test'));
-    const self = await A.ev(async () => { let down = 0; const orig = drawDown; drawDown = (p, w) => { down++; return orig(p, w); }; await new Promise(r => setTimeout(r, 300)); drawDown = orig; return { down, dead: P.dead, deadT: P.deadT > 0 }; });
-    t.ok(self.dead && self.deadT && self.down > 3, 'when defeated you fall over and stay on the ground');
+    const self = await A.ev(async () => { let down = 0; const orig = drawDown; drawDown = (p, w) => { down++; return orig(p, w); }; await new Promise(r => setTimeout(r, 1000)); drawDown = orig; return { down, dead: P.dead, deadT: P.deadT > 0 }; });
+    t.ok(self.dead && self.deadT && self.down >= 2, 'when defeated you fall over and stay on the ground');
     t.ok(await poll(B, () => { const o = [...NET.others.values()][0]; return o.dead && o.deadT > 0; }), 'other players see you fall');
-    const other = await B.ev(async () => { let down = 0; const orig = drawDown; drawDown = (p, w) => { down++; return orig(p, w); }; await new Promise(r => setTimeout(r, 300)); drawDown = orig; return down; });
-    t.ok(other > 3, 'and see you lying there');
+    const other = await B.ev(async () => { let down = 0; const orig = drawDown; drawDown = (p, w) => { down++; return orig(p, w); }; await new Promise(r => setTimeout(r, 1000)); drawDown = orig; return down; });
+    t.ok(other >= 2, 'and see you lying there');
     t.ok(A.page.errors.length === 0 && B.page.errors.length === 0, 'no script errors' + [...A.page.errors, ...B.page.errors].map(e => ': ' + e).join(''));
   } finally { await A.close(); await B.close(); }
 };

@@ -517,3 +517,13 @@ body.touchui #log{width:max(140px,calc(100vw - 262px));max-width:none}
 .swatches button.on{border-color:#fff;box-shadow:0 0 0 2px var(--accent,#f0b54a)}
 .swatches button:focus-visible{outline:2px solid var(--accent,#f0b54a);outline-offset:2px}
 @media (max-width:520px){.styl{flex-direction:column}}
+
+/* ===== emote bar ===== */
+#emoteBar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(max(10px,env(safe-area-inset-bottom)) + 74px);z-index:8;display:flex;gap:4px;padding:6px;border-radius:14px;background:rgba(14,18,26,.94);animation:dockIn .14s ease-out}
+#emoteBar[hidden]{display:none}
+#emoteBar button{width:42px;height:42px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:grid;place-items:center;padding:0}
+#emoteBar button:hover{background:rgba(255,255,255,.1)}#emoteBar img{width:30px;height:30px}
+#emoteBar .more{width:auto;padding:0 10px;font:600 12px Inter,var(--ui);color:var(--muted)}
+body.touchui #emoteBar{left:max(10px,env(safe-area-inset-left));transform:none;bottom:calc(max(10px,env(safe-area-inset-bottom)) + 120px);flex-wrap:wrap;max-width:calc(100vw - 250px)}
+.emb{position:relative}.emb .fav{position:absolute;top:2px;right:4px;font-size:14px;color:var(--muted);cursor:pointer;line-height:1}.emb .fav.on{color:var(--accent,#f0b54a)}
+@media (prefers-reduced-motion:reduce){#emoteBar{animation:none}}
