@@ -3,7 +3,7 @@
    Any player can report another (Report on the online list, or /report Name). The server keeps the reported
    player's last few lines as evidence. Admins (accounts the server lists in EMBERVALE_ADMINS) get an Admin
    button that shows open reports and everyone online, with mute, kick and ban. */
-const MOD={sock:null,admin:false,reports:[],done:[],players:[],tab:'reports',loaded:false,arm:null,newCount:0,muted:0};
+const MOD={sock:null,admin:false,reports:[],done:[],players:[],errors:null,errOpen:null,tab:'reports',loaded:false,arm:null,newCount:0,muted:0};
 const REPORT_REASONS=[['abuse','Rude or abusive'],['spam','Spam'],['cheating','Cheating or bots'],['name','Bad name'],['other','Something else']];
 const rpt={peer:null,name:'',reason:'abuse'};
 
@@ -15,6 +15,7 @@ function modAttach(sock){MOD.sock=sock;
   sock.on('modList',m=>{if(!m)return;MOD.loaded=true;MOD.reports=Array.isArray(m.reports)?m.reports.slice(0,50):[];MOD.done=Array.isArray(m.done)?m.done.slice(0,10):[];
     MOD.players=Array.isArray(m.players)?m.players.slice(0,200):[];if(panelKind==='admin')refreshPanel();});
   sock.on('modDone',()=>{if(panelKind==='admin')sock.emit('modList');});
+  sock.on('modErrors',m=>{MOD.errors=m&&Array.isArray(m.rows)?m.rows.slice(0,60):[];if(panelKind==='admin')refreshPanel();});
   sock.on('modMuted',m=>{const mins=Math.max(0,Math.floor(fin(m&&m.minutes)));MOD.muted=mins?Date.now()+mins*60000:0;
     if(mins)addLog(`An admin muted you for ${mins} minute${mins===1?'':'s'}. Others can't see your chat until then.`,'l-bad');else addLog('You can chat again.','l-good');});
   sock.on('modKicked',m=>{NET.kicked=true;modNotice(m&&m.banned?'Account banned':'Removed from the game',clean(m&&m.reason,100)||'Removed by an admin.');});
@@ -65,7 +66,15 @@ function modActions(t,live,rid){ // t: {peer?, account?}
   return h;}
 PANELS.admin=()=>{MOD.newCount=0;adminButton();
   let h=`<h2>Admin</h2><div class="sub">Reports from players, and everyone online. Mutes and bans on accounts last across reconnects; a guest can only be muted until they reconnect, or kicked.</div>`;
-  h+=`<div class="tabs" role="tablist">`+[['reports',`Reports <span class="muted">${MOD.reports.length}</span>`],['players',`Online <span class="muted">${MOD.players.length}</span>`],['done','Closed']].map(([k,l])=>`<button class="btn small ${MOD.tab===k?'on':''}" role="tab" aria-selected="${MOD.tab===k}" data-act="modtab" data-arg="${k}">${l}</button>`).join('')+modBtn('modrefresh','','↻ Refresh')+`</div>`;
+  h+=`<div class="tabs" role="tablist">`+[['reports',`Reports <span class="muted">${MOD.reports.length}</span>`],['players',`Online <span class="muted">${MOD.players.length}</span>`],['done','Closed'],['errors',`Errors${MOD.errors&&MOD.errors.length?` <span class="muted">${MOD.errors.length}</span>`:''}`]].map(([k,l])=>`<button class="btn small ${MOD.tab===k?'on':''}" role="tab" aria-selected="${MOD.tab===k}" data-act="modtab" data-arg="${k}">${l}</button>`).join('')+modBtn('modrefresh','','↻ Refresh')+`</div>`;
+  if(MOD.tab==='errors'){
+    h+=`<div class="tbtns" style="justify-content:flex-start;margin:6px 0">${modBtn('modbackup','','⬇ Download a backup')}${MOD.errors&&MOD.errors.length?modBtn('moderrclear','all','Clear all errors'):''}</div>`;
+    if(!MOD.errors)return h+`<div class="sub">Loading…</div>`;
+    if(!MOD.errors.length)return h+`<div class="sub">No errors reported by players' games. 🎉</div>`;
+    return h+MOD.errors.map(r=>`<div class="modcard"><div class="mhead"><b>${esc(r.msg)}</b><span class="pill">${r.count}×</span><span class="muted mt">${ago(r.last)}</span></div>`+
+      `<div class="ds">${esc(r.src||'?')}:${r.line}:${r.col} · v${esc(r.v||'?')} · last: ${esc(r.user||'guest')} · first ${ago(r.first)}</div>`+
+      (MOD.errOpen===r.key?`<div class="mchat"><div>${esc(r.ua)}</div>${r.stack?`<pre>${esc(r.stack)}</pre>`:''}</div>`:'')+
+      `<div class="tbtns">${modBtn('moderrshow',r.key,MOD.errOpen===r.key?'Hide details':'Details')}${modBtn('moderrclear',r.key,'Clear')}</div></div>`).join('');}
   if(!MOD.loaded)return h+`<div class="sub">Loading…</div>`;
   const reasonName=r=>(REPORT_REASONS.find(x=>x[0]===r)||[0,r])[1];
   const card=(r,open)=>{const live=livePeer(r.target,r.targetAccount),t=live?{peer:live.peer,account:r.targetAccount||undefined}:{account:r.targetAccount||undefined};
@@ -81,8 +90,15 @@ PANELS.admin=()=>{MOD.newCount=0;adminButton();
   return h;};
 const modSend=(ev,data)=>{if(MOD.sock&&MOD.sock.connected)MOD.sock.emit(ev,data);else addLog('The game server is not reachable right now.','l-bad');};
 const modArg=a=>{try{return JSON.parse(a);}catch(e){return {};}};
-PANEL_ACTS.modtab=k=>{MOD.tab=k;MOD.arm=null;refreshPanel();};
-PANEL_ACTS.modrefresh=()=>modSend('modList');
+PANEL_ACTS.modtab=k=>{MOD.tab=k;MOD.arm=null;if(k==='errors')modSend('modErrors');refreshPanel();};
+PANEL_ACTS.moderrshow=k=>{MOD.errOpen=MOD.errOpen===k?null:k;refreshPanel();};
+PANEL_ACTS.moderrclear=k=>modSend('modErrors',{clear:k});
+// a backup of every account's character, guilds, reports and the keep owner, saved as a file
+PANEL_ACTS.modbackup=async()=>{addLog('Making a backup…');try{const r=await fetch(SERVER+'/api/embervale/admin/backup',{headers:{authorization:'Bearer '+ACC.token}});
+  if(!r.ok){addLog('The backup failed: '+((await r.json().catch(()=>({}))).error||r.status),'l-bad');return;}
+  const blob=await r.blob(),a=document.createElement('a'),name=(r.headers.get('content-disposition')||'').match(/filename="([^"]+)"/);a.href=URL.createObjectURL(blob);a.download=name?name[1]:'embervale-backup.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);
+  addLog(`Backup saved (${Math.round(blob.size/1024)} KB).`,'l-good');}catch(e){addLog('The backup failed: the server could not be reached.','l-bad');}};
+PANEL_ACTS.modrefresh=()=>{modSend('modList');if(MOD.tab==='errors')modSend('modErrors');};
 PANEL_ACTS.modarm=k=>{MOD.arm=k;refreshPanel();};
 const closeAfter=(r,action)=>{if(r)modSend('modClose',{id:r,action});};
 PANEL_ACTS.modmute=a=>{const t=modArg(a);modSend('modMute',{peer:t.peer,account:t.account,minutes:t.m});if(t.m)closeAfter(t.r,`muted ${t.m>=1440?t.m/1440+' day':t.m/60+' h'}`);};
