@@ -58,3 +58,23 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
   setInterval(()=>{const own=!!(P&&Array.isArray(P.mounts)&&P.mounts.length),on=typeof riding==='function'&&riding();
     if(b.hidden===own)b.hidden=!own;if(b.classList.contains('on')!==on)b.classList.toggle('on',on);
     const auto2=$('#autoBtn');if(auto2&&auto2.parentElement===acts&&b.previousElementSibling!==auto2)auto2.insertAdjacentElement('afterend',b);},400);})();
+// ---- turning Auto on asks what to pick up (one quick card), instead of a separate Loot button ----
+(()=>{const card=document.createElement('div');card.id='autoPick';card.hidden=true;card.setAttribute('role','dialog');card.setAttribute('aria-label','Auto-hunt: what should it pick up?');
+  card.innerHTML=`<div class="apT">Auto-hunt: what should I pick up?</div>
+    <button type="button" class="apOpt" data-loot="1"><b class="apI">✦</b><span><b>Everything</b><i>Materials, tonics, gold and gear</i></span></button>
+    <button type="button" class="apOpt" data-loot="0"><b class="apI">★</b><span><b>Only valuable</b><i>Equipment, sigils, coloured items and boss drops</i></span></button>`;
+  document.body.appendChild(card);
+  const close=()=>{card.classList.remove('show');setTimeout(()=>{if(!card.classList.contains('show'))card.hidden=true;},180);};
+  const open=()=>{const b=$('#autoBtn').getBoundingClientRect();card.hidden=false;
+    for(const o of card.querySelectorAll('.apOpt'))o.classList.toggle('on',(o.dataset.loot==='1')===(P.autoLoot!==false));
+    const w=card.offsetWidth,h=card.offsetHeight;card.style.left=Math.max(8,Math.min(innerWidth-w-8,b.left+b.width/2-w/2))+'px';card.style.top=Math.max(8,b.top-h-10)+'px';
+    requestAnimationFrame(()=>card.classList.add('show'));};
+  // start auto-hunt with the chosen pick-up rule
+  card.addEventListener('click',ev=>{const o=ev.target.closest('.apOpt');if(!o)return;ev.stopPropagation();setAutoLoot(o.dataset.loot==='1',true);close();
+    P.auto=true;$('#autoBtn').classList.add('on');sfx('click');
+    addLog(`Auto-hunt on: you fight the nearest monster and drink tonics when HP runs low. Picking up: ${P.autoLoot===false?'only valuable things':'everything'}.`,'l-good');});
+  // a tap on Auto while it is off opens the card; while it is on, it turns off as before
+  addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('#autoBtn');
+    if(b){if(!P||!running||P.auto)return;ev.stopImmediatePropagation();ev.preventDefault();if(card.hidden)open();else close();return;}
+    if(!card.hidden&&!ev.target.closest('#autoPick'))close();},true);
+  addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!card.hidden){ev.stopImmediatePropagation();close();}},true);})();

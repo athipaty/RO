@@ -71,7 +71,9 @@ const TH={
   "The box with your target's name and HP in the middle (monsters also show HP over their heads)":'กล่องชื่อและ HP ของเป้าหมายกลางจอ (มอนสเตอร์มีแถบ HP เหนือหัวอยู่แล้ว)',
   'Off: only equipment, sigils and boss drops are collected; materials, tonics and gold are left (also the Loot button)':'ปิด: เก็บเฉพาะอุปกรณ์ ซิจิล และของจากบอส ทิ้งวัตถุดิบ ยา และโกลด์ไว้ (หรือใช้ปุ่มเก็บของ)',
   'Draws at lower resolution: smoother on slower phones. Switches on by itself if the game runs slowly':'วาดภาพที่ความละเอียดต่ำลง ลื่นขึ้นบนมือถือรุ่นช้า และจะเปิดเองถ้าเกมทำงานช้า',
-  'Ride your mount (R)':'ขี่สัตว์พาหนะ (R)','Ride (R)':'ขี่ (R)',  'Change':'เปลี่ยน','Move up':'เดินขึ้น','Move down':'เดินลง','Move left':'เดินซ้าย','Move right':'เดินขวา',
+  'Ride your mount (R)':'ขี่สัตว์พาหนะ (R)','Ride (R)':'ขี่ (R)',  'Auto-hunt: what should I pick up?':'ล่าอัตโนมัติ: จะให้เก็บอะไร?','Auto-hunt: what should it pick up?':'ล่าอัตโนมัติ: จะให้เก็บอะไร?','Everything':'ทุกอย่าง','Only valuable':'เฉพาะของมีค่า',
+  'Materials, tonics, gold and gear':'วัตถุดิบ ยา โกลด์ และอุปกรณ์','Equipment, sigils, coloured items and boss drops':'อุปกรณ์ ซิจิล ไอเทมชื่อสี และของจากบอส',
+  'Change':'เปลี่ยน','Move up':'เดินขึ้น','Move down':'เดินลง','Move left':'เดินซ้าย','Move right':'เดินขวา',
 };
 // messages with numbers or names in them
 const TH_PAT=[
@@ -82,6 +84,7 @@ const TH_PAT=[
   [/^You got (.+?)( ×\d+)?\.$/,'คุณได้รับ $1$2'],[/^Equipped (.+)\.$/,'สวมใส่ $1 แล้ว'],[/^You enter (.+) \((.+)\)\.$/,(m,a,b)=>`คุณเข้าสู่ ${a} (${thText(b)})`],[/^Welcome to (.+), (.+)\.$/,'ยินดีต้อนรับสู่ $1, $2'],
   [/^Sold your loot for ([\d,]+) gold\.$/,'ขายของได้ $1 โกลด์'],[/^Sold (\d+) (.+) for ([\d,]+) gold\.$/,'ขาย $2 $1 ชิ้น ได้ $3 โกลด์'],[/^(.+) is active for (\d+)s\.$/,'$1 ทำงาน $2 วินาที'],
   [/^You have no (.+)\.$/,'คุณไม่มี $1'],[/^Requires base level (\d+)\.$/,'ต้องการเลเวลฐาน $1'],[/^Not enough gold\.?$/,'โกลด์ไม่พอ'],[/^(.+) is not online\.$/,'$1 ไม่ได้ออนไลน์'],
+  [/^Auto-hunt on: .*Picking up: (.+)\.$/,(m,a)=>`เปิดล่าอัตโนมัติ: สู้กับมอนสเตอร์ที่ใกล้ที่สุด และดื่มยาเมื่อเลือดน้อย เก็บของ: ${a==='everything'?'ทุกอย่าง':'เฉพาะของมีค่า'}`],
   [/^Auto-hunt on: .*Collecting drops: (.+) \(the Loot button\)\.$/,(m,a)=>`เปิดล่าอัตโนมัติ: สู้กับมอนสเตอร์ที่ใกล้ที่สุด และดื่มยาเมื่อเลือดน้อย เก็บของ: ${a==='everything'?'ทุกอย่าง':'เฉพาะอุปกรณ์ ซิจิล และของจากบอส'} (ปุ่มเก็บของ)`],
   [/^Lv (\d+) · (.+)$/,'Lv $1 · $2'],[/^Party: (.+)$/,'ปาร์ตี้: $1'],[/^Contract: (.+)$/,'สัญญา: $1'],
   [/^✿ (.+) is on! Monsters drop (.+)s: trade them with Festival Keeper Pim by the fountain for a (.+)\.$/,'✿ $1 เริ่มแล้ว! มอนสเตอร์ดรอป $2: นำไปแลกกับผู้ดูแลเทศกาล Pim ที่น้ำพุเพื่อรับ $3'],

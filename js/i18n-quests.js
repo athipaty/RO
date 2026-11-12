@@ -78,3 +78,28 @@ document.addEventListener('DOMContentLoaded',()=>{if(LANG!=='th')return;
   if(typeof greeting==='function'){const g=greeting;greeting=function(k){return GREET_TH[k]||GREET_TH._||g(k);};}
   if(typeof SERVICE!=='undefined')Object.assign(SERVICE,SERVICE_TH);
   if(typeof TRIALS!=='undefined')for(const k in TRIALS_TH)if(TRIALS[k])TRIALS[k].say=TRIALS_TH[k];},{once:true});
+
+/* ---- NPC and building names in Thai (display only: the game still uses the English names inside) ---- */
+const NPC_TH={'Elder Hollis':'ผู้เฒ่าฮอลลิส','Ilsa the Merchant':'แม่ค้าอิลซา','Guildmaster Corvin':'หัวหน้ากิลด์คอร์วิน','Sister Maren':'ซิสเตอร์มาเรน','Tobin the Wayfarer':'โทบิน นักเดินทาง',
+  'Brannoc the Smith':'ช่างตีเหล็กแบรนน็อค','Wenna the Keeper':'เวนนา ผู้ดูแลคลัง','Arena Master Vexa':'นายสนามประลองเว็กซา','Lune the Stylist':'ช่างทำผมลูน','Festival Keeper Pim':'ผู้ดูแลเทศกาลพิม',
+  'Keep Herald Orrin':'ผู้ประกาศปราการออร์ริน','Warden Pell':'ผู้พิทักษ์เพลล์','Ysolde the Tracker':'อิโซลด์ นักแกะรอย','Scout Kade':'หน่วยสอดแนมเคด','Merchant Tavi':'พ่อค้าทาวี',
+  'Gemcutter Sela':'ช่างเจียระไนเซลา','Librarian Oren':'บรรณารักษ์โอเรน','Mentor Ansel':'อาจารย์แอนเซล','Banker Ivo':'นายธนาคารไอโว','Sister Ada':'ซิสเตอร์เอดา','Wayfarer Mira':'นักเดินทางมีรา',
+  'Smith Garrow':'ช่างตีเหล็กแกร์โรว์','Seer Valen':'ผู้หยั่งรู้วาเลน',
+  // buildings
+  'General Store':'ร้านค้าทั่วไป','Guild Hall':'หอกิลด์','Chapel':'โบสถ์','Waystation':'สถานีเดินทาง','Smithy':'โรงตีเหล็ก','Warehouse':'โกดัง','Aurel Market':'ตลาดออเรล','Gemcutter':'ร้านเจียระไน',
+  'Grand Library':'หอสมุดใหญ่','Hall of Callings':'หออาชีพ','Royal Bank':'ธนาคารหลวง','Chapel of Dawn':'โบสถ์แห่งรุ่งอรุณ','Grand Waystation':'สถานีเดินทางใหญ่','Forge Royal':'โรงตีเหล็กหลวง','The Grand Library':'หอสมุดใหญ่'};
+// short names that appear inside sentences and quest lines (longest first so "Elder Hollis" wins over "Hollis")
+const NPC_SHORT_TH=[['Elder Hollis','ผู้เฒ่าฮอลลิส'],['Warden Pell','ผู้พิทักษ์เพลล์'],['Scout Kade','หน่วยสอดแนมเคด'],['Sister Maren','ซิสเตอร์มาเรน'],['Hollis','ฮอลลิส'],['Brannoc','แบรนน็อค'],['Pell','เพลล์'],['Ysolde','อิโซลด์'],
+  ['Kade','เคด'],['Corvin','คอร์วิน'],['Ilsa','อิลซา'],['Maren','มาเรน'],['Tobin','โทบิน'],['Wenna','เวนนา'],['Vexa','เว็กซา'],['Lune','ลูน'],['Pim','พิม'],['Orrin','ออร์ริน'],['Valen','วาเลน'],['Oren','โอเรน'],['Sela','เซลา'],['Tavi','ทาวี'],['Garrow','แกร์โรว์'],['Ansel','แอนเซล'],['Ivo','ไอโว']];
+Object.assign(TH,NPC_TH);
+// once a sentence has been put into Thai, swap the English NPC names inside it too
+function thNames(s){if(!/[A-Z]/.test(s)||!/[฀-๿]/.test(s))return s;for(const [en,th] of NPC_SHORT_TH)if(s.includes(en))s=s.split(en).join(th);return s;}
+if(LANG==='th'){const _t0=thText0;thText0=function(s){const r=_t0(s);return r===s?r:thNames(r);};
+  // quest data was swapped to Thai already; give its names the same treatment
+  document.addEventListener('DOMContentLoaded',()=>{if(typeof QUESTS==='undefined')return;for(const id in QUESTS){const q=QUESTS[id];if(!/[฀-๿]/.test(q.name))continue;
+      q.offer=(q.offer||[]).map(thNames);if(q.wait)q.wait=thNames(q.wait);q.done=(q.done||[]).map(thNames);}
+    for(const k in TRIALS_TH)if(typeof TRIALS!=='undefined'&&TRIALS[k])TRIALS[k].say=thNames(TRIALS[k].say);
+    // building signs are drawn on the game itself: show their Thai name while drawing
+    if(typeof drawBuilding==='function'){const _db=drawBuilding;drawBuilding=function(b){const en=b.name,th=NPC_TH[en];if(!th)return _db.apply(this,arguments);b.name=th;try{return _db.apply(this,arguments);}finally{b.name=en;}};}});}
+// "Return to / Talk to <name>" lines and "X is ready. Return to <name>." keep the name pattern above; translate the name part
+TH_PAT.unshift([/^(Return to|Then talk to|Talk to) (.+?)\.?$/,(m,a,b)=>`${{'Return to':'กลับไปหา','Then talk to':'แล้วไปคุยกับ','Talk to':'คุยกับ'}[a]} ${NPC_TH[b]||b}`]);

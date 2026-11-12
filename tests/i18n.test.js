@@ -23,6 +23,8 @@ module.exports = async t => {
     t.ok(/น้ำพุนี้เห็นวีรบุรุษ/.test(q.greet) && q.name === 'จดหมายถึงช่างตีเหล็ก', 'NPC greetings and quest names are in Thai: ' + q.name);
     t.ok(/หน้าใหม่ใน Hearthvale/.test(q.offer) && /ถัดไป/.test(q.offer), 'quest conversations are in Thai');
     t.ok(/เมืองปลอดภัย/.test(q.zone), 'the region line is in Thai: ' + q.zone);
+    const names = await A.ev(() => ({ npc: thText('Elder Hollis'), line: thText('Return to Brannoc the Smith'), quest: QUESTS.letter.offer[1] }));
+    t.ok(names.npc === 'ผู้เฒ่าฮอลลิส' && /ช่างตีเหล็กแบรนน็อค/.test(names.line) && /แบรนน็อค/.test(names.quest) && !/Brannoc/.test(names.quest), 'NPC names are in Thai too: ' + names.npc);
     const back = await A.ev(() => { openPanel('settings'); const has = !!panel.querySelector('[data-act="setlang"][data-arg="en"]'); closePanel(); return has; });
     t.ok(back, 'Settings can switch back to English');
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));

@@ -648,3 +648,14 @@ html[lang="th"] body,html[lang="th"] button,html[lang="th"] input{font-family:In
 @media (max-width:760px){#langBtn{margin-left:6px;padding:2px 8px;font-size:11px}}
 body:not(.touchui) #rideBtn{display:none}
 body.touchui #actions>#rideBtn[hidden]{display:none!important}
+/* the auto-hunt pick-up card */
+#autoLootBtn{display:none!important}
+#autoPick{position:fixed;z-index:30;width:min(300px,calc(100vw - 16px));padding:12px;border-radius:16px;background:rgba(14,18,26,.97);border:1px solid rgba(240,181,74,.35);
+  box-shadow:0 18px 40px rgba(0,0,0,.55);opacity:0;transform:translateY(8px) scale(.94);transform-origin:50% 100%;transition:opacity .18s,transform .18s cubic-bezier(.2,1.4,.4,1)}
+#autoPick.show{opacity:1;transform:none}
+#autoPick .apT{font:700 13px Inter,var(--ui);color:var(--ink);margin:0 2px 8px}
+#autoPick .apOpt{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:10px;margin-top:6px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--ink);cursor:pointer}
+#autoPick .apOpt:hover{background:rgba(240,181,74,.1)}#autoPick .apOpt.on{border-color:rgba(240,181,74,.75);background:rgba(240,181,74,.12)}
+#autoPick .apI{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:17px;color:#ffcf5a;background:radial-gradient(circle at 35% 30%,#3a3220,#16120a);border:1px solid rgba(240,181,74,.5)}
+#autoPick .apOpt span{display:flex;flex-direction:column;gap:2px}#autoPick .apOpt span b{font:700 13.5px Inter,var(--ui)}#autoPick .apOpt span i{font:500 11.5px Inter,var(--ui);font-style:normal;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){#autoPick{transition:none}}
