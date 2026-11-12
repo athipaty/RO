@@ -100,7 +100,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 36. M Day/night and weather per map (v0.26.0)
 - [x] 37. S Bigger minimap and a world map (v0.29.0)
 - [x] 38. S Region name banner on entry
-- [ ] 39. M 40+ monsters with elements, sizes, races
+- [x] 39. M 40+ monsters with elements, sizes, races (v0.67.0: 41 monsters, twelve new across every region)
 
 ### Monsters and bosses
 - [x] 40. L (server) Timed world bosses with an MVP reward (v0.17.0)

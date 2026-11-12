@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='0.66.0';
+const VERSION='0.67.0';
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
 const BLOCK=[0,0,1,1,1,1,0,0]; // 0 ground 1 path 2 tree 3 water 4 rock 5 building 6 cobble 7 flowers
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
@@ -122,6 +122,19 @@ const MOBS={
   frostmatron:{name:'Frost Matron',lv:52,hp:42000,atk:330,def:90,flee:60,exp:40000,jexp:26000,spd:70,aggro:true,boss:true,mini:true,calls:true,shape:'beast',col:'#dff0fa',size:24,respawn:150,sigChance:.15,
     drops:[['frostheart',.2],['fang',1],['orange',1],['glintstone',.4],['emberore',.4]],sig:{kind:'accessory',b:{int:4,maxsp:80},txt:'+4 INT, +80 Max SP'}},
   // #34 Mossdeep Caverns
+  // #39 twelve more monsters (v0.67.0), appended to the end of each region's list so the server and game agree
+  puffcap:{name:'Puffcap',lv:5,hp:95,atk:12,def:4,flee:6,exp:30,jexp:24,spd:40,shape:'mushroom',col:'#e8b0d0',size:11,el:'earth',drops:[['spore',.35],['red',.08]],sig:{kind:'head',b:{maxsp:25},txt:'+25 Max SP'}},
+  dewdrop:{name:'Dewdrop',lv:8,hp:150,atk:17,def:5,flee:12,exp:48,jexp:36,spd:55,shape:'blob',col:'#7fc8f0',size:11,el:'water',drops:[['sap',.45],['blue',.03]],sig:{kind:'accessory',b:{int:2},txt:'+2 INT'}},
+  barkling:{name:'Barkling',lv:15,hp:520,atk:44,def:28,flee:10,exp:180,jexp:130,spd:40,shape:'golem',col:'#8a6a42',size:14,el:'earth',drops:[['thorn',.45],['orange',.05]],sig:{kind:'armor',b:{def:6,vit:1},txt:'+6 DEF, +1 VIT'}},
+  webspinner:{name:'Webspinner',lv:18,hp:640,atk:55,def:16,flee:30,exp:250,jexp:180,spd:70,aggro:true,shape:'bug',col:'#5a4a6a',size:13,el:'earth',ail:['poison',.15,6],drops:[['glowsilk',.35],['remedy',.05]],sig:{kind:'weapon',b:{dex:2,hit:8},txt:'+2 DEX, +8 HIT'}},
+  shriekcap:{name:'Shriekcap',lv:21,hp:880,atk:76,def:20,flee:18,exp:340,jexp:230,spd:45,shape:'mushroom',col:'#d8c050',size:14,el:'earth',ail:['sleep',.12,4],drops:[['gloomspore',.35],['blue',.05]],sig:{kind:'head',b:{int:2,maxsp:30},txt:'+2 INT, +30 Max SP'}},
+  crystalmite:{name:'Crystal Mite',lv:28,hp:1500,atk:105,def:65,flee:22,exp:640,jexp:430,spd:50,shape:'bug',col:'#a8d8f0',size:13,el:'water',drops:[['glintstone',.12],['crabshell',.35]],sig:{kind:'armor',b:{def:8,maxsp:40},txt:'+8 DEF, +40 Max SP'}},
+  dunejackal:{name:'Dune Jackal',lv:24,hp:900,atk:84,def:22,flee:45,exp:430,jexp:300,spd:110,aggro:true,shape:'beast',col:'#c8a060',size:13,el:'earth',drops:[['pelt',.4],['orange',.06]],sig:{kind:'accessory',b:{agi:2,flee:8},txt:'+2 AGI, +8 FLEE'}},
+  miragewisp:{name:'Mirage Wisp',lv:29,hp:1300,atk:104,def:18,flee:75,exp:690,jexp:470,spd:85,aggro:true,range:150,shape:'ghost',col:'#f0d890',size:13,el:'wind',ail:['blind',.12,5],drops:[['dust',.4],['blue',.07]],sig:{kind:'weapon',b:{matk:30},txt:'+30 MATK'}},
+  gravehound:{name:'Grave Hound',lv:38,hp:2600,atk:160,def:38,flee:50,exp:1250,jexp:860,spd:115,aggro:true,undead:true,shape:'beast',col:'#5a5a62',size:15,el:'shadow',drops:[['bone',.45],['orange',.1]],sig:{kind:'accessory',b:{str:3,crit:3},txt:'+3 STR, +3 CRIT'}},
+  ashgolem:{name:'Ash Golem',lv:42,hp:4800,atk:190,def:80,flee:15,exp:1650,jexp:1120,spd:40,aggro:true,shape:'golem',col:'#6a4a3a',size:18,el:'fire',drops:[['emberore',.08],['core',.35]],sig:{kind:'armor',b:{maxhp:300,def:4},txt:'+300 Max HP, +4 DEF'}},
+  iceimp:{name:'Ice Imp',lv:46,hp:2900,atk:205,def:42,flee:70,exp:1850,jexp:1250,spd:110,aggro:true,shape:'imp',col:'#9ad0f0',size:12,el:'water',ail:['freeze',.1,2],drops:[['shard',.4],['blue',.1]],sig:{kind:'weapon',b:{matk:45,dex:2},txt:'+45 MATK, +2 DEX'}},
+  glacierbeetle:{name:'Glacier Beetle',lv:49,hp:5600,atk:225,def:95,flee:20,exp:2450,jexp:1650,spd:42,shape:'bug',col:'#d0e8f8',size:16,el:'water',drops:[['fur',.35],['shard',.3]],sig:{kind:'armor',b:{def:10,vit:2},txt:'+10 DEF, +2 VIT'}},
   glowworm:{name:'Glowworm',lv:19,hp:900,atk:70,def:12,flee:22,exp:300,jexp:200,spd:40,shape:'bug',col:'#9fe08a',size:12,drops:[['glowsilk',.5],['red',.1]],sig:{kind:'accessory',b:{int:2,maxsp:30},txt:'+2 INT, +30 Max SP'}},
   cavebat:{name:'Cave Bat',lv:22,hp:820,atk:88,def:8,flee:60,exp:360,jexp:240,spd:95,aggro:true,shape:'beast',col:'#6a5a7a',size:11,drops:[['batwing',.45],['leaf',.04]],sig:{kind:'weapon',b:{agi:3},txt:'+3 AGI'}},
   stonecrab:{name:'Stone Crab',lv:26,hp:2400,atk:110,def:70,flee:15,exp:620,jexp:420,spd:35,shape:'bug',col:'#8a8478',size:15,drops:[['crabshell',.45],['glintstone',.03]],sig:{kind:'armor',b:{def:5,vit:2},txt:'+5 DEF, +2 VIT'}},
@@ -144,19 +157,19 @@ for(const id in MOBS){const m=MOBS[id];m.id=id;m.hit=m.lv*2+12;
 
 const ZONES={
   town:{name:'Hearthvale',w:40,h:30,theme:'town',safe:true,lvl:'Safe town',links:{east:'meadow'}},
-  meadow:{name:'Greenmoss Meadow',w:64,h:44,theme:'meadow',seed:11,density:.045,ponds:3,lvl:'Lv 1–10',mobs:[['sproutling',16],['hopper',10],['mossbug',9],['hopperchief',1],['hopper',4,'hopperchief']],links:{west:'town',east:'woods'}},
-  woods:{name:'Whispering Woods',w:64,h:46,theme:'woods',seed:23,density:.11,ponds:2,lvl:'Lv 10–20',mobs:[['thornling',13],['greylupe',10],['mushcap',9],['lupealpha',1],['greylupe',4,'lupealpha']],links:{west:'meadow',east:'dunes'},stairs:'deep1'},
+  meadow:{name:'Greenmoss Meadow',w:64,h:44,theme:'meadow',seed:11,density:.045,ponds:3,lvl:'Lv 1–10',mobs:[['sproutling',16],['hopper',10],['mossbug',9],['hopperchief',1],['hopper',4,'hopperchief'],['puffcap',4],['dewdrop',3]],links:{west:'town',east:'woods'}},
+  woods:{name:'Whispering Woods',w:64,h:46,theme:'woods',seed:23,density:.11,ponds:2,lvl:'Lv 10–20',mobs:[['thornling',13],['greylupe',10],['mushcap',9],['lupealpha',1],['greylupe',4,'lupealpha'],['barkling',4],['webspinner',3]],links:{west:'meadow',east:'dunes'},stairs:'deep1'},
   // #34 Mossdeep Caverns: a dungeon under the woods; each floor is harder, the Gloomcap King waits at the bottom
-  deep1:{name:'Mossdeep Caverns B1',w:54,h:38,theme:'cave',music:'crypt',dungeon:1,seed:81,density:.13,ponds:1,lvl:'Lv 18–25 · dungeon',mobs:[['glowworm',13],['cavebat',11]],links:{west:'woods',east:'deep2'}},
-  deep2:{name:'Mossdeep Caverns B2',w:54,h:38,theme:'cave',music:'crypt',dungeon:2,seed:93,density:.14,ponds:2,lvl:'Lv 25–31 · dungeon',mobs:[['stonecrab',12],['gloomcap',11],['cavebat',5]],links:{west:'deep1',east:'deep3'}},
+  deep1:{name:'Mossdeep Caverns B1',w:54,h:38,theme:'cave',music:'crypt',dungeon:1,seed:81,density:.13,ponds:1,lvl:'Lv 18–25 · dungeon',mobs:[['glowworm',13],['cavebat',11],['shriekcap',4]],links:{west:'woods',east:'deep2'}},
+  deep2:{name:'Mossdeep Caverns B2',w:54,h:38,theme:'cave',music:'crypt',dungeon:2,seed:93,density:.14,ponds:2,lvl:'Lv 25–31 · dungeon',mobs:[['stonecrab',12],['gloomcap',11],['cavebat',5],['crystalmite',4]],links:{west:'deep1',east:'deep3'}},
   deep3:{name:'Mossdeep Caverns B3',w:54,h:38,theme:'cave',music:'crypt',dungeon:3,seed:107,density:.15,ponds:1,lvl:'Lv 31–37 · boss',mobs:[['deepshade',11],['cavetroll',9],['gloomcap',4],['gloomking',1]],links:{west:'deep2'}},
-  dunes:{name:'Ashen Dunes',w:68,h:46,theme:'dunes',seed:37,density:.04,ponds:1,lvl:'Lv 20–32',mobs:[['scarab',13],['wraith',10],['cactoid',9],['scarabqueen',1],['scarab',4,'scarabqueen']],links:{west:'woods',east:'crypt'}},
-  crypt:{name:'Cinder Crypt',w:60,h:44,theme:'crypt',seed:51,density:.07,ponds:3,lvl:'Lv 32–45 · boss',mobs:[['bonearcher',12],['emberimp',11],['warlord',1]],links:{west:'dunes',east:'frost'}},
+  dunes:{name:'Ashen Dunes',w:68,h:46,theme:'dunes',seed:37,density:.04,ponds:1,lvl:'Lv 20–32',mobs:[['scarab',13],['wraith',10],['cactoid',9],['scarabqueen',1],['scarab',4,'scarabqueen'],['dunejackal',4],['miragewisp',3]],links:{west:'woods',east:'crypt'}},
+  crypt:{name:'Cinder Crypt',w:60,h:44,theme:'crypt',seed:51,density:.07,ponds:3,lvl:'Lv 32–45 · boss',mobs:[['bonearcher',12],['emberimp',11],['warlord',1],['gravehound',4],['ashgolem',3]],links:{west:'dunes',east:'frost'}},
   // Stage 6 arena: four pits for ranked matches (js/arena.js); reached from the Arena Master in Hearthvale
   // Stage 6 guild war: the Ember Crystal sits in a ring at the centre (js/guildwar.js); reached from the Keep Herald in Hearthvale
   keep:{name:'Emberkeep',w:44,h:34,theme:'keep',music:'crypt',safe:true,lvl:'Guild war',links:{}},
   arena:{name:'Ember Arena',w:48,h:34,theme:'arena',music:'boss',safe:true,lvl:'Ranked PvP',links:{}},
-  frost:{name:'Frostpeak Pass',w:64,h:44,theme:'frost',seed:67,density:.08,ponds:3,lvl:'Lv 42+',mobs:[['rimestalker',12],['frostwisp',11],['snowhulk',9],['frostmatron',1],['rimestalker',3,'frostmatron']],links:{west:'crypt'}},
+  frost:{name:'Frostpeak Pass',w:64,h:44,theme:'frost',seed:67,density:.08,ponds:3,lvl:'Lv 42+',mobs:[['rimestalker',12],['frostwisp',11],['snowhulk',9],['frostmatron',1],['rimestalker',3,'frostmatron'],['iceimp',4],['glacierbeetle',3]],links:{west:'crypt'}},
 };
 const KEEP_C=[22,17],KEEP_R=4; // the crystal (tile) and its capture ring (tiles); the server uses the same numbers
 const ARENA_PITS=[[12,9],[35,9],[12,26],[35,26]];

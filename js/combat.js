@@ -372,10 +372,13 @@ function syncMobs(host,dt){
   const mb=host.mb;if(!mb)return;
   // an older server knows fewer monsters here (new ones are always added at the end of a region's list):
   // sync the ones it knows and keep the rest out of the world until it catches up
-  const base=mobs.length-(wbMob?1:0);if(mb.length>base)return;
-  if(mb.length<base){for(let i=mb.length;i<base;i++){const m=mobs[i];if(!m.dead){m.dead=true;if(P.target===m)P.target=null;}m.respawnAt=now+1e9;}}
-  else if(typeof syncWorldBoss==='function')syncWorldBoss(host,mb.length);
-  for(let i=0;i<mobs.length;i++){const m=mobs[i],st=i<mb.length?mb[i]:wbMob&&m===wbMob&&host.wb&&host.wb.s;if(!Array.isArray(st))continue;
+  const base=mobs.length-(wbMob?1:0),newer=mb.length>base;
+  // a newer server knows more monsters than this game: sync the ones we know and ask for a reload
+  if(newer&&!NET.newerSaid){NET.newerSaid=true;addLog('A new version of Embervale is out with new monsters. Reload the page when you can to see them.','l-rare');}
+  if(!newer&&mb.length<base){for(let i=mb.length;i<base;i++){const m=mobs[i];if(!m.dead){m.dead=true;if(P.target===m)P.target=null;}m.respawnAt=now+1e9;}}
+  else if(!newer&&typeof syncWorldBoss==='function')syncWorldBoss(host,mb.length);
+  const known=Math.min(mb.length,base);
+  for(let i=0;i<mobs.length;i++){const m=mobs[i],st=i<known?mb[i]:wbMob&&m===wbMob&&host.wb&&host.wb.s;if(!Array.isArray(st))continue;
     const f=fin(st[3])|0,dead=!!(f&1),nx=fin(st[0]),ny=fin(st[1]);
     if(dead){if(!m.dead)killMob(m);continue;}
     if(m.dead){m.dead=false;m.x=nx;m.y=ny;m.hp=m.d.hp;m.myDmg=0;}
