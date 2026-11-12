@@ -37,3 +37,22 @@ hurtPlayer=function(dmg,src){
     if(P.hp-dmg<1){dmg=Math.max(0,P.hp-1);if(!SMOOTH.saved){SMOOTH.saved=true;floatT(P.x,P.y-48,'Steady!','#9fe0ff',14);addLog('Your game froze for a moment, so those hits could not knock you out. Get to safety!','l-good');}}
     if(dmg<=0)return;}
   return _hurtPlayerS.call(this,dmg,src);};
+
+/* ---- danger warning: below 25% HP the screen edge glows red and a heartbeat plays ---- */
+let dangerEl=null,heartT=0;
+function dangerTick(){if(!P||!S)return;
+  if(!dangerEl){dangerEl=document.createElement('div');dangerEl.id='danger';dangerEl.setAttribute('aria-hidden','true');document.body.appendChild(dangerEl);}
+  const f=P.hp/Math.max(1,S.maxhp),on=running&&!P.dead&&f<.25&&!Z.D.safe;
+  // only the opacity changes (cheap: no repaint of the whole screen); a gentle pulse, stronger as HP drops
+  const op=on?((.45+.55*(1-f/.25))*(REDUCED_MOTION.matches?1:.8+.2*Math.sin(now*7))).toFixed(2):'0';
+  if(dangerEl._op!==op){dangerEl._op=op;dangerEl.style.opacity=op;}if(dangerEl.classList.contains('on')!==on)dangerEl.classList.toggle('on',on);
+  if(on){
+    if(now>=heartT&&AU.ctx&&AU.sfx&&typeof tone==='function'){heartT=now+(f<.1?.6:.9);const t=AU.ctx.currentTime;
+      tone({f:62,f2:40,dur:.12,vol:.5,t});tone({f:55,f2:36,dur:.12,vol:.38,t:t+.17});}}}
+const _updateHudD=updateHud;
+updateHud=function(){_updateHudD.apply(this,arguments);try{dangerTick();}catch(e){}};
+
+/* ---- tell the server right away when the game goes to the background (frames stop, so the usual
+   presence update would not go out); the server's monsters leave a backgrounded player alone ---- */
+document.addEventListener('visibilitychange',()=>{if(!running||!P||typeof netTick!=='function'||!NET.room)return;
+  try{NET.sendT=0;NET.lastSent='';netTick(0);}catch(e){}});

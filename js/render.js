@@ -169,9 +169,10 @@ function render(){
 }
 const amb=[];let ambZone=null,ambLast=0;
 const AMB={meadow:{n:18,col:'#fff6a8'},woods:{n:26,col:'#d8ff7a'},dunes:{n:40,col:'rgba(230,200,140,.7)'},crypt:{n:34,col:'#ff9a4a'},frost:{n:70,col:'#ffffff'},town:{n:10,col:'#ffd8e8'}};
+const REDUCED_MOTION=matchMedia('(prefers-reduced-motion: reduce)');
 function drawAmbient(){
-  const dt=Math.min(.05,now-ambLast);ambLast=now;const cfg=AMB[zoneId];if(!cfg||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  if(ambZone!==zoneId){ambZone=zoneId;amb.length=0;for(let i=0;i<cfg.n;i++)amb.push({x:Math.random()*VW,y:Math.random()*VH,p:Math.random()*6,s:.5+Math.random()});}
+  const dt=Math.min(.05,now-ambLast);ambLast=now;const cfg=AMB[zoneId];if(!cfg||REDUCED_MOTION.matches)return;
+  const ak=zoneId+(window.LITE?':lite':'');if(ambZone!==ak){ambZone=ak;amb.length=0;for(let i=0;i<Math.round(cfg.n*(window.LITE?.5:1));i++)amb.push({x:Math.random()*VW,y:Math.random()*VH,p:Math.random()*6,s:.5+Math.random()});}
   ctx.save();
   for(const a of amb){a.p+=dt;
     if(zoneId==='frost'){a.y+=dt*(30+a.s*30);a.x+=Math.sin(a.p*1.3)*dt*20-dt*10;}

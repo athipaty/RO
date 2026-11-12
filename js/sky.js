@@ -20,13 +20,13 @@ function weatherNow(zone,t){const list=WEATHERS[zone];if(!list)return 'clear';co
 
 /* ---- particles (screen space) ---- */
 let SKY={kind:null,parts:[],t:performance.now(),fogX:0};
-function skyParts(kind){const n={rain:110,snow:90,blizzard:170,sand:80,embers:45,fog:0,clear:0}[kind]||0;const a=[];
+function skyParts(kind){const n=Math.round(({rain:110,snow:90,blizzard:170,sand:80,embers:45,fog:0,clear:0}[kind]||0)*(window.LITE?.45:1));const a=[];
   for(let i=0;i<n;i++)a.push({x:Math.random(),y:Math.random(),s:.6+Math.random()*.8,w:Math.random()*6.28});return a;}
 function drawSky(){if(!Z||!P)return;const t=performance.now(),dt=Math.min(.05,(t-SKY.t)/1000);SKY.t=t;
   const W=VW,H=VH;ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);
   // night: darken everything except around the player and the townsfolk
   if(hasSky()){const h=gameHour(),d=darkness(h)*(skyOn?.55:.35);
-    if(d>0){const lc=skyLayer(W,H),g=lc.getContext('2d');g.globalCompositeOperation='source-over';g.clearRect(0,0,W,H);
+    if(d>0){const lc=skyLayer(W,H),g=lc.getContext('2d');g.setTransform(lc.width/W,0,0,lc.height/H,0,0);g.globalCompositeOperation='source-over';g.clearRect(0,0,W,H);
       g.fillStyle=`rgba(12,16,44,${d})`;g.fillRect(0,0,W,H);g.globalCompositeOperation='destination-out';
       const hole=(x,y,r)=>{const gr=g.createRadialGradient(x,y,r*.15,x,y,r);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.beginPath();g.arc(x,y,r,0,7);g.fill();};
       const me=scr(P.x,P.y);hole(me.x,me.y-16,Math.min(W,H)*.32);
@@ -36,7 +36,7 @@ function drawSky(){if(!Z||!P)return;const t=performance.now(),dt=Math.min(.05,(t
     const warm=h>=5&&h<7?1-Math.abs(h-6):h>=17&&h<20?1-Math.abs(h-18.5)/1.5:0;
     if(warm>0){ctx.fillStyle=`rgba(255,140,60,${.12*warm})`;ctx.fillRect(0,0,W,H);}}
   // weather
-  const kind=skyOn?weatherNow(zoneId):'clear';if(kind!==SKY.kind){SKY.kind=kind;SKY.parts=skyParts(kind);}
+  const kind=skyOn?weatherNow(zoneId):'clear';if(kind!==SKY.kind||SKY.lite!==!!window.LITE){SKY.kind=kind;SKY.lite=!!window.LITE;SKY.parts=skyParts(kind);}
   if(kind==='rain'||kind==='blizzard'||kind==='snow'||kind==='sand'){ctx.fillStyle=kind==='sand'?'rgba(200,150,80,.22)':kind==='rain'?'rgba(40,60,90,.16)':'rgba(220,235,250,.12)';ctx.fillRect(0,0,W,H);}
   if(kind==='fog'){SKY.fogX+=dt*12;for(let i=0;i<4;i++){const x=((SKY.fogX*(1+i*.3)+i*W*.4)%(W*1.6))-W*.3,y=H*(.2+i*.22);
     const gr=ctx.createRadialGradient(x,y,10,x,y,W*.45);gr.addColorStop(0,'rgba(230,236,240,.35)');gr.addColorStop(1,'rgba(230,236,240,0)');ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);}}
@@ -47,7 +47,7 @@ function drawSky(){if(!Z||!P)return;const t=performance.now(),dt=Math.min(.05,(t
     else if(kind==='embers'){p.y-=dt*.08*p.s;p.x+=dt*.02*Math.sin(t/700+p.w);ctx.fillStyle=`rgba(255,${120+Math.floor(80*p.s)},60,${.5+.4*Math.sin(t/300+p.w)})`;ctx.beginPath();ctx.arc(p.x*W,p.y*H,1.2+p.s,0,7);ctx.fill();}
     if(p.y>1.05){p.y=-.05;p.x=Math.random()*1.2-.1;}if(p.y<-.05){p.y=1.05;p.x=Math.random();}if(p.x>1.05)p.x=-.05;if(p.x<-.05)p.x=1.05;}
   ctx.restore();}
-let skyLayerC=null;function skyLayer(W,H){if(!skyLayerC)skyLayerC=document.createElement('canvas');if(skyLayerC.width!==W||skyLayerC.height!==H){skyLayerC.width=W;skyLayerC.height=H;}return skyLayerC;}
+let skyLayerC=null;function skyLayer(W,H){if(!skyLayerC)skyLayerC=document.createElement('canvas');const k=window.LITE?.5:1,w=Math.max(1,Math.round(W*k)),h=Math.max(1,Math.round(H*k));if(skyLayerC.width!==w||skyLayerC.height!==h){skyLayerC.width=w;skyLayerC.height=h;}return skyLayerC;}
 
 /* ---- the region line under the minimap: level range · time of day · weather ---- */
 function skyLabel(){if(!Z)return '';const h=gameHour(),w=weatherNow(zoneId);

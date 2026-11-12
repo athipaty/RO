@@ -542,3 +542,5 @@ body.touchui #emoteBar{left:max(10px,env(safe-area-inset-left));transform:none;b
 .hbrowtabs{margin:6px 0 2px}.hbrowtabs small{color:var(--muted);font-size:10px;margin-left:3px}
 body.touchui #hotrows,body.touchui #hotbar #hbRows{display:none!important}
 body.ui-s #hotrows{zoom:.88}body.ui-l #hotrows{zoom:1.15}
+/* low HP: red glow around the screen edge, stronger as HP drops */
+#danger{position:fixed;inset:0;pointer-events:none;z-index:4;opacity:0;will-change:opacity;background:radial-gradient(ellipse at center,rgba(200,20,20,0) 58%,rgba(200,20,20,.55) 100%)}

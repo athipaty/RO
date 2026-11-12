@@ -19,6 +19,11 @@ module.exports = async t => {
     t.ok(auto.lite && auto.log, 'a slow game switches Performance mode on by itself and says so');
     const manual = await A.ev(() => { PANEL_ACTS.setlite(); const off = !window.LITE; SMOOTH.samples = Array(240).fill(45); return new Promise(r => setTimeout(() => r(off && !window.LITE), 200)); });
     t.ok(manual, 'turning it off by hand is respected');
+    const danger = await A.ev(async () => { enterZone('meadow'); S = computeStats(); P.hp = Math.round(S.maxhp * .1); await new Promise(r => setTimeout(r, 300)); const on = document.getElementById('danger').classList.contains('on');
+      P.hp = S.maxhp; await new Promise(r => setTimeout(r, 300)); return on && !document.getElementById('danger').classList.contains('on'); });
+    t.ok(danger, 'below 25% HP the screen edge glows red, and it goes away when healed');
+    const lite = await A.ev(() => { const full = skyParts('rain').length; window.LITE = true; const few = skyParts('rain').length; window.LITE = false; return few < full; });
+    t.ok(lite, 'Performance mode draws fewer rain and snow particles');
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));
   } finally { await A.close(); }
 };
