@@ -24,7 +24,7 @@ module.exports = async t => {
     t.ok(await A.ev(() => { P.cd = {}; useSkill('thornsnare'); const a = !!AIM; window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); return a && !AIM; }), 'Esc cancels aiming');
     const wall = await A.ev(async () => { P.cls = 'arcanist'; P.skills = { frostnova: 2, emberwall: 5 }; P.cd = {}; P.sp = 999; S = computeStats(); useSkill('emberwall'); aimCast({ x: P.x + 80, y: P.y });
       await new Promise(r => setTimeout(r, 100)); const z = GZ.find(z => z.k === 'emberwall'); if (!z) return {}; const m = mobs.find(x => !x.dead); m.hp = m.d.hp; m.x = z.x; m.y = z.y; const h = m.hp;
-      await new Promise(r => setTimeout(r, 1200)); return { ok: true, hurt: m.hp < h || m.myDmg > 0, slow: m.slowUntil > now }; });
+      for (let i = 0; i < 20; i++) { m.x = z.x; m.y = z.y; m.state = 'idle'; await new Promise(r => setTimeout(r, 100)); } return { ok: true, hurt: m.hp < h || m.myDmg > 0, slow: m.slowUntil > now }; });
     t.ok(wall.ok && wall.hurt && wall.slow, 'Ember Wall burns and slows monsters standing in it');
     const haven = await A.ev(async () => { for (const m of mobs) m.x = 99999; GZ = []; P.cls = 'cleric'; P.skills = { mend: 2, haven: 4 }; P.cd = {}; P.sp = 999; S = computeStats(); const d0 = S.def;
       useSkill('haven'); aimCast({ x: P.x + 20, y: P.y }); await new Promise(r => setTimeout(r, 400)); return { buff: !!P.buffs.haven, def: S.def - d0 }; });

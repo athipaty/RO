@@ -229,7 +229,7 @@ function doRefine(key){const g=findGear(key);if(!g){refineArm=null;refreshPanel(
   S=computeStats();P.hp=Math.min(P.hp,S.maxhp);P.sp=Math.min(P.sp,S.maxsp);rebuildHotbar();refreshPanel();save(true);}
 function drawEquipDoll(){const c=document.getElementById('eqCv');if(!c)return;const g=c.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,c.width,c.height);
   g.setTransform(3,0,0,3,0,0);const main=ctx;ctx=g;
-  try{drawPlayer({name:P.name,look:P.look,cls:P.cls,eq:P.eq,x:40,y:82,face:1,back:false,moving:false,sitting:false},P.eq.weapon&&P.eq.weapon.id);}finally{ctx=main;}}
+  try{drawPlayer({name:P.name,look:P.look,cls:P.cls,eq:P.eq,x:40,y:82,face:1,back:false,moving:false,sitting:false,held:true},P.eq.weapon&&P.eq.weapon.id);}finally{ctx=main;}}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 panel.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act,arg=b.dataset.arg;

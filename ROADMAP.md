@@ -55,7 +55,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 
 ### Characters and look
 - [ ] 1. M Male/female body choice in the creator
-- [ ] 2. M Equipped gear visible on the body (armour colour, cape, shield, weapon on back)
+- [x] 2. M Equipped gear visible on the body (armour v0.36.0, shield and job mantles earlier; weapon slung on the back in town, sitting or riding v0.62.0)
 - [x] 3. S Lower/middle headgear slots (v0.57.0: Face and Mouth slots, 8 items at Ilsa's and the smithy)
 - [x] 4. M Hair dye / stylist NPC (v0.49.0: Lune the Stylist in Hearthvale)
 - [x] 5. M More animations: casting pose, hurt frame, death pose, per-weapon attacks (melee swing v0.43.0; casting, flinch and falling v0.50.0)
