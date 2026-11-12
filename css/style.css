@@ -667,3 +667,5 @@ body.touchui #actions>#rideBtn[hidden]{display:none!important}
 .cmi b{position:absolute;right:-4px;bottom:-5px;font:700 10px Inter,var(--ui);padding:1px 4px;border-radius:6px;background:rgba(10,12,16,.92);color:#ef7a6f;font-variant-numeric:tabular-nums}
 .cmi.ok b{color:#7fd38a}
 .cmi:focus-visible{outline:2px solid var(--accent)}
+/* phones: the chat box sits down at the bottom edge (just above the thin EXP bar) */
+body.touchui #log{bottom:calc(max(4px,env(safe-area-inset-bottom)) + 6px)}
