@@ -42,7 +42,7 @@ const TH={
   'Your hit chance':'โอกาสโจมตีโดน','You dodge':'โอกาสหลบ','Weight':'น้ำหนัก','Range':'ระยะ','Attacks/sec':'การโจมตี/วินาที','Attacks/s':'การโจมตี/วิ','Vs size S/M/L':'ต่อขนาด เล็ก/กลาง/ใหญ่',
   'Materials':'วัตถุดิบ','In storage':'ในคลัง','Stable':'คอกสัตว์','Festival calendar':'ปฏิทินเทศกาล','Hunting contracts':'สัญญาล่า','Members':'สมาชิก','Top 20':'อันดับ 20',
   'Display':'การแสดงผล','Mouse':'เมาส์','Keys':'ปุ่ม','Music':'เพลง','Sound effects':'เอฟเฟกต์เสียง','Ambient sounds':'เสียงบรรยากาศ','Interface size':'ขนาดหน้าจอ','Weather and seasons':'สภาพอากาศและฤดูกาล',
-  'Performance mode':'โหมดประสิทธิภาพ','Monster card':'การ์ดมอนสเตอร์','Saved in this browser.':'บันทึกไว้ในเบราว์เซอร์นี้','Open help':'เปิดคำช่วยเหลือ','Boxes, buttons and windows':'กล่อง ปุ่ม และหน้าต่าง',
+  'Performance mode':'โหมดประสิทธิภาพ','Monster card':'การ์ดมอนสเตอร์','Clear screen in battle':'หน้าจอโล่งตอนต่อสู้','On phones the map, quick buttons and chat fade away while you fight and come back when you stop':'บนมือถือ แผนที่ ปุ่มลัด และแชทจะจางหายตอนต่อสู้ และกลับมาเมื่อหยุดสู้','Saved in this browser.':'บันทึกไว้ในเบราว์เซอร์นี้','Open help':'เปิดคำช่วยเหลือ','Boxes, buttons and windows':'กล่อง ปุ่ม และหน้าต่าง',
   'Rain, snow, fog, embers, festival lanterns':'ฝน หิมะ หมอก ประกายไฟ โคมเทศกาล','Footsteps, birds, wind, drips and crowds':'เสียงเดิน นก ลม น้ำหยด และฝูงชน','Reset to default keys':'คืนค่าปุ่มเริ่มต้น',
   'Press Change, then the new key. A key already in use swaps with it. Esc cancels.':'กดเปลี่ยน แล้วกดปุ่มใหม่ ปุ่มที่ใช้อยู่แล้วจะสลับกัน กด Esc เพื่อยกเลิก','Language':'ภาษา',
   'How to play':'วิธีเล่น','Elements':'ธาตุ','Ailments':'สถานะผิดปกติ','Name colours':'สีของชื่อ','Chat commands':'คำสั่งแชท','Playing together':'เล่นด้วยกัน',

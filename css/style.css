@@ -731,3 +731,7 @@ body.touchui #atkBtn{width:84px!important;height:84px!important}
 body.touchui #atkBtn .aic{width:38px;height:38px}
 body.touchui #hotbar{right:34px!important;bottom:34px!important}
 @media (orientation:landscape) and (max-height:520px){body.touchui #hotbar{right:36px!important;bottom:36px!important;transform:scale(1.1)!important;transform-origin:0 0}}
+/* ===== phones: clear screen in battle (body.fightui) ===== */
+body.touchui :is(#minibox,#quick,#onlineBadge,#log,#buffs){transition:opacity .45s ease,transform .45s ease}
+body.touchui.fightui :is(#minibox,#quick,#onlineBadge){opacity:0;pointer-events:none;transform:translateY(-8px)}
+body.touchui.fightui #log{opacity:.18;pointer-events:none}

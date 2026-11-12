@@ -110,3 +110,16 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
   move();setInterval(move,1000);addEventListener('resize',()=>setTimeout(move,60));})();
 // the who's-online list also closes when you tap anywhere else
 addEventListener('pointerdown',e=>{const l=$('#whoList'),b=$('#onlineBadge');if(!l||l.hidden)return;if(l.contains(e.target)||(b&&b.contains(e.target)))return;l.hidden=true;},true);
+// phones: a clear screen in battle. After ~1.5s of fighting the minimap, quick buttons, online badge and chat fade
+// away (HP, skills and Attack stay); they come back 3s after the fight, or at once when you tap where they were.
+(()=>{let since=0,calm=0,on=false;
+  const fighting=()=>{if(!P||P.dead||!running)return false;const t=P.target;
+    return now-(P.hurtT||-9)<2.5||mobs.some(m=>!m.dead&&now-(m.hitF||-9)<2.5&&(m.myDmg||0)>0)||(t&&!t.dead&&!t.pvp&&dist(t,P)<(S.range||60)+t.d.size+30);};
+  const set=v=>{if(on===v)return;on=v;document.body.classList.toggle('fightui',v);if(v){const l=$('#whoList');if(l)l.hidden=true;}};
+  setInterval(()=>{const want=document.body.classList.contains('touchui')&&(typeof SETS==='undefined'||SETS.fightUi!==false)&&!document.querySelector('.panel:not([hidden]),#panel:not([hidden])');
+    if(!want){since=0;set(false);return;}
+    if(fighting()){calm=0;since=since||performance.now();if(performance.now()-since>1500)set(true);}
+    else{since=0;calm=calm||performance.now();if(performance.now()-calm>3000)set(false);}},250);
+  // a tap on a faded piece brings everything back for a while
+  addEventListener('pointerdown',e=>{if(!on)return;const r=['#minibox','#quick','#log'].map(s=>$(s)).filter(Boolean);
+    if(r.some(el=>{const b=el.getBoundingClientRect();return e.clientX>=b.left&&e.clientX<=b.right&&e.clientY>=b.top&&e.clientY<=b.bottom;})){set(false);since=performance.now()+6000;e.stopPropagation();e.preventDefault();}},true);})();

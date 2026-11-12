@@ -20,6 +20,7 @@ PANELS.settings=()=>{let h=`<h2>Settings</h2><div class="sub">Saved in this brow
     `<div class="setrow"><div class="grow"><div class="nm">Interface size</div><div class="ds">Boxes, buttons and windows</div></div>${seg('setui',SETS.ui,[['s','Small'],['m','Normal'],['l','Large']])}</div>`+
     `<div class="setrow"><div class="grow"><div class="nm">Weather and seasons</div><div class="ds">Rain, snow, fog, embers, festival lanterns</div></div>${toggle('weathert',typeof skyOn==='undefined'||skyOn,'Weather effects on or off')}</div>`+
     `<div class="setrow"><div class="grow"><div class="nm">Language</div><div class="ds">ภาษา · the game reloads to switch</div></div>${seg('setlang',typeof LANG!=='undefined'?LANG:'en',[['en','English'],['th','ไทย']])}</div>`+
+    `<div class="setrow"><div class="grow"><div class="nm">Clear screen in battle</div><div class="ds">On phones the map, quick buttons and chat fade away while you fight and come back when you stop</div></div>${toggle('setfightui',SETS.fightUi!==false,'Clear screen in battle on or off')}</div>`+
     `<div class="setrow"><div class="grow"><div class="nm">Monster card</div><div class="ds">The box with your target's name and HP in the middle (monsters also show HP over their heads)</div></div>${toggle('settarget',SETS.targetBox===true,'Monster card on or off')}</div>`+
     `<div class="setrow"><div class="grow"><div class="nm">Auto-hunt collects drops</div><div class="ds">Off: only equipment, sigils and boss drops are collected; materials, tonics and gold are left (also the Loot button)</div></div>${toggle('setautoloot',!P||P.autoLoot!==false,'Auto-hunt collects drops on or off')}</div>`+
     `<div class="setrow"><div class="grow"><div class="nm">Performance mode</div><div class="ds">Draws at lower resolution: smoother on slower phones. Switches on by itself if the game runs slowly</div></div>${toggle('setlite',!!SETS.lite,'Performance mode on or off')}</div></div>`;
@@ -31,6 +32,7 @@ PANEL_ACTS.setmusic=()=>{audioInit();setAudio(!AU.music,AU.sfx);refreshPanel();}
 PANEL_ACTS.setsfx=()=>{audioInit();setAudio(AU.music,!AU.sfx);refreshPanel();};
 PANEL_ACTS.setui=v=>{SETS.ui=v;saveSets();applySets();if(typeof renderParty==='function')renderParty();refreshPanel();};
 PANEL_ACTS.setlang=l=>{if((l==='th'||l==='en')&&l!==LANG)setLang(l);};
+PANEL_ACTS.setfightui=()=>{SETS.fightUi=SETS.fightUi===false;saveSets();refreshPanel();};
 PANEL_ACTS.settarget=()=>{SETS.targetBox=!SETS.targetBox;saveSets();refreshPanel();};
 PANEL_ACTS.setautoloot=()=>{if(P)setAutoLoot(P.autoLoot===false,true);};
 PANEL_ACTS.setlite=()=>{SETS.lite=!SETS.lite;saveSets();applySets();refreshPanel();};
