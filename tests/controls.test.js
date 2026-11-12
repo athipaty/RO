@@ -15,7 +15,7 @@ module.exports = async t => {
     t.ok(ui.icons, 'phone buttons are round icon buttons');
     t.ok(ui.pads >= 5, `each phone button has a catch ring for near-misses (${ui.pads})`);
     // tap just outside the Chat button's edge
-    const spot = await ev(() => { enterZone('meadow'); for (const m of mobs) { m.x = 30; m.y = 30; } P.path = []; const r = document.getElementById('chatBtn').getBoundingClientRect(); return { x: r.left - 6, y: r.top + r.height / 2, x0: P.x, y0: P.y }; });
+    const spot = await ev(() => { enterZone('meadow'); for (const m of mobs) { m.x = 30; m.y = 30; } P.path = []; const r = document.getElementById('sitBtn').getBoundingClientRect(); return { x: r.left - 6, y: r.top + r.height / 2, x0: P.x, y0: P.y }; });
     await page.touchscreen.tap(spot.x, spot.y); await wait(700);
     const moved = await ev(s => Math.hypot(P.x - s.x0, P.y - s.y0) > 8 || P.path.length > 0, spot);
     t.ok(!moved, 'a tap just beside a button does not walk your hero');

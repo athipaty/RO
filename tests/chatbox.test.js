@@ -21,6 +21,8 @@ module.exports = async t => {
       chatLog('Bea', 'new message', zoneId, false, false); await w(100); const stayed = el.scrollTop < 30, btn = !document.getElementById('logJump').hidden; document.getElementById('logJump').click(); await w(50);
       return { stayed, btn, back: el.scrollTop >= el.scrollHeight - el.clientHeight - 2, dbg: [LOGUI.reading, LOGUI.top, el.scrollHeight, el.clientHeight] }; });
     t.ok(read.stayed && read.btn && read.back, JSON.stringify(read) + ' reading older lines, new chat does not yank you down; "New messages" takes you back');
+    const say = await A.ev(() => { document.body.classList.add('touchui'); document.getElementById('logSay').click(); const open = !document.getElementById('chatbar').hidden; closeChat(); document.body.classList.remove('touchui'); return open; });
+    t.ok(say, 'the 💬 button in the chat box opens the message field');
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));
   } finally { await A.close(); }
 };

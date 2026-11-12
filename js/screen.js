@@ -43,3 +43,13 @@ const LOGUI={big:(()=>{try{return localStorage.getItem('embervale.logBig')==='1'
     let name=(m?m[1]:t).replace(/\s*\(guest\)\s*$/,'').replace(/[:\s]+$/,'').trim();if(!name||name===P.name||/^\[/.test(name))return;
     openChat();const i=$('#chatIn');i.value=`/w ${name} `;i.focus();i.setSelectionRange(i.value.length,i.value.length);});
   apply();})();
+
+/* ---- phones: write from the chat box itself (a 💬 button in its tab row, or tap the messages), so the
+   round Chat button on the right is not needed ---- */
+(()=>{const el=$('#log'),tabs=$('#logTabs');if(!el||!tabs||$('#logSay'))return;
+  const b=document.createElement('button');b.type='button';b.id='logSay';b.className='btn small';b.textContent='💬';b.setAttribute('aria-label','Write a message');b.title='Write a message (Enter)';
+  b.addEventListener('click',ev=>{ev.stopPropagation();if(typeof openChat==='function')openChat();});tabs.insertBefore(b,tabs.firstChild);
+  el.addEventListener('click',ev=>{if(!document.body.classList.contains('touchui'))return;if(ev.target.closest('#logTabs,button,b,a'))return;if(typeof openChat==='function')openChat();});})();
+// phones: the message field opens right above the chat box
+if(typeof openChat==='function'){const _oc=openChat;openChat=function(){const r=_oc.apply(this,arguments);try{if(document.body.classList.contains('touchui')){const lg=$('#log').getBoundingClientRect(),cb=$('#chatbar');
+  cb.style.left=Math.round(lg.left)+'px';cb.style.transform='none';cb.style.width=Math.round(Math.min(innerWidth-lg.left-10,Math.max(lg.width,300)))+'px';cb.style.bottom=Math.round(innerHeight-lg.top+6)+'px';}}catch(e){}return r;};}

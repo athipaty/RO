@@ -73,7 +73,7 @@ const TH={
   'Draws at lower resolution: smoother on slower phones. Switches on by itself if the game runs slowly':'วาดภาพที่ความละเอียดต่ำลง ลื่นขึ้นบนมือถือรุ่นช้า และจะเปิดเองถ้าเกมทำงานช้า',
   'Ride your mount (R)':'ขี่สัตว์พาหนะ (R)','Ride (R)':'ขี่ (R)',  'Auto-hunt: what should I pick up?':'ล่าอัตโนมัติ: จะให้เก็บอะไร?','Auto-hunt: what should it pick up?':'ล่าอัตโนมัติ: จะให้เก็บอะไร?','Everything':'ทุกอย่าง','Only valuable':'เฉพาะของมีค่า',
   'Materials, tonics, gold and gear':'วัตถุดิบ ยา โกลด์ และอุปกรณ์','Equipment, sigils, coloured items and boss drops':'อุปกรณ์ ซิจิล ไอเทมชื่อสี และของจากบอส',
-  'Stand up (X)':'ลุกขึ้น (X)','Stand':'ลุกขึ้น',  'Change':'เปลี่ยน','Move up':'เดินขึ้น','Move down':'เดินลง','Move left':'เดินซ้าย','Move right':'เดินขวา',
+  'Stand up (X)':'ลุกขึ้น (X)','Stand':'ลุกขึ้น',  'Write a message':'เขียนข้อความ','Write a message (Enter)':'เขียนข้อความ (Enter)',  'Change':'เปลี่ยน','Move up':'เดินขึ้น','Move down':'เดินลง','Move left':'เดินซ้าย','Move right':'เดินขวา',
 };
 // messages with numbers or names in them
 const TH_PAT=[
