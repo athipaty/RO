@@ -76,7 +76,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 ### Items and economy
 - [x] 17. S Item weight and carry limit (STR raises it)
 - [x] 18. M Refining +1 to +10 with failure chance
-- [ ] 19. M Slotted gear variants (0-4 sigil slots)
+- [x] 19. M Slotted gear variants (v0.58.0: picked-up gear rolls 0-4 slots around the usual count, shown as [n])
 - [x] 20. S Rarity colours and world announcements for rare drops
 - [x] 21. M Storage NPC (cart still to do)
 - [x] 22. M Crafting and brewing (v0.48.0: 9 brews and 9 forged pieces from monster materials, /craft)

@@ -179,7 +179,7 @@ function refreshPanel(){
     else{const etc=P.inv.filter(e=>ITEMS[e.id].type==='etc');const tot=etc.reduce((a,e)=>a+sellValue(e.id)*e.n,0);
       if(shopCat==='etc')h+=`<div class="row"><div class="grow">Sell all monster loot</div><span class="gold">${fmt(tot)}</span><button class="btn small" data-act="sellall" ${tot?'':'disabled'}>Sell all</button></div>`;
       if(!P.inv.length)h+=`<p class="muted">Nothing to sell.</p>`;
-      P.inv.forEach((e,i)=>{const it=ITEMS[e.id];if(itemCat(e.id)!==shopCat)return;h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><span class="gold">${fmt(sellValue(e.id))}</span><button class="btn small" data-act="sell" data-arg="${i}">Sell 1</button>${e.n>1?`<button class="btn small" data-act="sellstack" data-arg="${i}" title="Sell all ${e.n} for ${fmt(sellValue(e.id)*e.n)} gold">Sell all</button>`:''}</div>`;});}
+      P.inv.forEach((e,i)=>{const it=ITEMS[e.id];if(itemCat(e.id)!==shopCat)return;h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><span class="gold">${fmt((typeof sellValueOf==='function'?sellValueOf(e):sellValue(e.id)))}</span><button class="btn small" data-act="sell" data-arg="${i}">Sell 1</button>${e.n>1?`<button class="btn small" data-act="sellstack" data-arg="${i}" title="Sell all ${e.n} for ${fmt((typeof sellValueOf==='function'?sellValueOf(e):sellValue(e.id))*e.n)} gold">Sell all</button>`:''}</div>`;});}
   }
   else if(panelKind==='job'){
     h+=`<h2>Guild Hall</h2>`;
@@ -248,7 +248,7 @@ panel.addEventListener('click',ev=>{
   if(a==='tab'){shopTab=arg;shopCat=arg==='sell'?'etc':'use';}
   if(a==='buy'){const it=ITEMS[arg];if(carryWeight()+itemWeight(arg)>maxWeight()){addLog(`You cannot carry ${it.name}: too heavy.`,'l-bad');}else if(P.gold>=it.price){P.gold-=it.price;giveItem(arg,1);sfx('coin');addLog(`Bought ${it.name}.`,'l-loot');}}
   if(a==='sellstack'){const e=P.inv[+arg];if(e&&e.n>0){const g=sellValue(e.id)*e.n;P.gold+=g;P.inv.splice(+arg,1);sfx('coin');addLog(`Sold ${e.n} ${ITEMS[e.id].name} for ${fmt(g)} gold.`,'l-loot');}}
-  if(a==='sell'){const e=P.inv[+arg];if(e){sfx('coin');P.gold+=sellValue(e.id);if(e.n!==undefined)takeItem(e.id);else P.inv.splice(+arg,1);}}
+  if(a==='sell'){const e=P.inv[+arg];if(e){sfx('coin');P.gold+=(typeof sellValueOf==='function'?sellValueOf(e):sellValue(e.id));if(e.n!==undefined)takeItem(e.id);else P.inv.splice(+arg,1);}}
   if(a==='sellall'){let g=0;P.inv=P.inv.filter(e=>{if(ITEMS[e.id].type==='etc'){g+=sellValue(e.id)*e.n;return false;}return true;});P.gold+=g;sfx('coin');addLog(`Sold your loot for ${fmt(g)} gold.`,'l-loot');}
   if(a==='job'&&P.cls==='novice'&&P.jl>=10){const k=CLASSES[arg];P.cls=arg;P.jl=1;P.jexp=0;P.skillPts=0;giveItem(k.gift,1);
     const idx=P.inv.findIndex(e=>e.id===k.gift);if(idx>=0)useInv(idx);

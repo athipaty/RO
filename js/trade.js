@@ -9,8 +9,8 @@ const GEAR=['weapon','armor','head','accessory','face','mouth'];
 /* ---- item helpers ---- */
 function validEntry(e,forView){if(!e||typeof e!=='object'||typeof e.id!=='string'||!ITEMS[e.id])return null;const it=ITEMS[e.id];
   if(!GEAR.includes(it.type)){const n=clamp(Math.floor(fin(e.n)),0,30000);return n>=1?{id:e.id,n}:null;}
-  const s=(Array.isArray(e.s)?e.s:[]).slice(0,it.slots||0).map(x=>typeof x==='string'&&ITEMS[x]&&ITEMS[x].type==='sigil'?x:null);
-  while(s.length<(it.slots||0))s.push(null);
+  const ns=Array.isArray(e.s)?clamp(e.s.length,0,4):(it.slots||0);const s=(Array.isArray(e.s)?e.s:[]).slice(0,ns).map(x=>typeof x==='string'&&ITEMS[x]&&ITEMS[x].type==='sigil'?x:null);
+  while(s.length<ns)s.push(null);
   const out={id:e.id,s,r:clamp(Math.floor(fin(e.r)),0,10)};if(!forView)out.uid=uid++;return out;}
 function bagAdd(e){if(e.n!==undefined){const st=invFind(e.id);if(st&&st.n!==undefined)st.n+=e.n;else P.inv.push({id:e.id,n:e.n});}else P.inv.push(e);}
 function bagTake(i,n){const e=P.inv[i];if(!e)return null;if(e.n===undefined){P.inv.splice(i,1);return e;}
