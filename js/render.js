@@ -564,6 +564,13 @@ function drawFx(){
       case 'arrowfall':{const y=f.y-90*(1-a);ctx.strokeStyle='#e8dcb0';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(f.x,y-14);ctx.lineTo(f.x,y);ctx.stroke();break;}
       case 'pillar':{const g=ctx.createLinearGradient(f.x,f.y-120,f.x,f.y);g.addColorStop(0,'rgba(255,250,200,0)');g.addColorStop(1,`rgba(255,245,180,${.8*(1-a)})`);ctx.fillStyle=g;ctx.fillRect(f.x-14,f.y-120,28,122);break;}
       case 'heal':for(let k=0;k<6;k++){ctx.fillStyle=`rgba(140,240,150,${1-a})`;const ang=k*1.05+now*3;ctx.fillRect(f.x+Math.cos(ang)*14-2,f.y-10-a*30-k*3,4,4);}break;
+      case 'killburst':{const s=f.s||14,e=1-(1-a)*(1-a);
+        // a quick white flash, a ring on the ground and shards in the monster's colour that fly out and fall
+        if(a<.3){ctx.globalAlpha=(1-a/.3);ctx.fillStyle='#fffbe6';ctx.beginPath();ctx.arc(f.x,f.y-s,s*(1+a*3),0,7);ctx.fill();ctx.strokeStyle='#ffe27a';ctx.lineWidth=3;ctx.beginPath();ctx.arc(f.x,f.y-s,s*(1.2+a*5),0,7);ctx.stroke();}
+        ctx.globalAlpha=1-a;ctx.strokeStyle='#fff3c0';ctx.lineWidth=4*(1-a)+1;ctx.beginPath();ctx.ellipse(f.x,f.y+2,s*.6+e*s*2.2,(s*.6+e*s*2.2)*.5,0,0,7);ctx.stroke();
+        for(let k=0;k<12;k++){const ang=k/12*Math.PI*2+(k%3)*.4,sp=(k%2?1:.65)*(s*2.4+30),x=f.x+Math.cos(ang)*sp*e,y=f.y-s+Math.sin(ang)*sp*e*.6+a*a*40,r=(k%3?5:7)*(1-a*.8)+.8;
+          ctx.globalAlpha=Math.min(1,(1-a)*1.6);ctx.fillStyle=k%4?f.col:'#fff6c8';ctx.strokeStyle='rgba(20,24,30,.55)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r*.8,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r*.8,y);ctx.closePath();ctx.fill();ctx.stroke();}
+        ctx.globalAlpha=1;break;}
       case 'poof':for(let k=0;k<8;k++){const ang=k/8*Math.PI*2;ctx.fillStyle=f.col;ctx.globalAlpha=1-a;ctx.beginPath();ctx.arc(f.x+Math.cos(ang)*a*24,f.y-10+Math.sin(ang)*a*16,4*(1-a)+1,0,7);ctx.fill();}ctx.globalAlpha=1;break;
       case 'lvpillar':{const fade=a<.12?a/.12:a>.7?(1-a)/.3:1,H=460,w=20+Math.sin(now*14)*3;
         // a warm halo first (normal blending, so it shows on bright ground), then the light itself

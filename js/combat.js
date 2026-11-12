@@ -22,17 +22,19 @@ function knock(m,src){const dx=m.x-src.x,dy=m.y-src.y,sx=(dx-dy)*ISO,sy=(dx+dy)*
 function hurtMob(m,dmg,crit,kind){m.hitF=now;m.myDmg=(m.myDmg||0)+dmg;const client=!!zoneHost();knock(m,P);
   if(client){const left=m.hp-dmg;m.hp=Math.max(1,left);sendHit(m,dmg,0);
     // our hits finished it: stop swinging now instead of waiting for the server to say so
-    if(left<=0&&!m.dying){m.dying=now;if(P.target===m){P.target=null;P.queued=null;}}}else{m.hp-=dmg;provoke(m);showHit(m,dmg);}
+    if(left<=0&&!m.dying){m.dying=now;killFx(m);if(P.target===m){P.target=null;P.queued=null;}}}else{m.hp-=dmg;provoke(m);showHit(m,dmg);}
   if(crit){sfx('crit');hitStop(.09);shakeUntil=now+.2;fx.push({k:'critburst',x:m.x,y:m.y-m.d.size,t0:now,dur:.35});
     texts.push({x:m.x,y:m.y-m.d.size-34,txt:'CRITICAL',col:'#ffe27a',size:13,t0:now,dur:.9});
     texts.push({x:m.x,y:m.y-m.d.size-12,txt:fmt(dmg),col:'#ffb03a',size:26,t0:now,dur:1});}
   else{sfx(kind==='mag'?'zap':hitSound());floatT(m.x,m.y-m.d.size-8,fmt(dmg),'#ffffff',15);}
   if(!client&&m.hp<=0){hitStop(.05);killMob(m);}}
+// the moment your hits finish a monster: flash, ring and shards, a tiny freeze and a shake for big ones
+function killFx(m){m.burstT=now;fx.push({k:'killburst',x:m.x,y:m.y,s:m.d.size,col:m.d.col||'#d8e0a0',t0:now,dur:.6});hitStop(m.d.boss?.12:.05);if(m.d.boss||m.d.size>=24)shakeUntil=Math.max(shakeUntil,now+(m.d.boss?.35:.15));}
 function hitSound(){const w=P.eq.weapon&&ITEMS[P.eq.weapon.id];const t=w&&w.wt;return t==='sword'||t==='axe'?'hitBlade':t==='bow'?'hitArrow':'hitBlunt';}
 function killMob(m){
   m.dead=true;m.dying=0;m.hp=0;m.respawnAt=now+(m.d.respawn||rnd(9,15));
   if(P.target===m){P.target=null;P.queued=null;}
-  fx.push({k:'poof',x:m.x,y:m.y,col:m.d.col,t0:now,dur:.45});
+  fx.push({k:'poof',x:m.x,y:m.y,col:m.d.col,t0:now,dur:.45});if(!(now-(m.burstT||-9)<3)&&(m.myDmg||0)>0)killFx(m);
   const mine=(m.myDmg||0)>0;m.myDmg=0;if(!mine)return; // in a shared world you are rewarded for monsters you hit
   sfx('kill');
   const sh=partyExpShare(m.d.exp,m.d.jexp);gainExp(sh.e,sh.j);
