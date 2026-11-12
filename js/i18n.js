@@ -67,7 +67,7 @@ const TH={
   'Spend your 24 stat points first: open Stats (C).':'ใช้แต้มสถานะ 24 แต้มก่อน: เปิดสถานะ (C)','You can chat again.':'คุณแชทได้อีกครั้งแล้ว','Screenshot shared.':'แชร์ภาพหน้าจอแล้ว',
   'Leave Hearthvale with a club and a cotton tunic. Hunt across five regions, take up a calling, and go after the Ashen Warlord in the Cinder Crypt.':'ออกจาก Hearthvale พร้อมกระบองและเสื้อผ้าฝ้าย ล่ามอนสเตอร์ทั่วห้าภูมิภาค เลือกอาชีพ แล้วออกตามล่า Ashen Warlord ใน Cinder Crypt',
   'Log in to keep your character on the server and play from any device, or just play as a guest (saved on this device only).':'เข้าสู่ระบบเพื่อเก็บตัวละครไว้บนเซิร์ฟเวอร์และเล่นได้ทุกเครื่อง หรือเล่นเป็นแขก (บันทึกเฉพาะเครื่องนี้)',
-  'Name':'ชื่อ','Small':'เล็ก','Normal':'ปกติ','Large':'ใหญ่','ภาษา · the game reloads to switch':'ภาษา · เกมจะรีโหลดเพื่อเปลี่ยน',
+  'Name':'ชื่อ','Lv 1–10':'Lv 1–10','Capital city':'เมืองหลวง','Ranked PvP':'จัดอันดับ PvP','Guild war':'สงครามกิลด์','Small':'เล็ก','Normal':'ปกติ','Large':'ใหญ่','ภาษา · the game reloads to switch':'ภาษา · เกมจะรีโหลดเพื่อเปลี่ยน',
   "The box with your target's name and HP in the middle (monsters also show HP over their heads)":'กล่องชื่อและ HP ของเป้าหมายกลางจอ (มอนสเตอร์มีแถบ HP เหนือหัวอยู่แล้ว)',
   'Off: only equipment, sigils and boss drops are collected; materials, tonics and gold are left (also the Loot button)':'ปิด: เก็บเฉพาะอุปกรณ์ ซิจิล และของจากบอส ทิ้งวัตถุดิบ ยา และโกลด์ไว้ (หรือใช้ปุ่มเก็บของ)',
   'Draws at lower resolution: smoother on slower phones. Switches on by itself if the game runs slowly':'วาดภาพที่ความละเอียดต่ำลง ลื่นขึ้นบนมือถือรุ่นช้า และจะเปิดเองถ้าเกมทำงานช้า',
@@ -79,14 +79,14 @@ const TH_PAT=[
   [/^([\d,]+) gold(.*)$/,(m,a,b)=>`${a} โกลด์${b.replace(/ · (\d+) stat pts/,' · แต้มสถานะ $1').replace(/ · (\d+) skill pts/,' · แต้มสกิล $1')}`],
   [/^Base ([\d.]+)% · Job (.*)$/,(m,a,b)=>`ฐาน ${a}% · อาชีพ ${b.replace('max','สูงสุด')}`],
   [/^Base level (\d+)! You have (\d+) stat points to spend \(C\)\.(.*)$/,'เลเวลฐาน $1! คุณมีแต้มสถานะ $2 แต้มให้ใช้ (C)$3'],[/^Job level (\d+)! You have (\d+) skill points \(K\)\.$/,'เลเวลอาชีพ $1! คุณมีแต้มสกิล $2 แต้ม (K)'],
-  [/^You got (.+?)( ×\d+)?\.$/,'คุณได้รับ $1$2'],[/^Equipped (.+)\.$/,'สวมใส่ $1 แล้ว'],[/^You enter (.+) \((.+)\)\.$/,'คุณเข้าสู่ $1 ($2)'],[/^Welcome to (.+), (.+)\.$/,'ยินดีต้อนรับสู่ $1, $2'],
+  [/^You got (.+?)( ×\d+)?\.$/,'คุณได้รับ $1$2'],[/^Equipped (.+)\.$/,'สวมใส่ $1 แล้ว'],[/^You enter (.+) \((.+)\)\.$/,(m,a,b)=>`คุณเข้าสู่ ${a} (${thText(b)})`],[/^Welcome to (.+), (.+)\.$/,'ยินดีต้อนรับสู่ $1, $2'],
   [/^Sold your loot for ([\d,]+) gold\.$/,'ขายของได้ $1 โกลด์'],[/^Sold (\d+) (.+) for ([\d,]+) gold\.$/,'ขาย $2 $1 ชิ้น ได้ $3 โกลด์'],[/^(.+) is active for (\d+)s\.$/,'$1 ทำงาน $2 วินาที'],
   [/^You have no (.+)\.$/,'คุณไม่มี $1'],[/^Requires base level (\d+)\.$/,'ต้องการเลเวลฐาน $1'],[/^Not enough gold\.?$/,'โกลด์ไม่พอ'],[/^(.+) is not online\.$/,'$1 ไม่ได้ออนไลน์'],
   [/^Auto-hunt on: .*Collecting drops: (.+) \(the Loot button\)\.$/,(m,a)=>`เปิดล่าอัตโนมัติ: สู้กับมอนสเตอร์ที่ใกล้ที่สุด และดื่มยาเมื่อเลือดน้อย เก็บของ: ${a==='everything'?'ทุกอย่าง':'เฉพาะอุปกรณ์ ซิจิล และของจากบอส'} (ปุ่มเก็บของ)`],
   [/^Lv (\d+) · (.+)$/,'Lv $1 · $2'],[/^Party: (.+)$/,'ปาร์ตี้: $1'],[/^Contract: (.+)$/,'สัญญา: $1'],
   [/^✿ (.+) is on! Monsters drop (.+)s: trade them with Festival Keeper Pim by the fountain for a (.+)\.$/,'✿ $1 เริ่มแล้ว! มอนสเตอร์ดรอป $2: นำไปแลกกับผู้ดูแลเทศกาล Pim ที่น้ำพุเพื่อรับ $3'],
   [/^Event on now: (.+)$/,'กิจกรรมตอนนี้: $1'],[/^A (.+) snatched your (.+)! Defeat it to get it back\.$/,'$1 ขโมย $2 ของคุณ! ปราบมันเพื่อเอาคืน'],
-  [/^(\d+) online$/,'ออนไลน์ $1'],[/^● (\d+) online$/,'● ออนไลน์ $1'],[/^Online · nobody else here yet$/,'ออนไลน์ · ยังไม่มีใครอยู่ที่นี่'],[/^(.+) · ☾ Night(.*)$/,'$1 · ☾ กลางคืน$2'],[/^(.+) · ☀ Day(.*)$/,'$1 · ☀ กลางวัน$2'],
+  [/^(\d+) online$/,'ออนไลน์ $1'],[/^● (\d+) online$/,'● ออนไลน์ $1'],[/^Online · nobody else here yet$/,'ออนไลน์ · ยังไม่มีใครอยู่ที่นี่'],[/^(.+) · ☾ Night(.*)$/,(m,a,b)=>`${thText(a)} · ☾ กลางคืน${b.replace('Rain','ฝน').replace('Snow','หิมะ').replace('Fog','หมอก').replace('Blizzard','พายุหิมะ').replace('Sandstorm','พายุทราย').replace('Embers','ประกายไฟ')}`],[/^(.+) · ☀ Day(.*)$/,(m,a,b)=>`${thText(a)} · ☀ กลางวัน${b.replace('Rain','ฝน').replace('Snow','หิมะ').replace('Fog','หมอก').replace('Blizzard','พายุหิมะ').replace('Sandstorm','พายุทราย').replace('Embers','ประกายไฟ')}`],[/^(.+) · ◐ Dusk(.*)$/,(m,a,b)=>`${thText(a)} · ◐ พลบค่ำ${b.replace('Rain','ฝน').replace('Snow','หิมะ').replace('Fog','หมอก').replace('Blizzard','พายุหิมะ').replace('Sandstorm','พายุทราย').replace('Embers','ประกายไฟ')}`],[/^(.+) · ◑ Dawn(.*)$/,(m,a,b)=>`${thText(a)} · ◑ รุ่งเช้า${b.replace('Rain','ฝน').replace('Snow','หิมะ').replace('Fog','หมอก').replace('Blizzard','พายุหิมะ').replace('Sandstorm','พายุทราย').replace('Embers','ประกายไฟ')}`],
 ];
 const TH_MEMO=new Map();
 function thText(s){if(LANG!=='th'||!s)return s;const hit=TH_MEMO.get(s);if(hit!==undefined)return hit;const r=thText0(s);if(TH_MEMO.size>4000)TH_MEMO.clear();TH_MEMO.set(s,r);return r;}

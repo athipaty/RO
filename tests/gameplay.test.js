@@ -7,7 +7,7 @@ module.exports = async t => {
   try {
     // ---- loot
     const drop = await g.ev(() => { enterZone('meadow');
-      const m = mobs.find(m => m.d.id === 'sproutling'); m.d.drops = [['sap', 1], ['red', 1]];
+      const m = mobs.find(m => m.d.id === 'sproutling'); m.d.drops = [['sap', 1], ['red', 1]]; m.d.sigChance = 0;
       P.x = Z.spawn.x; P.y = Z.spawn.y; m.x = P.x + 34; m.y = P.y - 10;
       P.ach = { got: { kill1: 1 } }; // the first-kill achievement pays gold; leave it out of this check
       if (typeof festNow === 'function') festNow = () => null; // festival tokens would add a drop

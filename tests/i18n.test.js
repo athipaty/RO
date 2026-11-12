@@ -17,6 +17,12 @@ module.exports = async t => {
     t.ok(g.tip === 'ไอเทม (I)' && g.tab === 'ทั้งหมด', 'dock tooltips and chat tabs in Thai');
     t.ok(/คลังเต็มแล้ว/.test(g.log) && /เลเวลฐาน 2!/.test(g.log), 'log messages are translated, including ones with numbers');
     t.ok(g.miss === 'พลาด', 'words drawn on the game (Miss, Lucky!) are translated too');
+    const q = await A.ev(async () => { enterZone('town'); const n = Z.npcs.find(n => n.name === 'Elder Hollis'); P.x = n.x; P.y = n.y + 30; openNpc(n); const greet = panel.textContent;
+      const b = panel.querySelector('[data-act="topen"]'); if (b) b.click(); await new Promise(r => setTimeout(r, 200)); const offer = panel.textContent; closePanel();
+      await new Promise(r => setTimeout(r, 1300)); return { greet, offer, name: QUESTS.letter.name, zone: document.getElementById('zLv').textContent }; });
+    t.ok(/น้ำพุนี้เห็นวีรบุรุษ/.test(q.greet) && q.name === 'จดหมายถึงช่างตีเหล็ก', 'NPC greetings and quest names are in Thai: ' + q.name);
+    t.ok(/หน้าใหม่ใน Hearthvale/.test(q.offer) && /ถัดไป/.test(q.offer), 'quest conversations are in Thai');
+    t.ok(/เมืองปลอดภัย/.test(q.zone), 'the region line is in Thai: ' + q.zone);
     const back = await A.ev(() => { openPanel('settings'); const has = !!panel.querySelector('[data-act="setlang"][data-arg="en"]'); closePanel(); return has; });
     t.ok(back, 'Settings can switch back to English');
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));

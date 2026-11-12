@@ -46,7 +46,7 @@ module.exports = async t => {
     const after = await pos();
     t.ok(Math.hypot(after.x - before.x, after.y - before.y) > 40 && !after.joy, 'a plain tap still walks there');
     // a tap on a monster targets it
-    const mt = await ev(() => { const m = mobs[0]; m.x = P.x + 70; m.y = P.y; m.dead = false; const s = proj(m.x, m.y); return { x: s.x - camX, y: s.y - camY - m.d.size * .9 }; });
+    const mt = await ev(() => { if (zoneId !== 'meadow' || !mobs.length) enterZone('meadow'); const m = mobs[0]; m.x = P.x + 70; m.y = P.y; m.dead = false; const s = proj(m.x, m.y); return { x: s.x - camX, y: s.y - camY - m.d.size * .9 }; });
     await touch.tap(mt.x, mt.y); await wait(200);
     t.ok(await ev(() => P.target === mobs[0]), 'a tap on a monster targets it');
     // a drag cancels the target and walks instead
