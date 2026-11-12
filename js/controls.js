@@ -100,9 +100,13 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
   // upright: a row under the minimap (the online badge moves below it); sideways: a row at the top, beside the minimap
   const place=()=>{const mb=$('#minibox');if(!mb)return;const r=mb.getBoundingClientRect(),land=innerWidth>innerHeight&&innerHeight<=520;
     if(land){q.style.top=Math.round(r.top)+'px';q.style.right=Math.round(innerWidth-r.left+8)+'px';}
-    else{q.style.top=Math.round(r.bottom+8)+'px';q.style.right=Math.round(innerWidth-r.right)+'px';const ob=$('#onlineBadge');if(ob&&document.body.classList.contains('touchui'))ob.style.top=Math.round(r.bottom+58)+'px';}};
+    else{q.style.top=Math.round(r.bottom+8)+'px';q.style.right=Math.round(innerWidth-r.right)+'px';const ob=$('#onlineBadge');if(ob&&document.body.classList.contains('touchui')){ob.style.top=Math.round(r.bottom+58)+'px';
+      // the who's-online list opens UNDER the badge, so the badge can still be tapped to close it
+      const wl=$('#whoList');if(wl){const br=ob.getBoundingClientRect();if(br.height)wl.style.top=Math.round(br.bottom+6)+'px';}}}};
   place();setInterval(place,600);addEventListener('resize',place);})();
 // phones: the hotbar's ✎ edit button lives in the ☰ menu (tapping an empty slot still opens the editor)
 (()=>{const move=()=>{const e=$('#hbEdit'),dx=$('#dockExtra'),hb=$('#hotbar');if(!e)return;const touch=document.body.classList.contains('touchui');
     if(touch&&e.parentElement!==dx&&dx){dx.appendChild(e);e.classList.add('act');}else if(!touch&&hb&&e.parentElement!==hb){hb.appendChild(e);e.classList.remove('act');}};
   move();setInterval(move,1000);addEventListener('resize',()=>setTimeout(move,60));})();
+// the who's-online list also closes when you tap anywhere else
+addEventListener('pointerdown',e=>{const l=$('#whoList'),b=$('#onlineBadge');if(!l||l.hidden)return;if(l.contains(e.target)||(b&&b.contains(e.target)))return;l.hidden=true;},true);
