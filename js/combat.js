@@ -20,7 +20,9 @@ function provoke(m){if(!m.dead){m.state='chase';m.aggroed=true;}}
 function knock(m,src){const dx=m.x-src.x,dy=m.y-src.y,sx=(dx-dy)*ISO,sy=(dx+dy)*ISO/2,n=Math.hypot(sx,sy)||1;
   m.kbX=sx/n;m.kbY=sy/n;m.kbT=now;m.stunUntil=now+.22;fx.push({k:'spark',x:m.x,y:m.y-m.d.size*.9,t0:now,dur:.22,r:rnd(0,6)});}
 function hurtMob(m,dmg,crit,kind){m.hitF=now;m.myDmg=(m.myDmg||0)+dmg;const client=!!zoneHost();knock(m,P);
-  if(client){m.hp=Math.max(1,m.hp-dmg);sendHit(m,dmg,0);}else{m.hp-=dmg;provoke(m);showHit(m,dmg);}
+  if(client){const left=m.hp-dmg;m.hp=Math.max(1,left);sendHit(m,dmg,0);
+    // our hits finished it: stop swinging now instead of waiting for the server to say so
+    if(left<=0&&!m.dying){m.dying=now;if(P.target===m){P.target=null;P.queued=null;}}}else{m.hp-=dmg;provoke(m);showHit(m,dmg);}
   if(crit){sfx('crit');hitStop(.09);shakeUntil=now+.2;fx.push({k:'critburst',x:m.x,y:m.y-m.d.size,t0:now,dur:.35});
     texts.push({x:m.x,y:m.y-m.d.size-34,txt:'CRITICAL',col:'#ffe27a',size:13,t0:now,dur:.9});
     texts.push({x:m.x,y:m.y-m.d.size-12,txt:fmt(dmg),col:'#ffb03a',size:26,t0:now,dur:1});}
@@ -28,7 +30,7 @@ function hurtMob(m,dmg,crit,kind){m.hitF=now;m.myDmg=(m.myDmg||0)+dmg;const clie
   if(!client&&m.hp<=0){hitStop(.05);killMob(m);}}
 function hitSound(){const w=P.eq.weapon&&ITEMS[P.eq.weapon.id];const t=w&&w.wt;return t==='sword'||t==='axe'?'hitBlade':t==='bow'?'hitArrow':'hitBlunt';}
 function killMob(m){
-  m.dead=true;m.hp=0;m.respawnAt=now+(m.d.respawn||rnd(9,15));
+  m.dead=true;m.dying=0;m.hp=0;m.respawnAt=now+(m.d.respawn||rnd(9,15));
   if(P.target===m){P.target=null;P.queued=null;}
   fx.push({k:'poof',x:m.x,y:m.y,col:m.d.col,t0:now,dur:.45});
   const mine=(m.myDmg||0)>0;m.myDmg=0;if(!mine)return; // in a shared world you are rewarded for monsters you hit
@@ -204,7 +206,7 @@ function autoHunt(){
   if(f<.4&&(P.cd.pot_hp||0)<=now){const pot=invFind('orange')?'orange':invFind('red')?'red':null;
     if(pot)useItem(pot);else if(f<.3){P.auto=false;$('#autoBtn').classList.remove('on');addLog('Auto-hunt paused: you are out of tonics. Rest with Sit or buy more in town.','l-bad');return;}}
   if((!P.target||P.target.dead)&&!P.path.length&&!P.lootGoal){let bl=null,bd=320;for(const l of loot)if(now>l.t0+.4&&!l.tooHeavy&&(P.autoLoot!==false||lootMatters(l))){const d=dist(l,P);if(d<bd){bd=d;bl=l;}}if(bl){goLoot(bl);return;}}
-  if((!P.target||P.target.dead)&&!P.path.length&&f>=.3){let best=null,bd=650;for(const m of mobs)if(!m.dead){const d=dist(m,P);if(d<bd){bd=d;best=m;}}if(best){P.target=best;P.queued=null;P.sitting=false;P.holdPos=false;}}
+  if((!P.target||P.target.dead)&&!P.path.length&&f>=.3){let best=null,bd=650;for(const m of mobs)if(!m.dead&&!m.dying){const d=dist(m,P);if(d<bd){bd=d;best=m;}}if(best){P.target=best;P.queued=null;P.sitting=false;P.holdPos=false;}}
 }
 
 /* ================= zones & entities ================= */
@@ -257,7 +259,7 @@ function update(dt){
   if(!held)autoHunt();
   // target behaviour
   const t=P.target;
-  if(t&&!t.dead&&!held){
+  if(t&&!t.dead&&!t.dying&&!held){
     const need=P.queued?SKILLS[P.queued].range:S.range;
     const d=dist(P,t)-t.d.size;
     if(d<=need&&(!S.ranged&&!P.queued?true:clearLine(P.x,P.y,t.x,t.y)||d<60)){
@@ -267,7 +269,7 @@ function update(dt){
     } else if(P.assist){/* following: the leader's walk brings us in range, then the queued skill fires */}
     else if(P.holdPos){P.path=[];faceTo(P,t.x-P.x,t.y-P.y);if(now>(P.reachHintT||0)){P.reachHintT=now+2;floatT(P.x,P.y-44,'Out of reach','#aab4c4',12);}}
     else {P.repathT=(P.repathT||0)-dt;if(P.repathT<=0||!P.path.length){pathTo(t.x,t.y,true);P.repathT=.35;}}
-  } else if(t&&t.dead){P.target=null;}
+  } else if(t&&(t.dead||t.dying)){P.target=null;}
   P.atkT-=dt;
   // follow path
   if(P.path.length&&!held){const w=P.path[0];const dx=w.x-P.x,dy=w.y-P.y,d=Math.hypot(dx,dy),st=S.speed*dt;
@@ -390,7 +392,8 @@ function syncMobs(host,dt){
   for(let i=0;i<mobs.length;i++){const m=mobs[i],st=i<known?mb[i]:wbMob&&m===wbMob&&host.wb&&host.wb.s;if(!Array.isArray(st))continue;
     const f=fin(st[3])|0,dead=!!(f&1),nx=fin(st[0]),ny=fin(st[1]);
     if(dead){if(!m.dead)killMob(m);continue;}
-    if(m.dead){m.dead=false;m.x=nx;m.y=ny;m.hp=m.d.hp;m.myDmg=0;}
+    if(m.dead){m.dead=false;m.dying=0;m.x=nx;m.y=ny;m.hp=m.d.hp;m.myDmg=0;}
+    else if(m.dying&&now-m.dying>1.6)m.dying=0; // the server says it lives after all: fight on
     if(Math.hypot(nx-m.x,ny-m.y)>200){m.x=nx;m.y=ny;}else{const k=Math.min(1,dt*10);m.x+=(nx-m.x)*k;m.y+=(ny-m.y)*k;}
     const hp=clamp(fin(st[2]),0,1000)/1000*m.d.hp;if(now-m.hitF>.6||hp<m.hp)m.hp=Math.max(1,hp);
     m.moving=!!(f&2);m.face=f&4?-1:1;m.state=f&8?'chase':'idle';if(f&16)m.slowUntil=Math.max(m.slowUntil,now+.3);

@@ -102,3 +102,7 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
     if(land){q.style.top=Math.round(r.top)+'px';q.style.right=Math.round(innerWidth-r.left+8)+'px';}
     else{q.style.top=Math.round(r.bottom+8)+'px';q.style.right=Math.round(innerWidth-r.right)+'px';const ob=$('#onlineBadge');if(ob&&document.body.classList.contains('touchui'))ob.style.top=Math.round(r.bottom+58)+'px';}};
   place();setInterval(place,600);addEventListener('resize',place);})();
+// phones: the hotbar's ✎ edit button lives in the ☰ menu (tapping an empty slot still opens the editor)
+(()=>{const move=()=>{const e=$('#hbEdit'),dx=$('#dockExtra'),hb=$('#hotbar');if(!e)return;const touch=document.body.classList.contains('touchui');
+    if(touch&&e.parentElement!==dx&&dx){dx.appendChild(e);e.classList.add('act');}else if(!touch&&hb&&e.parentElement!==hb){hb.appendChild(e);e.classList.remove('act');}};
+  move();setInterval(move,1000);addEventListener('resize',()=>setTimeout(move,60));})();

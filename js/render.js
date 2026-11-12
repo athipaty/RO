@@ -161,7 +161,7 @@ function render(){
   for(const m of mobs)if(!m.dead)at(m.x,m.y,()=>{
     const show=m===P.target||now-m.hitF<4||m.d.boss;
     if(show||m===hoverMob){label(`${m.d.name}  Lv${m.d.lv}`,m.x,m.y+m.d.size+16,m.d.boss?'#ffcf5a':m.d.aggro?'#ff9a8a':'#ffffff',11);}
-    if(show){const w=Math.max(30,m.d.size*2.4),y=m.y-m.d.size*2-10;ctx.fillStyle='#000';ctx.fillRect(m.x-w/2-1,y-1,w+2,6);ctx.fillStyle='#d9483f';ctx.fillRect(m.x-w/2,y,w*m.hp/m.d.hp,4);}
+    if(show){const w=Math.max(30,m.d.size*2.4),y=m.y-m.d.size*2-10;ctx.fillStyle='#000';ctx.fillRect(m.x-w/2-1,y-1,w+2,6);ctx.fillStyle='#d9483f';ctx.fillRect(m.x-w/2,y,m.dying?0:w*m.hp/m.d.hp,4);}
   });
   // NPC names show when you are near or point at them; from afar the role icon over their head says who they are
   for(const n of Z.npcs){const d=Math.hypot(n.x-P.x,n.y-P.y),a=n===hoverNpc?1:clamp((260-d)/80,0,1);if(a<=0)continue;
@@ -603,3 +603,6 @@ function renderMini(){
   if(typeof miniLabels==='function')miniLabels();
 }
 
+
+// a monster our hits just finished fades while the server confirms the kill
+{const _dm=drawMob;drawMob=function(m){if(!m.dying)return _dm.apply(this,arguments);ctx.save();ctx.globalAlpha*=Math.max(.25,1-(now-m.dying)*1.5);const r=_dm.apply(this,arguments);ctx.restore();return r;};}

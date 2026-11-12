@@ -314,7 +314,7 @@ document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',(
 function targetNearest(keep){
   if(!P||P.dead||!running)return;if(Z.D.safe){addLog('Monsters live outside town. Head through the glowing gate to the east.');return;}
   if(keep&&P.target&&!P.target.dead)return;
-  let best=null,bd=460;for(const m of mobs)if(!m.dead&&(m!==P.target||keep)){const d=dist(m,P);if(d<bd){bd=d;best=m;}}
+  let best=null,bd=460;for(const m of mobs)if(!m.dead&&!m.dying&&(m!==P.target||keep)){const d=dist(m,P);if(d<bd){bd=d;best=m;}}
   if(best){P.target=best;P.queued=null;P.npcGoal=null;P.sitting=false;}else addLog('No monsters nearby.');}
 $('#emoteBtn').addEventListener('click',()=>{audioInit();togglePanel('emote');});
 $('#autoBtn').addEventListener('click',()=>{if(!P)return;P.auto=!P.auto;$('#autoBtn').classList.toggle('on',P.auto);

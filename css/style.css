@@ -726,3 +726,8 @@ body.touchui #buffs.side{margin-top:50px}
   body.touchui #actions>#autoBtn:active{transform:scale(.94)}
   body.touchui #actions>#menuBtn{left:calc(42% - 46px)}body.touchui #actions>#rideBtn{left:42%}body.touchui #actions>#sitBtn{left:calc(42% + 46px)}
 }
+/* ===== phones: a bigger attack cluster (Attack 88px; skill and potion slots and their arc scaled up ~20%) ===== */
+body.touchui #atkBtn{width:84px!important;height:84px!important}
+body.touchui #atkBtn .aic{width:38px;height:38px}
+body.touchui #hotbar{right:34px!important;bottom:34px!important}
+@media (orientation:landscape) and (max-height:520px){body.touchui #hotbar{right:36px!important;bottom:36px!important;transform:scale(1.1)!important;transform-origin:0 0}}
