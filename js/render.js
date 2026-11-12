@@ -288,6 +288,7 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
   if(!bk&&(st===1||st===3||st===4))for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(x+k*12.5,hy-3);ctx.quadraticCurveTo(x+k*14,hy+4,x+k*11,hy+(st===4?9:11));ctx.lineTo(x+k*10.5,hy);ctx.closePath();fs();}
   if(st===2||st===3){ctx.fillStyle='#e04a6a';for(const k of st===3?[-1,1]:[bk?0:-f]){ctx.beginPath();ctx.arc(x+k*12,hy+(bk&&st===2?2:-5),2.2,0,7);fs();}}
   ctx.fillStyle='rgba(255,255,255,.22)';ctx.beginPath();ctx.ellipse(x-f*4,hy-9,4,1.5,-f*.3,0,7);ctx.fill();
+  if(!bk&&(opt.fc||opt.mo)&&typeof drawFaceGear==='function')drawFaceGear(opt.fc,opt.mo,x,hy,f);
   if(opt.hat){ctx.save();ctx.translate(x,hy);ctx.scale(1.35,1.35);ctx.translate(-x,-hy);drawHat(opt.hat,x,hy,f);ctx.restore();}
   return by;
 }
@@ -316,7 +317,7 @@ function drawHat(id,x,hy,f){
   ctx.restore();
 }
 function drawOther(o){const atk=o.atkFaceT&&now-o.atkFaceT<.4;
-  drawPlayer({name:o.n,look:o.look,x:o.rx,y:o.ry,cls:o.cls,face:atk?o.atkFace:o.face,moving:o.moving,walkT:o.walkT,sitting:o.sitting,hat:o.hat,armor:o.ar||null,back:o.back,swingT:o.swingT,swingDur:o.swingDur,lungeT:o.lungeT,lgX:o.lgX,lgY:o.lgY,casting:o.cs,hurtT:o.hurtT,dead:o.dead,deadT:o.deadT},o.wid);}
+  drawPlayer({name:o.n,look:o.look,x:o.rx,y:o.ry,cls:o.cls,face:atk?o.atkFace:o.face,moving:o.moving,walkT:o.walkT,sitting:o.sitting,hat:o.hat,fc:o.fc,mo:o.mo,armor:o.ar||null,back:o.back,swingT:o.swingT,swingDur:o.swingDur,lungeT:o.lungeT,lgX:o.lgX,lgY:o.lgY,casting:o.cs,hurtT:o.hurtT,dead:o.dead,deadT:o.deadT},o.wid);}
 // where a melee swing is at: p from 0 (start) to 1 (end), or -1 when not swinging; follow-through runs a little past 1
 function swingPhase(P){const sd=P.swingDur||.22;return P.swingT&&now-P.swingT<sd*1.25?(now-P.swingT)/sd:-1;}
 const ease3=k=>k*k*(3-2*k),easeOut=k=>1-(1-k)**3;
@@ -332,8 +333,8 @@ function drawPlayer(P,wid){
   drawPlayerBody(P,wid);ctx.restore();}
 function drawPlayerBody(P,wid){
   const c=CLASSES[P.cls],w=wid?ITEMS[wid]:null;
-  const hat=P.hat!==undefined?P.hat:(P.eq&&P.eq.head?P.eq.head.id:null);
-  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?P.walkT:0,{sit:P.sitting,cast:!!P.casting,hat,look:lookOf(P.name,P.look),outfit:baseOf(P.cls),back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
+  const hat=P.hat!==undefined?P.hat:(P.eq&&P.eq.head?P.eq.head.id:null),fc=P.fc!==undefined?P.fc:(P.eq&&P.eq.face?P.eq.face.id:null),mo=P.mo!==undefined?P.mo:(P.eq&&P.eq.mouth?P.eq.mouth.id:null);
+  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?P.walkT:0,{sit:P.sitting,cast:!!P.casting,hat,fc,mo,look:lookOf(P.name,P.look),outfit:baseOf(P.cls),back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
   drawJobMantle(c,P.x,P.y+(P.sitting?6:0),P.face,!!P.back);
   if(baseOf(P.cls)==='warden'){ctx.fillStyle='#9aa0aa';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(P.x-P.face*13-5,by-14,10,14,3);ctx.fill();ctx.stroke();ctx.fillStyle='#e8c25a';ctx.beginPath();ctx.arc(P.x-P.face*13,by-7,2,0,7);ctx.fill();}
   if(!w)return;

@@ -98,7 +98,7 @@ function die(src){
 function invFind(id){return P.inv.find(e=>e.id===id&&e.n!==undefined);}
 function giveItem(id,n=1,announce){
   const it=ITEMS[id];
-  if(it.type==='weapon'||it.type==='armor'||it.type==='accessory'||it.type==='head'){for(let i=0;i<n;i++)P.inv.push({id,uid:uid++,s:Array(it.slots).fill(null)});}
+  if(it.type==='weapon'||it.type==='armor'||it.type==='accessory'||it.type==='head'||it.type==='face'||it.type==='mouth'){for(let i=0;i<n;i++)P.inv.push({id,uid:uid++,s:Array(it.slots).fill(null)});}
   else{const e=invFind(id);if(e)e.n+=n;else P.inv.push({id,n});}
   if(announce){sfx('pickup');}if(announce)addLog(`You got ${it.name}${n>1?' ×'+n:''}.`,'l-loot');
   refreshPanel();rebuildHotbar();

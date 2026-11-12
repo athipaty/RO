@@ -79,7 +79,7 @@ function refreshPanel(){
       h+=`<div class="st"><b>${k.toUpperCase()}</b><span class="muted" style="font-size:12px">${STAT_DESC[k]}</span><span>${v}${bonus?`<span class="gold"> +${bonus}</span>`:''}</span><button class="btn small" data-act="stat" data-arg="${k}" ${P.statPts<cost||v>=99?'disabled':''} title="Costs ${cost} points">+${cost>2?' ('+cost+')':''}</button></div>`;}
     h+=`<h3>Combat</h3><div class="dv"><div><span>ATK</span><span>${S.atk}</span></div><div><span>Attacks/sec</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Weight</span><span>${fmt(carryWeight())}/${fmt(maxWeight())}</span></div><div><span>MATK</span><span>${S.matk}</span></div><div><span>DEF</span><span>${S.def}</span></div><div><span>HIT</span><span>${S.hit}</span></div><div><span>FLEE</span><span>${S.flee}</span></div><div><span>CRIT</span><span>${S.crit}%</span></div><div><span>Attacks/s</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Range</span><span>${S.range}px</span></div>`+(typeof WSIZE==='function'||typeof WSIZE==='object'?`<div><span>Vs size S/M/L</span><span>${WSIZE[weaponType()].join(' / ')}%</span></div>`:'')+`</div>`;
     h+=`<h3>Equipment</h3>`;
-    for(const slot of ['head','weapon','armor','accessory']){const e=P.eq[slot];
+    for(const slot of ['head','face','mouth','weapon','armor','accessory']){const e=P.eq[slot];
       h+=`<div class="row">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="nm">${e?ITEMS[e.id].name:'<span class="muted">No '+slot+'</span>'}</div><div class="ds">${e?itemDesc(e):''}</div></div>${e?`<button class="btn small" data-act="unequip" data-arg="${slot}">Remove</button>`:''}</div>`;}
   }
   else if(panelKind==='items'){
@@ -124,7 +124,7 @@ function refreshPanel(){
     const slotBox=s=>{const e=P.eq[s];return `<div class="eqslot">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="eqk">${s}</div>`+
       (e?`<div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}</div><div class="ds">${itemDesc(e)}</div></div><button class="btn small" data-act="unequip" data-arg="${s}">Remove</button>`:`<div class="muted">Empty</div></div>`)+`</div>`;};
     h+=`<h2>Equipment</h2><div class="sub">Refine gear with Brannoc the Smith in Hearthvale.</div>`;
-    h+=`<div class="eqgrid"><div class="eqcol">${slotBox('head')}${slotBox('armor')}</div><canvas id="eqCv" width="240" height="300" aria-label="Your character"></canvas><div class="eqcol">${slotBox('weapon')}${slotBox('accessory')}</div></div>`;
+    h+=`<div class="eqgrid"><div class="eqcol">${slotBox('head')}${slotBox('face')}${slotBox('mouth')}</div><canvas id="eqCv" width="240" height="300" aria-label="Your character"></canvas><div class="eqcol">${slotBox('weapon')}${slotBox('armor')}${slotBox('accessory')}</div></div>`;
     h+=`<div class="dv"><div><span>ATK</span><span>${S.atk}</span></div><div><span>MATK</span><span>${S.matk}</span></div><div><span>DEF</span><span>${S.def}</span></div><div><span>HIT</span><span>${S.hit}</span></div>`+
       `<div><span>FLEE</span><span>${S.flee}</span></div><div><span>CRIT</span><span>${S.crit}</span></div><div><span>Attacks/sec</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Weight</span><span>${fmt(carryWeight())}/${fmt(maxWeight())}</span></div></div>`;
   }
@@ -390,7 +390,7 @@ $('#acImport').addEventListener('click',async()=>{const s=loadSave();if(!s)retur
   refreshTitle();});
 function startWith(data){
   P=newPlayer(data?data.p.name:($('#nameIn').value.trim()||'Wanderer'));
-  if(data){Object.assign(P,data.p);uid=Math.max(uid,data.p.uid||1);if(!('head' in P.eq))P.eq.head=null;P.look=lookDecode(lookCode(P.look))&&P.look;}
+  if(data){Object.assign(P,data.p);uid=Math.max(uid,data.p.uid||1);if(!('head' in P.eq))P.eq.head=null;if(!('face' in P.eq))P.eq.face=null;if(!('mouth' in P.eq))P.eq.mouth=null;P.look=lookDecode(lookCode(P.look))&&P.look;}
   else P.look={...newLook};
   if(!Array.isArray(P.friends))P.friends=[];
   S=computeStats();if(!data||P.hp<=0){P.hp=S.maxhp;P.sp=S.maxsp;}

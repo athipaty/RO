@@ -27,4 +27,4 @@ const _openSty=openPanel;
 openPanel=function(kind,arg){const r=_openSty(kind,arg);if(kind==='stylist'){cancelAnimationFrame(STY.raf);const loop=()=>{if(panelKind!=='stylist')return;styDraw();STY.raf=requestAnimationFrame(loop);};loop();}return r;};
 function styDraw(){const cv=document.getElementById('styCv');if(!cv||!STY.lk)return;const c=cv.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,200,200);c.setTransform(3.2,0,0,3.2,0,0);
   const main=ctx;ctx=c;const ph=Math.floor(now/1.6)%4,face=ph===1||ph===2?-1:1,back=ph>=2,cl=CLASSES[P.cls];
-  try{drawHuman(31,52,cl.col,STY.lk.hair,face,0,{look:{...lookFor(P.name),...STY.lk},outfit:baseOf(P.cls),back,hat:P.eq.head?P.eq.head.id:null,armor:P.eq.armor?P.eq.armor.id:null});}finally{ctx=main;}}
+  try{drawHuman(31,52,cl.col,STY.lk.hair,face,0,{look:{...lookFor(P.name),...STY.lk},outfit:baseOf(P.cls),back,hat:P.eq.head?P.eq.head.id:null,fc:P.eq.face?P.eq.face.id:null,mo:P.eq.mouth?P.eq.mouth.id:null,armor:P.eq.armor?P.eq.armor.id:null});}finally{ctx=main;}}

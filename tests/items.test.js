@@ -58,7 +58,7 @@ module.exports = async t => {
     const eq = await g.ev(() => { const c = document.getElementById('eqCv'); const d = c && c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
       let ink = 0; if (d) for (let i = 3; i < d.length; i += 4) if (d[i] > 0) ink++;
       return { open: panelKind === 'equip' && !panel.hidden, ink, slots: panel.querySelectorAll('.eqslot').length }; });
-    t.ok(eq.open && eq.slots === 4, 'Alt+Q opens the equipment window with 4 slots');
+    t.ok(eq.open && eq.slots === 6, 'Alt+Q opens the equipment window with 6 slots (face and mouth since v0.57.0)');
     t.ok(eq.ink > 500, 'the window draws your character');
     t.ok(await g.ev(() => !!document.querySelector('[data-open="equip"]')), 'there is an Equip button under the minimap');
     t.ok(g.page.errors.length === 0, 'no script errors' + (g.page.errors.length ? ': ' + g.page.errors.join(' | ') : ''));

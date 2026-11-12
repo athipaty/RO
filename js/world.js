@@ -8,7 +8,7 @@ let uid=1;
 
 function newPlayer(name){
   return {name:name||'Wanderer',cls:'novice',lv:1,exp:0,jl:1,jexp:0,st:{str:1,agi:1,vit:1,int:1,dex:1,luk:1},statPts:24,skillPts:0,skills:{},
-    gold:200,storage:[],friends:[],inv:[{id:'red',n:6},{id:'scroll',n:1}],eq:{weapon:{id:'club',uid:uid++,s:[]},armor:{id:'tunic',uid:uid++,s:[]},accessory:null,head:null},quest:null,
+    gold:200,storage:[],friends:[],inv:[{id:'red',n:6},{id:'scroll',n:1}],eq:{weapon:{id:'club',uid:uid++,s:[]},armor:{id:'tunic',uid:uid++,s:[]},accessory:null,head:null,face:null,mouth:null},quest:null,
     hp:1,sp:1,zone:'town',x:0,y:0,visited:['town'],buffs:{},cd:{},ail:{},
     path:[],target:null,npcGoal:null,queued:null,atkT:0,face:1,walkT:0,moving:false,sitting:false,dead:false,regenAcc:0};
 }
@@ -174,7 +174,7 @@ function carryWeight(){let w=0;for(const e of P.inv)w+=itemWeight(e.id)*(e.n||1)
 function maxWeight(){return 800+((S&&S.str)||P.st.str)*30;}
 function computeStats(){
   const c=CLASSES[P.cls], b={}, lv=P.lv;
-  for(const slot of ['weapon','armor','accessory','head']){const e=P.eq[slot];if(!e)continue;const it=ITEMS[e.id];
+  for(const slot of ['weapon','armor','accessory','head','face','mouth']){const e=P.eq[slot];if(!e)continue;const it=ITEMS[e.id];
     addB(b,{atk:it.atk||0,matk:it.matk||0,def:it.def||0});addB(b,it.b);addB(b,refineBonus(e));for(const s of e.s)if(s)addB(b,ITEMS[s].b);}
   for(const k in P.buffs)addB(b,P.buffs[k].b);
   const st={};for(const k of STATS)st[k]=P.st[k]+(b[k]||0);

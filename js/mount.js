@@ -42,7 +42,7 @@ drawPlayer=function(p,wid){const k=p===P?(riding()?P.riding:null):p.riding;
 // others: what they ride (presence field rd)
 const _drawOtherRide=drawOther;
 drawOther=function(o){if(!o.rd)return _drawOtherRide(o);const atk=o.atkFaceT&&now-o.atkFaceT<.4;
-  drawPlayer({name:o.n,look:o.look,x:o.rx,y:o.ry,cls:o.cls,face:atk?o.atkFace:o.face,moving:o.moving,walkT:o.walkT,sitting:false,hat:o.hat,armor:o.ar||null,back:o.back,riding:o.rd,dead:o.dead},o.wid);};
+  drawPlayer({name:o.n,look:o.look,x:o.rx,y:o.ry,cls:o.cls,face:atk?o.atkFace:o.face,moving:o.moving,walkT:o.walkT,sitting:false,hat:o.hat,fc:o.fc,mo:o.mo,armor:o.ar||null,back:o.back,riding:o.rd,dead:o.dead},o.wid);};
 function rideRead(v){return typeof v==='string'&&MOUNTS[v]?v:null;}
 function ridePresence(){return riding()?P.riding:null;}
 

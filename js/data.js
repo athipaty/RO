@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='0.56.0';
+const VERSION='0.57.0';
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
 const BLOCK=[0,0,1,1,1,1,0,0]; // 0 ground 1 path 2 tree 3 water 4 rock 5 building 6 cobble 7 flowers
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
@@ -79,7 +79,7 @@ const ITEMS={
 // #17 item weight (explicit `w` wins, otherwise a default by type)
 const WEAPON_W={club:40,sword:80,axe:150,wand:30,bow:50,mace:70},ARMOR_W={tunic:10,vest:40,robe:30,scale:120,plate:180};
 function itemWeight(id){const it=ITEMS[id];if(!it)return 0;if(it.w!=null)return it.w;
-  if(it.type==='weapon')return WEAPON_W[it.wt]||50;if(it.type==='armor')return ARMOR_W[id]||50;if(it.type==='head')return 15;if(it.type==='accessory')return 10;
+  if(it.type==='weapon')return WEAPON_W[it.wt]||50;if(it.type==='armor')return ARMOR_W[id]||50;if(it.type==='head')return 15;if(it.type==='face'||it.type==='mouth')return 5;if(it.type==='accessory')return 10;
   if(it.type==='sigil')return 1;if(it.type==='use')return id==='scroll'||id==='leaf'||id==='waystone'||id==='kinship'?1:5;return id==='crest'?20:2;}
 /* ---- #20 rarity: colour-coded item names ---- */
 const RARITY=[{name:'Common',col:'#e8e2d2'},{name:'Uncommon',col:'#7fd38a'},{name:'Rare',col:'#6fb0ff'},{name:'Epic',col:'#c58cff'},{name:'Legendary',col:'#ffb347'}];

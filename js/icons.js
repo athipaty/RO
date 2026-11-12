@@ -51,6 +51,8 @@ function drawItemIcon(g,id){const it=ITEMS[id];if(!it)return;const c=it.col||'#c
     return;}
   if(T==='head'){const main=ctx;ctx=g;try{g.save();g.beginPath();g.ellipse(16,27,10,8,0,Math.PI,0);g.closePath();g.fillStyle='#f6d6b8';g.fill();g.lineWidth=1.4;g.strokeStyle=OL;g.stroke();g.restore();
       g.save();g.translate(16,26);g.scale(1.3,1.3);g.translate(-16,-26);drawHat(it.id,16,26,1);g.restore();}finally{ctx=main;}return;}
+  if((T==='face'||T==='mouth')&&typeof drawFaceGear==='function'){const main=ctx;ctx=g;try{g.save();g.fillStyle='#f6d6b8';g.lineWidth=1.4;g.strokeStyle=OL;g.beginPath();g.ellipse(16,16,12.5,12,0,0,7);g.fill();g.stroke();
+      g.translate(16,16);g.scale(1.15,1.15);g.translate(-16,T==='mouth'?-20:-16);drawFaceGear(T==='face'?it.id:null,T==='mouth'?it.id:null,16-2.6,16,1);g.restore();}finally{ctx=main;}return;}
   if(T==='accessory'){const id=it.id;
     if(/fang/.test(id)){g.beginPath();g.moveTo(10,6);g.quadraticCurveTo(22,6,22,10);g.quadraticCurveTo(19,22,14,28);g.quadraticCurveTo(12,18,10,6);P_('#f4efe2');
       g.strokeStyle='#6b4423';g.beginPath();g.moveTo(8,7);g.quadraticCurveTo(16,2,24,8);g.stroke();return;}

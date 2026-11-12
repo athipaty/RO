@@ -56,7 +56,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 ### Characters and look
 - [ ] 1. M Male/female body choice in the creator
 - [ ] 2. M Equipped gear visible on the body (armour colour, cape, shield, weapon on back)
-- [ ] 3. S Lower/middle headgear slots (glasses, masks, mouth items)
+- [x] 3. S Lower/middle headgear slots (v0.57.0: Face and Mouth slots, 8 items at Ilsa's and the smithy)
 - [x] 4. M Hair dye / stylist NPC (v0.49.0: Lune the Stylist in Hearthvale)
 - [x] 5. M More animations: casting pose, hurt frame, death pose, per-weapon attacks (melee swing v0.43.0; casting, flinch and falling v0.50.0)
 - [x] 6. S Status icons over heads (buffs, poison, stun)
@@ -94,7 +94,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 
 ### World and exploration
 - [ ] 32. M A capital city with districts, themed towns
-- [ ] 33. M Named warp portals and a teleport NPC network
+- [x] 33. M Named warp portals and a teleport NPC network (covered: portals show where they lead and its level; Tobin's Waystation sends you to any visited region)
 - [x] 34. M Multi-floor dungeons (v0.19.0)
 - [x] 35. S More teleport items: Waystone Shard, Kinship Charm (v0.30.0)
 - [x] 36. M Day/night and weather per map (v0.26.0)
@@ -128,7 +128,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 58. S Achievements and titles (v0.47.0: 23 achievements, titles under names, /ach)
 
 ### Interface
-- [ ] 59. M Classic basic-info window
+- [x] 59. M Classic basic-info window (covered by the status box: HP, SP, base and job levels with EXP %, gold, weight; B folds it)
 - [x] 60. M Equipment window with a paper doll
 - [x] 61. S Draggable windows that remember their place (v0.34.0)
 - [x] 62. S Several hotbar rows with drag and drop (v0.56.0: ⊞ adds up to two rows, Alt+1–8 and F1–F8)

@@ -18,7 +18,7 @@ function weaponType(){const w=P&&P.eq&&P.eq.weapon&&ITEMS[P.eq.weapon.id];return
 function sizePct(d){return WSIZE[weaponType()]['sml'.indexOf(mobSize(d))];}
 // race bonus from all equipped gear, slotted sigils and buffs
 function raceBonus(r){const key='vs_'+r;let n=0;if(!P)return 0;
-  for(const slot of ['weapon','armor','accessory','head']){const e=P.eq[slot];if(!e)continue;const it=ITEMS[e.id];
+  for(const slot of ['weapon','armor','accessory','head','face','mouth']){const e=P.eq[slot];if(!e)continue;const it=ITEMS[e.id];
     if(it.b&&it.b[key])n+=it.b[key];for(const s of e.s||[])if(s&&ITEMS[s].b&&ITEMS[s].b[key])n+=ITEMS[s].b[key];}
   for(const k in P.buffs||{}){const b=P.buffs[k].b;if(b&&b[key])n+=b[key];}
   return n;}

@@ -4,7 +4,7 @@
 // Items you put up for trade or sale leave your bag but stay yours (and are saved with you)
 // until the trade completes or the item is sold.
 const TR={trade:null,ask:null,vend:null,view:null,draft:[]};
-const GEAR=['weapon','armor','head','accessory'];
+const GEAR=['weapon','armor','head','accessory','face','mouth'];
 
 /* ---- item helpers ---- */
 function validEntry(e,forView){if(!e||typeof e!=='object'||typeof e.id!=='string'||!ITEMS[e.id])return null;const it=ITEMS[e.id];
