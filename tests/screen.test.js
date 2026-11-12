@@ -11,8 +11,8 @@ module.exports = async t => {
       document.querySelector('#logTabs [data-tab="all"]').click(); return { chat: vis.some(v => /Bea: hello/.test(v)), sys: vis.some(v => /A system line/.test(v)) }; });
     t.ok(tab.chat && !tab.sys, 'the Chat tab shows what players say and hides system lines');
     const npc = await A.ev(async () => { enterZone('town'); const near = Z.npcs.find(n => n.role === 'shop'); P.x = near.x; P.y = near.y + 30; const far = Z.npcs.reduce((a, n) => Math.hypot(n.x - P.x, n.y - P.y) > Math.hypot(a.x - P.x, a.y - P.y) ? n : a);
-      const seen = new Set(); const o = label; label = (txt, ...r) => { seen.add(txt); return o(txt, ...r); }; let icons = 0; const ri = drawRoleIcon; drawRoleIcon = (...a) => { icons++; return ri(...a); };
-      await new Promise(r => setTimeout(r, 500)); label = o; drawRoleIcon = ri; return { near: seen.has(near.name), far: seen.has(far.name), farName: far.name, icons }; });
+      const seen = new Set(); const o = label; label = (txt, ...r) => { seen.add(txt); return o(txt, ...r); }; let icons = 0; const ri = npcMarkSprite; npcMarkSprite = (...a) => { const s = ri(...a); if (s) icons++; return s; };
+      await new Promise(r => setTimeout(r, 500)); label = o; npcMarkSprite = ri; return { near: seen.has(near.name), far: seen.has(far.name), farName: far.name, icons }; });
     t.ok(npc.near && !npc.far, `NPC names show up close and hide far away (${npc.farName} hidden)`);
     t.ok(npc.icons > 3, 'townsfolk show an icon of what they do');
     const tips = await A.ev(() => { const b = document.querySelector('#dock .dk[data-open="items"]'); return { tip: b.dataset.tip, title: b.getAttribute('title'), loot: document.getElementById('autoLootBtn').dataset.tip }; });

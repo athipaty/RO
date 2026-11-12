@@ -41,6 +41,22 @@ const SKILL_TH={
   divinegrace:['พระคุณสวรรค์','{0} วินาที: INT +{1}, SP สูงสุด +{2} และ MATK +{3} สมาชิกปาร์ตี้ในระยะ {4}px ได้ด้วย'],
   thornsnare:['กับดักหนาม','วางกับดักซ่อน (สูงสุด {0} อัน อยู่ได้ {1} วินาที): มอนสเตอร์ตัวแรกที่เหยียบรับ {2}% ATK และถูกตรึง {3} วินาที'],
   emberwall:['กำแพงเพลิง','สร้างกำแพงไฟบนพื้น {0} วินาที: มอนสเตอร์ที่เดินผ่านรับ {1}% MATK (ธาตุไฟ) วินาทีละสองครั้งและช้าลง'],
+  titanslam:['ไททันทุบ','ทุบพื้น: {0}% ATK ต่อทุกตัวในระยะ {1}px โอกาสทำให้มึน {2}% นาน {3} วินาที'],
+  fortress:['ป้อมเหล็ก','{0} วินาที: DEF +{1}, HP สูงสุด +{2}% และฟื้นฟู HP +{3} ต่อวินาที สมาชิกปาร์ตี้ในระยะ {4}px ได้ด้วย'],
+  cataclysm:['มหาวิบัติ','ผ่าพื้นบริเวณเป้าหมาย: {0}% ATK (ธาตุดิน) ต่อทุกตัวในระยะ {1}px ไม่มีวันพลาด'],
+  bloodrage:['โทสะโลหิต','{0} วินาที: ATK +{1}, CRIT +{2} และ HIT +{3}'],
+  thunderlance:['หอกอสนี','สายฟ้าฟาด {0}% MATK (ธาตุลม) โอกาสทำให้มึน {1}% นาน {2} วินาที'],
+  meteor:['อุกกาบาต','เรียกอุกกาบาตลงบริเวณเป้าหมาย: {0}% MATK (ธาตุไฟ) ต่อทุกตัวในระยะ {1}px'],
+  lifedrain:['สูบชีวิต','สูบพลังมอนสเตอร์ {0}% MATK (ธาตุมืด) และฟื้นฟู {1}% ของ HP สูงสุด'],
+  voidrift:['รอยแยกสุญญตา','ฉีกรอยแยกบริเวณเป้าหมาย: {0}% MATK (ธาตุมืด) ต่อทุกตัวในระยะ {1}px และทำให้ช้าลง {2} วินาที'],
+  headshot:['ยิงหัว','ธนูดอกเดียวที่สมบูรณ์แบบ {0}% ATK ไม่มีวันพลาด'],
+  arrowstorm:['พายุธนู','ธนูบดบังฟ้าเหนือบริเวณเป้าหมาย: {0}% ATK ต่อทุกตัวในระยะ {1}px ไม่มีวันพลาด'],
+  savagevolley:['ห่าธนูดุร้าย','ธนูหนามลงบริเวณเป้าหมาย: {0}% ATK (ธาตุดิน) ต่อทุกตัวในระยะ {1}px และทำให้ช้าลง {2} วินาที'],
+  packhowl:['เสียงหอนฝูง','{0} วินาที: ATK +{1}, AGI +{2} และ FLEE +{3} สมาชิกปาร์ตี้ในระยะ {4}px ได้ด้วย'],
+  dawnbreaker:['อรุณทะลาย','แสงอาทิตย์ระเบิดจากอาวุธ: {0}% ATK (ธาตุศักดิ์สิทธิ์) ต่อทุกตัวในระยะ {1}px ไม่มีวันพลาด'],
+  sacredward:['เกราะศักดิ์สิทธิ์','{0} วินาที: DEF +{1}, HP สูงสุด +{2}% และฟื้นฟู HP +{3} ต่อวินาที สมาชิกปาร์ตี้ในระยะ {4}px ได้ด้วย'],
+  starfall:['ดาวตก','ดวงดาวร่วงลงบริเวณเป้าหมาย: {0}% MATK (ธาตุศักดิ์สิทธิ์) ต่อทุกตัวในระยะ {1}px'],
+  resurgence:['คืนชีพพลัง','ฟื้นฟู {0} + {1}% MATK ฟื้นฟู SP {2} และรักษาสถานะผิดปกติ สมาชิกปาร์ตี้ในระยะ {3}px ได้ด้วย'],
   haven:['แดนพักพิง','อวยพรวงกลมบนพื้น {0} วินาที: ผู้ที่ยืนอยู่ในวงฟื้นฟู HP {1} ต่อวินาทีและได้ DEF +{2} มอนสเตอร์ในวงช้าลง'],
 };
 const TH_NUM=/\d+(?:\.\d+)?/g;
@@ -105,10 +121,13 @@ const HELP_TH={
   '· press 1–4 under a learned skill to put it on that hotbar key · right-click a hotbar skill (or Shift+1–4) to cast it at a lower level':'· กด 1–4 ใต้สกิลที่เรียนแล้วเพื่อใส่ในแถบลัดปุ่มนั้น · คลิกขวาที่สกิลในแถบลัด (หรือ Shift+1–4) เพื่อใช้ในเลเวลที่ต่ำกว่า',
   'Dropped by':'ดรอปจาก','Store':'ร้านค้า','How to make it':'วิธีทำ','Used to make':'ใช้ทำ','Sold at the General Store for':'มีขายที่ร้านค้าทั่วไป ราคา','boss':'บอส',
   'Not dropped by monsters. Look for it from quests, festivals, bosses or other players.':'มอนสเตอร์ไม่ดรอป ลองหาจากเควส เทศกาล บอส หรือผู้เล่นคนอื่น',
+  'Trial of Ascension':'บททดสอบแห่งการเลื่อนขั้น','The trial':'บททดสอบ','Accept trial':'รับบททดสอบ',
+  'Reborn heroes with an advanced calling at job level 50 and base level 50 can rise into a master calling.':'ผู้กล้าที่เกิดใหม่และมีอาชีพขั้นสูงเลเวลอาชีพ 50 กับเลเวลฐาน 50 สามารถเลื่อนเป็นอาชีพระดับปรมาจารย์ได้',
+  'Only the Reborn can ascend. Take the rite of rebirth first.':'มีแต่ผู้เกิดใหม่เท่านั้นที่เลื่อนขั้นได้ ทำพิธีเกิดใหม่ก่อน','You already hold a master calling.':'คุณเป็นอาชีพระดับปรมาจารย์แล้ว',
   'Learn':'เรียน','Level up':'อัปเลเวล','Mastered':'เชี่ยวชาญแล้ว',
   'Click minimap':'คลิกแผนที่เล็ก','bigger / smaller':'ใหญ่ขึ้น / เล็กลง','close':'ปิด'};
 if(typeof LANG!=='undefined'&&LANG==='th'){
-  Object.assign(TH,HELP_TH);TH_PAT.unshift([/^→ (.*?)(at the smithy|anywhere \(\/craft\))$/,(m,a,b)=>`→ ${a.replace(/ gold · /,' โกลด์ · ')}${b==='at the smithy'?'ที่โรงตีเหล็ก':'ที่ไหนก็ได้ (/craft)'}`],[/^(.+) · Skill points:$/,(m,a)=>`${thText(a)} · แต้มสกิล:`]);
+  Object.assign(TH,HELP_TH);TH_PAT.unshift([/^(.+) · (\S+) (Dawn|Dusk)(.*)$/,(m,a,i,d,b)=>`${thText(a)} · ${i} ${d==='Dawn'?'รุ่งเช้า':'พลบค่ำ'}${b.replace('Rain','ฝน').replace('Snow','หิมะ').replace('Fog','หมอก').replace('Blizzard','พายุหิมะ').replace('Sandstorm','พายุทราย').replace('Embers','ประกายไฟ')}`],[/^→ (.*?)(at the smithy|anywhere \(\/craft\))$/,(m,a,b)=>`→ ${a.replace(/ gold · /,' โกลด์ · ')}${b==='at the smithy'?'ที่โรงตีเหล็ก':'ที่ไหนก็ได้ (/craft)'}`],[/^(.+) · Skill points:$/,(m,a)=>`${thText(a)} · แต้มสกิล:`]);
   for(const id in SKILL_TH){const sk=SKILLS[id];if(!sk)continue;TH[sk.name]=SKILL_TH[id][0];
     const d=sk.desc;if(typeof d==='function')sk.desc=function(){return thSkillDesc(id,d.apply(this,arguments));};else if(typeof d==='string')sk.desc=thSkillDesc(id,d);
     sk.name=SKILL_TH[id][0];}
