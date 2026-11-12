@@ -317,7 +317,11 @@ function targetNearest(keep){
   if(best){P.target=best;P.queued=null;P.npcGoal=null;P.sitting=false;}else addLog('No monsters nearby.');}
 $('#emoteBtn').addEventListener('click',()=>{audioInit();togglePanel('emote');});
 $('#autoBtn').addEventListener('click',()=>{if(!P)return;P.auto=!P.auto;$('#autoBtn').classList.toggle('on',P.auto);
-  addLog(P.auto?'Auto-hunt on: you fight the nearest monster and drink tonics when HP runs low.':'Auto-hunt off.',P.auto?'l-good':'l-sys');});
+  addLog(P.auto?`Auto-hunt on: you fight the nearest monster and drink tonics when HP runs low. Collecting drops: ${P.autoLoot===false?'off':'on'} (the Loot button).`:'Auto-hunt off.',P.auto?'l-good':'l-sys');});
+// #auto-loot: whether auto-hunt walks over to collect drops (saved with the character; on by default)
+function setAutoLoot(on,quiet){if(!P)return;P.autoLoot=!!on;syncAutoLootBtn();if(!on&&P.lootGoal&&P.auto)P.lootGoal=null;if(!quiet)addLog(on?'Auto-hunt collects drops.':'Auto-hunt leaves drops on the ground (you can still click them to pick them up).');save();if(panelKind==='settings')refreshPanel();}
+function syncAutoLootBtn(){const b=$('#autoLootBtn');if(!b)return;const on=!P||P.autoLoot!==false;b.classList.toggle('on',on);b.setAttribute('aria-checked',String(on));b.title=`Auto-hunt collects drops: ${on?'on':'off'}`;}
+$('#autoLootBtn').addEventListener('click',()=>{if(!P)return;sfx('click');setAutoLoot(P.autoLoot===false);});
 $('#atkBtn').addEventListener('click',()=>{audioInit();targetNearest(true);});
 $('#sitBtn').addEventListener('click',()=>{if(!P||P.dead)return;P.sitting=!P.sitting;P.path=[];P.target=null;});
 $('#chatBtn').addEventListener('click',()=>{audioInit();$('#chatbar').hidden?openChat():closeChat();});
@@ -329,7 +333,7 @@ $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDef
 
 /* ================= save / load ================= */
 function snapshot(){if(!P)return null;
-  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','bar','pet','ach','emofav','mounts','mountPick','bond','useLv','rested','qs','track','bars','hbRows','reborn'];
+  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','bar','pet','ach','emofav','mounts','mountPick','bond','useLv','rested','qs','track','bars','hbRows','reborn','autoLoot'];
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;
   if(typeof pendingEscrow==='function'){const ex=pendingEscrow();if(ex.items.length||ex.gold){o.inv=[...P.inv,...ex.items];o.gold=P.gold+ex.gold;}}
   return {v:1,p:JSON.parse(JSON.stringify(o))};}
@@ -390,6 +394,7 @@ $('#acImport').addEventListener('click',async()=>{const s=loadSave();if(!s)retur
   refreshTitle();});
 function startWith(data){
   P=newPlayer(data?data.p.name:($('#nameIn').value.trim()||'Wanderer'));
+  setTimeout(()=>{if(typeof syncAutoLootBtn==='function')syncAutoLootBtn();},0);
   if(data){Object.assign(P,data.p);uid=Math.max(uid,data.p.uid||1);if(!('head' in P.eq))P.eq.head=null;if(!('face' in P.eq))P.eq.face=null;if(!('mouth' in P.eq))P.eq.mouth=null;P.look=lookDecode(lookCode(P.look))&&P.look;}
   else P.look={...newLook};
   if(!Array.isArray(P.friends))P.friends=[];

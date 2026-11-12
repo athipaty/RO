@@ -161,7 +161,7 @@ function sendChat(raw){
   P.bubble={txt,until:now+7};chatLog(P.name,txt,zoneId,true);sfx('click');NET.lastSent='';NET.sendT=0;
   if(!NET.room&&!NET.warned){NET.warned=true;addLog('Nobody else can hear you here. Open the shared Embervale page to chat with other players.');}
 }
-const CMD_HELP=[['/help','this list'],['/where','your region, position and channel'],['/who','who is online and where'],['/sit, /stand','sit down or get up'],
+const CMD_HELP=[['/help','this list'],['/autoloot on|off','auto-hunt collects drops or not'],['/where','your region, position and channel'],['/who','who is online and where'],['/sit, /stand','sit down or get up'],
   ['/exp','your EXP per hour'],['/w Name text, /r text','whisper, reply'],['/invite Name, /p text, /leave, /kick Name','party'],['/friend Name, /unfriend Name, /friends','friends'],['/trade Name, /shop','trade, open a shop'],['/mute Name, /unmute Name, /muted','hide chat, emotes and requests from a player'],['/report Name','tell the admins about a player'],['/roll','roll a number from 1 to 100 for everyone to see'],['/emotes','list emotes (e.g. /heart, /gg)'],['/clear','clear this log']];
 function chatCommand(k,arg){
   if(k==='help'||k==='?'||k==='h'){addLog('Commands: '+CMD_HELP.map(([c,d])=>`${c} (${d})`).join(' · '));return true;}
@@ -169,6 +169,7 @@ function chatCommand(k,arg){
   if(k==='who'||k==='online'){const list=[...NET.others.values()].map(o=>`${o.n} (Lv ${o.lv}, ${ZONES[o.z]?.name||'?'})`);
     addLog(list.length?`${list.length+1} online: you, ${list.join(', ')}`:'Nobody else is online right now.');return true;}
   if(k==='sit'||k==='stand'){if(!P.dead){P.sitting=k==='sit';P.path=[];P.target=null;}return true;}
+  if(k==='autoloot'){setAutoLoot(arg?!/^(off|no|0)$/i.test(arg):P.autoLoot===false);return true;}
   if(k==='clear'){[...$('#log').children].forEach(c=>{if(c.id!=='logTabs')c.remove();});return true;}
   if(k==='emotes'||k==='emote'||k==='em'){addLog('Emotes: '+EMOTE_KEYS.map(e=>'/'+e).join(' '));return true;}
   if(k==='exp'){const cut=Date.now()-600000,rec=EXPLOG.filter(x=>x.t>=cut);
