@@ -553,3 +553,42 @@ body.ui-s #hotrows{zoom:.88}body.ui-l #hotrows{zoom:1.15}
 .qfrom{color:var(--muted);font-size:.92em}.qfrom .qpic{width:18px;height:18px;margin:0 2px 0 4px;background:none}
 .qwait{color:var(--muted)}
 #qtrack{white-space:normal}#qtrack .qo{gap:4px}#qtrack .qpic{width:20px;height:20px}#qtrack .qfrom .qpic{width:15px;height:15px}
+/* ===== a cleaner game screen ===== */
+/* region banner: smaller, higher, quicker, so it never sits on top of you */
+#zoneBanner{top:max(140px,17%)}
+#zoneBanner b{font-size:clamp(20px,4.2vw,30px)!important;letter-spacing:.1em}
+#zoneBanner span{font-size:11px}
+#zoneBanner.show{animation-duration:2.4s}
+/* the log fades when quiet; new chat, hover or a tap brings it back */
+#log{transition:opacity .5s,background-color .5s,border-color .5s}
+#log.idle{opacity:.38;background:rgba(12,15,22,.18);border-color:transparent}
+#log.idle:hover{opacity:1}
+#log.f-chat>div:not(#logTabs):not(.l-chat):not(.l-party):not(.l-whisper):not(.l-guild):not(.l-room){display:none}
+#logTabs .btn{padding:2px 7px}
+/* the dock: icons only, with a quick tooltip */
+@media (min-width:1180px){body:not(.touchui) #menu{grid-template-columns:repeat(5,40px)}body:not(.touchui) .dk{width:40px;height:40px;gap:0}
+  body:not(.touchui) .dk span{display:none}body:not(.touchui) .dk i{font-size:16px}body:not(.touchui) #dockExtra .act{height:40px}}
+#dock [data-tip]{position:relative}
+body:not(.touchui) #dock [data-tip]:hover::after,body:not(.touchui) #dock [data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);right:0;white-space:nowrap;
+  background:rgba(14,18,26,.96);color:var(--ink);font:500 11.5px Inter,var(--ui);padding:4px 8px;border-radius:7px;border:1px solid rgba(255,255,255,.12);pointer-events:none;z-index:20}
+body:not(.touchui) #dockExtra{display:grid;grid-template-rows:repeat(2,40px);grid-auto-flow:column;gap:5px}
+#logTabs{background:rgb(14,17,24);margin:-8px -10px 4px;padding:6px 10px 4px;top:-8px;border-radius:12px 12px 0 0}
+#log.idle #logTabs{background:transparent}
+/* phones: the log tabs scroll sideways; the Loot switch lives in the ☰ menu */
+body.touchui #logTabs{overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}body.touchui #logTabs::-webkit-scrollbar{display:none}
+body.touchui #logTabs .btn{flex:none}
+body.touchui #dockExtra{display:flex;align-items:center;padding:0 0 0 8px}
+body.touchui #dockExtra .act{width:52px;height:52px;border-radius:12px}
+/* ===== a smaller status box; folded it still shows HP, SP, base and job level, and weight ===== */
+#hud{width:200px;padding:8px 10px}
+#hud .name{font-size:15px}
+#hud .cls{font-size:10px;margin:1px 0 5px}
+#hud .bar.thin{height:4px;margin-bottom:0}
+#hud .lbl{font-size:10.5px}
+#hud .lvrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:2px 0 3px}
+#hud .lvc .lbl{display:flex;justify-content:space-between;gap:4px;white-space:nowrap}
+#hud #gold,#hud #weight{font-size:10.5px}
+#hud.mini>:not(.name):not(.hpb):not(.spb):not(#ailT):not(#buffs):not(#hudToggle):not(.lvrow):not(#weight){display:none}
+#hud.mini .lvrow{display:grid!important}#hud.mini #weight{display:block!important}
+#hud.mini .name{font-size:14px;margin-bottom:3px}
+@media (max-width:760px){#hud{width:170px;padding:6px 8px}#hud .lvrow{gap:6px}#hud .lbl,#hud .bar span{font-size:10px}}

@@ -16,10 +16,10 @@
   <div class="cls" id="hCls">Novice</div>
   <div class="bar hpb"><i id="hpI"></i><span id="hpT"></span></div>
   <div class="bar spb"><i id="spI"></i><span id="spT"></span></div>
-  <div class="lbl"><span id="lvT">Base Lv 1</span><span id="exT">0%</span></div>
-  <div class="bar thin exb"><i id="exI"></i><span></span></div>
-  <div class="lbl"><span id="jlT">Job Lv 1</span><span id="jxT">0%</span></div>
-  <div class="bar thin jxb"><i id="jxI"></i><span></span></div>
+  <div class="lvrow">
+    <div class="lvc"><div class="lbl"><span id="lvT">Lv 1</span><span id="exT">0%</span></div><div class="bar thin exb"><i id="exI"></i><span></span></div></div>
+    <div class="lvc"><div class="lbl"><span id="jlT">Job 1</span><span id="jxT">0%</span></div><div class="bar thin jxb"><i id="jxI"></i><span></span></div></div>
+  </div>
   <div id="gold">0 gold</div>
   <div id="ailT" class="lbl"></div>
   <div id="buffs" hidden></div>
@@ -52,7 +52,7 @@
 <div id="partyBox" class="frame" hidden><div class="phd"><button id="pFold" type="button" aria-expanded="true" title="Fold the party box">−</button><span class="pt">Party</span><button class="btn small" id="pMode" hidden>Each keeps own</button><button class="btn small" id="pLoot" hidden title="Party loot rule">Take turns</button><button class="btn small" id="pLeave">Leave</button></div><div class="pm"></div></div>
 <div id="tradeAsk" class="frame" hidden role="dialog" aria-label="Trade request"><span><b></b> wants to trade with you.</span><button class="btn small" id="taYes">Trade</button><button class="btn small" id="taNo">No thanks</button></div>
 <div id="invite" class="frame" hidden role="dialog" aria-label="Party invitation"><span><b></b> invites you to their party.</span><button class="btn small" id="invYes">Join</button><button class="btn small" id="invNo">No thanks</button></div>
-<div id="log"><div id="logTabs" role="tablist"><button class="btn small on" data-tab="all">All</button><button class="btn small" data-tab="party">Party</button><button class="btn small" data-tab="whisper">Whisper</button><button class="btn small" data-tab="guild">Guild</button><button class="btn small" data-tab="room">Room</button></div></div>
+<div id="log"><div id="logTabs" role="tablist"><button class="btn small on" data-tab="all">All</button><button class="btn small" data-tab="chat" title="Only what players say: no system messages">Chat</button><button class="btn small" data-tab="party">Party</button><button class="btn small" data-tab="whisper">Whisper</button><button class="btn small" data-tab="guild">Guild</button><button class="btn small" data-tab="room">Room</button></div></div>
 <div id="hotbar" class="frame"></div>
 <div id="dock" class="frame">
   <div id="menu" role="menu" aria-label="Game menu">
@@ -206,6 +206,7 @@
 <script src="js/rebirth.js"></script>
 <script src="js/mobskills.js"></script>
 <script src="js/chatrooms.js"></script>
+<script src="js/screen.js"></script>
 <script src="js/smooth.js"></script>
 <script src="js/stylist.js"></script>
 <script src="js/anim.js"></script>

@@ -10,9 +10,9 @@ module.exports = async t => {
     await g.ev(() => document.getElementById('hudToggle').click());
     const mini = await g.ev(() => { const v = id => document.getElementById(id).offsetParent !== null;
       return { h: document.getElementById('hud').offsetHeight, name: v('hName'), hp: !!document.querySelector('#hud .hpb').offsetParent, sp: !!document.querySelector('#hud .spb').offsetParent,
-        gold: v('gold'), lv: v('lvT'), btn: document.getElementById('hudToggle').textContent, exp: document.getElementById('hudToggle').getAttribute('aria-expanded') }; });
-    t.ok(full.gold && mini.h < full.h / 2, `the − button shrinks the status box (${full.h}px → ${mini.h}px)`);
-    t.ok(mini.name && mini.hp && mini.sp && !mini.gold && !mini.lv, 'collapsed, it still shows your name, HP and SP');
+        gold: v('gold'), lv: v('lvT') && v('jlT'), wt: v('weight'), btn: document.getElementById('hudToggle').textContent, exp: document.getElementById('hudToggle').getAttribute('aria-expanded') }; });
+    t.ok(full.gold && mini.h < full.h * .85, `the − button shrinks the status box (${full.h}px → ${mini.h}px)`);
+    t.ok(mini.name && mini.hp && mini.sp && !mini.gold && mini.lv && mini.wt, 'collapsed, it still shows your name, HP, SP, base and job level and weight');
     t.ok(mini.btn === '+' && mini.exp === 'false', 'the button turns into + and reports the collapsed state');
     await g.page.reload(); await wait(800);
     await g.ev(() => document.getElementById('contBtn').click()); await wait(600);

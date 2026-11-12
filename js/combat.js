@@ -193,8 +193,10 @@ function questKill(id){const q=P.quest;if(!q||q.mob!==id)return;q.have=Math.min(
   if(q.have>=q.need){P.quest=null;addLog(`Contract complete: ${q.need} ${MOBS[id].name}. Reward: ${fmt(q.exp)} EXP, ${fmt(q.gold)} gold.`,'l-rare');
     P.gold+=q.gold;sfx('fanfare');fx.push({k:'lvl',x:P.x,y:P.y-30,t0:now,dur:1.6,txt:'CONTRACT DONE',col:'#ffcf5a'});announce('quest',id);gainExp(q.exp,q.jexp);save();}
   refreshPanel();}
-// with the Loot switch off, auto-hunt still collects what matters: equipment, sigils (cards), rare finds and boss drops
-function lootMatters(l){if(!l||l.ghost)return false;if(l.boss||l.rare)return true;const it=l.id&&ITEMS[l.id];
+// with the Loot switch off (Best), auto-hunt still collects what matters: equipment, sigils (cards), anything with a coloured name, and boss drops
+function lootMatters(l){if(!l||l.ghost)return false;if(l.boss||l.rare)return true;
+  if(l.id&&typeof rarityOf==='function'&&rarityOf(l.id)>=1)return true; // anything with a coloured name (Uncommon or better)
+  const it=l.id&&ITEMS[l.id];
   return !!it&&(it.type==='sigil'||(typeof GEAR!=='undefined'?GEAR.includes(it.type):['weapon','armor','head','accessory','face','mouth'].includes(it.type)));}
 function autoHunt(){
   if(!P.auto||P.dead||Z.D.safe)return;

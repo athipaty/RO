@@ -9,8 +9,8 @@ function updateHud(){
   setW('hpI',P.hp/S.maxhp);setT('hpT',`${fmt(P.hp)} / ${fmt(S.maxhp)}`);
   setW('spI',P.sp/S.maxsp);setT('spT',`${fmt(P.sp)} / ${fmt(S.maxsp)}`);
   const en=expNeed(P.lv),jn=jexpNeed(P.jl),jm=P.jl>=jobMax(P.cls);
-  setT('lvT',`Base Lv ${P.lv}`);setT('exT',(P.exp/en*100).toFixed(1)+'%');setW('exI',P.exp/en);
-  setT('jlT',`Job Lv ${P.jl}`);setT('jxT',jm?'max':(P.jexp/jn*100).toFixed(1)+'%');setW('jxI',jm?1:P.jexp/jn);
+  setT('lvT',`Lv ${P.lv}`);setT('exT',(P.exp/en*100).toFixed(1)+'%');setW('exI',P.exp/en);
+  setT('jlT',`Job ${P.jl}`);setT('jxT',jm?'max':(P.jexp/jn*100).toFixed(1)+'%');setW('jxI',jm?1:P.jexp/jn);
   setT('ailT',ailText());
   setT('weight',`Weight ${fmt(carryWeight())} / ${fmt(maxWeight())}`+(P.heavy===2?' · too heavy to fight':P.heavy?' · no regen':''));
   {const we=$('#weight'),hv=!!P.heavy;if(we.classList.contains('heavy')!==hv)we.classList.toggle('heavy',hv);}
@@ -286,7 +286,8 @@ cv.addEventListener('pointerdown',ev=>{
   if(P.sitting||ev.shiftKey){faceTo(P,w.x-P.x,w.y-P.y);return;}
   P.target=null;P.queued=null;P.npcGoal=null;clickMark={x:w.x,y:w.y,t:now};pathTo(w.x,w.y,true);
 });
-cv.addEventListener('pointermove',ev=>{if(!P)return;const sc=screenAt(ev);hoverMob=mobAt(sc);hoverLoot=hoverMob?null:lootAt(sc);const gh=!hoverMob&&!hoverLoot&&typeof ghostAt==='function'?ghostAt(sc):null;cv.style.cursor=hoverMob?'crosshair':hoverLoot?'grab':'pointer';if(gh)hoverLoot=gh;});
+let hoverNpc=null;
+cv.addEventListener('pointermove',ev=>{if(!P)return;const sc=screenAt(ev);hoverNpc=null;if(Z)for(const n of Z.npcs){const np=proj(n.x,n.y);if(Math.hypot(np.x-sc.x,np.y-22-sc.y)<26){hoverNpc=n;break;}}hoverMob=mobAt(sc);hoverLoot=hoverMob?null:lootAt(sc);const gh=!hoverMob&&!hoverLoot&&typeof ghostAt==='function'?ghostAt(sc):null;cv.style.cursor=hoverMob?'crosshair':hoverLoot?'grab':'pointer';if(gh)hoverLoot=gh;});
 window.addEventListener('keydown',ev=>{
   if(!running||ev.target.tagName==='INPUT')return;const k=ev.key.toLowerCase();
   // classic MMO desktop shortcuts (the single-letter keys below keep working too)
@@ -319,7 +320,7 @@ $('#emoteBtn').addEventListener('click',()=>{audioInit();togglePanel('emote');})
 $('#autoBtn').addEventListener('click',()=>{if(!P)return;P.auto=!P.auto;$('#autoBtn').classList.toggle('on',P.auto);
   addLog(P.auto?`Auto-hunt on: you fight the nearest monster and drink tonics when HP runs low. Collecting drops: ${P.autoLoot===false?'only equipment, sigils and boss drops':'everything'} (the Loot button).`:'Auto-hunt off.',P.auto?'l-good':'l-sys');});
 // #auto-loot: whether auto-hunt walks over to collect drops (saved with the character; on by default)
-function setAutoLoot(on,quiet){if(!P)return;P.autoLoot=!!on;syncAutoLootBtn();if(!on&&P.lootGoal&&P.auto)P.lootGoal=null;if(!quiet)addLog(on?'Auto-hunt collects every drop.':'Auto-hunt now collects only equipment, sigils and boss drops, and leaves materials, tonics and gold (click them to pick them up yourself).');save();if(panelKind==='settings')refreshPanel();}
+function setAutoLoot(on,quiet){if(!P)return;P.autoLoot=!!on;syncAutoLootBtn();if(!on&&P.lootGoal&&P.auto)P.lootGoal=null;if(!quiet)addLog(on?'Auto-hunt collects every drop.':'Auto-hunt now collects only equipment, sigils, items with a coloured name and boss drops, and leaves ordinary materials, tonics and gold (click them to pick them up yourself).');save();if(panelKind==='settings')refreshPanel();}
 function syncAutoLootBtn(){const b=$('#autoLootBtn');if(!b)return;const on=!P||P.autoLoot!==false;b.classList.toggle('on',on);b.setAttribute('aria-checked',String(on));b.title=on?'Auto-hunt collects every drop':'Auto-hunt collects only equipment, sigils and boss drops';b.textContent=on?'Loot':'Best';}
 $('#autoLootBtn').addEventListener('click',()=>{if(!P)return;sfx('click');setAutoLoot(P.autoLoot===false);});
 $('#atkBtn').addEventListener('click',()=>{audioInit();targetNearest(true);});

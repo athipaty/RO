@@ -11,7 +11,8 @@ module.exports = async t => {
     t.ok(!off.goal && !off.btn && off.v === false, 'tapping Loot turns it off: auto-hunt leaves drops alone');
     const best = await A.ev(() => { const pick = id => { loot.length = 0; P.lootGoal = null; P.path = []; P.target = null; dropLoot({ x: P.x + 80, y: P.y, d: { boss: false } }, id); loot[0].t0 = now - 2; autoHunt(); return !!P.lootGoal; };
       const boss = (() => { loot.length = 0; P.lootGoal = null; P.path = []; dropLoot({ x: P.x + 80, y: P.y, d: { boss: true } }, 'sap'); loot[0].t0 = now - 2; autoHunt(); return !!P.lootGoal; })();
-      return { gear: pick('robe'), sigil: pick('hopper_sig'), mat: pick('sap'), boss, label: document.getElementById('autoLootBtn').textContent }; });
+      return { gear: pick('robe'), sigil: pick('hopper_sig'), mat: pick('sap'), coloured: pick('lupeears'), boss, label: document.getElementById('autoLootBtn').textContent }; });
+    t.ok(best.coloured, 'items with a coloured name (Uncommon or better) are collected too');
     t.ok(best.gear && best.sigil && best.boss && !best.mat, 'even off, it still collects equipment, sigils and boss drops, just not ordinary materials');
     t.ok(best.label === 'Best', 'the button then reads Best');
     const manual = await A.ev(() => { loot.length = 0; dropLoot({ x: P.x + 80, y: P.y }, 'sap'); const l = loot[0]; P.lootGoal = null; goLoot(l); return P.lootGoal === l; });

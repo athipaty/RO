@@ -146,7 +146,9 @@ function render(){
     if(show||m===hoverMob){label(`${m.d.name}  Lv${m.d.lv}`,m.x,m.y+m.d.size+16,m.d.boss?'#ffcf5a':m.d.aggro?'#ff9a8a':'#ffffff',11);}
     if(show){const w=Math.max(30,m.d.size*2.4),y=m.y-m.d.size*2-10;ctx.fillStyle='#000';ctx.fillRect(m.x-w/2-1,y-1,w+2,6);ctx.fillStyle='#d9483f';ctx.fillRect(m.x-w/2,y,w*m.hp/m.d.hp,4);}
   });
-  for(const n of Z.npcs)at(n.x,n.y,()=>label(n.name,n.x,n.y+22,'#ffe7a0',12));
+  // NPC names show when you are near or point at them; from afar the role icon over their head says who they are
+  for(const n of Z.npcs){const d=Math.hypot(n.x-P.x,n.y-P.y),a=n===hoverNpc?1:clamp((260-d)/80,0,1);if(a<=0)continue;
+    at(n.x,n.y,()=>{ctx.globalAlpha=a;label(n.name,n.x,n.y+22,'#ffe7a0',12);ctx.globalAlpha=1;});}
   for(const o of others)at(o.rx,o.ry,()=>{if(o.vd)shopSign(o.rx,o.ry,o.vd);label(`${o.n} · Lv${o.lv}`,o.rx,o.ry+22,o.guest?'#b8c4d4':inParty(o.peer)?'#8fe0a8':'#9fd3ff',12);if(o.guild)guildLabel(o.guild,o.rx,o.ry+44);if(o.ti&&typeof titleLabel==='function')titleLabel(o.ti,o.rx,o.ry+(o.guild?60:36));if(typeof bondLabel==='function')bondLabel(o,o.rx,o.ry-62);
     if(Math.hypot(o.x-P.x,o.y-P.y)<520){ctx.fillStyle='#000';ctx.fillRect(o.rx-17,o.ry+27,34,5);ctx.fillStyle='#62bf86';ctx.fillRect(o.rx-16,o.ry+28,32*(o.hp||0)/100,3);}
     if(o.bubble&&now<o.bubble.until)bubble(o.bubble.txt,o.rx,o.ry-58);
@@ -400,7 +402,27 @@ function drawNpc(n){const by=drawHuman(n.x,n.y,n.col,n.hair,1,0,{look:{...lookFo
   const mk=typeof npcMark==='function'?npcMark(n):'svc';if(!mk)return;
   const b=Math.sin(now*3)*2,big=mk==='offer'||mk==='ready',r=big?9:7;
   ctx.fillStyle=mk==='busy'?'#9aa3b2':mk==='svc'?'#d8c08a':'#ffcf5a';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(n.x,by-48+b,r,0,7);ctx.fill();if(big)ctx.stroke();
+  if(mk==='svc'&&drawRoleIcon(n.role,n.x,by-48+b))return;
   ctx.fillStyle='#2a2018';ctx.font=`800 ${big?14:11}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.fillText(mk==='offer'?'!':mk==='svc'?'…':'?',n.x,by-48+b+(big?5:4));}
+// a small picture of what an NPC does, drawn over their head (in a circle the colour of the marker)
+function drawRoleIcon(role,x,y){const c=ctx;c.save();c.translate(x,y);c.strokeStyle='#2a2018';c.fillStyle='#2a2018';c.lineWidth=1.3;c.lineCap='round';c.lineJoin='round';
+  const P_=()=>{c.fill();};let ok=true;
+  switch(role){
+    case 'shop':c.beginPath();c.moveTo(-3.5,-1.5);c.lineTo(3.5,-1.5);c.lineTo(3,4);c.lineTo(-3,4);c.closePath();P_();c.beginPath();c.arc(0,-1.5,2,Math.PI,0);c.stroke();break; // a bag
+    case 'smith':c.beginPath();c.moveTo(-4,-1);c.lineTo(4,-1);c.lineTo(2.5,1.5);c.lineTo(-2.5,1.5);c.closePath();P_();c.fillRect(-1.2,1.5,2.4,2.2);c.fillRect(-3,3.5,6,1.2);break; // an anvil
+    case 'heal':c.fillRect(-1.3,-4,2.6,8);c.fillRect(-4,-1.3,8,2.6);break; // a cross
+    case 'warp':c.beginPath();c.moveTo(-4,2);c.quadraticCurveTo(-1,-5,4,-3);c.lineTo(1,-1);c.moveTo(4,-3);c.lineTo(2.5,1);c.stroke();break; // a curving arrow
+    case 'storage':c.fillRect(-4,-2,8,6);c.fillStyle='#d8c08a';c.fillRect(-4,0,8,.9);c.fillStyle='#2a2018';c.beginPath();c.arc(0,-2,4,Math.PI,0);P_();break; // a chest
+    case 'job':c.beginPath();c.moveTo(-3.5,-4);c.lineTo(3.5,-4);c.lineTo(3.5,0);c.quadraticCurveTo(3,3.5,0,4.5);c.quadraticCurveTo(-3,3.5,-3.5,0);c.closePath();P_();break; // a shield
+    case 'stylist':for(const k of[-1,1]){c.beginPath();c.arc(k*2.3,2.6,1.5,0,7);c.stroke();}c.beginPath();c.moveTo(-1.5,1.4);c.lineTo(2.5,-4.5);c.moveTo(1.5,1.4);c.lineTo(-2.5,-4.5);c.stroke();break; // scissors
+    case 'arena':c.beginPath();c.moveTo(-4,4);c.lineTo(3.5,-3.5);c.moveTo(4,4);c.lineTo(-3.5,-3.5);c.stroke();break; // crossed swords
+    case 'keep':c.beginPath();c.moveTo(-3,4.5);c.lineTo(-3,-4.5);c.stroke();c.beginPath();c.moveTo(-3,-4.5);c.lineTo(3.5,-2.8);c.lineTo(-3,-1);c.closePath();P_();break; // a flag
+    case 'gemcut':c.beginPath();c.moveTo(0,4.5);c.lineTo(-4,-1);c.lineTo(-2,-3.5);c.lineTo(2,-3.5);c.lineTo(4,-1);c.closePath();P_();break; // a gem
+    case 'library':c.fillRect(-4,-3.5,3.6,7);c.fillRect(.4,-3.5,3.6,7);break; // an open book
+    case 'festival':c.beginPath();for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,r=i%2?2:4.5;c.lineTo(Math.cos(a)*r,Math.sin(a)*r);}c.closePath();P_();break; // a star
+    case 'rebirth':c.beginPath();c.arc(0,0,2.2,0,7);P_();for(let i=0;i<8;i++){const a=i*Math.PI/4;c.beginPath();c.moveTo(Math.cos(a)*3.2,Math.sin(a)*3.2);c.lineTo(Math.cos(a)*4.6,Math.sin(a)*4.6);c.stroke();}break; // a sun
+    default:ok=false;}
+  c.restore();return ok;}
 function drawLoot(l){
   const k=Math.min(1,(now-l.t0)/.38),dx=l.fx-l.x,dy=l.fy-l.y;
   const ox=(dx-dy)*ISO*(1-k),oy=(dx+dy)*ISO/2*(1-k)-Math.sin(k*Math.PI)*28+(k>=1?Math.sin(now*3+l.uid)*1.2:0);

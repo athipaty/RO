@@ -5,7 +5,7 @@
 const isTouchUI=()=>window.matchMedia('(pointer:coarse)').matches||window.innerWidth<=760;
 function placeControls(){const touch=isTouchUI(),dock=$('#dock'),acts=$('#actions');document.body.classList.toggle('touchui',touch);
   // auto-hunt and sound live in the dock on desktop, with the round buttons on a phone
-  const into=touch?acts:$('#dockExtra');for(const id of ['autoBtn','autoLootBtn','muteBtn']){const b=$('#'+id);if(b&&b.parentElement!==into){if(touch&&(id==='autoBtn'||id==='autoLootBtn'))acts.insertBefore(b,$('#chatBtn'));else into.appendChild(b);}}
+  const into=touch?acts:$('#dockExtra');for(const id of ['autoBtn','autoLootBtn','muteBtn']){const b=$('#'+id);const to=touch&&id==='autoLootBtn'?$('#dockExtra'):into;if(b&&b.parentElement!==to){if(touch&&id==='autoBtn')acts.insertBefore(b,$('#chatBtn'));else to.appendChild(b);}}
   if(!touch)dock.classList.remove('open');
   const hb=$('#hotbar');if(touch&&hb.parentElement!==acts)acts.insertBefore(hb,$('#atkBtn'));else if(!touch&&hb.parentElement===acts)document.body.insertBefore(hb,acts);}
 $('#menuBtn').addEventListener('click',ev=>{ev.stopPropagation();sfx('click');const d=$('#dock');d.classList.toggle('open');$('#menuBtn').setAttribute('aria-expanded',String(d.classList.contains('open')));});
