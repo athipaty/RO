@@ -5,9 +5,9 @@ module.exports = async t => {
   try {
     await wait(1500);
     const mm = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); const c = document.getElementById('mini');
-      const w0 = c.getBoundingClientRect().width; c.click(); await w(150); const w1 = c.getBoundingClientRect().width, big = miniBig, saved = localStorage.getItem('embervale.miniBig');
+      const w0 = c.getBoundingClientRect().width; document.getElementById('miniSize').click(); await w(150); const w1 = c.getBoundingClientRect().width, big = miniBig, saved = localStorage.getItem('embervale.miniBig');
       return { w0, w1, big, saved, cw: c.width }; });
-    t.ok(mm.w1 > mm.w0 * 1.5 && mm.big && mm.saved === '1' && mm.cw === 260, `clicking the minimap makes it bigger (${mm.w0}px → ${mm.w1}px), and that is remembered`);
+    t.ok(mm.w1 > mm.w0 * 1.5 && mm.big && mm.saved === '1' && mm.cw === 280, `the ⤢ button makes the minimap bigger (${mm.w0}px → ${mm.w1}px), and that is remembered`);
     if (process.env.SHOTS) await g.page.screenshot({ path: process.env.SHOTS + '/minimap-big.png' });
     const map = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms));
       P.visited = ['town', 'meadow', 'woods']; NET.wb = { b: 'warlord', z: 'crypt', until: Date.now() + 60000 };
@@ -22,8 +22,12 @@ module.exports = async t => {
     t.ok(map.unseen.includes('frost') && !map.unseen.includes('woods') && /Sproutling/.test(map.txt) && !/Rime Stalker/.test(map.txt), 'unvisited regions are dimmed and keep their monsters secret');
     t.ok(/World boss: Ashen Warlord/.test(map.txt), 'it shows where a world boss is out');
     if (process.env.SHOTS) await g.page.screenshot({ path: process.env.SHOTS + '/worldmap.png' });
-    const back = await g.ev(async () => { closePanel(); document.getElementById('mini').click(); return { big: miniBig, w: document.getElementById('mini').width }; });
-    t.ok(!back.big && back.w === 150, 'clicking again makes it small');
+    const back = await g.ev(async () => { closePanel(); document.getElementById('miniSize').click(); return { big: miniBig, w: document.getElementById('mini').width }; });
+    t.ok(!back.big && back.w === 170, 'pressing it again makes it small');
+    const walk = await g.ev(async () => { enterZone('meadow'); const c = document.getElementById('mini'), r = c.getBoundingClientRect(); const tx = P.x + 400, ty = P.y + 100, p = miniPt(tx, ty);
+      c.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: r.left + p.x * r.width / c.width, clientY: r.top + p.y * r.height / c.height }));
+      const end = P.path.length ? P.path[P.path.length - 1] : null; return { moving: P.path.length > 0, near: end ? Math.hypot(end.x - tx, end.y - ty) < 120 : false }; });
+    t.ok(walk.moving && walk.near, 'tapping a spot on the minimap walks your hero there');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };

@@ -544,17 +544,25 @@ function drawFx(){
     ctx.restore();}
 }
 const mctx=$('#mini').getContext('2d');
+// the minimap is drawn at the same diamond angle as the game, so "up" on the map is "up" on screen;
+// MINI keeps the mapping so a tap on it can be turned back into a spot in the world
+const MINI={s:1,ox:0,oy:0};
+const miniPt=(x,y)=>({x:MINI.ox+(x-y)*ISO*MINI.s,y:MINI.oy+(x+y)*ISO/2*MINI.s});
 function renderMini(){
-  if(!Z)return;const w=mctx.canvas.width;
-  // the minimap takes the region's own shape, so the map always fills its border
-  {const want=Math.round(w*Z.h/Z.w);if(mctx.canvas.height!==want)mctx.canvas.height=want;}const h=mctx.canvas.height;mctx.fillStyle='#0b0e13';mctx.fillRect(0,0,w,h);
-  const sc=Math.min(w/Z.w,h/Z.h),ox=(w-Z.w*sc)/2,oy=(h-Z.h*sc)/2;mctx.imageSmoothingEnabled=false;mctx.drawImage(Z.mini,ox,oy,Z.w*sc,Z.h*sc);
-  const k=sc/TILE;
-  for(const pt of Z.portals){mctx.fillStyle='#8ff0ff';mctx.fillRect(ox+pt.x*k-2,oy+pt.y*k-2,4,4);}
-  for(const n of Z.npcs){mctx.fillStyle='#ffcf5a';mctx.fillRect(ox+n.x*k-1.5,oy+n.y*k-1.5,3,3);}
-  for(const m of mobs)if(!m.dead){mctx.fillStyle=m.d.boss?'#ff5a3a':'#e05050';const s=m.d.boss?5:2;mctx.fillRect(ox+m.x*k-s/2,oy+m.y*k-s/2,s,s);}
-  for(const [peer,o] of NET.others)if(o.z===zoneId&&!o.dead){mctx.fillStyle=inParty(peer)?'#8fe0a8':'#9fd3ff';mctx.fillRect(ox+o.x*k-1.5,oy+o.y*k-1.5,3,3);}
-  mctx.fillStyle='#fff';mctx.fillRect(ox+P.x*k-2,oy+P.y*k-2,4,4);
-  if(typeof miniLabels==='function')miniLabels(ox,oy,k);
+  if(!Z)return;const c=mctx.canvas,w=c.width,h=c.height;mctx.setTransform(1,0,0,1,0,0);mctx.clearRect(0,0,w,h);
+  const W=Z.w*TILE,H=Z.h*TILE,uw=(W+H)*ISO,vh=(W+H)*ISO/2,pad=4,s=Math.min((w-pad*2)/uw,(h-pad*2)/vh)*1.15; // a little zoom: only the empty diamond tips are cut
+  MINI.s=s;MINI.ox=(w-uw*s)/2+H*ISO*s;MINI.oy=(h-vh*s)/2;
+  // the land
+  const t=s*ISO*TILE;mctx.save();mctx.setTransform(t,t/2,-t,t/2,MINI.ox,MINI.oy);mctx.imageSmoothingEnabled=true;mctx.drawImage(Z.mini,0,0);
+  mctx.strokeStyle='rgba(255,255,255,.25)';mctx.lineWidth=1/t;mctx.strokeRect(0,0,Z.w,Z.h);mctx.restore();
+  const dot=(x,y,r,col,ring)=>{const p=miniPt(x,y);mctx.beginPath();mctx.arc(p.x,p.y,r,0,7);mctx.fillStyle=col;mctx.fill();if(ring){mctx.lineWidth=1;mctx.strokeStyle=ring;mctx.stroke();}};
+  for(const pt of Z.portals){const p=miniPt(pt.x,pt.y),a=.5+Math.sin(now*3)*.25;mctx.beginPath();mctx.arc(p.x,p.y,4.5,0,7);mctx.strokeStyle=`rgba(143,240,255,${a+.3})`;mctx.lineWidth=1.5;mctx.stroke();dot(pt.x,pt.y,2,'#8ff0ff');}
+  for(const n of Z.npcs)dot(n.x,n.y,1.8,'#ffcf5a');
+  for(const m of mobs)if(!m.dead)dot(m.x,m.y,m.d.boss?3.2:1.5,m.d.boss?'#ff5a3a':'#e05050',m.d.boss?'#2a0a08':null);
+  for(const [peer,o] of NET.others)if(o.z===zoneId&&!o.dead)dot(o.x,o.y,2,inParty(peer)?'#8fe0a8':'#9fd3ff','#0b1a12');
+  if(MINI.goal&&now-MINI.goal.t<1.5){const p=miniPt(MINI.goal.x,MINI.goal.y),k=(now-MINI.goal.t)/1.5;mctx.beginPath();mctx.arc(p.x,p.y,3+k*6,0,7);mctx.strokeStyle=`rgba(255,240,180,${1-k})`;mctx.lineWidth=1.5;mctx.stroke();}
+  // you: a bright dot with a soft pulse
+  {const p=miniPt(P.x,P.y),r=4+Math.sin(now*4)*1.2;mctx.beginPath();mctx.arc(p.x,p.y,r+2,0,7);mctx.fillStyle='rgba(255,255,255,.18)';mctx.fill();dot(P.x,P.y,2.6,'#ffffff','#1a1208');}
+  if(typeof miniLabels==='function')miniLabels();
 }
 

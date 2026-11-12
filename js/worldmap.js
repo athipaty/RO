@@ -1,18 +1,22 @@
 "use strict";
 /* ================= #37 bigger minimap and a world map ================= */
 // ---- minimap: click it to switch between small and large (remembered) ----
-const MINI_SIZES={small:[150,104],large:[260,180]};
+const MINI_SIZES={small:[170,104],large:[280,170]};
 let miniBig=(()=>{try{return localStorage.getItem('embervale.miniBig')==='1';}catch(e){return false;}})();
 function setMiniBig(on){miniBig=!!on;try{localStorage.setItem('embervale.miniBig',miniBig?'1':'0');}catch(e){}
   const c=$('#mini'),[w,h]=MINI_SIZES[miniBig?'large':'small'];c.width=w;c.height=h;$('#minibox').classList.toggle('big',miniBig);
-  c.title=miniBig?'Click for a smaller map · M for the world map':'Click for a bigger map · M for the world map';}
+  c.title='Tap to walk there · M for the world map';const b=$('#miniSize');if(b){b.textContent=miniBig?'⤡':'⤢';b.setAttribute('aria-label',miniBig?'Smaller minimap':'Bigger minimap');}}
 setMiniBig(miniBig);
-$('#mini').addEventListener('click',ev=>{ev.stopPropagation();sfx('click');setMiniBig(!miniBig);});
+// tap the minimap to walk there; the ⤢ button in its corner switches between small and large
+$('#mini').addEventListener('click',ev=>{ev.stopPropagation();if(!P||!running||P.dead||!Z)return;const c=$('#mini'),r=c.getBoundingClientRect();
+  const cx=(ev.clientX-r.left)*c.width/r.width,cy=(ev.clientY-r.top)*c.height/r.height,u=(cx-MINI.ox)/MINI.s/ISO,v=(cy-MINI.oy)/MINI.s/(ISO/2);
+  const x=(u+v)/2,y=(v-u)/2;if(x<TILE||y<TILE||x>(Z.w-1)*TILE||y>(Z.h-1)*TILE)return;
+  if(typeof npcBusy==='function'&&npcBusy()){busyHint();return;}
+  sfx('click');P.target=null;P.queued=null;P.npcGoal=null;P.sitting=false;MINI.goal={x,y,t:now};clickMark={x,y,t:now};pathTo(x,y,true);});
 // on the large minimap, name where each exit leads
-function miniLabels(ox,oy,k){if(!miniBig||!Z)return;mctx.font='bold 9px system-ui,sans-serif';mctx.textBaseline='middle';
-  for(const pt of Z.portals){const D=ZONES[pt.to];if(!D)continue;const nm=pt.side==='down'?'▼ '+D.name:D.name;
-    const x=ox+pt.x*k,y=oy+pt.y*k,tw=mctx.measureText(nm).width;let tx=pt.side==='east'?x-6-tw:x+6;tx=clamp(tx,2,mctx.canvas.width-tw-2);
-    mctx.fillStyle='rgba(0,0,0,.6)';mctx.fillRect(tx-2,y-6,tw+4,12);mctx.fillStyle='#8ff0ff';mctx.fillText(nm,tx,y);}}
+function miniLabels(){if(!miniBig||!Z)return;mctx.font='bold 9px system-ui,sans-serif';mctx.textBaseline='middle';
+  for(const pt of Z.portals){const D=ZONES[pt.to];if(!D)continue;const nm=pt.side==='down'?'▼ '+D.name:D.name;const p=miniPt(pt.x,pt.y),tw=mctx.measureText(nm).width;
+    const tx=clamp(p.x-tw/2,2,mctx.canvas.width-tw-2),ty=clamp(p.y-9,6,mctx.canvas.height-6);mctx.fillStyle='rgba(0,0,0,.6)';mctx.fillRect(tx-2,ty-6,tw+4,12);mctx.fillStyle='#8ff0ff';mctx.fillText(nm,tx,ty);}}
 
 // ---- world map window (M) ----
 const WORLD_ROAD=['town','meadow','woods','dunes','crypt','frost'],WORLD_BRANCH={woods:['deep1','deep2','deep3']};

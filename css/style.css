@@ -606,3 +606,31 @@ body.touchui #log.big{max-height:min(40vh,300px)!important}
 #logTabs{order:99;position:sticky;top:auto!important;bottom:-8px;margin:4px -10px -8px!important;padding:5px 10px 6px!important;border-radius:0 0 12px 12px!important;border-top:1px solid rgba(255,255,255,.06)}
 #logToggle{margin-left:0!important;margin-right:2px}
 @media (min-width:1041px){body:not(.touchui) #log{width:min(340px,calc(50vw - 272px))}}
+/* ===== controls and HUD (v0.75.0) ===== */
+/* buffs: a column on the right under the minimap */
+#buffs.side{position:fixed;margin:0;display:flex;flex-direction:column;gap:6px;z-index:3;pointer-events:auto}
+#buffs.side[hidden]{display:none}
+#buffs.side .buff{width:32px;height:32px;border-radius:8px;background:rgba(14,18,26,.85);border:1px solid rgba(255,255,255,.14);box-shadow:0 3px 10px rgba(0,0,0,.35)}
+/* minimap: rounded frame, soft background, a size button in the corner */
+#minibox{position:fixed}
+#mini{image-rendering:auto;border-radius:10px;background:radial-gradient(ellipse at center,#18202c,#0b0e13 75%);border:1px solid rgba(240,181,74,.25);box-shadow:inset 0 0 18px rgba(0,0,0,.6);cursor:crosshair!important}
+#miniSize{position:absolute;top:7px;right:7px;width:22px;height:22px;padding:0;font-size:12px;line-height:20px;border-radius:6px}
+/* the icons on the round buttons: shown on phones, the words on a computer */
+.act .aic{display:none;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+body.touchui .act .aic{display:block}body.touchui .act .atx{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* phone controls: dark discs with gold rings, like a game's action pad */
+body.touchui #actions{z-index:2}
+body.touchui #actions>.act{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;color:#f4e7c4;
+  background:radial-gradient(circle at 35% 28%,#2c3546,#0e121a 70%);border:2px solid #9c7a3e;box-shadow:0 0 0 1px #000,inset 0 2px 5px rgba(255,255,255,.1),0 6px 14px rgba(0,0,0,.55)}
+body.touchui #actions>.act:active{transform:scale(.94)}
+body.touchui #actions>.act.on{border-color:#ffcf5a;color:#ffcf5a;box-shadow:0 0 0 1px #000,0 0 14px rgba(255,207,90,.45),0 6px 14px rgba(0,0,0,.55)}
+body.touchui #menuBtn{width:42px!important;height:42px!important}
+body.touchui #atkBtn{width:76px!important;height:76px!important;color:#fff;background:radial-gradient(circle at 35% 28%,#e0675a,#8e2620 72%)!important;border:3px solid #d9b25a!important;box-shadow:0 0 0 1px #000,0 0 18px rgba(217,72,63,.45),0 8px 18px rgba(0,0,0,.55)!important}
+body.touchui #atkBtn .aic{width:36px;height:36px;stroke-width:2.2}
+body.touchui #hotbar .slot{border:2px solid #9c7a3e!important;background:radial-gradient(circle at 35% 28%,#2c3546,#0e121a 70%)!important;box-shadow:0 0 0 1px #000,0 5px 12px rgba(0,0,0,.5)!important}
+body.touchui #hotbar .slot .k{display:none}
+/* the tap pad behind the cluster (invisible) */
+#actPads .actPad{position:fixed;z-index:1;border-radius:50%;background:transparent;touch-action:none}
+body:not(.touchui) #actPads{display:none}
+body.touchui #actions>#emoteBtn,body.touchui #actions>#muteBtn{display:none!important}
+#miniSize{top:40px;right:14px;background:rgba(14,18,26,.75)}

@@ -20,10 +20,11 @@ module.exports = async t => {
     await g.ev(() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'b' })));
     t.ok(await g.ev(() => !document.getElementById('hud').classList.contains('mini') && document.getElementById('gold').offsetParent !== null), 'B expands it again');
     // the monster box: name + HP by default, details on demand
-    const tb = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); enterZone('meadow'); await w(300); P.target = mobs.find(m => !m.dead); updateHud();
+    const tb = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); enterZone('meadow'); await w(300); P.target = mobs.find(m => !m.dead); const off = document.getElementById('target').hidden || (updateHud(), document.getElementById('target').hidden); SETS.targetBox = true; updateHud();
       const v = id => document.getElementById(id).offsetParent !== null; const a = { name: v('tName'), hp: v('tI'), drops: v('tDrops'), info: v('tInfo'), h: document.getElementById('target').offsetHeight };
-      document.getElementById('tToggle').click(); const b = { drops: v('tDrops'), info: v('tInfo'), lv: v('tLv'), h: document.getElementById('target').offsetHeight }; return { a, b }; });
-    t.ok(tb.a.name && tb.a.hp && !tb.a.drops && !tb.a.info, 'the monster box shows just the name and HP by default');
+      document.getElementById('tToggle').click(); const b = { drops: v('tDrops'), info: v('tInfo'), lv: v('tLv'), h: document.getElementById('target').offsetHeight }; SETS.targetBox = false; return { a, b, off }; });
+    t.ok(tb.off, 'the monster card in the middle is off by default (monsters show HP over their heads)');
+    t.ok(tb.a.name && tb.a.hp && !tb.a.drops && !tb.a.info, 'switched on in Settings, the monster box shows just the name and HP');
     t.ok(tb.b.drops && tb.b.info && tb.b.lv && tb.b.h > tb.a.h, `its + button shows level, element, drops and Info (${tb.a.h}px → ${tb.b.h}px)`);
     t.ok(await g.ev(() => localStorage.getItem('embervale.targetFull') === '1'), 'and the choice is remembered');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));

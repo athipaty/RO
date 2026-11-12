@@ -1,0 +1,46 @@
+"use strict";
+/* ================= controls and HUD (v0.75.0) =================
+   · the monster card in the middle is off by default (monsters show their own HP bar; Settings brings it back);
+     duels and the arena still show it for the other player. On phones, press and hold a monster for its info.
+   · buff icons live in a column on the right, under the minimap
+   · minimap: tap to walk there (worldmap.js); a small ⤢ button switches its size
+   · phone controls: round icon buttons with gold rings; a pad behind the cluster swallows taps that miss a
+     button, so a near-miss never walks your hero off */
+// ---- the target card ----
+const _updateHudC=updateHud;
+updateHud=function(){_updateHudC.apply(this,arguments);if(!P)return;const te=$('#target'),t=P.target&&!P.target.dead?P.target:null;
+  const want=!!t&&(t.pvp||(typeof SETS!=='undefined'&&SETS.targetBox===true));if(te.hidden===want)te.hidden=!want;};
+// press and hold a monster (phones) for its info. Listens on window (before the joystick holds the tap back);
+// when the hold fires, the release is not turned into a tap
+(()=>{let hold=null,x0=0,y0=0;const stop=()=>{clearTimeout(hold);hold=null;};
+  addEventListener('pointerdown',ev=>{if(ev.target!==cv||ev.pointerType==='mouse'||ev.__joyTap||!P||!running)return;
+    const r=cv.getBoundingClientRect(),sc={x:ev.clientX-r.left+camX,y:ev.clientY-r.top+camY};const was=touchPick;touchPick=true;const m=mobAt(sc);touchPick=was;if(!m)return;
+    x0=ev.clientX;y0=ev.clientY;stop();hold=setTimeout(()=>{hold=null;if(typeof JOY!=='undefined'){JOY.down=null;}if(MOBS[m.d.id]){P.target=m;openPanel('mob',m.d.id);}},550);},true);
+  addEventListener('pointermove',ev=>{if(hold&&Math.hypot(ev.clientX-x0,ev.clientY-y0)>14)stop();},true);
+  addEventListener('pointerup',stop,true);addEventListener('pointercancel',stop,true);})();
+// ---- buffs: a column on the right under the minimap ----
+(()=>{const b=$('#buffs');if(!b)return;document.body.appendChild(b);b.classList.add('side');
+  const place=()=>{const mb=$('#minibox');if(!mb)return;const r=mb.getBoundingClientRect();b.style.top=Math.round(r.bottom+8)+'px';b.style.right=Math.round(innerWidth-r.right)+'px';};
+  place();setInterval(place,500);addEventListener('resize',place);})();
+// ---- minimap size button ----
+(()=>{const mb=$('#minibox');if(!mb||$('#miniSize'))return;const b=document.createElement('button');b.type='button';b.id='miniSize';b.className='btn small';
+  b.addEventListener('click',ev=>{ev.stopPropagation();sfx('click');setMiniBig(!miniBig);});mb.appendChild(b);setMiniBig(miniBig);})();
+// ---- phone controls: icons ----
+const ICONS={
+  menuBtn:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  autoBtn:'<path d="M20 12a8 8 0 0 1-14 5.3M4 12a8 8 0 0 1 14-5.3"/><path d="M18 3v4h-4M6 21v-4h4"/>',
+  chatBtn:'<path d="M4 6h16v10H9l-5 4z"/>',
+  sitBtn:'<path d="M15 4a7 7 0 1 0 5 12A8 8 0 0 1 15 4z"/>',
+  emoteBtn:'<circle cx="12" cy="12" r="8"/><path d="M9 14c1.5 1.6 4.5 1.6 6 0"/><circle cx="9.5" cy="10" r=".6"/><circle cx="14.5" cy="10" r=".6"/>',
+  atkBtn:'<path d="M5 19l9-9M14 4h6v6l-9 9-3-3"/><path d="M5 15l4 4M3 21l3-3"/>'};
+for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id);if(!b)continue;const label=b.textContent.trim();
+  b.innerHTML=`<svg class="aic" viewBox="0 0 24 24" aria-hidden="true">${path}</svg><span class="atx">${label}</span>`;}
+// ---- phones: an invisible ring around each round button catches near-misses, so a tap between buttons never
+//      walks your hero off; open ground (for the joystick) stays free ----
+(()=>{const box=document.createElement('div');box.id='actPads';document.body.appendChild(box);
+  const fit=()=>{const on=document.body.classList.contains('touchui');box.hidden=!on;if(!on)return;
+    const els=[...document.querySelectorAll('#actions>.act,#hotbar .slot')].filter(el=>{const r=el.getBoundingClientRect();return r.width&&getComputedStyle(el).display!=='none';});
+    while(box.children.length<els.length){const d=document.createElement('div');d.className='actPad';['pointerdown','pointerup','click'].forEach(e=>d.addEventListener(e,ev=>ev.stopPropagation()));box.appendChild(d);}
+    [...box.children].forEach((d,k)=>{const el=els[k];if(!el){d.hidden=true;return;}d.hidden=false;const r=el.getBoundingClientRect(),m=11;
+      Object.assign(d.style,{left:(r.left-m)+'px',top:(r.top-m)+'px',width:(r.width+m*2)+'px',height:(r.height+m*2)+'px'});});};
+  fit();setInterval(fit,700);addEventListener('resize',()=>setTimeout(fit,50));})();

@@ -19,6 +19,7 @@ PANELS.settings=()=>{let h=`<h2>Settings</h2><div class="sub">Saved in this brow
   h+=`<h3>Display</h3><div class="setlist">`+
     `<div class="setrow"><div class="grow"><div class="nm">Interface size</div><div class="ds">Boxes, buttons and windows</div></div>${seg('setui',SETS.ui,[['s','Small'],['m','Normal'],['l','Large']])}</div>`+
     `<div class="setrow"><div class="grow"><div class="nm">Weather and seasons</div><div class="ds">Rain, snow, fog, embers, festival lanterns</div></div>${toggle('weathert',typeof skyOn==='undefined'||skyOn,'Weather effects on or off')}</div>`+
+    `<div class="setrow"><div class="grow"><div class="nm">Monster card</div><div class="ds">The box with your target's name and HP in the middle (monsters also show HP over their heads)</div></div>${toggle('settarget',SETS.targetBox===true,'Monster card on or off')}</div>`+
     `<div class="setrow"><div class="grow"><div class="nm">Auto-hunt collects drops</div><div class="ds">Off: only equipment, sigils and boss drops are collected; materials, tonics and gold are left (also the Loot button)</div></div>${toggle('setautoloot',!P||P.autoLoot!==false,'Auto-hunt collects drops on or off')}</div>`+
     `<div class="setrow"><div class="grow"><div class="nm">Performance mode</div><div class="ds">Draws at lower resolution: smoother on slower phones. Switches on by itself if the game runs slowly</div></div>${toggle('setlite',!!SETS.lite,'Performance mode on or off')}</div></div>`;
   h+=`<h3>Mouse</h3><div class="dv keylist">`+[['Click / tap','walk, attack, talk, pick up'],['Shift + click','attack in place'],['Right-click monster','monster info'],['Drag a window title','move the window'],['Esc','close · H help'],['⊞ beside the hotbar','extra rows: Alt+1–8 row 2, F1–F8 row 3']].map(([k,v])=>`<div><span>${k}</span><span>${v}</span></div>`).join('')+`</div>`;
@@ -28,6 +29,7 @@ PANELS.settings=()=>{let h=`<h2>Settings</h2><div class="sub">Saved in this brow
 PANEL_ACTS.setmusic=()=>{audioInit();setAudio(!AU.music,AU.sfx);refreshPanel();};
 PANEL_ACTS.setsfx=()=>{audioInit();setAudio(AU.music,!AU.sfx);refreshPanel();};
 PANEL_ACTS.setui=v=>{SETS.ui=v;saveSets();applySets();if(typeof renderParty==='function')renderParty();refreshPanel();};
+PANEL_ACTS.settarget=()=>{SETS.targetBox=!SETS.targetBox;saveSets();refreshPanel();};
 PANEL_ACTS.setautoloot=()=>{if(P)setAutoLoot(P.autoLoot===false,true);};
 PANEL_ACTS.setlite=()=>{SETS.lite=!SETS.lite;saveSets();applySets();refreshPanel();};
 PANEL_ACTS.sethelp=()=>openPanel('help');
