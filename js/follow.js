@@ -11,6 +11,11 @@ const following=peer=>!!FOL&&FOL.peer===peer;
 function followAssist(){if(!FOL)return false;const o=NET.others.get(FOL.peer);if(!o||o.z!==zoneId||!(o.tg>=0))return false;
   const m=mobs[o.tg];if(!m||m.dead)return false;P.target=m;P.assist=true;P.holdPos=false;return true;}
 
+// walk to just behind the leader; if that spot is blocked (a tree, a wall), try the leader's own spot,
+// then a ring of spots around them, so the follower never just stands there
+function followGo(lx,ly,d){const k=(d-40)/d;if(pathTo(P.x+(lx-P.x)*k,P.y+(ly-P.y)*k,true))return true;if(pathTo(lx,ly,true))return true;
+  for(const r of [36,56,80])for(let i=0;i<8;i++){const a=i*Math.PI/4+Math.atan2(P.y-ly,P.x-lx);if(pathTo(lx+Math.cos(a)*r,ly+Math.sin(a)*r,true))return true;}
+  return false;}
 function followTick(dt){if(!FOL||!P)return;const o=NET.others.get(FOL.peer);
   if(!o||!inParty(FOL.peer)){followStop(`${FOL.name} is no longer in your party, so you stopped following.`);return;}
   if(P.dead){followStop();return;}
@@ -24,11 +29,11 @@ function followTick(dt){if(!FOL||!P)return;const o=NET.others.get(FOL.peer);
     if(!pt){followStop(`${o.n} went to ${ZONES[o.z]?.name||'somewhere'}, which you can't walk to from here.`);return;}
     pathTo(pt.x,pt.y,true);return;}
   const d=Math.hypot(o.rx-P.x,o.ry-P.y);
-  if(d>56){const k=(d-40)/d;pathTo(P.x+(o.rx-P.x)*k,P.y+(o.ry-P.y)*k,true);} // stop a step behind them
+  if(d>56)followGo(o.rx,o.ry,d); // stop a step behind them
   else if(P.path.length&&d<40)P.path=[];}
 
 const _netTickF=netTick;
-netTick=function(dt){_netTickF(dt);try{followTick(dt);}catch(e){FOL=null;}};
+netTick=function(dt){_netTickF(dt);try{followTick(dt);}catch(e){if(!followTick.err){followTick.err=1;console.error('follow',e);}}}; // an error no longer silently stops following
 
 // clicking the ground or moving by keyboard takes back control
 cv.addEventListener('pointerdown',()=>{if(FOL&&running)followStop(`You stopped following ${FOL.name}.`);});

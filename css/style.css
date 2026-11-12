@@ -641,3 +641,7 @@ body.touchui #actions>#emoteBtn,body.touchui #actions>#muteBtn{display:none!impo
 #expEdge .j{position:absolute;left:0;top:0;height:1px;background:#62bf86;opacity:.8;transition:width .4s}
 #expEdge span{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);font:600 10.5px Inter,var(--ui);color:#ffe7a0;background:rgba(14,18,26,.9);padding:2px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}
 #expEdge:hover{height:6px}#expEdge:hover span{opacity:1}
+/* Thai: Noto Sans Thai fills in the Thai letters behind the usual fonts */
+:root{--ui:"Alegreya Sans","Noto Sans Thai","Trebuchet MS",system-ui,sans-serif}
+html[lang="th"] body,html[lang="th"] button,html[lang="th"] input{font-family:Inter,"Noto Sans Thai",system-ui,sans-serif}
+#langBtn{position:absolute;top:12px;right:12px;z-index:5}
