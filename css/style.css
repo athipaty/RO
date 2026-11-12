@@ -634,3 +634,10 @@ body.touchui #hotbar .slot .k{display:none}
 body:not(.touchui) #actPads{display:none}
 body.touchui #actions>#emoteBtn,body.touchui #actions>#muteBtn{display:none!important}
 #miniSize{top:40px;right:14px;background:rgba(14,18,26,.75)}
+/* full-width EXP bar on the bottom edge */
+#expEdge{position:fixed;left:0;right:0;bottom:0;height:4px;z-index:6;background:rgba(0,0,0,.45);pointer-events:auto}
+#expEdge[hidden]{display:none}
+#expEdge .b{position:absolute;left:0;bottom:0;height:3px;background:linear-gradient(90deg,#c8962a,#ffcf5a);box-shadow:0 0 6px rgba(255,207,90,.5);transition:width .4s}
+#expEdge .j{position:absolute;left:0;top:0;height:1px;background:#62bf86;opacity:.8;transition:width .4s}
+#expEdge span{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);font:600 10.5px Inter,var(--ui);color:#ffe7a0;background:rgba(14,18,26,.9);padding:2px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}
+#expEdge:hover{height:6px}#expEdge:hover span{opacity:1}

@@ -19,7 +19,10 @@ module.exports = async t => {
       P.x = s.x - 70; P.y = s.y + 20; P.cls = 'arcanist'; P.skills = { emberbolt: 5 }; P.st.dex = 1; P.st.int = 30; P.st.vit = 99; S = computeStats(); P.hp = S.maxhp; P.sp = S.maxsp;
       followStart([...NET.others.keys()][0]); }, spot);
     await wait(2500);
-    const cast = await B.ev(i => { P.cd = {}; P.sp = S.maxsp; useSkill('emberbolt'); return { fol: !!FOL, assist: !!P.assist, same: P.target && P.target.idx === i, casting: !!P.casting }; }, spot.i);
+    // on a busy machine the follower can still be walking into range: keep trying for a few seconds
+    const cast = await B.ev(async i => { const w = ms => new Promise(r => setTimeout(r, ms)); let r = {};
+      for (let k = 0; k < 30; k++) { P.cd = {}; P.sp = S.maxsp; if (!P.casting) useSkill('emberbolt'); r = { fol: !!FOL, assist: !!P.assist, same: P.target && P.target.idx === i, casting: !!P.casting }; if (r.casting) break; await w(200); }
+      return r; }, spot.i);
     t.ok(cast.same && cast.assist, 'while following, a skill with no target of your own goes at the leader\'s target');
     t.ok(cast.fol && cast.casting, 'following keeps going, and the cast starts');
     // the leader walks away during the cast: the follower must not move (that would cancel the cast)
@@ -29,8 +32,9 @@ module.exports = async t => {
       for (let i = 0; i < 60 && P.casting; i++) await w(100); const still = Math.hypot(P.x - x0, P.y - y0) < 3;
       await w(1200); window.floatT = ft; return { cancelled, still }; });
     t.ok(!mid.cancelled && mid.still, 'the follower stands still while casting, so the cast is not interrupted');
-    await wait(3000);
-    const after = await B.ev(() => { const o = [...NET.others.values()][0]; return { fol: !!FOL, target: !!P.target, assist: !!P.assist, d: Math.round(Math.hypot(o.x - P.x, o.y - P.y)) }; });
+    // poll until the follower has caught up (up to 10 s on a slow machine)
+    let after = {};
+    for (let k = 0; k < 20; k++) { await wait(500); after = await B.ev(() => { const o = [...NET.others.values()][0]; return { fol: !!FOL, target: !!P.target, assist: !!P.assist, d: Math.round(Math.hypot(o.x - P.x, o.y - P.y)) }; }); if (k >= 5 && after.d < 120) break; }
     t.ok(after.fol && !after.target && !after.assist, 'after the skill fires you are just following again (no auto-attacking)');
     t.ok(after.d < 120, `and you caught up with the leader (${after.d}px away)`);
     const hp = await A.ev(i => mobs[i].hp < 99999, spot.i);

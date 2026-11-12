@@ -40,14 +40,20 @@ function drawSky(){if(!Z||!P)return;const t=performance.now(),dt=Math.min(.05,(t
   if(kind==='rain'||kind==='blizzard'||kind==='snow'||kind==='sand'){ctx.fillStyle=kind==='sand'?'rgba(200,150,80,.22)':kind==='rain'?'rgba(40,60,90,.16)':'rgba(220,235,250,.12)';ctx.fillRect(0,0,W,H);}
   if(kind==='fog'){SKY.fogX+=dt*12;for(let i=0;i<4;i++){const x=((SKY.fogX*(1+i*.3)+i*W*.4)%(W*1.6))-W*.3,y=H*(.2+i*.22);
     const gr=ctx.createRadialGradient(x,y,10,x,y,W*.45);gr.addColorStop(0,'rgba(230,236,240,.35)');gr.addColorStop(1,'rgba(230,236,240,0)');ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);}}
+  // all drops of one kind go into a single path and are drawn once (one stroke per drop was slow)
+  if(kind==='rain'){ctx.strokeStyle='rgba(180,210,240,.55)';ctx.lineWidth=1.2;ctx.beginPath();}
+  else if(kind==='snow'||kind==='blizzard'){ctx.fillStyle='rgba(255,255,255,.85)';ctx.beginPath();}
+  else if(kind==='sand'){ctx.strokeStyle='rgba(230,190,120,.5)';ctx.lineWidth=1.5;ctx.beginPath();}
+  else if(kind==='embers'){ctx.fillStyle='rgba(255,170,60,.75)';ctx.beginPath();}
   for(const p of SKY.parts){
-    if(kind==='rain'){p.y+=dt*1.6*p.s;p.x+=dt*.25*p.s;const x=p.x*W,y=p.y*H;ctx.strokeStyle='rgba(180,210,240,.55)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-4*p.s,y-14*p.s);ctx.stroke();}
-    else if(kind==='snow'||kind==='blizzard'){const b=kind==='blizzard';p.y+=dt*(b?.5:.12)*p.s;p.x+=dt*((b?.6:.03)+Math.sin(t/900+p.w)*.03);ctx.fillStyle='rgba(255,255,255,.85)';ctx.beginPath();ctx.arc(p.x*W,p.y*H,1.4+p.s*1.6,0,7);ctx.fill();}
-    else if(kind==='sand'){p.x+=dt*.9*p.s;p.y+=dt*.08*Math.sin(t/500+p.w);const x=p.x*W,y=p.y*H;ctx.strokeStyle='rgba(230,190,120,.5)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-22*p.s,y);ctx.stroke();}
-    else if(kind==='embers'){p.y-=dt*.08*p.s;p.x+=dt*.02*Math.sin(t/700+p.w);ctx.fillStyle=`rgba(255,${120+Math.floor(80*p.s)},60,${.5+.4*Math.sin(t/300+p.w)})`;ctx.beginPath();ctx.arc(p.x*W,p.y*H,1.2+p.s,0,7);ctx.fill();}
+    if(kind==='rain'){p.y+=dt*1.6*p.s;p.x+=dt*.25*p.s;const x=p.x*W,y=p.y*H;ctx.moveTo(x,y);ctx.lineTo(x-4*p.s,y-14*p.s);}
+    else if(kind==='snow'||kind==='blizzard'){const b=kind==='blizzard';p.y+=dt*(b?.5:.12)*p.s;p.x+=dt*((b?.6:.03)+Math.sin(t/900+p.w)*.03);const r=1.4+p.s*1.6;ctx.moveTo(p.x*W+r,p.y*H);ctx.arc(p.x*W,p.y*H,r,0,7);}
+    else if(kind==='sand'){p.x+=dt*.9*p.s;p.y+=dt*.08*Math.sin(t/500+p.w);const x=p.x*W,y=p.y*H;ctx.moveTo(x,y);ctx.lineTo(x-22*p.s,y);}
+    else if(kind==='embers'){p.y-=dt*.08*p.s;p.x+=dt*.02*Math.sin(t/700+p.w);const r=1.2+p.s;ctx.moveTo(p.x*W+r,p.y*H);ctx.arc(p.x*W,p.y*H,r,0,7);}
     if(p.y>1.05){p.y=-.05;p.x=Math.random()*1.2-.1;}if(p.y<-.05){p.y=1.05;p.x=Math.random();}if(p.x>1.05)p.x=-.05;if(p.x<-.05)p.x=1.05;}
+  if(kind==='rain'||kind==='sand')ctx.stroke();else if(kind==='snow'||kind==='blizzard'||kind==='embers')ctx.fill();
   ctx.restore();}
-let skyLayerC=null;function skyLayer(W,H){if(!skyLayerC)skyLayerC=document.createElement('canvas');const k=window.LITE?.5:1,w=Math.max(1,Math.round(W*k)),h=Math.max(1,Math.round(H*k));if(skyLayerC.width!==w||skyLayerC.height!==h){skyLayerC.width=w;skyLayerC.height=h;}return skyLayerC;}
+let skyLayerC=null;function skyLayer(W,H){if(!skyLayerC)skyLayerC=document.createElement('canvas');const k=window.LITE?.25:.34,w=Math.max(1,Math.round(W*k)),h=Math.max(1,Math.round(H*k));if(skyLayerC.width!==w||skyLayerC.height!==h){skyLayerC.width=w;skyLayerC.height=h;}return skyLayerC;}
 
 /* ---- the region line under the minimap: level range · time of day · weather ---- */
 function skyLabel(){if(!Z)return '';const h=gameHour(),w=weatherNow(zoneId);

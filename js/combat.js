@@ -292,10 +292,12 @@ function update(dt){
   meleeImpact();
   updateFx();
 }
+const BOW_RELEASE=.42; // the arrow leaves this far into the draw animation
 function basicAttack(t){
   const c=CLASSES[P.cls];P.swingT=now;P.swingDur=clamp(S.delay*.55,.16,.34);
   if(c.magic){sfx('cast');shoot(P,t,'orb','#b8a0ff',()=>dealMag(t,.85));}
-  else if(S.range>100){sfx('bow');shoot(P,t,'arrow','#e8dcb0',()=>dealPhys(t,1));}
+  else if(S.range>100){P.bowT=now;P.bowDur=clamp(S.delay*.8,.3,.6);const rel=P.bowDur*BOW_RELEASE;
+    setTimeout(()=>{if(!P||P.dead||t.dead)return;sfx('bow');shoot(P,t,'arrow','#e8dcb0',()=>dealPhys(t,1));},rel*1000);}
   else{P.swingT=now;const dx=t.x-P.x,dy=t.y-P.y,sx=(dx-dy)*ISO,sy=(dx+dy)*ISO/2,n=Math.hypot(sx,sy)||1;P.lgX=sx/n;P.lgY=sy/n;P.lungeT=now;
     if(P.meleeHit)meleeImpact(true);P.meleeHit={t,at:now+P.swingDur*SWING_HIT};}
 }

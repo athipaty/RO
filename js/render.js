@@ -160,8 +160,9 @@ function render(){
     if(P.emote&&now-P.emote.start<3)drawEmote(P.emote.k,P.x+20,P.y-52,now-P.emote.start);});
   for(const t of texts)at(t.x,t.y,()=>{const e=now-t.t0,a=e/t.dur;ctx.globalAlpha=a<.65?1:Math.max(0,1-(a-.65)/.35);
     const pop=e<.1?1.8-8*e:1,x=t.x+(t.vx||0)*e,y=t.y-120*e+125*e*e;
-    ctx.save();ctx.translate(x,y);ctx.scale(pop,pop);ctx.font=`900 ${t.size}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.lineJoin='round';
-    ctx.lineWidth=Math.max(3,t.size/4.5);ctx.strokeStyle='rgba(25,12,4,.92)';ctx.strokeText(t.txt,0,0);ctx.fillStyle=t.col;ctx.fillText(t.txt,0,0);ctx.restore();ctx.globalAlpha=1;});
+    // each floating number is drawn once into a small picture and reused (outlined text every frame is slow)
+    if(!t.img)t.img=floatImg(t.txt,t.col,t.size);const im=t.img;
+    ctx.save();ctx.translate(x,y);ctx.scale(pop,pop);ctx.drawImage(im,-im._w/2,-im._b,im._w,im._h);ctx.restore();ctx.globalAlpha=1;});
   ctx.restore();
   drawAmbient();
   if(THEMES[Z.D.theme].dark&&!(P&&ailOn('blind'))){const g=ctx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.22,VW/2,VH/2,Math.max(VW,VH)*.7);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(5,4,10,.62)');ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);ctx.restore();}
@@ -198,6 +199,9 @@ function labelImg(txt,col,size){const k=size+'|'+col+'|'+txt;let c=LABELS.get(k)
   const w=Math.ceil(m.measureText(txt).width)+8,h=Math.ceil(size*1.5)+6;c=document.createElement('canvas');c.width=w*s;c.height=h*s;c._w=w;c._h=h;c._b=Math.ceil(size*1.1)+3;
   const g=c.getContext('2d');g.scale(s,s);g.font=f;g.textAlign='center';g.lineJoin='round';g.lineWidth=3;g.strokeStyle='rgba(0,0,0,.75)';g.strokeText(txt,w/2,c._b);g.fillStyle=col;g.fillText(txt,w/2,c._b);
   LABELS.set(k,c);if(LABELS.size>500)LABELS.delete(LABELS.keys().next().value);return c;}
+function floatImg(txt,col,size){const s=Math.max(1,Math.min(2,DPR)),f=`900 ${size}px "Alegreya Sans",sans-serif`,m=document.createElement('canvas').getContext('2d');m.font=f;
+  const lw=Math.max(3,size/4.5),w=Math.ceil(m.measureText(txt).width+lw*2+4),h=Math.ceil(size*1.4+lw*2),c=document.createElement('canvas');c.width=w*s;c.height=h*s;c._w=w;c._h=h;c._b=Math.ceil(size+lw);
+  const g=c.getContext('2d');g.scale(s,s);g.font=f;g.textAlign='center';g.lineJoin='round';g.lineWidth=lw;g.strokeStyle='rgba(25,12,4,.92)';g.strokeText(txt,w/2,c._b);g.fillStyle=col;g.fillText(txt,w/2,c._b);return c;}
 function label(txt,x,y,col,size){if(typeof x!=='number')return;txt=String(txt);
   if(document.fonts&&document.fonts.status!=='loaded'){ctx.font=`700 ${size}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.strokeText(txt,x,y);ctx.fillStyle=col;ctx.fillText(txt,x,y);return;}
   const c=labelImg(txt,col,size);ctx.drawImage(c,x-c._w/2,y-c._b,c._w,c._h);}
@@ -367,6 +371,21 @@ function drawWeaponShape(w,ang){
     if(w.wt==='sword'){ctx.fillRect(-2,-22,4,20);ctx.fillStyle='#b8924f';ctx.fillRect(-6,-3,12,3);}else{ctx.strokeStyle='#5a3d24';ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(0,-22);ctx.stroke();ctx.beginPath();ctx.moveTo(0,-20);ctx.quadraticCurveTo(12,-16,0,-8);ctx.fill();}}
   else{ctx.strokeStyle=w.wt==='mace'?'#8a8f99':'#7a5530';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(0,4);ctx.lineTo(0,-16);ctx.stroke();ctx.fillStyle=w.wt==='mace'?'#c8ccd4':'#8a6038';ctx.beginPath();ctx.arc(0,-17,4.5,0,7);ctx.fill();}
 }
+// the archer's shot: raise and draw (string back, arrow nocked), release with a snap and a little recoil, lower
+function bowPhase(p){if(p.bowT&&now-p.bowT<(p.bowDur||.4))return (now-p.bowT)/(p.bowDur||.4);
+  // other players: their attack swing stands in for the shot (your own hero uses bowT)
+  if(p!==P&&!p.bowT&&p.swingT&&now-p.swingT<.42)return (now-p.swingT)/.42;return -1;}
+function drawBowShot(P,w,by,k){const f=P.face||1,R=BOW_RELEASE_V,ease=x=>1-(1-x)*(1-x);
+  const up=k<R?ease(k/R):k<.75?1:1-ease((k-.75)/.25),pull=k<R?ease(k/R)*10:Math.max(0,10-(k-R)*140),recoil=k>R&&k<R+.12?Math.sin((k-R)/.12*Math.PI)*2.2:0;
+  const x=P.x+f*(9+up*7-recoil),y=by-4-up*10;ctx.save();ctx.translate(x,y);ctx.scale(f,1);ctx.rotate(-.12*up);
+  ctx.lineCap='round';ctx.strokeStyle='#8a5a2a';ctx.lineWidth=2.6;ctx.beginPath();ctx.arc(0,0,14,-1.25,1.25);ctx.stroke();
+  ctx.strokeStyle='#6a4220';ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,14,-1.25,-1.05);ctx.stroke();ctx.beginPath();ctx.arc(0,0,14,1.05,1.25);ctx.stroke();
+  const tx=Math.cos(1.25)*14,ty=Math.sin(1.25)*14,sx=tx-pull;ctx.strokeStyle='#f2eee4';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(tx,-ty);ctx.lineTo(sx,0);ctx.lineTo(tx,ty);ctx.stroke();
+  if(k<R){ctx.strokeStyle='#e8dcb0';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(sx,0);ctx.lineTo(17,0);ctx.stroke();ctx.fillStyle='#c8ccd4';ctx.beginPath();ctx.moveTo(20,0);ctx.lineTo(16,-2.4);ctx.lineTo(16,2.4);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#d84a3a';ctx.fillRect(sx-1,-2,3,1.4);ctx.fillRect(sx-1,.6,3,1.4);}
+  else if(k<R+.15){const a=1-(k-R)/.15;ctx.strokeStyle=`rgba(255,246,220,${a*.8})`;ctx.lineWidth=1.2;for(const d of [-4,0,4]){ctx.beginPath();ctx.moveTo(18,d*.6);ctx.lineTo(24+(1-a)*6,d);ctx.stroke();}}
+  ctx.restore();}
+const BOW_RELEASE_V=.42;
 function drawSlung(P,w){const f=P.face||1,by=P.y-7+(P.sitting?7:0);ctx.save();
   if(w.wt==='bow'){ctx.translate(P.x+f*(P.back?0:6),by-13);ctx.scale(f,1);ctx.rotate(-.5);drawWeaponShape(w,0);}
   else if(!P.back){ctx.translate(P.x+f*11,by-14);ctx.scale(f,1);ctx.rotate(Math.PI+.6);ctx.translate(0,8);drawWeaponShape(w,0);}
@@ -379,12 +398,13 @@ function drawPlayerBody(P,wid){
   const sheath=!!w&&!P.held&&!P.dead&&!P.casting&&!swNow&&swingPhase(P)<0&&(P.sitting||!!P.riding||!!(Z&&Z.D&&Z.D.safe));
   if(sheath&&!P.back)drawSlung(P,w);
   const hat=P.hat!==undefined?P.hat:(P.eq&&P.eq.head?P.eq.head.id:null),fc=P.fc!==undefined?P.fc:(P.eq&&P.eq.face?P.eq.face.id:null),mo=P.mo!==undefined?P.mo:(P.eq&&P.eq.mouth?P.eq.mouth.id:null);
-  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?P.walkT:0,{sit:P.sitting,cast:!!P.casting,hat,fc,mo,look:lookOf(P.name,P.look),outfit:baseOf(P.cls),back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
+  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?P.walkT:0,{sit:P.sitting,cast:!!P.casting||(w&&w.wt==='bow'&&bowPhase(P)>=0&&bowPhase(P)<.8),hat,fc,mo,look:lookOf(P.name,P.look),outfit:baseOf(P.cls),back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
   drawJobMantle(c,P.x,P.y+(P.sitting?6:0),P.face,!!P.back);
   if(baseOf(P.cls)==='warden'){ctx.fillStyle='#9aa0aa';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(P.x-P.face*13-5,by-14,10,14,3);ctx.fill();ctx.stroke();ctx.fillStyle='#e8c25a';ctx.beginPath();ctx.arc(P.x-P.face*13,by-7,2,0,7);ctx.fill();}
   if(sheath&&P.back)drawSlung(P,w);
   if(!w||sheath)return;
   const sd=P.swingDur||.2,sw=P.swingT&&now-P.swingT<sd?(now-P.swingT)/sd:0,ranged=w.wt==='bow'||w.wt==='wand',p=swingPhase(P);
+  if(w.wt==='bow'){const bk=bowPhase(P);if(bk>=0){drawBowShot(P,w,by,bk);return;}}
   // held low at the side, tilted forward. Ranged: a small lift. Melee: raised over the shoulder, a fast arc down, then back.
   let ang=sw?(sw<.3?.6-sw/.3*.7:-.1+(sw-.3)/.7*1.9):.6,lift=0;
   let castUp=0;if(P.casting&&!sw){ang=.08;castUp=9;}

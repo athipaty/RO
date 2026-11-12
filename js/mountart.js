@@ -6,19 +6,25 @@
    Both: shading, a saddle blanket with gold trim, stirrups and reins. The stride follows how far you
    actually move (so it never slides), riders bob with the stride, a dust trail kicks up behind, and
    mounting up throws a little burst of sparkles. All original artwork, drawn in code. */
-const MART={dust:[],spark:[],phase:new Map(),lastPos:new Map()};
+const MART={dust:[],spark:[],phase:new Map(),lastPos:new Map(),turn:new Map()};
 const MOUNT_LOOK={
   hopper:{body:'#d8b48a',dark:'#a8835a',light:'#f2dcbc',belly:'#f6ead6',mane:'#8a6a42',blanket:'#8e2a22',trim:'#e8c25a',eye:'#3a2414'},
   greylupe:{body:'#8a909c',dark:'#5e646e',light:'#b8bec8',belly:'#d4d8de',mane:'#4a4e58',blanket:'#2e4f8e',trim:'#e8c25a',eye:'#ffcf5a'}};
 // stride phase from distance actually moved (per rider)
+// which way the mount is heading on screen (smoothed): 0 = sideways, + = toward the camera (down), - = away (up)
+function mountTurn(key,p){const last=MART.lastPos.get(key);let a=MART.turn.get(key)||0;
+  if(last){const dx=p.x-last.x,dy=p.y-last.y;if(Math.hypot(dx,dy)>.3){const sx=(dx-dy)*ISO,sy=(dx+dy)*ISO/2,want=Math.atan2(sy,Math.abs(sx)||.0001);a+=(want-a)*.18;}}
+  MART.turn.set(key,a);return a;}
 function mountPhase(key,p,k){const last=MART.lastPos.get(key),d=last?Math.hypot(p.x-last.x,p.y-last.y):0;MART.lastPos.set(key,{x:p.x,y:p.y});
   const per=k==='hopper'?46:38;let ph=(MART.phase.get(key)||0)+Math.min(d,30)/per*Math.PI*2;if(!p.moving&&d<.2)ph+=(Math.round(ph/Math.PI)*Math.PI-ph)*.15;MART.phase.set(key,ph);return ph;}
-function drawMountArt(p,k){const L=MOUNT_LOOK[k];if(!L)return 0;const key=p===P?'me':(p.name||'?'),f=p.face<0?-1:1,ph=mountPhase(key,p,k),mv=!!p.moving;
+function drawMountArt(p,k){const L=MOUNT_LOOK[k];if(!L)return 0;const key=p===P?'me':(p.name||'?'),f=p.face<0?-1:1,turn=mountTurn(key,p),ph=mountPhase(key,p,k),mv=!!p.moving;
+  // turning: tilt the nose down (toward the camera) or up (away), and foreshorten the body on steep diagonals
+  const tilt=clamp(turn*.42,-.36,.36),fx=.66+.34*Math.cos(turn);
   const x=p.x,y=p.y,c=ctx;c.save();c.lineJoin='round';c.lineCap='round';
   // dust behind the hind feet while running
   if(mv&&Math.random()<.5)MART.dust.push({x:x-f*16+rnd(-3,3),y:y-1+rnd(-2,2),t0:now,r:rnd(3,6)});
   shadow(x,y+1,k==='hopper'?22:24);
-  const OL='#2a1c14',S=(fn)=>{c.save();c.translate(x,y);c.scale(f,1);fn();c.restore();};
+  const OL='#2a1c14',S=(fn)=>{c.save();c.translate(x,y);c.scale(f*fx,1);c.translate(0,-18);c.rotate(tilt);c.translate(0,18);fn();c.restore();};
   let lift;
   if(k==='hopper'){
     // a bounding gait: up in the air mid-stride, crouched on landing

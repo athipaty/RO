@@ -44,3 +44,8 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
     [...box.children].forEach((d,k)=>{const el=els[k];if(!el){d.hidden=true;return;}d.hidden=false;const r=el.getBoundingClientRect(),m=11;
       Object.assign(d.style,{left:(r.left-m)+'px',top:(r.top-m)+'px',width:(r.width+m*2)+'px',height:(r.height+m*2)+'px'});});};
   fit();setInterval(fit,700);addEventListener('resize',()=>setTimeout(fit,50));})();
+// ---- a thin full-width EXP bar along the very bottom edge (classic MMO style); job EXP as a fainter line above ----
+(()=>{const bar=document.createElement('div');bar.id='expEdge';bar.innerHTML='<i class="b"></i><i class="j"></i><span></span>';bar.setAttribute('aria-hidden','true');document.body.appendChild(bar);
+  let key='';setInterval(()=>{if(!P||!running){bar.hidden=true;return;}bar.hidden=false;const en=expNeed(P.lv),jm=P.jl>=jobMax(P.cls),bf=P.lv>=99?1:P.exp/en,jf=jm?1:P.jexp/jexpNeed(P.jl);
+    const k=bf.toFixed(4)+jf.toFixed(4);if(k===key)return;key=k;bar.querySelector('.b').style.width=(bf*100).toFixed(2)+'%';bar.querySelector('.j').style.width=(jf*100).toFixed(2)+'%';
+    bar.querySelector('span').textContent=`Base ${(bf*100).toFixed(1)}% · Job ${jm?'max':(jf*100).toFixed(1)+'%'}`;},250);})();
