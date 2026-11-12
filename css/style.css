@@ -678,3 +678,31 @@ body.touchui #actions>#chatBtn{display:none!important}
 body.touchui #actions>#rideBtn.none{opacity:.5}
 #fullOffer{position:fixed;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:25;padding:6px 14px;border-radius:999px;background:rgba(14,18,26,.95);border:1px solid rgba(240,181,74,.6);color:#ffe7a0;font:700 13px Inter,var(--ui);box-shadow:0 8px 20px rgba(0,0,0,.5)}
 #fullOffer[hidden]{display:none}
+/* ===== phones held sideways: more room for the game ===== */
+@media (orientation:landscape) and (max-height:520px){
+  /* status box: small and see-through; name, HP, SP and levels only (unfold for the rest) */
+  body.touchui #hud{width:168px;padding:5px 8px;background:rgba(14,18,26,.42);border-color:rgba(255,255,255,.06);box-shadow:none;backdrop-filter:none}
+  body.touchui #hud .name{font-size:13px}body.touchui #hud .cls,body.touchui #hud #gold,body.touchui #hud #weight,body.touchui #hud #party,body.touchui #hud #quest{display:none!important}
+  body.touchui #hud .bar{height:10px}body.touchui #hud .bar span{font-size:9.5px;line-height:10px}
+  /* minimap: small and see-through; tap the region name to fold it to just the name */
+  body.touchui #minibox{padding:4px 6px;background:rgba(14,18,26,.42);border-color:rgba(255,255,255,.06);box-shadow:none;backdrop-filter:none}
+  body.touchui #minibox .zn{font-size:11px;margin-bottom:2px;cursor:pointer}body.touchui #minibox .zl,body.touchui #minibox #online{display:none}
+  body.touchui #mini{width:118px!important;height:auto!important;opacity:.9}
+  body.touchui #minibox.slim #mini,body.touchui #minibox.slim #miniSize{display:none}
+  body.touchui #miniSize{top:22px;right:8px;width:18px;height:18px;font-size:10px;line-height:16px}
+  body.touchui #onlineBadge{display:none}
+  /* region banner: smaller */
+  #zoneBanner{top:22%}#zoneBanner b{font-size:20px!important}#zoneBanner span{font-size:9.5px}
+  /* chat box: only as wide as its tabs, small tabs, a few lines */
+  body.touchui #log{max-height:84px}
+  body.touchui #log.big{max-height:min(56vh,220px)!important}
+  body.touchui #logTabs .btn{padding:0 6px!important;font-size:10.5px;min-height:22px}
+  body.touchui #log>div:not(#logTabs){font-size:11px;white-space:normal}
+  /* the round buttons sit in a small row at the top centre (free space between the status box and the map) */
+  body.touchui #actions>.act:not(#atkBtn){position:fixed;top:max(8px,env(safe-area-inset-top));width:38px!important;height:38px!important;transform:translateX(-50%)}
+  body.touchui #actions>.act:not(#atkBtn) .aic{width:19px;height:19px}
+  body.touchui #actions>#menuBtn{left:calc(50% - 69px)}body.touchui #actions>#autoBtn{left:calc(50% - 23px)}
+  body.touchui #actions>#rideBtn{left:calc(50% + 23px)}body.touchui #actions>#sitBtn{left:calc(50% + 69px)}
+  body.touchui #actions>.act:not(#atkBtn):active{transform:translateX(-50%) scale(.94)}
+  body.touchui #autoPick{top:56px!important}
+}

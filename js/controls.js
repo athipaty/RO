@@ -86,3 +86,6 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
   const SIT='<circle cx="9" cy="5" r="2.2"/><path d="M9 8v6h6v6M9 10l4 2M5 21h14"/>',STAND='<circle cx="12" cy="4" r="2.2"/><path d="M12 7v7M12 14l-3 7M12 14l3 7M12 9l-4 3M12 9l4 3"/><path d="M18 9l2-2 2 2" />';
   let was=null;setInterval(()=>{const sit=!!(P&&P.sitting);if(sit===was)return;was=sit;svg.innerHTML=sit?STAND:SIT;const t=sit?'Stand up (X)':'Sit to rest (X)';
     b.setAttribute('aria-label',t);b.dataset.tip=t;if(tx)tx.textContent=sit?'Stand':'Sit';b.classList.toggle('on',sit);},250);})();
+// phones held sideways: tap the region name over the minimap to fold the map away (remembered)
+(()=>{const mb=$('#minibox'),zn=$('#zName');if(!mb||!zn)return;try{if(localStorage.getItem('embervale.miniSlim')==='1')mb.classList.add('slim');}catch(e){}
+  zn.addEventListener('click',ev=>{if(!document.body.classList.contains('touchui'))return;ev.stopPropagation();mb.classList.toggle('slim');sfx('click');try{localStorage.setItem('embervale.miniSlim',mb.classList.contains('slim')?'1':'0');}catch(e){}});})();

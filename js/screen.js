@@ -53,3 +53,7 @@ const LOGUI={big:(()=>{try{return localStorage.getItem('embervale.logBig')==='1'
 // phones: the message field opens right above the chat box
 if(typeof openChat==='function'){const _oc=openChat;openChat=function(){const r=_oc.apply(this,arguments);try{if(document.body.classList.contains('touchui')){const lg=$('#log').getBoundingClientRect(),cb=$('#chatbar');
   cb.style.left=Math.round(lg.left)+'px';cb.style.transform='none';cb.style.width=Math.round(Math.min(innerWidth-lg.left-10,Math.max(lg.width,300)))+'px';cb.style.bottom=Math.round(innerHeight-lg.top+6)+'px';}}catch(e){}return r;};}
+// phones held sideways: the chat box is only as wide as its tab row (ends at Room)
+(()=>{const el=$('#log'),tabs=$('#logTabs');if(!el||!tabs)return;const land=()=>document.body.classList.contains('touchui')&&innerWidth>innerHeight&&innerHeight<=520;
+  const fit=()=>{if(!land()){if(el.style.width)el.style.width='';return;}let w=0;for(const c of tabs.children)if(c.offsetParent!==null)w+=c.offsetWidth+4;w=Math.ceil(w+10);if(el.style.width!==w+'px')el.style.width=w+'px';};
+  fit();addEventListener('resize',()=>setTimeout(fit,60));setInterval(fit,1500);})();
