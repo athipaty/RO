@@ -415,7 +415,7 @@ $('#cfYes').addEventListener('click',async()=>{$('#confirm').hidden=true;closePa
 let last=performance.now();
 let hitStopUntil=0;function hitStop(sec){hitStopUntil=Math.max(hitStopUntil,performance.now()+sec*1000);}
 function frame(ts){let dt=Math.min(.05,(ts-last)/1000);last=ts;if(ts<hitStopUntil)dt*=.06;now+=dt;
-  if(running){update(dt);updateHud();}
+  if(running){update(dt);if(ts-(frame.hud||0)>=60||ts<(frame.hud||0)){frame.hud=ts;updateHud();}}
   render();if(running){renderMini();if(typeof renderBuffs==='function')renderBuffs();}else drawLookPreview();requestAnimationFrame(frame);}
 function showBanner(a,b){const el=$('#zoneBanner');el.querySelector('b').textContent=a;el.querySelector('span').textContent=b;
   el.hidden=false;el.classList.remove('show');void el.offsetWidth;el.classList.add('show');clearTimeout(showBanner.t);showBanner.t=setTimeout(()=>{el.hidden=true;},3300);}

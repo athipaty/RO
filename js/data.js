@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='0.59.0';
+const VERSION='0.60.0';
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
 const BLOCK=[0,0,1,1,1,1,0,0]; // 0 ground 1 path 2 tree 3 water 4 rock 5 building 6 cobble 7 flowers
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
@@ -209,7 +209,7 @@ const $=s=>document.querySelector(s);
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-const fmt=n=>Math.round(n).toLocaleString('en-US');
+const fmt=n=>{n=Math.round(n);const s=String(Math.abs(n));let o=s.length>3?s.replace(/\B(?=(\d{3})+(?!\d))/g,','):s;return n<0?'-'+o:o;};
 function seeded(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 const expNeed=lv=>Math.floor(20*Math.pow(lv,1.9)+20);
 const jexpNeed=jl=>Math.floor(15*Math.pow(jl,1.8)+15);

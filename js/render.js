@@ -77,6 +77,10 @@ function drawBuilding(b){
   ctx.fillStyle='#2b2216';ctx.fillRect(sg.x-tw/2,sg.y-8,tw,18);ctx.strokeStyle='#b8924f';ctx.lineWidth=1;ctx.strokeRect(sg.x-tw/2+.5,sg.y-7.5,tw-1,17);
   ctx.fillStyle='#efe6d2';ctx.textAlign='center';ctx.fillText(b.name,sg.x,sg.y+5);
 }
+function isoGround(z){if(z._iso&&z._isoSrc===z.img)return z._iso;z._iso=null;z._isoSrc=z.img;
+  try{const W=z.w*TILE,H=z.h*TILE,c=document.createElement('canvas');c.width=Math.ceil((W+H)*ISO)+2;c.height=Math.ceil((W+H)*ISO/2)+2;c._ox=Math.ceil(H*ISO)+1;
+    const g=c.getContext('2d');if(!g)return null;g.setTransform(ISO,ISO/2,-ISO,ISO/2,c._ox,0);g.drawImage(z.img,0,0);z._iso=c;}catch(e){z._iso=null;}
+  return z._iso;}
 function render(){
   ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle='#0b0d12';ctx.fillRect(0,0,VW,VH);
   if(!Z||!P)return;
@@ -84,9 +88,11 @@ function render(){
   ctx.save();ctx.translate(-camX,-camY);
   if(now<shakeUntil)ctx.translate(rnd(-4,4),rnd(-3,3));
   // ground: the flat map drawn through the isometric matrix (squares become diamonds)
-  ctx.save();ctx.transform(ISO,ISO/2,-ISO,ISO/2,0,0);ctx.drawImage(Z.img,0,0);
-  if(THEMES[Z.D.theme].lava){ctx.fillStyle=`rgba(255,120,40,${.05+.04*Math.sin(now*2)})`;ctx.fillRect(0,0,Z.w*TILE,Z.h*TILE);}
-  ctx.restore();
+  // (made once per region: the map already turned into the diamond view, so each frame only copies the visible part)
+  {const g=isoGround(Z);if(g){const sx=Math.max(0,camX+g._ox),sy=Math.max(0,camY),sw=Math.min(g.width-sx,VW+2),sh=Math.min(g.height-sy,VH+2);
+      if(sw>0&&sh>0)ctx.drawImage(g,sx,sy,sw,sh,sx-g._ox,sy,sw,sh);}
+    else{ctx.save();ctx.transform(ISO,ISO/2,-ISO,ISO/2,0,0);ctx.drawImage(Z.img,0,0);ctx.restore();}}
+  if(THEMES[Z.D.theme].lava){ctx.save();ctx.transform(ISO,ISO/2,-ISO,ISO/2,0,0);ctx.fillStyle=`rgba(255,120,40,${.05+.04*Math.sin(now*2)})`;ctx.fillRect(0,0,Z.w*TILE,Z.h*TILE);ctx.restore();}
   // portals
   for(const pt of Z.portals)at(pt.x,pt.y,()=>{
     ctx.save();ctx.translate(pt.x,pt.y);
@@ -104,11 +110,13 @@ function render(){
   if(typeof drawGround==='function')drawGround();
   // entities sorted
   // everything that stands up, sorted back-to-front (x+y is depth in this view)
-  const items=[];for(const m of mobs)if(!m.dead)items.push({e:m,x:m.x,y:m.y});for(const n of Z.npcs)items.push({e:n,x:n.x,y:n.y});items.push({e:P,x:P.x,y:P.y});
-  for(const l of loot)if(now>=l.t0)items.push({l,x:l.x,y:l.y});
-  const others=[];for(const o of NET.others.values())if(o.z===zoneId){if(!o.dead)others.push(o);items.push({o,x:o.rx,y:o.ry});
-    if(typeof ghostLoot==='function')for(const l of ghostLoot(o))if(now>=l.t0)items.push({l,x:l.x,y:l.y});}
-  if(typeof petItems==='function')for(const it of petItems())items.push(it);
+  // only what is on screen (with room for names, bubbles and big bosses) is drawn
+  const onScr=(x,y)=>{const p=proj(x,y);return p.x>camX-140&&p.x<camX+VW+140&&p.y>camY-40&&p.y<camY+VH+190;};
+  const items=[];for(const m of mobs)if(!m.dead&&onScr(m.x,m.y))items.push({e:m,x:m.x,y:m.y});for(const n of Z.npcs)if(onScr(n.x,n.y))items.push({e:n,x:n.x,y:n.y});items.push({e:P,x:P.x,y:P.y});
+  for(const l of loot)if(now>=l.t0&&onScr(l.x,l.y))items.push({l,x:l.x,y:l.y});
+  const others=[];for(const o of NET.others.values())if(o.z===zoneId){if(!o.dead)others.push(o);if(onScr(o.rx,o.ry))items.push({o,x:o.rx,y:o.ry});
+    if(typeof ghostLoot==='function')for(const l of ghostLoot(o))if(now>=l.t0&&onScr(l.x,l.y))items.push({l,x:l.x,y:l.y});}
+  if(typeof petItems==='function')for(const it of petItems())if(onScr(it.x,it.y))items.push(it);
   for(const ob of Z.objs){const p=proj(ob.x,ob.y);if(p.x>camX-90&&p.x<camX+VW+90&&p.y>camY-30&&p.y<camY+VH+130)items.push({ob,x:ob.x,y:ob.y});}
   const back=[],front=[];
   for(const it of items){let behind=false;for(const b of Z.buildings){const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE;
@@ -180,7 +188,16 @@ function drawAmbient(){
   }
   ctx.restore();
 }
-function label(txt,x,y,col,size){if(typeof x!=='number')return;ctx.font=`700 ${size}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.strokeText(txt,x,y);ctx.fillStyle=col;ctx.fillText(txt,x,y);}
+// names are drawn once into a small picture and reused (stroked text every frame is slow on phones)
+const LABELS=new Map();
+function labelImg(txt,col,size){const k=size+'|'+col+'|'+txt;let c=LABELS.get(k);if(c){LABELS.delete(k);LABELS.set(k,c);return c;}
+  const s=Math.max(1,Math.min(2,DPR)),f=`700 ${size}px "Alegreya Sans",sans-serif`;const m=document.createElement('canvas').getContext('2d');m.font=f;
+  const w=Math.ceil(m.measureText(txt).width)+8,h=Math.ceil(size*1.5)+6;c=document.createElement('canvas');c.width=w*s;c.height=h*s;c._w=w;c._h=h;c._b=Math.ceil(size*1.1)+3;
+  const g=c.getContext('2d');g.scale(s,s);g.font=f;g.textAlign='center';g.lineJoin='round';g.lineWidth=3;g.strokeStyle='rgba(0,0,0,.75)';g.strokeText(txt,w/2,c._b);g.fillStyle=col;g.fillText(txt,w/2,c._b);
+  LABELS.set(k,c);if(LABELS.size>500)LABELS.delete(LABELS.keys().next().value);return c;}
+function label(txt,x,y,col,size){if(typeof x!=='number')return;txt=String(txt);
+  if(document.fonts&&document.fonts.status!=='loaded'){ctx.font=`700 ${size}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.strokeText(txt,x,y);ctx.fillStyle=col;ctx.fillText(txt,x,y);return;}
+  const c=labelImg(txt,col,size);ctx.drawImage(c,x-c._w/2,y-c._b,c._w,c._h);}
 function bubble(txt,x,y){
   ctx.font='600 12.5px "Alegreya Sans",sans-serif';const maxW=190,words=txt.split(' '),lines=[];let line='';
   for(const w of words){const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=w;}else line=t;}
