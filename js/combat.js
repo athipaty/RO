@@ -118,14 +118,7 @@ function useInv(i){
   const e=P.inv[i];if(!e||P.dead)return;const it=ITEMS[e.id];
   if(it.type==='use')return useItem(e.id);
   if(it.type==='etc'){addLog(`${it.name} sells for ${sellValue(e.id)} gold at the General Store.`);return;}
-  if(it.type==='sigil'){
-    const eqd=P.eq[it.kind];
-    if(!eqd){addLog(`Equip ${it.kind==='accessory'?'an':'a'} ${it.kind} with a free slot first.`,'l-bad');return;}
-    const k=eqd.s.indexOf(null);
-    if(k<0){addLog(`Your ${ITEMS[eqd.id].name} has no free sigil slot.`,'l-bad');return;}
-    eqd.s[k]=e.id;takeItem(e.id);addLog(`Socketed ${it.name} into ${ITEMS[eqd.id].name}. ${MOBS[e.id.replace('_sig','')].sig.txt}.`,'l-good');
-    S=computeStats();refreshPanel();save();return;
-  }
+  if(it.type==='sigil'){openSocket(e.id);return;} // js/socket.js: pick the gear, then OK
   const why=canEquip(it);if(why){addLog(why,'l-bad');return;}
   const slot=it.type, old=P.eq[slot];
   P.inv.splice(i,1);P.eq[slot]=e;if(old)P.inv.push(old);

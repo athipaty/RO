@@ -89,9 +89,10 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
 // phones held sideways: tap the region name over the minimap to fold the map away (remembered)
 (()=>{const mb=$('#minibox'),zn=$('#zName');if(!mb||!zn)return;try{if(localStorage.getItem('embervale.miniSlim')==='1')mb.classList.add('slim');}catch(e){}
   zn.addEventListener('click',ev=>{if(!document.body.classList.contains('touchui'))return;ev.stopPropagation();mb.classList.toggle('slim');sfx('click');try{localStorage.setItem('embervale.miniSlim',mb.classList.contains('slim')?'1':'0');}catch(e){}});})();
-// ---- phones: quick buttons on the right for the windows used most (Stats, Skills, Equip, Quests) ----
+// ---- phones: quick buttons on the right for the windows used most (Stats, Skills, Items, Equip, Quests) ----
 (()=>{if($('#quick'))return;const q=document.createElement('div');q.id='quick';q.setAttribute('role','toolbar');q.setAttribute('aria-label','Quick windows');
   const I={status:['Stats (C)','<path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/>'],skills:['Skills (K)','<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>'],
+    items:['Items (I)','<path d="M5.5 9h13l-1.2 11.5H6.7z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/>'],
     equip:['Equipment','<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>'],quests:['Quests (J)','<path d="M7 3h10v18l-5-3-5 3z"/><path d="M10 8h4M10 11h4"/>']};
   for(const [k,[t,p]] of Object.entries(I)){const b=document.createElement('button');b.type='button';b.className='qk';b.dataset.open=k;b.setAttribute('aria-label',t);b.title=t;
     b.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;b.addEventListener('click',ev=>{ev.stopPropagation();if(!P||!running)return;sfx('click');togglePanel(k);});q.appendChild(b);}
@@ -99,8 +100,14 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
   // sit just under the minimap, wherever it ends up
   // upright: a row under the minimap (the online badge moves below it); sideways: a row at the top, beside the minimap
   const place=()=>{const mb=$('#minibox');if(!mb)return;const r=mb.getBoundingClientRect(),land=innerWidth>innerHeight&&innerHeight<=520;
-    if(land){q.style.top=Math.round(r.top)+'px';q.style.right=Math.round(innerWidth-r.left+8)+'px';}
-    else{q.style.top=Math.round(r.bottom+8)+'px';q.style.right=Math.round(innerWidth-r.right)+'px';const ob=$('#onlineBadge');if(ob&&document.body.classList.contains('touchui')){ob.style.top=Math.round(r.bottom+58)+'px';
+    const top3=['#menuBtn','#rideBtn','#sitBtn'].map(s=>$(s)).filter(Boolean);
+    if(land){q.style.top=Math.round(r.top)+'px';q.style.right=Math.round(innerWidth-r.left+8)+'px';
+      // narrow sideways phones: keep the top row of round buttons (Menu, Ride, Sit) clear of the quick buttons
+      for(const b of top3)b.style.left='';
+      const qr=q.getBoundingClientRect(),last=top3[top3.length-1];
+      if(last&&qr.width&&last.getBoundingClientRect().right>qr.left-6){const step=42,c0=qr.left-4-19-step*(top3.length-1);
+        top3.forEach((b,i)=>{b.style.left=Math.round(c0+i*step)+'px';});}}
+    else{for(const b of top3)b.style.left='';q.style.top=Math.round(r.bottom+8)+'px';q.style.right=Math.round(innerWidth-r.right)+'px';const ob=$('#onlineBadge');if(ob&&document.body.classList.contains('touchui')){ob.style.top=Math.round(r.bottom+58)+'px';
       // the who's-online list opens UNDER the badge, so the badge can still be tapped to close it
       const wl=$('#whoList');if(wl){const br=ob.getBoundingClientRect();if(br.height)wl.style.top=Math.round(br.bottom+6)+'px';}}}};
   place();setInterval(place,600);addEventListener('resize',place);})();

@@ -15,7 +15,7 @@ module.exports = async t => {
     t.ok(sell.extra > sell.normal && sell.fewer < sell.normal, `extra slots sell for more (${sell.fewer} / ${sell.normal} / ${sell.extra})`);
     const trade = await A.ev(() => { const v = validEntry({ id: 'robe', s: ['sproutling_sig', null, null], r: 2 }, true); return v && v.s.length === 3 && v.s[0] === 'sproutling_sig'; });
     t.ok(trade, 'trades keep the slot count and socketed sigils');
-    const sock = await A.ev(() => { P.lv = 30; P.inv = [{ id: 'robe', uid: 999, s: [null, null, null] }]; useInv(0); giveItem('sproutling_sig', 2); useInv(P.inv.findIndex(e => e.id === 'sproutling_sig')); useInv(P.inv.findIndex(e => e.id === 'sproutling_sig')); return P.eq.armor.s.filter(Boolean).length; });
+    const sock = await A.ev(() => { P.lv = 30; P.inv = [{ id: 'robe', uid: 999, s: [null, null, null] }]; useInv(0); giveItem('sproutling_sig', 2); useInv(P.inv.findIndex(e => e.id === 'sproutling_sig')); PANEL_ACTS.sockok(); useInv(P.inv.findIndex(e => e.id === 'sproutling_sig')); PANEL_ACTS.sockok(); return P.eq.armor.s.filter(Boolean).length; });
     t.ok(sock === 2, 'the extra slots take sigils');
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));
   } finally { await A.close(); }

@@ -21,7 +21,7 @@ module.exports = async t => {
     t.ok(fold, 'tapping the region name folds the minimap away');
     const quick = await ev(() => { const q = document.getElementById('quick'), r = q.getBoundingClientRect(), mb = document.getElementById('minibox').getBoundingClientRect();
       q.querySelector('[data-open="skills"]').click(); const k = panelKind; closePanel(); return { n: q.querySelectorAll('.qk').length, beside: r.right <= mb.left + 2 && r.top < 60, k }; });
-    t.ok(quick.n === 4 && quick.beside && quick.k === 'skills', 'Stats, Skills, Equip and Quests buttons sit beside the minimap and open their windows');
+    t.ok(quick.n === 5 && quick.beside && quick.k === 'skills', 'Stats, Skills, Items, Equip and Quests buttons sit beside the minimap and open their windows');
     const auto = await ev(() => { const a = document.getElementById('autoBtn').getBoundingClientRect(), atk = document.getElementById('atkBtn').getBoundingClientRect(); return { right: a.left > innerWidth * .7, above: a.bottom < atk.top }; });
     t.ok(auto.right && auto.above, 'Auto sits on the right, above the shortcuts');
     t.ok(errors.length === 0, 'no script errors' + errors.map(e => ': ' + e).join(''));
