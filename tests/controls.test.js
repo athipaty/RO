@@ -32,7 +32,7 @@ module.exports = async t => {
     t.ok(await ev(() => { const m = mobs.find(x => !x.dead); P.target = m; updateHud(); return document.getElementById('target').hidden; }), 'no monster card in the middle of the screen');
     const sit = await ev(async () => { const b = document.getElementById('sitBtn'); const until = async f => { for (let i = 0; i < 30 && !f(); i++) await new Promise(r => setTimeout(r, 100)); };
       P.sitting = false; await until(() => /Sit/.test(b.getAttribute('aria-label') || '')); const a = b.getAttribute('aria-label'), sa = b.querySelector('svg').innerHTML;
-      P.sitting = true; await until(() => /Stand/.test(b.getAttribute('aria-label') || '')); const c = b.getAttribute('aria-label'), sc = b.querySelector('svg').innerHTML; P.sitting = false; return { a, c, changed: sa !== sc }; });
+      P.target = null; P.queued = null; P.path = []; P.auto = false; P.sitting = true; await until(() => /Stand/.test(b.getAttribute('aria-label') || '')); const c = b.getAttribute('aria-label'), sc = b.querySelector('svg').innerHTML; P.sitting = false; return { a, c, changed: sa !== sc }; });
     t.ok(/Sit/.test(sit.a) && /Stand up/.test(sit.c) && sit.changed, 'the rest button shows Sit, and Stand up (a standing figure) while sitting');
     const fade = await ev(() => { enterZone('capital', 'town'); const b = Z.buildings.find(x => x.name === 'Grand Library'); return { behind: bldHides(b, (b.x - .4) * TILE, (b.y + b.h * .6) * TILE), front: bldHides(b, (b.x + b.w / 2) * TILE, (b.y + b.h + 2) * TILE) }; });
     t.ok(fade.behind && !fade.front, 'a building fades when your hero is behind it, not when in front');
