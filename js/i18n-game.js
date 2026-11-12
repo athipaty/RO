@@ -1,0 +1,114 @@
+// Thai, second pass: skill names and descriptions, item descriptions and the help page.
+// Skill descriptions are made from numbers that change with the skill level, so each Thai line is a template:
+// {0}, {1}… are the numbers of the English line, in the order they appear there.
+const SKILL_TH={
+  firstaid:['ปฐมพยาบาล','ฟื้นฟู {0} HP'],
+  cleave:['ฟันหนัก','ฟาดหนัก {0}% ATK ไม่มีวันพลาด โอกาสทำให้มึน {1}%'],
+  whirl:['ลมหมุน','หมุนตัวฟันศัตรูทุกตัวในระยะ {0}px ด้วย {1}% ATK'],
+  ironwill:['จิตเหล็ก','{0} วินาที: DEF +{1} และฟื้นฟู HP +{2} ต่อวินาที'],
+  emberbolt:['ลูกไฟถ่าน','ขว้างไฟใส่เป้าหมาย {0}% MATK'],
+  frostnova:['ระเบิดน้ำแข็ง','ความเสียหายธาตุน้ำต่อศัตรูในระยะ {0}px: {1}% MATK ทำให้ช้าลง {2} วินาที โอกาสแช่แข็ง {3}%'],
+  arcstorm:['พายุสายฟ้า','เรียกสายฟ้าลงบริเวณเป้าหมาย: {0}% MATK ต่อทุกตัวในระยะ {1}px'],
+  twinshot:['ยิงคู่','ยิงธนูสองดอก ดอกละ {0}% ATK'],
+  arrowrain:['ฝนธนู','ระดมธนูลงบริเวณเป้าหมาย: {0}% ATK ต่อทุกตัวในระยะ {1}px'],
+  hawkeye:['ตาเหยี่ยว','{0} วินาที: DEX +{1} และ CRIT +{2}'],
+  smite:['ลงทัณฑ์','แสงศักดิ์สิทธิ์ {0}% MATK แรงเป็นสองเท่าต่อมอนสเตอร์ธาตุมืด'],
+  mend:['รักษา','ฟื้นฟูตัวเอง {0} + {1}% MATK และรักษาสถานะผิดปกติ สมาชิกปาร์ตี้ในระยะ {2}px ได้ด้วย'],
+  blessing:['พร','{0} วินาที: STR, INT และ DEX +{1} สมาชิกปาร์ตี้ในระยะ {2}px ได้ด้วย'],
+  shieldbash:['กระแทกโล่','กระแทกด้วยโล่ {0}% ATK โอกาสทำให้มึน {1}% นาน {2} วินาที'],
+  bastion:['ป้อมปราการ','{0} วินาที: DEF +{1} และ HP สูงสุด +{2}%'],
+  warcry:['เสียงคำรามศึก','มอนสเตอร์ทุกตัวในระยะ {0}px หันมาสู้กับคุณ และคุณได้ ATK +{1} นาน {2} วินาที สมาชิกปาร์ตี้ในระยะ {3}px ได้ด้วย'],
+  rendingblow:['ฟาดฉีก','ฟาดอย่างดุดัน {0}% ATK ไม่มีวันพลาด'],
+  frenzy:['คลุ้มคลั่ง','{0} วินาที: ATK +{1} และ AGI +{2} แต่ DEF −{3}'],
+  earthshatter:['ปฐพีแหลก','ทุบพื้น: ความเสียหายธาตุดินต่อทุกตัวในระยะ {0}px {1}% ATK โอกาสทำให้มึน {2}%'],
+  glaciallance:['หอกธารน้ำแข็ง','หอกน้ำแข็ง {0}% MATK (ธาตุน้ำ) โอกาสแช่แข็ง {1}%'],
+  cinderfall:['ฝนเถ้าถ่าน','ระดมไฟลงบริเวณเป้าหมาย: {0}% MATK (ธาตุไฟ) ต่อทุกตัวในระยะ {1}px'],
+  manasurge:['มานาพลุ่ง','{0} วินาที: MATK +{1} และ INT +{2}'],
+  shadowlance:['หอกเงา','เวทมืด {0}% MATK และฟื้นฟู {1}% ของ HP สูงสุด'],
+  hexofsloth:['คำสาปเชื่องช้า','สาปมอนสเตอร์: ช้าลง {0} วินาที โอกาสทำให้มึน {1}% นาน {2} วินาที'],
+  soulsiphon:['ดูดวิญญาณ','ความเสียหายธาตุมืดต่อทุกตัวในระยะ {0}px: {1}% MATK ฟื้นฟู SP {2} ต่อมอนสเตอร์ที่โดน'],
+  piercingshot:['ยิงทะลวง','ยิงอย่างประณีต {0}% ATK ไม่มีวันพลาดและเมินครึ่งหนึ่งของ DEF'],
+  trueaim:['เล็งแม่น','{0} วินาที: ATK +{1}, HIT +{2} และ CRIT +{3}'],
+  volley:['ห่าธนู','พายุธนูลงบริเวณเป้าหมาย: {0}% ATK ต่อทุกตัวในระยะ {1}px'],
+  venomarrow:['ธนูพิษ','ธนูอาบยาพิษ {0}% ATK (ธาตุดิน) มอนสเตอร์ช้าลง {1} วินาที'],
+  snareshot:['ยิงตรึง','ตรึงมอนสเตอร์อยู่กับที่: โอกาส {0}% ที่จะตรึงไว้ {1} วินาที ถ้าไม่ติดจะช้าลงแทน'],
+  swiftstep:['ก้าวว่องไว','{0} วินาที: AGI +{1} และ FLEE +{2} สมาชิกปาร์ตี้ในระยะ {3}px ได้ด้วย'],
+  crusade:['ฟาดครูเสด','ฟาดศักดิ์สิทธิ์ {0}% ATK (ธาตุศักดิ์สิทธิ์) ไม่มีวันพลาด'],
+  holyaegis:['โล่ศักดิ์สิทธิ์','{0} วินาที: DEF +{1}, VIT +{2} และฟื้นฟู HP +{3} ต่อวินาที สมาชิกปาร์ตี้ในระยะ {4}px ได้ด้วย'],
+  judgment:['พิพากษา','แสงศักดิ์สิทธิ์ระเบิดรอบตัว: {0}% MATK (ธาตุศักดิ์สิทธิ์) ต่อทุกตัวในระยะ {1}px'],
+  sanctuary:['สถานศักดิ์สิทธิ์','ฟื้นฟู {0} + {1}% MATK รักษาสถานะผิดปกติ และฟื้นฟู HP {2} ต่อวินาทีนาน {3} วินาที สมาชิกปาร์ตี้ในระยะ {4}px ได้ด้วย'],
+  radiance:['รัศมีแผดเผา','แสงแผดเผาลงบริเวณเป้าหมาย: {0}% MATK (ธาตุศักดิ์สิทธิ์) ต่อทุกตัวในระยะ {1}px'],
+  divinegrace:['พระคุณสวรรค์','{0} วินาที: INT +{1}, SP สูงสุด +{2} และ MATK +{3} สมาชิกปาร์ตี้ในระยะ {4}px ได้ด้วย'],
+  thornsnare:['กับดักหนาม','วางกับดักซ่อน (สูงสุด {0} อัน อยู่ได้ {1} วินาที): มอนสเตอร์ตัวแรกที่เหยียบรับ {2}% ATK และถูกตรึง {3} วินาที'],
+  emberwall:['กำแพงเพลิง','สร้างกำแพงไฟบนพื้น {0} วินาที: มอนสเตอร์ที่เดินผ่านรับ {1}% MATK (ธาตุไฟ) วินาทีละสองครั้งและช้าลง'],
+  haven:['แดนพักพิง','อวยพรวงกลมบนพื้น {0} วินาที: ผู้ที่ยืนอยู่ในวงฟื้นฟู HP {1} ต่อวินาทีและได้ DEF +{2} มอนสเตอร์ในวงช้าลง'],
+};
+const TH_NUM=/\d+(?:\.\d+)?/g;
+function thSkillDesc(id,en){const t=SKILL_TH[id];if(!t||typeof en!=='string')return en;const nums=en.match(TH_NUM)||[];
+  const want=(t[1].match(/\{\d+\}/g)||[]).map(x=>+x.slice(1,-1));if(want.some(i=>i>=nums.length))return en; // the English line changed shape: keep it
+  return t[1].replace(/\{(\d+)\}/g,(m,i)=>nums[+i]);}
+// item descriptions: the common shapes by pattern, the rest one by one
+const ITEM_TH={
+  leaf:'วาร์ปไปจุดสุ่มในพื้นที่นี้',waystone:'พาคุณไปยังพื้นที่ใดก็ได้ที่เคยไป รวมถึงชั้นดันเจี้ยน',kinship:'ดึงคุณไปข้างสมาชิกปาร์ตี้ ไม่ว่าเขาจะอยู่ที่ไหน',
+  remedy:'รักษาพิษ มึน หลับ แช่แข็ง ใบ้ และตาบอด',scroll:'พาคุณกลับเฮิร์ธเวล',emberore:'ช่างตีเหล็กใช้หนึ่งก้อนเพื่อตีบวกอาวุธ',glintstone:'ช่างตีเหล็กใช้เพื่อตีบวกเกราะ หมวก หรือเครื่องประดับ',
+  tamecharm:'ใช้กับมอนสเตอร์ที่อ่อนแรงและเลี้ยงได้ (Sproutling, Hopper, Mossbug, Thornling, Grey Lupe, Mushcap, Cave Bat, Dune Scarab หรือ Frost Wisp) ยิ่งมันอ่อนแรง โอกาสยิ่งสูง',
+  petsnack:'ให้อาหารสัตว์เลี้ยง: ความสุข +25'};
+const ITEM_FLAVOR_TH={'Thin brass frames.':'กรอบทองเหลืองบางเฉียบ','Leather straps and tinted lenses.':'สายหนังกับเลนส์สี','A masquerade half-mask.':'หน้ากากครึ่งหน้าแบบงานเต้นรำ',
+  'Looking cool is half the fight.':'ดูเท่ไว้ก่อน ชนะไปครึ่งแล้ว','A meadow classic.':'ของคู่ทุ่งหญ้า','Pulled up over nose and mouth.':'ดึงขึ้นมาปิดจมูกและปาก','A reed flute that glows at the tip.':'ขลุ่ยไม้อ้อที่ปลายเรืองแสง'};
+const SLOT_TH={armor:'เกราะ',accessory:'เครื่องประดับ',weapon:'อาวุธ',head:'หมวก'},RACE_TH={Beasts:'สัตว์',Insects:'แมลง',Plants:'พืช','Spirits and the Undead':'วิญญาณและอันเดด'};
+const thStats=s=>s.replace(/Max HP/g,'HP สูงสุด').replace(/Max SP/g,'SP สูงสุด').replace(/HP regen/g,'ฟื้นฟู HP').replace(/ and /g,' และ ').replace(/\.$/,'');
+function thItemDesc(id,en){if(typeof en!=='string')return en;if(ITEM_TH[id])return ITEM_TH[id];let m;
+  if(m=en.match(/^Restores (\d+) (HP|SP)\.$/))return `ฟื้นฟู ${m[1]} ${m[2]}`;
+  if(m=en.match(/^Socket into an? (\w+): (.+)$/))return `ใส่ในช่องของ${SLOT_TH[m[1]]||m[1]}: ${thStats(m[2])}`;
+  if(m=en.match(/^Dropped by the (.+?)\. (.+)$/))return `ดรอปจาก ${m[1]} · ${thStats(m[2])}`;
+  if(m=en.match(/^MVP prize from the (.+?)\. (.+)$/))return `รางวัล MVP จาก ${m[1]} · ${thStats(m[2])}`;
+  if(m=en.match(/^For (\d+) minutes: (.+)$/))return `${m[1]} นาที: ${thStats(m[2])}`;
+  if(m=en.match(/^\+(\d+)% damage to (.+?) · (.+)$/))return `ความเสียหายต่อ${RACE_TH[m[2]]||m[2]} +${m[1]}% · ${thStats(m[3])}`;
+  if(/^A festival token\./.test(en))return 'เหรียญเทศกาล นำไปแลกกับผู้ดูแลเทศกาลพิม (ปุ่มขายของทั้งหมดจะไม่ขายชิ้นนี้)';
+  if(m=en.match(/^(.+) prize\. (.+)$/))return `รางวัลเทศกาล ${m[1]} · ${thStats(m[2])}`;
+  if(m=en.match(/^((?:[A-Z][A-Za-z ]* \+\d+(?: · )?)+)\.?(?: (.+))?$/))return thStats(m[1].trim())+(m[2]?' · '+(ITEM_FLAVOR_TH[m[2]]||m[2]):'');
+  return en;}
+// help page: every piece of text between the bold labels and line breaks
+const HELP_TH={
+  'Embervale is a click-to-move action RPG. Hunt monsters for experience, gold, loot and rare sigils.':'Embervale เป็นเกม RPG แอ็กชันแบบคลิกเพื่อเดิน ล่ามอนสเตอร์เพื่อรับค่าประสบการณ์ ทอง ของดรอป และซิกิลหายาก',
+  'Moving and fighting:':'การเดินและการต่อสู้:','click the ground to walk, click a monster to attack it until it falls. WASD and the arrow keys also move you. Tab targets the nearest monster.':'คลิกพื้นเพื่อเดิน คลิกมอนสเตอร์เพื่อโจมตีจนมันล้ม ใช้ WASD หรือปุ่มลูกศรเดินได้ด้วย กด Tab เพื่อเล็งมอนสเตอร์ที่ใกล้ที่สุด',
+  'Levels:':'เลเวล:','base levels give stat points (C). Job levels give skill points (K). At Job Lv 10, talk to Guildmaster Corvin to become a Warden, Arcanist, Ranger or Cleric.':'เลเวลฐานให้แต้มสถานะ (C) เลเวลอาชีพให้แต้มสกิล (K) เมื่อถึงเลเวลอาชีพ 10 ไปคุยกับหัวหน้ากิลด์คอร์วินเพื่อเป็น Warden, Arcanist, Ranger หรือ Cleric',
+  'Sigils:':'ซิกิล:','every monster has a small chance to drop its sigil. Socket it into equipment with a free slot to gain its bonus for good.':'มอนสเตอร์ทุกตัวมีโอกาสเล็กน้อยที่จะดรอปซิกิลของมัน ใส่ลงในอุปกรณ์ที่มีช่องว่างเพื่อรับโบนัสถาวร',
+  'Resting:':'การพัก:','press X to sit and recover HP and SP faster.':'กด X เพื่อนั่งและฟื้นฟู HP กับ SP เร็วขึ้น',
+  'Day and night:':'กลางวันและกลางคืน:','a day in Embervale lasts 24 minutes and nights are dark. Regions have their own weather: rain, fog, sandstorms, snow. /time tells you the time. Weather effects can be turned off below.':'หนึ่งวันใน Embervale ยาว 24 นาที และกลางคืนจะมืด แต่ละพื้นที่มีสภาพอากาศของตัวเอง: ฝน หมอก พายุทราย หิมะ พิมพ์ /time เพื่อดูเวลา ปิดเอฟเฟกต์สภาพอากาศได้ด้านล่าง',
+  'Following:':'การติดตาม:','press Follow next to a party member in the party box (or /follow Name) to walk behind them, through gates too. Click the ground, move or attack to stop.':'กด Follow ข้างชื่อสมาชิกในกล่องปาร์ตี้ (หรือ /follow ชื่อ) เพื่อเดินตามเขา ผ่านประตูได้ด้วย คลิกพื้น เดิน หรือโจมตีเพื่อหยุด',
+  'Duels:':'การดวล:','challenge someone in the same region with the Duel button in the online list or /duel Name. After a 3-second countdown, click them to fight. The first to fall to 1 HP loses; nobody dies or loses EXP.':'ท้าดวลคนในพื้นที่เดียวกันด้วยปุ่ม Duel ในรายชื่อออนไลน์ หรือ /duel ชื่อ นับถอยหลัง 3 วินาทีแล้วคลิกเพื่อสู้ ใครเหลือ 1 HP ก่อนแพ้ ไม่มีใครตายหรือเสีย EXP',
+  'Monster box:':'กล่องมอนสเตอร์:','the box at the top shows your target\'s name and HP; + shows its level, element, drops and an Info button.':'กล่องด้านบนแสดงชื่อและ HP ของเป้าหมาย ปุ่ม + แสดงเลเวล ธาตุ ของดรอป และปุ่มข้อมูล',
+  'Status box:':'กล่องสถานะ:','the − button in its corner (or B) shrinks it to just your name, HP and SP; + brings it back.':'ปุ่ม − ที่มุมกล่อง (หรือ B) ย่อให้เหลือแค่ชื่อ HP และ SP ปุ่ม + ขยายกลับ',
+  'Regions:':'พื้นที่:','Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45), home of the Ashen Warlord → Frostpeak Pass (42+).':'Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45) ถิ่นของ Ashen Warlord → Frostpeak Pass (42+)',
+  'Dungeon:':'ดันเจี้ยน:','stairs in a clearing in Whispering Woods lead down into the Mossdeep Caverns: three dark floors (Lv 18–37) that get harder as you go deeper, with the Gloomcap King at the bottom.':'บันไดในลานโล่งของ Whispering Woods พาลงไปยัง Mossdeep Caverns: สามชั้นมืด (Lv 18–37) ที่ยากขึ้นเรื่อย ๆ และมี Gloomcap King รออยู่ชั้นล่างสุด',
+  'Quests:':'เควส:','people with a gold':'คนที่มีเครื่องหมายสีทอง','over their head have a quest for you, and a':'เหนือหัวมีเควสให้คุณ ส่วนเครื่องหมาย','means you can hand one in. Start the story with Elder Hollis by the fountain. Press J for your quest log.':'หมายถึงส่งเควสได้แล้ว เริ่มเนื้อเรื่องกับผู้เฒ่าฮอลลิสที่น้ำพุ กด J เพื่อเปิดบันทึกเควส',
+  'Second jobs:':'อาชีพขั้นสอง:','at Job Lv 40, Corvin can test you for an advanced calling.':'เมื่อถึงเลเวลอาชีพ 40 คอร์วินจะทดสอบคุณเพื่อเลื่อนเป็นอาชีพขั้นสูง',
+  'Party support:':'การช่วยปาร์ตี้:','healing and buff skills marked “party” in the skill tree also land on party members standing near you.':'สกิลรักษาและบัฟที่มีป้าย “party” ในหน้าสกิล จะส่งผลกับสมาชิกปาร์ตี้ที่ยืนใกล้คุณด้วย',
+  'Guilds:':'กิลด์:','with an account you can found a guild (G) for 10,000 gold, pick its emblem, invite players from the online list, and chat with /g. Leaders can name officers, who can invite and post the guild notice.':'เมื่อมีบัญชี คุณตั้งกิลด์ได้ (G) ด้วย 10,000 โกลด์ เลือกตรากิลด์ ชวนผู้เล่นจากรายชื่อออนไลน์ และแชทด้วย /g หัวหน้าตั้งเจ้าหน้าที่ได้ ซึ่งชวนคนและเขียนประกาศกิลด์ได้',
+  'World bosses:':'บอสโลก:','every so often a huge boss appears somewhere and everyone online is told where. Whoever deals the most damage is the MVP and wins a rare hat. Bring friends.':'บางครั้งบอสยักษ์จะโผล่ที่ไหนสักแห่ง และทุกคนที่ออนไลน์จะได้รับแจ้ง ใครทำความเสียหายมากที่สุดได้เป็น MVP และได้หมวกหายาก ชวนเพื่อนไปด้วย',
+  'Hunting contracts:':'สัญญาล่า:','Guildmaster Corvin offers hunts that suit your level for bonus EXP and gold.':'หัวหน้ากิลด์คอร์วินมีงานล่าที่เหมาะกับเลเวลคุณ ให้ EXP และโกลด์เพิ่ม',
+  'Hats:':'หมวก:','rare headgear drops from some monsters (and the Straw Hat and Ribbon Bow from the store). Everyone online sees what you wear.':'หมวกหายากดรอปจากมอนสเตอร์บางตัว (และมี Straw Hat กับ Ribbon Bow ขายในร้าน) ทุกคนที่ออนไลน์เห็นสิ่งที่คุณสวม',
+  'Auto-hunt:':'ล่าอัตโนมัติ:','the Auto button fights the nearest monster for you and drinks tonics when HP runs low. It\'s handy on a phone.':'ปุ่ม Auto จะสู้กับมอนสเตอร์ที่ใกล้ที่สุดให้ และดื่มยาเมื่อ HP ต่ำ สะดวกมากบนมือถือ',
+  'Saving:':'การบันทึก:','your progress saves automatically in this browser.':'ความคืบหน้าบันทึกอัตโนมัติในเบราว์เซอร์นี้',
+  'Fire beats Earth, Earth beats Wind, Wind beats Water, Water beats Fire (×1.5); the same element resists itself. Holy and Shadow deal double to each other. Monster info (right-click) shows each monster\'s element.':'ไฟชนะดิน ดินชนะลม ลมชนะน้ำ น้ำชนะไฟ (×1.5) ธาตุเดียวกันต้านทานกันเอง ศักดิ์สิทธิ์กับมืดทำความเสียหายต่อกันสองเท่า ข้อมูลมอนสเตอร์ (คลิกขวา) บอกธาตุของแต่ละตัว',
+  'Size and race':'ขนาดและเผ่า','Monsters are Small, Medium or Large. Axes hit Large ones hardest, bows and swords lose some bite on them, maces suit Medium ones (physical damage only). Each monster also has a race (Beast, Insect, Plant, Spirit, Undead, Fiend, Construct); charms forged at the smithy add damage against one.':'มอนสเตอร์มีขนาดเล็ก กลาง หรือใหญ่ ขวานตีตัวใหญ่แรงที่สุด ธนูและดาบแรงลดลงกับตัวใหญ่ กระบองเหมาะกับตัวกลาง (เฉพาะความเสียหายกายภาพ) มอนสเตอร์แต่ละตัวมีเผ่า (สัตว์ แมลง พืช วิญญาณ อันเดด ปีศาจ สิ่งประดิษฐ์) เครื่องรางที่ตีจากโรงตีเหล็กเพิ่มความเสียหายต่อเผ่านั้น',
+  'Poison, stun, sleep, freeze, silence and blind. VIT resists poison, stun and freeze; INT resists sleep, silence and blind. Remedy Draught (General Store) and Mend cure them.':'พิษ มึน หลับ แช่แข็ง ใบ้ และตาบอด VIT ต้านพิษ มึน และแช่แข็ง INT ต้านหลับ ใบ้ และตาบอด Remedy Draught (ร้านค้า) และสกิลรักษาช่วยแก้ได้',
+  'Blue: players · green: your party · grey: guests · white: calm monsters · red: monsters that attack on sight · gold: bosses':'ฟ้า: ผู้เล่น · เขียว: ปาร์ตี้ของคุณ · เทา: ผู้เยี่ยมชม · ขาว: มอนสเตอร์ไม่ดุ · แดง: มอนสเตอร์ที่โจมตีทันทีที่เห็น · ทอง: บอส',
+  'Chat commands':'คำสั่งแชท','Keys':'ปุ่มลัด','Sound':'เสียง','Playing together':'เล่นด้วยกัน','Adventure':'การผจญภัย','Start a new adventure':'เริ่มการผจญภัยใหม่',
+  'Everyone who has this page open at the same time shares the world. You can see each other walking around, chat with Enter or the Chat button, and send emotes (E). Hunting near another player gives you both a party bonus of +25% EXP. The log announces big moments like level milestones, rare sigils and boss kills to everyone.':'ทุกคนที่เปิดหน้านี้พร้อมกันจะอยู่ในโลกเดียวกัน คุณจะเห็นกันเดินไปมา แชทด้วย Enter หรือปุ่ม Chat และส่งอีโมต (E) ได้ ล่าใกล้ผู้เล่นอื่นจะได้โบนัสปาร์ตี้ EXP +25% ทั้งคู่ บันทึกจะประกาศช่วงเวลาสำคัญ เช่น เลเวลสำคัญ ซิกิลหายาก และการล้มบอสให้ทุกคนรู้',
+  'You are connected.':'คุณเชื่อมต่อแล้ว','Chat is offline in this view, so you are playing solo.':'แชทออฟไลน์ในหน้านี้ คุณกำลังเล่นคนเดียว',
+  'Right-click monster':'คลิกขวาที่มอนสเตอร์','monster info':'ข้อมูลมอนสเตอร์','hotbar (row 3 when shown)':'แถบลัด (แถว 3 เมื่อเปิด)','hotbar row 2 (⊞ adds rows)':'แถบลัดแถว 2 (⊞ เพิ่มแถว)','sit / stand':'นั่ง / ยืน',
+  'items':'ไอเทม','skills':'สกิล','stats':'สถานะ','emotes':'อีโมต','hide status box':'ซ่อนกล่องสถานะ','hide hotbar':'ซ่อนแถบลัด','Click item':'คลิกไอเทม','pick it up':'เก็บของ','chat':'แชท',
+  'tonics, scroll':'ยา, ม้วนคัมภีร์','windows':'หน้าต่าง','sit':'นั่ง','target':'เล็งเป้า','attack in place':'โจมตีอยู่กับที่','Drag a title':'ลากหัวหน้าต่าง','move a window':'ย้ายหน้าต่าง','world map':'แผนที่โลก',
+  'Reach Job Lv 10, then talk to Guildmaster Corvin in Hearthvale to choose a calling and unlock its skill tree.':'ไปให้ถึงเลเวลอาชีพ 10 แล้วคุยกับหัวหน้ากิลด์คอร์วินในเฮิร์ธเวลเพื่อเลือกอาชีพและปลดล็อกต้นไม้สกิล',
+  '· press 1–4 under a learned skill to put it on that hotbar key · right-click a hotbar skill (or Shift+1–4) to cast it at a lower level':'· กด 1–4 ใต้สกิลที่เรียนแล้วเพื่อใส่ในแถบลัดปุ่มนั้น · คลิกขวาที่สกิลในแถบลัด (หรือ Shift+1–4) เพื่อใช้ในเลเวลที่ต่ำกว่า',
+  'Learn':'เรียน','Level up':'อัปเลเวล','Mastered':'เชี่ยวชาญแล้ว',
+  'Click minimap':'คลิกแผนที่เล็ก','bigger / smaller':'ใหญ่ขึ้น / เล็กลง','close':'ปิด'};
+if(typeof LANG!=='undefined'&&LANG==='th'){
+  Object.assign(TH,HELP_TH);TH_PAT.unshift([/^(.+) · Skill points:$/,(m,a)=>`${thText(a)} · แต้มสกิล:`]);
+  for(const id in SKILL_TH){const sk=SKILLS[id];if(!sk)continue;TH[sk.name]=SKILL_TH[id][0];
+    const d=sk.desc;if(typeof d==='function')sk.desc=function(){return thSkillDesc(id,d.apply(this,arguments));};else if(typeof d==='string')sk.desc=thSkillDesc(id,d);
+    sk.name=SKILL_TH[id][0];}
+  for(const id in ITEMS){const it=ITEMS[id];if(typeof it.desc==='string')it.desc=thItemDesc(id,it.desc);}
+  if(typeof TH_MEMO!=='undefined')TH_MEMO.clear();}
