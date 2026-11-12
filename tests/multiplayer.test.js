@@ -25,7 +25,7 @@ module.exports = async t => {
     t.ok(off < 40, `monsters are in the same places on both screens (largest gap ${Math.round(off)}px)`);
 
     const exp0 = await B.ev(() => P.exp + P.lv * 1e6);
-    await B.ev(() => hurtMob(mobs[0], 99999, false, 'phys'));
+    await B.ev(() => { mobs[0].d.drops = [['sap', 1]]; hurtMob(mobs[0], 99999, false, 'phys'); }); // a sure drop (normal monsters no longer drop gold)
     await wait(2500);
     t.ok(await A.ev(() => mobs[0].dead) && await B.ev(() => mobs[0].dead), "Beta's kill removes the monster for both players");
     t.ok((await B.ev(() => P.exp + P.lv * 1e6)) > exp0, 'Beta gets the EXP for the kill');

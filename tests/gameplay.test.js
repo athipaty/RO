@@ -13,12 +13,12 @@ module.exports = async t => {
       if (typeof festNow === 'function') festNow = () => null; // festival tokens would add a drop
       const bag = P.inv.length, gold = P.gold; hurtMob(m, 99999, false, 'phys');
       return { n: loot.length, bag: P.inv.length === bag, gold: P.gold === gold }; });
-    t.ok(drop.n === 3 && drop.bag && drop.gold, 'a kill drops items and gold on the ground, not straight into the bag');
+    t.ok(drop.n === 2 && drop.bag && drop.gold, 'a kill drops items on the ground (no gold from normal monsters), not straight into the bag');
     t.ok(/Drops: Hopper Tuft 50% · Red Tonic 8% · Sigil 2%/.test(await g.ev(() => { P.target = mobs.find(m => m.d.id === 'hopper'); updateHud(); const s = document.getElementById('tDrops').textContent; P.target = null; return s; })),
       'the target box lists drop chances');
     const picked = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); const gold = P.gold;
       while (loot.length) { goLoot(loot[0]); for (let i = 0; i < 40 && P.lootGoal; i++) await w(100); if (P.lootGoal) break; }
-      return loot.length === 0 && !!invFind('sap') && P.gold > gold; });
+      return loot.length === 0 && !!invFind('sap') && !!invFind('red'); });
     t.ok(picked, 'walking to each item picks it up');
 
     // ---- shortcuts

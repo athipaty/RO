@@ -33,10 +33,10 @@ module.exports = async t => {
       const kill = await B.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); const m = mobs[0];
         m.d.drops = m.d.drops; P.x = m.x - 25; P.y = m.y; NET.lastSent = ''; netTick(0); await w(400);
         const exp0 = P.exp + P.lv * 1e6, loot0 = loot.length; hurtMob(m, 99999, false, 'phys'); await w(2000);
-        return { dead: m.dead, exp: P.exp + P.lv * 1e6 > exp0, gold: loot.slice(loot0).some(l => l.gold > 0) }; });
+        return { dead: m.dead, exp: P.exp + P.lv * 1e6 > exp0, gold: !loot.slice(loot0).some(l => l.gold > 0) }; });
       t.ok(kill.dead && await A.ev(() => mobs[0].dead), "B's kill removes the monster for both players");
       t.ok(kill.exp, 'B gets the EXP');
-      t.ok(kill.gold, "the server's drop (at least the gold) lands on B's ground");
+      t.ok(kill.gold, 'a normal monster drops no gold (loot is sold instead)');
       t.ok(await A.ev(() => loot.length === 0 && P.exp === 0), 'A, who did not hit it, gets no drops and no EXP');
 
       // a provoked monster chases and hits the nearest player

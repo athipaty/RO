@@ -39,7 +39,8 @@ function killMob(m){
   if(!serverSim())for(const [id,ch] of m.d.drops)if(Math.random()<ch)dropLoot(m,id);
   if(!serverSim()&&Math.random()<(m.d.sigChance||.02)){dropLoot(m,m.d.id+'_sig',{rare:true});addLog(`A ${m.d.name} Sigil dropped! Pick it up.`,'l-rare');sfx('rare');announce('sig',m.d.id);fx.push({k:'beam',x:m.x,y:m.y,t0:now,dur:1.6});}
   if(m.d.boss&&!m.d.world){const r=(m.d.respawn||180)/60;addLog(`The ${m.d.name} has been defeated! It will rise again in ${Math.round(r*2)/2} minutes.`,'l-rare');}
-  if(!serverSim())dropLoot(m,null,{gold:Math.round(m.d.lv*rnd(1.5,3))});
+  // monsters drop items, not gold (sell the loot instead); bosses still drop a gold pouch
+  if(!serverSim()&&m.d.boss)dropLoot(m,null,{gold:Math.round(m.d.lv*rnd(1.5,3)*8)});
 }
 function dropLoot(m,id,o={}){
   let x=m.x,y=m.y;for(let k=0;k<6;k++){const a=rnd(0,7),r=rnd(14,36),tx=m.x+Math.cos(a)*r,ty=m.y+Math.sin(a)*r;if(canStand(tx,ty,4)){x=tx;y=ty;break;}}
@@ -146,7 +147,8 @@ function potGroup(it){return it.heal?'pot_hp':it.sp?'pot_sp':it.cure?'pot_cure':
 function potCd(it){if(it.cure)return 2.5;if(it.sp&&!it.heal)return 1.2;
   if(!it.heal)return .25;const base=it.heal>=150?.8:.5,agi=(typeof S!=='undefined'&&S&&S.agi)||0;
   return +(base*((typeof S!=='undefined'&&S&&S.ranged)?1.6:1)*Math.max(.6,1-agi/200)).toFixed(2);}
-const sellValue=id=>{const it=ITEMS[id];return it.type==='etc'?it.price:it.type==='sigil'?Math.floor(it.price/2):Math.floor(it.price/2);};
+// monster materials sell for 2.5x their listed price (they replace the gold monsters used to drop)
+const sellValue=id=>{const it=ITEMS[id];return it.type==='etc'?Math.round(it.price*2.5):it.type==='sigil'?Math.floor(it.price/2):Math.floor(it.price/2);};
 
 /* ================= skills use ================= */
 function skillReady(id){return (P.cd[id]||0)<=now;}
@@ -408,7 +410,7 @@ function serverLoot(m,e){const l=Array.isArray(e.l)?e.l.slice(0,12):[];
   for(const id of l){if(typeof id!=='string'||!ITEMS[id])continue;
     if(ITEMS[id].type==='sigil'){dropLoot(m,id,{rare:true});addLog(`A ${m.d.name} Sigil dropped! Pick it up.`,'l-rare');sfx('rare');announce('sig',m.d.id);fx.push({k:'beam',x:m.x,y:m.y,t0:now,dur:1.6});}
     else dropLoot(m,id);}
-  const g=clamp(Math.round(fin(e.g)),0,100000);if(g)dropLoot(m,null,{gold:g});}
+  const g=clamp(Math.round(fin(e.g)),0,100000);if(g&&m.d.boss)dropLoot(m,null,{gold:m.world?g:g*8});}
 function mobsTick(dt){const host=zoneHost();
   if(host){NET.wasClient=true;applyHits(false);syncMobs(host,dt);return;}
   if(wbMob&&typeof dropWorldBoss==='function')dropWorldBoss(); // only the server runs world bosses
