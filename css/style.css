@@ -592,3 +592,17 @@ body.touchui #dockExtra .act{width:52px;height:52px;border-radius:12px}
 #hud.mini .lvrow{display:grid!important}#hud.mini #weight{display:block!important}
 #hud.mini .name{font-size:14px;margin-bottom:3px}
 @media (max-width:760px){#hud{width:170px;padding:6px 8px}#hud .lvrow{gap:6px}#hud .lbl,#hud .bar span{font-size:10px}}
+/* the chat box: a fold/open button on top; opened, it grows upward */
+#log.big{max-height:min(46vh,380px)!important}
+#logToggle{margin-left:auto;flex:none;padding:0 7px!important;font-size:10px}
+#logTabs .btn.unread{position:relative}#logTabs .btn.unread::after{content:'';position:absolute;top:2px;right:2px;width:6px;height:6px;border-radius:50%;background:var(--accent,#f0b54a)}
+#logJump{position:fixed;transform:translateX(-50%);z-index:6;font-size:11px;padding:3px 10px;background:rgba(14,18,26,.95)}
+#log .l-chat:not(.me) b,#log .l-whisper b,#log .l-party b,#log .l-guild b,#log .l-room b{cursor:pointer}
+#log .l-chat:not(.me) b:hover,#log .l-whisper b:hover,#log .l-party b:hover,#log .l-guild b:hover,#log .l-room b:hover{text-decoration:underline}
+body.touchui #log.big{max-height:min(40vh,300px)!important}
+/* the tab row sits at the bottom of the chat box; opening it grows the messages upward, above the tabs */
+#log{display:flex;flex-direction:column}
+#log>div{flex:none}
+#logTabs{order:99;position:sticky;top:auto!important;bottom:-8px;margin:4px -10px -8px!important;padding:5px 10px 6px!important;border-radius:0 0 12px 12px!important;border-top:1px solid rgba(255,255,255,.06)}
+#logToggle{margin-left:0!important;margin-right:2px}
+@media (min-width:1041px){body:not(.touchui) #log{width:min(340px,calc(50vw - 272px))}}
