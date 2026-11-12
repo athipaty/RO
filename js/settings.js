@@ -20,7 +20,7 @@ PANELS.settings=()=>{let h=`<h2>Settings</h2><div class="sub">Saved in this brow
     `<div class="setrow"><div class="grow"><div class="nm">Interface size</div><div class="ds">Boxes, buttons and windows</div></div>${seg('setui',SETS.ui,[['s','Small'],['m','Normal'],['l','Large']])}</div>`+
     `<div class="setrow"><div class="grow"><div class="nm">Weather and seasons</div><div class="ds">Rain, snow, fog, embers, festival lanterns</div></div>${toggle('weathert',typeof skyOn==='undefined'||skyOn,'Weather effects on or off')}</div>`+
     `<div class="setrow"><div class="grow"><div class="nm">Performance mode</div><div class="ds">Draws at lower resolution: smoother on slower phones</div></div>${toggle('setlite',!!SETS.lite,'Performance mode on or off')}</div></div>`;
-  h+=`<h3>Mouse</h3><div class="dv keylist">`+[['Click / tap','walk, attack, talk, pick up'],['Shift + click','attack in place'],['Right-click monster','monster info'],['Drag a window title','move the window'],['Esc','close · H help']].map(([k,v])=>`<div><span>${k}</span><span>${v}</span></div>`).join('')+`</div>`;
+  h+=`<h3>Mouse</h3><div class="dv keylist">`+[['Click / tap','walk, attack, talk, pick up'],['Shift + click','attack in place'],['Right-click monster','monster info'],['Drag a window title','move the window'],['Esc','close · H help'],['⊞ beside the hotbar','extra rows: Alt+1–8 row 2, F1–F8 row 3']].map(([k,v])=>`<div><span>${k}</span><span>${v}</span></div>`).join('')+`</div>`;
   if(typeof keybindHtml==='function')h+=keybindHtml();
   h+=`<div class="tbtns" style="justify-content:flex-start;margin-top:12px"><button class="btn small" data-act="sethelp">Open help</button></div>`;
   return h;};

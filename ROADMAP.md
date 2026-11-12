@@ -66,10 +66,10 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 8. S Cast bars for spells, cancelled by moving, interrupted by being hit
 - [x] 9. S "Dodge" and "Lucky!" dodge text (LUK)
 - [x] 10. M Elements and an element damage chart
-- [ ] 11. M Monster size and race bonuses
+- [x] 11. M Monster size and race bonuses (v0.56.0: weapon vs Small/Medium/Large, 7 races, race charms at the smithy)
 - [x] 12. M Status ailments (poison, stun, freeze, sleep, silence, blind)
 - [x] 13. S Weight penalties: 50%+ no regen, 90%+ cannot fight
-- [ ] 14. S Potion cooldowns tuned for melee play
+- [x] 14. S Potion cooldowns tuned for melee play (v0.56.0: HP, SP and cure timers apart; close-range fighters drink fastest, AGI helps)
 - [ ] 15. M Monster skills (heal, summon, ranged spells, teleport)
 - [ ] 16. M Looter monsters and monsters that call friends
 
@@ -115,8 +115,8 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 47. S Chat commands: /help /where /who /sit /stand /exp /roll /emotes /clear
 - [ ] 48. M (server) Chat rooms
 - [x] 49. L (server) Guilds with emblems (v0.20.0)
-- [ ] 50. L (server) Guild war
-- [ ] 51. M (server) PvP arenas and duels (duels done in v0.21.0; arena and rankings still to do)
+- [x] 50. L (server) Guild war (v0.44.0: Emberkeep)
+- [x] 51. M (server) PvP arenas and duels (duels v0.21.0; Ember Arena with rankings v0.43.0)
 - [x] 52. S More emotes and an emote bar (v0.51.0: 24 emotes, quick bar of favourites on E)
 - [x] 53. S Partner system (v0.55.0: the Kindred Bond, /bond)
 
@@ -131,7 +131,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [ ] 59. M Classic basic-info window
 - [x] 60. M Equipment window with a paper doll
 - [x] 61. S Draggable windows that remember their place (v0.34.0)
-- [ ] 62. S Several hotbar rows with drag and drop
+- [x] 62. S Several hotbar rows with drag and drop (v0.56.0: ⊞ adds up to two rows, Alt+1–8 and F1–F8)
 - [x] 63. S Floating "+EXP / +Job" gains, EXP per hour (/exp)
 - [x] 64. S Name colours (players, nearby allies, guests, calm/aggressive monsters, bosses)
 - [x] 65. S Shift-click to attack in place (v0.32.0)

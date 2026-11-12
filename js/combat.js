@@ -9,11 +9,11 @@ function shoot(from,to,kind,col,onHit,hostile){shots.push({x:from.x,y:from.y-10,
 function dealPhys(m,mult,o={}){
   if(m.dead)return;const crit=Math.random()*100<S.crit;
   if(!o.sure&&!crit){const hc=clamp(80+S.hit-m.d.flee-(ailOn('blind')?45:0),5,100);if(Math.random()*100>hc){floatT(m.x,m.y-m.d.size-8,'Miss','#aab4c4',13);sfx('miss');if(zoneHost())sendHit(m,0,0);else provoke(m);return;}}
-  const em=elemMult(o.el,m.d.el);let dmg=S.atk*mult*rnd(.9,1.1);dmg=crit?dmg*1.5:dmg-m.d.def*.6;dmg*=em;
+  const em=elemMult(o.el,m.d.el);let dmg=S.atk*mult*rnd(.9,1.1);dmg=crit?dmg*1.5:dmg-m.d.def*.6;dmg*=em*(typeof sizeRaceMult==='function'?sizeRaceMult(m,'phys'):1);
   if(em!==1)elemHint(m,em);if(o.ail&&Math.random()<o.ail[1])ailMob(m,o.ail[0],o.ail[2]);
   hurtMob(m,em===0?0:Math.max(1,Math.round(dmg)),crit,'phys');}
 function dealMag(m,mult,el,ail){
-  if(m.dead)return;const em=elemMult(el,m.d.el);let dmg=(S.matk*mult*rnd(.92,1.08)-m.d.def*.3)*em;
+  if(m.dead)return;const em=elemMult(el,m.d.el);let dmg=(S.matk*mult*rnd(.92,1.08)-m.d.def*.3)*em*(typeof sizeRaceMult==='function'?sizeRaceMult(m,'mag'):1);
   if(em!==1)elemHint(m,em);if(ail&&Math.random()<ail[1])ailMob(m,ail[0],ail[2]);
   hurtMob(m,em===0?0:Math.max(1,Math.round(dmg)),false,'mag');}
 function provoke(m){if(!m.dead){m.state='chase';m.aggroed=true;}}
@@ -130,7 +130,7 @@ function unequip(slot){const e=P.eq[slot];if(!e)return;P.eq[slot]=null;P.inv.pus
 function useItem(id){
   if(P.dead)return;const it=ITEMS[id];
   if(!invFind(id)){addLog(`You have no ${it.name}.`,'l-bad');return;}
-  if((P.cd['item']||0)>now)return;
+  const grp=potGroup(it);if((P.cd[grp]||0)>now)return;
   if(typeof useTravelItem==='function'&&useTravelItem(id))return;
   if(it.cure){if(!Object.keys(P.ail||{}).some(ailOn)){addLog('You have no ailments to cure.');return;}cureAll();}
   else if(it.heal){if(P.hp>=S.maxhp)return;healP(it.heal);}
@@ -138,8 +138,14 @@ function useItem(id){
   else if(it.home){takeItem(id);enterZone('town');addLog('The scroll carries you home.');save();return;}
   else if(it.tele){if(Z.D.safe){addLog('Drift Leaves only work outside town.','l-bad');return;}
     const i=Z.spawnTiles[Math.floor(Math.random()*Z.spawnTiles.length)];P.x=(i%Z.w+.5)*TILE;P.y=(((i/Z.w)|0)+.5)*TILE;P.path=[];P.target=null;fx.push({k:'ring',x:P.x,y:P.y,r:30,col:'#7fd36a',t0:now,dur:.5});}
-  takeItem(id);P.cd['item']=now+.25;refreshPanel();
+  takeItem(id);P.cd[grp]=now+potCd(it);P.cdLen=P.cdLen||{};P.cdLen[grp]=potCd(it);refreshPanel();
 }
+/* #14 potion cooldowns tuned for melee: HP, SP and cure tonics each have their own timer, so a fighter can
+   drink HP and SP back to back. Close-range fighters drink HP tonics fastest; AGI shortens it further. */
+function potGroup(it){return it.heal?'pot_hp':it.sp?'pot_sp':it.cure?'pot_cure':'item';}
+function potCd(it){if(it.cure)return 2.5;if(it.sp&&!it.heal)return 1.2;
+  if(!it.heal)return .25;const base=it.heal>=150?.8:.5,agi=(typeof S!=='undefined'&&S&&S.agi)||0;
+  return +(base*((typeof S!=='undefined'&&S&&S.ranged)?1.6:1)*Math.max(.6,1-agi/200)).toFixed(2);}
 const sellValue=id=>{const it=ITEMS[id];return it.type==='etc'?it.price:it.type==='sigil'?Math.floor(it.price/2):Math.floor(it.price/2);};
 
 /* ================= skills use ================= */
@@ -188,7 +194,7 @@ function questKill(id){const q=P.quest;if(!q||q.mob!==id)return;q.have=Math.min(
 function autoHunt(){
   if(!P.auto||P.dead||Z.D.safe)return;
   const f=P.hp/S.maxhp;
-  if(f<.4&&(P.cd['item']||0)<=now){const pot=invFind('orange')?'orange':invFind('red')?'red':null;
+  if(f<.4&&(P.cd.pot_hp||0)<=now){const pot=invFind('orange')?'orange':invFind('red')?'red':null;
     if(pot)useItem(pot);else if(f<.3){P.auto=false;$('#autoBtn').classList.remove('on');addLog('Auto-hunt paused: you are out of tonics. Rest with Sit or buy more in town.','l-bad');return;}}
   if((!P.target||P.target.dead)&&!P.path.length&&!P.lootGoal){let bl=null,bd=320;for(const l of loot)if(now>l.t0+.4&&!l.tooHeavy){const d=dist(l,P);if(d<bd){bd=d;bl=l;}}if(bl){goLoot(bl);return;}}
   if((!P.target||P.target.dead)&&!P.path.length&&f>=.3){let best=null,bd=650;for(const m of mobs)if(!m.dead){const d=dist(m,P);if(d<bd){bd=d;best=m;}}if(best){P.target=best;P.queued=null;P.sitting=false;P.holdPos=false;}}
