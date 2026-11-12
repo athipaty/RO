@@ -49,3 +49,12 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
   let key='';setInterval(()=>{if(!P||!running){bar.hidden=true;return;}bar.hidden=false;const en=expNeed(P.lv),jm=P.jl>=jobMax(P.cls),bf=P.lv>=99?1:P.exp/en,jf=jm?1:P.jexp/jexpNeed(P.jl);
     const k=bf.toFixed(4)+jf.toFixed(4);if(k===key)return;key=k;bar.querySelector('.b').style.width=(bf*100).toFixed(2)+'%';bar.querySelector('.j').style.width=(jf*100).toFixed(2)+'%';
     bar.querySelector('span').textContent=`Base ${(bf*100).toFixed(1)}% · Job ${jm?'max':(jf*100).toFixed(1)+'%'}`;},250);})();
+// ---- phones: a round Ride button in the main column (only once you own a mount; lit while riding) ----
+(()=>{const acts=$('#actions');if(!acts||$('#rideBtn'))return;const b=document.createElement('button');b.type='button';b.className='act';b.id='rideBtn';
+  b.setAttribute('aria-label','Ride your mount (R)');b.title='Ride (R)';
+  b.innerHTML='<svg class="aic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 20V11a6 6 0 0 1 12 0v9"/><path d="M4 20h4M16 20h4"/><circle cx="8.5" cy="12.5" r=".7"/><circle cx="15.5" cy="12.5" r=".7"/></svg><span class="atx">Ride</span>';
+  b.addEventListener('click',ev=>{ev.stopPropagation();if(typeof toggleRide==='function'){sfx('click');toggleRide();}});
+  const auto=$('#autoBtn');if(auto&&auto.parentElement===acts)auto.insertAdjacentElement('afterend',b);else acts.insertBefore(b,$('#chatBtn'));
+  setInterval(()=>{const own=!!(P&&Array.isArray(P.mounts)&&P.mounts.length),on=typeof riding==='function'&&riding();
+    if(b.hidden===own)b.hidden=!own;if(b.classList.contains('on')!==on)b.classList.toggle('on',on);
+    const auto2=$('#autoBtn');if(auto2&&auto2.parentElement===acts&&b.previousElementSibling!==auto2)auto2.insertAdjacentElement('afterend',b);},400);})();

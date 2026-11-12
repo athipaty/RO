@@ -71,7 +71,7 @@ const TH={
   "The box with your target's name and HP in the middle (monsters also show HP over their heads)":'กล่องชื่อและ HP ของเป้าหมายกลางจอ (มอนสเตอร์มีแถบ HP เหนือหัวอยู่แล้ว)',
   'Off: only equipment, sigils and boss drops are collected; materials, tonics and gold are left (also the Loot button)':'ปิด: เก็บเฉพาะอุปกรณ์ ซิจิล และของจากบอส ทิ้งวัตถุดิบ ยา และโกลด์ไว้ (หรือใช้ปุ่มเก็บของ)',
   'Draws at lower resolution: smoother on slower phones. Switches on by itself if the game runs slowly':'วาดภาพที่ความละเอียดต่ำลง ลื่นขึ้นบนมือถือรุ่นช้า และจะเปิดเองถ้าเกมทำงานช้า',
-  'Change':'เปลี่ยน','Move up':'เดินขึ้น','Move down':'เดินลง','Move left':'เดินซ้าย','Move right':'เดินขวา',
+  'Ride your mount (R)':'ขี่สัตว์พาหนะ (R)','Ride (R)':'ขี่ (R)',  'Change':'เปลี่ยน','Move up':'เดินขึ้น','Move down':'เดินลง','Move left':'เดินซ้าย','Move right':'เดินขวา',
 };
 // messages with numbers or names in them
 const TH_PAT=[
