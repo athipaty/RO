@@ -22,7 +22,28 @@ function getZone(id){
   const obst=(D.theme==='dunes'||D.theme==='crypt'||D.theme==='cave'||D.theme==='arena'||D.theme==='keep')?4:2;
   const zone={id,D,w:W,h:H,t,portals:[],npcs:[],buildings:[],spawn:null};
   for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(x===0||y===0||x===W-1||y===H-1)set(x,y,obst);
-  if(D.theme==='town'){
+  if(D.theme==='town'&&id==='capital'){
+    // #32 Aurelmark: four districts around a central plaza; the avenue runs east to Hearthvale
+    for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(x===1||y===1||x===W-2||y===H-2){if(r()<.7)set(x,y,2);}else if(x>2&&y>2&&x<W-3&&y<H-3)set(x,y,6);else if(r()<.15)set(x,y,7);}
+    // Noble Gardens (south-west): grass, flower beds and a pond instead of cobbles
+    for(let y=24;y<H-4;y++)for(let x=4;x<26;x++)set(x,y,r()<.18?7:0);
+    for(let y=33;y<37;y++)for(let x=14;x<20;x++)set(x,y,3);
+    for(let x=3;x<W;x++)for(const y of [20,21])set(x,y,1);for(let y=3;y<H-3;y++)for(const x of [27,28])set(x,y,1);
+    for(let y=19;y<=22;y++)for(let x=W-4;x<W;x++)set(x,y,1);
+    const B=[{x:5,y:5,w:8,h:5,name:'Aurel Market',roof:'#a8452e',npc:{name:'Merchant Tavi',role:'shop',col:'#c86a3a',hair:'#3a2a1a'}},
+             {x:15,y:5,w:7,h:5,name:'Gemcutter',roof:'#5a3a8a',npc:{name:'Gemcutter Sela',role:'gemcut',col:'#7a5ac0',hair:'#e8e4f0'}},
+             {x:33,y:4,w:10,h:6,name:'Grand Library',roof:'#2e4f6e',npc:{name:'Librarian Oren',role:'library',col:'#3b5a7a',hair:'#c8c8c8'}},
+             {x:45,y:5,w:7,h:5,name:'Hall of Callings',roof:'#2e4f8e',npc:{name:'Mentor Ansel',role:'job',col:'#3b5ea8',hair:'#5a3a22'}},
+             {x:14,y:25,w:8,h:5,name:'Royal Bank',roof:'#7a6a3a',npc:{name:'Banker Ivo',role:'storage',col:'#8a7a4a',hair:'#2b1d16'}},
+             {x:5,y:24,w:7,h:5,name:'Chapel of Dawn',roof:'#d8d0c0',npc:{name:'Sister Ada',role:'heal',col:'#efe7d6',hair:'#b8473a'}},
+             {x:34,y:27,w:8,h:5,name:'Grand Waystation',roof:'#3e7a4a',npc:{name:'Wayfarer Mira',role:'warp',col:'#4f8a4a',hair:'#d8b060'}},
+             {x:44,y:30,w:7,h:5,name:'Forge Royal',roof:'#5a4a42',npc:{name:'Smith Garrow',role:'smith',col:'#6a5040',hair:'#8a5a2b'}}];
+    for(const b of B){for(let y=b.y;y<b.y+b.h;y++)for(let x=b.x;x<b.x+b.w;x++)set(x,y,5);zone.buildings.push(b);
+      zone.npcs.push({...b.npc,x:(b.x+b.w/2)*TILE,y:(b.y+b.h)*TILE+20});}
+    for(let y=14;y<18;y++)for(let x=25;x<31;x++)set(x,y,3); // the plaza pool around the great fountain
+    zone.portals.push({x:(W-2+.5)*TILE,y:21*TILE,to:'town',side:'east'});
+    zone.spawn={x:(W-6)*TILE,y:21*TILE};
+  } else if(D.theme==='town'){
     for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){ if(x===1||y===1||x===W-2||y===H-2){ if(r()<.6)set(x,y,2); } else if(x>3&&y>3&&x<W-4&&y<H-4) set(x,y,6); else if(r()<.12) set(x,y,7); }
     const B=[{x:5,y:4,w:7,h:5,name:'General Store',roof:'#8e3b2e',npc:{name:'Ilsa the Merchant',role:'shop',col:'#c86a3a',hair:'#8a3b1a'}},
              {x:27,y:4,w:8,h:5,name:'Guild Hall',roof:'#2e4f8e',npc:{name:'Guildmaster Corvin',role:'job',col:'#3b5ea8',hair:'#c8c8c8'}},
@@ -37,6 +58,9 @@ function getZone(id){
     for(let y=12;y<16;y++)for(let x=18;x<22;x++)set(x,y,3);
     for(let y=13;y<=16;y++)for(let x=W-5;x<W;x++)set(x,y,1);
     zone.portals.push({x:(W-2+.5)*TILE,y:15*TILE,to:'meadow',side:'east'});
+    // #32 the west gate leads to the capital, Aurelmark
+    for(let y=13;y<=16;y++)for(let x=0;x<5;x++)set(x,y,1);
+    zone.portals.push({x:1.5*TILE,y:15*TILE,to:'capital',side:'west'});
     // Stage 6: the Arena Master by the fountain sends players to the Ember Arena
     zone.npcs.push({name:'Arena Master Vexa',role:'arena',col:'#a8323a',hair:'#1c1c1c',x:24.5*TILE,y:14.5*TILE});
     zone.npcs.push({name:'Lune the Stylist',role:'stylist',col:'#d86a9a',hair:'#7a4fb0',x:13.5*TILE,y:13.5*TILE});
@@ -128,7 +152,7 @@ function renderZone(z, r){
     if(kind==='rock')k=th2==='crypt'||th2==='arena'||th2==='keep'?'pillar':th2==='cave'?'rock':(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':'tree';
     z.objs.push({x:px+16,y:py+16,kind:k,v:Math.floor(R()*3),sc:.85+R()*.3});}
   for(const b of z.buildings){mg.fillStyle=b.roof;mg.fillRect(b.x,b.y,b.w,b.h);}
-  if(z.D.theme==='town')z.objs.push({x:20*TILE,y:14*TILE,kind:'fountain',v:0,sc:1});
+  if(z.D.theme==='town')z.objs.push(z.id==='capital'?{x:28*TILE,y:16*TILE,kind:'fountain',v:0,sc:1.5}:{x:20*TILE,y:14*TILE,kind:'fountain',v:0,sc:1});
   if(z.D.theme==='keep'){const [cx,cy]=KEEP_C;z.objs=z.objs.filter(o=>!(Math.abs(o.x-(cx*TILE+16))<1&&Math.abs(o.y-(cy*TILE+16))<1));z.objs.push({x:(cx+.5)*TILE,y:(cy+.5)*TILE,kind:'crystal',v:0,sc:1});}
   z.img=c; z.mini=mini;
 }

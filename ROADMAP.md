@@ -93,7 +93,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 31. S Choose which skill level to cast (v0.27.0)
 
 ### World and exploration
-- [ ] 32. M A capital city with districts, themed towns
+- [x] 32. M A capital city with districts (v0.65.0: Aurelmark west of Hearthvale; Gemcutter adds sigil slots, Library bestiary)
 - [x] 33. M Named warp portals and a teleport NPC network (covered: portals show where they lead and its level; Tobin's Waystation sends you to any visited region)
 - [x] 34. M Multi-floor dungeons (v0.19.0)
 - [x] 35. S More teleport items: Waystone Shard, Kinship Charm (v0.30.0)
