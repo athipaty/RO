@@ -70,8 +70,8 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 12. M Status ailments (poison, stun, freeze, sleep, silence, blind)
 - [x] 13. S Weight penalties: 50%+ no regen, 90%+ cannot fight
 - [x] 14. S Potion cooldowns tuned for melee play (v0.56.0: HP, SP and cure timers apart; close-range fighters drink fastest, AGI helps)
-- [ ] 15. M Monster skills (heal, summon, ranged spells, teleport)
-- [ ] 16. M Looter monsters and monsters that call friends
+- [x] 15. M Monster skills (v0.68.0: heal, blink, magic bolts; run by the server; summoning stays with mini-bosses)
+- [x] 16. M Looter monsters and monsters that call friends (v0.68.0: Cave Bats and Dune Jackals snatch ground loot; pack monsters call their kind)
 
 ### Items and economy
 - [x] 17. S Item weight and carry limit (STR raises it)

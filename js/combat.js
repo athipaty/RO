@@ -397,7 +397,8 @@ function syncMobs(host,dt){
       else if(m.d.range){for(const o of NET.others.values())if(o.id===e.t){shoot(m,{x:o.rx,y:o.ry},'arrow','#d8d0b8',()=>{},true);break;}}}
     else if(e.k==='w')fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});
     else if(e.k==='s')slamLand(m);
-    else if(e.k==='c')callMinions(m,true);}
+    else if(e.k==='c')callMinions(m,true);
+    else if(typeof mobSkillEvent==='function')mobSkillEvent(m,e);}
   NET.evSeen.set(host.id,seen);}
 // loot the server rolled for us when a monster we hit died
 function serverLoot(m,e){const l=Array.isArray(e.l)?e.l.slice(0,12):[];

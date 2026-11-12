@@ -7,7 +7,7 @@ function shade(hex,k){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b
   const f=v=>Math.max(0,Math.min(255,Math.round(k<0?v*(1+k):v+(255-v)*k)));return `rgb(${f(r)},${f(g)},${f(b)})`;}
 
 // draws item `id` into context g, in a 32x32 box
-function drawItemIcon(g,id){const it=ITEMS[id];if(!it)return;const c=it.col||'#c8c2b4';
+function drawItemIcon(g,id){const it=ITEMS[id];if(!it)return;it.id=id;const c=it.col||'#c8c2b4';
   g.lineJoin='round';g.lineCap='round';g.lineWidth=1.6;g.strokeStyle=OL;
   const P_=(f,s)=>{g.fillStyle=f;g.fill();if(s!==false)g.stroke();};
   const T=it.type;
@@ -95,4 +95,6 @@ function itemIconCanvas(id){if(ICON_CANVAS[id])return ICON_CANVAS[id];const c=do
   try{drawItemIcon(g,id);}catch(e){}ICON_CANVAS[id]=c;return c;}
 function itemIconURL(id){if(!ICON_CACHE[id])ICON_CACHE[id]=itemIconCanvas(id).toDataURL();return ICON_CACHE[id];}
 // every window's item icon
-icon=function(it){if(!it||!it.id)return `<span class="ico"></span>`;return `<img class="ico img" src="${itemIconURL(it.id)}" alt="" width="30" height="30">`;};
+// items added by later modules (face gear, charms, festival prizes…) are tagged here the first time they are shown
+const itemIdOf=it=>{if(!it)return null;if(!it.id)for(const k in ITEMS)if(ITEMS[k]===it){it.id=k;break;}return it.id||null;};
+icon=function(it){if(!itemIdOf(it))return `<span class="ico"></span>`;return `<img class="ico img" src="${itemIconURL(it.id)}" alt="" width="30" height="30">`;};

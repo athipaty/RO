@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='0.67.0';
+const VERSION='0.68.0';
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
 const BLOCK=[0,0,1,1,1,1,0,0]; // 0 ground 1 path 2 tree 3 water 4 rock 5 building 6 cobble 7 flowers
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
@@ -152,6 +152,10 @@ const MOBS={
     drops:[['orange',1],['shard',1],['fur',1],['frostcap',.15]],mvp:[['rimehalo',1],['emberore',3],['glintstone',3]],sig:{kind:'accessory',b:{int:5,matk:60},txt:'+5 INT, +60 MATK'}},
   warlord:{name:'Ashen Warlord',lv:45,hp:20000,atk:300,def:80,flee:40,exp:30000,jexp:20000,spd:70,aggro:true,boss:true,shape:'golem',col:'#7a2e1f',size:30,respawn:180,sigChance:.25,drops:[['crest',1],['orange',1],['blue',.6],['crown',.3]],sig:{kind:'armor',b:{str:5,vit:5,hppct:15},txt:'+5 STR, +5 VIT, +15% Max HP'}},
 };
+// #15 monster skills run by the server (heal / blink / bolt) and #16 pack monsters that call their kind
+const MOB_SKILL={mushcap:'heal',gloomcap:'heal',shriekcap:'heal',miragewisp:'blink',deepshade:'blink',emberimp:'blink',iceimp:'bolt',frostwisp:'bolt',wraith:'bolt'};
+const MOB_PACK=['greylupe','hopper','dunejackal','gravehound','rimestalker'];
+for(const id in MOB_SKILL)MOBS[id].skill=MOB_SKILL[id];for(const id of MOB_PACK)MOBS[id].pack=true;
 for(const id in MOBS){const m=MOBS[id];m.id=id;m.hit=m.lv*2+12;
   ITEMS[id+'_sig']={name:m.name+' Sigil',type:'sigil',kind:m.sig.kind,b:m.sig.b,price:m.boss?20000:600,col:'#ffcf5a',g:'✦',desc:`Socket into ${m.sig.kind==='accessory'?'an':'a'} ${m.sig.kind}: ${m.sig.txt}.`};}
 

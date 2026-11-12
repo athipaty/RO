@@ -29,6 +29,7 @@ function freezeGuarded(){return now<SMOOTH.guardUntil;}
 let guardHit=false;
 const _mobAttackS=mobAttack;
 mobAttack=function(m){if(!freezeGuarded())return _mobAttackS.apply(this,arguments);guardHit=true;try{return _mobAttackS.apply(this,arguments);}finally{guardHit=false;}};
+if(typeof mobBolt==='function'){const _mobBoltS=mobBolt;mobBolt=function(m){if(!freezeGuarded())return _mobBoltS.apply(this,arguments);guardHit=true;try{return _mobBoltS.apply(this,arguments);}finally{guardHit=false;}};}
 const _slamLandS=slamLand;
 slamLand=function(m){if(!freezeGuarded())return _slamLandS.apply(this,arguments);guardHit=true;try{return _slamLandS.apply(this,arguments);}finally{guardHit=false;}};
 const _hurtPlayerS=hurtPlayer;
