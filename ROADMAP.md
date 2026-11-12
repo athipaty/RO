@@ -54,7 +54,7 @@ Server code lives in center-kitchen-backend (`routes/embervale/`, `models/emberv
 Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are live.
 
 ### Characters and look
-- [ ] 1. M Male/female body choice in the creator
+- [x] 1. M Body choice in the creator (v0.63.0: Build: Standard, Broad or Slender; also at Lune the Stylist)
 - [x] 2. M Equipped gear visible on the body (armour v0.36.0, shield and job mantles earlier; weapon slung on the back in town, sitting or riding v0.62.0)
 - [x] 3. S Lower/middle headgear slots (v0.57.0: Face and Mouth slots, 8 items at Ilsa's and the smithy)
 - [x] 4. M Hair dye / stylist NPC (v0.49.0: Lune the Stylist in Hearthvale)

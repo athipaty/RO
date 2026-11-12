@@ -220,6 +220,8 @@ function lookFor(name){name=name||'?';let L=LOOKS.get(name);if(L)return L;
   L={style:h%6,hair:HAIRS[(h>>>3)%HAIRS.length],eye:EYES[(h>>>8)%EYES.length],skin:SKINS[(h>>>12)%SKINS.length],seed:(h%1000)/97};
   LOOKS.set(name,L);return L;}
 const STYLE_NAMES=['Spiky','Long','Ponytail','Twin tails','Bob','Curly'];
+// #1 build: 0 Standard, 1 Broad (wider shoulders, heavier brows), 2 Slender (narrower, lashes); presence field bt
+const BUILD_NAMES=['Standard','Broad','Slender'];const BUILD_W=[1,1.14,.86];
 function lookOf(name,lk){const b=lookFor(name);return lk?{...b,...lk}:b;}
 function lookCode(lk){return lk?[lk.style,HAIRS.indexOf(lk.hair),EYES.indexOf(lk.eye),SKINS.indexOf(lk.skin)]:null;}
 function lookDecode(a){if(!Array.isArray(a)||a.length!==4)return null;const[st,h,e,k]=a.map(v=>Math.floor(fin(v)));
@@ -264,7 +266,8 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
   else{const pant=robe?body:'#4a3a2e';ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=pant;
     for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*7,y-2.5,6.5,3.6,k*.18,0,7);fs();}
     ctx.fillStyle=boot;for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*2.5,y,3.4,2.4,0,0,7);fs();}}
-  // torso / robe
+  // torso / robe (wider or narrower by build)
+  const bw=BUILD_W[L.body|0]||1;ctx.save();if(bw!==1){ctx.translate(x,0);ctx.scale(bw,1);ctx.translate(-x,0);}
   ctx.lineWidth=1.5;ctx.strokeStyle=OL;
   if(robe){ctx.fillStyle=out==='cleric'?'#f4efe2':body;ctx.beginPath();ctx.moveTo(x-7,by-11);ctx.lineTo(x+7,by-11);ctx.lineTo(x+11,y-2-(opt.sit?0:1));ctx.quadraticCurveTo(x,y+1,x-11,y-2);ctx.closePath();fs();
     ctx.strokeStyle=out==='cleric'?body:'#e8c25a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-10,y-3);ctx.quadraticCurveTo(x,y,x+10,y-3);ctx.stroke();ctx.lineWidth=1.5;ctx.strokeStyle=OL;}
@@ -277,9 +280,11 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
   else if(out==='ranger'){ctx.fillStyle='#2f6a3a';ctx.beginPath();ctx.ellipse(x,by-11,9,3.5,0,0,7);fs();ctx.strokeStyle='#6b4423';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-6,by-10);ctx.lineTo(x+6,by);ctx.stroke();}
   else{ctx.fillStyle='#6b4423';ctx.fillRect(x-8,by-3,16,3);ctx.fillStyle='#e8c25a';ctx.fillRect(x-1.5,by-3.5,3,4);ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.moveTo(x-4,by-12);ctx.lineTo(x,by-8);ctx.lineTo(x+4,by-12);ctx.closePath();ctx.fill();}
   if(opt.armor)drawArmor(x,by,f,bk,opt.armor,OL);
+  if((L.body|0)===2&&!bk&&!robe){ctx.fillStyle='rgba(0,0,0,.13)';for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(x+k*8,by-6);ctx.quadraticCurveTo(x+k*5.5,by-3,x+k*8,by);ctx.closePath();ctx.fill();}}
+  ctx.restore();
   // hands
   ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=L.skin;
-  for(const k of [-f,f]){ctx.beginPath();if(opt.sit)ctx.arc(x+k*10,y-4,2.6,0,7);else if(opt.cast)ctx.arc(x+k*11,by-15+Math.sin(now*9+k)*1.2,2.6,0,7);else ctx.arc(x+k*9,by-4+(k===f?-1:0),2.6,0,7);fs();}
+  for(const k of [-f,f]){ctx.beginPath();if(opt.sit)ctx.arc(x+k*10*bw,y-4,2.6,0,7);else if(opt.cast)ctx.arc(x+k*11*bw,by-15+Math.sin(now*9+k)*1.2,2.6,0,7);else ctx.arc(x+k*9*bw,by-4+(k===f?-1:0),bw<1?2.3:2.6,0,7);fs();}
   // head: from behind it is all hair
   if(bk){backLayer();ctx.fillStyle=hair;ctx.strokeStyle=OL;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(x,hy,12.8,12.3,0,0,7);fs();
     ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1.2;for(const k of [-7,-2.5,2.5,7]){ctx.beginPath();ctx.moveTo(x+k*.5,hy-10);ctx.quadraticCurveTo(x+k*1.15,hy,x+k,hy+10);ctx.stroke();}
@@ -294,7 +299,8 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
     ctx.fillStyle=L.eye;ctx.beginPath();ctx.ellipse(cx+f*.4,ey+.5,w,3.6,0,0,7);ctx.fill();
     ctx.fillStyle='#14100c';ctx.beginPath();ctx.ellipse(cx+f*.5,ey+1,w*.5,1.9,0,0,7);ctx.fill();
     ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx-.6,ey-1.2,1.1,0,7);ctx.fill();ctx.beginPath();ctx.arc(cx+1,ey+2,.5,0,7);ctx.fill();
-    ctx.strokeStyle=OL;ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(cx-w-.8,ey-3.4);ctx.quadraticCurveTo(cx,ey-4.8,cx+w+.8,ey-3.4);ctx.stroke();}
+    ctx.strokeStyle=OL;ctx.lineWidth=(L.body|0)===1?2.3:1.6;ctx.beginPath();ctx.moveTo(cx-w-.8,ey-3.4);ctx.quadraticCurveTo(cx,ey-4.8,cx+w+.8,ey-3.4);ctx.stroke();
+    if((L.body|0)===2){const o=k===f?1:-1;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(cx+o*(w+.4),ey-2.6);ctx.lineTo(cx+o*(w+2),ey-4);ctx.moveTo(cx+o*(w+.6),ey-1.4);ctx.lineTo(cx+o*(w+2.3),ey-2.2);ctx.stroke();}}
   ctx.fillStyle='rgba(240,120,120,.35)';for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(ex+k*6.5,hy+6.5,2.2,1.2,0,0,7);ctx.fill();}
   ctx.strokeStyle='#7a3a2a';ctx.lineWidth=1.1;ctx.beginPath();ctx.arc(ex,hy+7,1.4,.2,Math.PI-.2);ctx.stroke();
   // fringe: hair cap with zig-zag bangs, swept toward the facing side

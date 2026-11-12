@@ -97,7 +97,7 @@ function ingest(p){
   if(!o){o={peer:p.peer,rx:fin(s.x),ry:fin(s.y),seen:0,bubble:null,walkT:0};NET.others.set(p.peer,o);}
   o.n=clean(s.n,16)||'Traveller';o.cls=CLASSES[s.c]?s.c:'novice';o.z=ZONES[s.z]?s.z:'town';
   o.x=clamp(fin(s.x),0,4000);o.y=clamp(fin(s.y),0,4000);o.face=s.f<0?-1:1;netSnap(o,fin(s.ts),o.z!==o.lastZ);o.lastZ=o.z;{const lv=clamp(Math.floor(fin(s.lv)),1,99);if(!fresh&&o.lv&&lv>o.lv&&typeof otherLevelUp==='function')otherLevelUp(o,lv);o.lv=lv;}
-  o.moving=!!s.mv;o.sitting=!!s.st;o.back=!!s.b;o.look=lookDecode(s.lk);o.vd=s.vd?clean(s.vd,30):null;o.dead=!!s.d;o.wid=typeof s.w==='string'&&ITEMS[s.w]&&ITEMS[s.w].type==='weapon'?s.w:null;o.guest=!!p.guest;
+  o.moving=!!s.mv;o.sitting=!!s.st;o.back=!!s.b;o.look=lookDecode(s.lk);if(o.look&&(s.bt===1||s.bt===2))o.look.body=s.bt;o.vd=s.vd?clean(s.vd,30):null;o.dead=!!s.d;o.wid=typeof s.w==='string'&&ITEMS[s.w]&&ITEMS[s.w].type==='weapon'?s.w:null;o.guest=!!p.guest;
   {const hp0=o.hp;o.hurtT=(typeof hp0==='number'&&fin(s.hp)<hp0&&!s.d)?now:o.hurtT;if(s.d&&!o.wasDown)o.deadT=now;o.wasDown=!!s.d;}o.cs=typeof s.cs==='string'&&SKILLS[s.cs]?s.cs:null;o.rd=typeof rideRead==='function'?rideRead(s.rd):null;if(typeof bondRead==='function')bondRead(o,s);if(typeof groundRead==='function')groundRead(o,s);
   o.hat=typeof s.h==='string'&&ITEMS[s.h]&&ITEMS[s.h].type==='head'?s.h:null;o.fc=typeof s.fg==='string'&&ITEMS[s.fg]&&ITEMS[s.fg].type==='face'?s.fg:null;o.mo=typeof s.mg==='string'&&ITEMS[s.mg]&&ITEMS[s.mg].type==='mouth'?s.mg:null;o.ar=typeof s.ar==='string'&&ITEMS[s.ar]&&ITEMS[s.ar].type==='armor'?s.ar:null;o.hp=clamp(fin(s.hp),0,100);
   o.guild=typeof guildTag==='function'?guildTag(p.guild):null;o.id=clean(s.id,16)||null;o.zt=fin(s.zt);o.hd=!!s.hd;
@@ -235,7 +235,7 @@ function netTick(dt){
     if(o.moving||d>.5)o.walkT+=dt;if(Math.abs(dx-dy)>.3)o.face=sface(dx,dy);}
   if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+(NET.viaBroker?.15:.125);
   if(typeof netFresh==='function'){NET.hits=netFresh(NET.hits);NET.vh=netFresh(NET.vh);NET.evs=netFresh(NET.evs);}
-  const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,b:P.back?1:0,lk:lookCode(P.look),lv:P.lv,mv:P.moving?1:0,st:P.sitting?1:0,d:P.dead?1:0,
+  const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,b:P.back?1:0,lk:lookCode(P.look),bt:P.look&&P.look.body?P.look.body:0,lv:P.lv,mv:P.moving?1:0,st:P.sitting?1:0,d:P.dead?1:0,
     w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,fg:P.eq.face?P.eq.face.id:null,mg:P.eq.mouth?P.eq.mouth.id:null,ar:P.eq.armor?P.eq.armor.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),ch:NET.myChat,em:NET.myEmote||null,
     id:NET.myId,zt:NET.zt,vd:typeof TR!=='undefined'&&TR.vend?TR.vend.title:null,hd:document.hidden?1:0,hx:NET.hits};if(NET.sp&&NET.sp.length)s.sp=NET.sp;if(typeof groundPresence==='function'){const g=groundPresence();if(g)s.gz=g;}if(NET.vh&&NET.vh.length)s.hv=NET.vh;{const t=P.target;if(t&&!t.dead&&!t.pvp&&mobs[t.idx]===t)s.tg=t.idx;}if(loot.length&&typeof myGroundLoot==='function'){const gl=myGroundLoot();if(gl.length)s.gl=gl;}if(NET.dl&&NET.dl.length)s.dl=NET.dl;if(typeof petPresence==='function'){const pt=petPresence();if(pt)s.pt=pt;}if(typeof myTitle==='function'){const ti=myTitle();if(ti)s.ti=ti;}if(P.casting&&P.casting.id)s.cs=P.casting.id;if(typeof ridePresence==='function'){const rd=ridePresence();if(rd)s.rd=rd;}if(typeof bondPresence==='function'){s.bdv=1;const bd=bondPresence();if(bd)s.bd=bd;}
   if(!zoneHost()&&othersHere()&&mobs.length){s.ev=NET.evs;

@@ -422,9 +422,9 @@ function showBanner(a,b){const el=$('#zoneBanner');el.querySelector('b').textCon
 cv.addEventListener('contextmenu',ev=>{ev.preventDefault();if(!P||!running)return;const m=mobAt(screenAt(ev));if(m)openPanel('mob',m.d.id);});
 $('#tInfo').addEventListener('click',()=>{if(P&&P.target&&P.target.d&&MOBS[P.target.d.id])openPanel('mob',P.target.d.id);});
 let newLook=null,lookTouched=false;
-function setNewLook(lk,touched){newLook={style:lk.style,hair:lk.hair,eye:lk.eye,skin:lk.skin};if(touched)lookTouched=true;refreshCreator();}
+function setNewLook(lk,touched){newLook={style:lk.style,hair:lk.hair,eye:lk.eye,skin:lk.skin,body:lk.body|0};if(touched)lookTouched=true;refreshCreator();}
 function refreshCreator(){
-  $('#lkStyle').textContent=STYLE_NAMES[newLook.style];
+  $('#lkStyle').textContent=STYLE_NAMES[newLook.style];if($('#lkBuild'))$('#lkBuild').textContent=BUILD_NAMES[newLook.body|0];
   const fill=(id,list,key,label)=>{const el=$(id);if(!el.children.length)list.forEach((c,i)=>{const b=document.createElement('button');b.type='button';b.style.background=c;b.dataset.i=i;b.setAttribute('aria-label',`${label} ${i+1}`);
       b.addEventListener('click',()=>{sfx('click');setNewLook({...newLook,[key]:c},true);});el.appendChild(b);});
     [...el.children].forEach((b,i)=>b.classList.toggle('on',list[i]===newLook[key]));};
@@ -436,8 +436,9 @@ function drawLookPreview(){if(!newLook)return;const c=lookCtx;c.setTransform(1,0
 function initCreator(){
   setNewLook(lookFor('Wanderer'));
   $('#nameIn').addEventListener('input',()=>{if(!lookTouched)setNewLook(lookFor($('#nameIn').value.trim()||'Wanderer'));});
+  document.querySelectorAll('[data-build]').forEach(b=>b.addEventListener('click',()=>{sfx('click');setNewLook({...newLook,body:((newLook.body|0)+(+b.dataset.build)+3)%3},true);}));
   document.querySelectorAll('[data-style]').forEach(b=>b.addEventListener('click',()=>{sfx('click');setNewLook({...newLook,style:(newLook.style+(+b.dataset.style)+6)%6},true);}));
-  $('#lkRand').addEventListener('click',()=>{sfx('click');const r=a=>a[Math.floor(Math.random()*a.length)];setNewLook({style:Math.floor(Math.random()*6),hair:r(HAIRS),eye:r(EYES),skin:r(SKINS)},true);});
+  $('#lkRand').addEventListener('click',()=>{sfx('click');const r=a=>a[Math.floor(Math.random()*a.length)];setNewLook({style:Math.floor(Math.random()*6),hair:r(HAIRS),eye:r(EYES),skin:r(SKINS),body:Math.floor(Math.random()*3)},true);});
   $('#verT').textContent=`Embervale v${VERSION}`+(ROOM?` · private room "${ROOM}"`:'');}
 function boot(hot){
   initCreator();
