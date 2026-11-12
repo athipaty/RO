@@ -39,7 +39,7 @@ const SERVER=(()=>{const s=new URLSearchParams(location.search).get('server');re
 function serverRoom(){
   return (window.io?Promise.resolve():loadScript('https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js')).then(()=>new Promise((res,rej)=>{
     const sock=io(SERVER+'/embervale',{transports:['websocket'],auth:{token:ACC.token||undefined},reconnectionDelayMax:8000});
-    socialAttach(sock);if(typeof guildAttach==='function')guildAttach(sock);if(typeof modAttach==='function')modAttach(sock);if(typeof arenaAttach==='function')arenaAttach(sock);if(typeof guildwarAttach==='function')guildwarAttach(sock);
+    socialAttach(sock);if(typeof guildAttach==='function')guildAttach(sock);if(typeof modAttach==='function')modAttach(sock);if(typeof arenaAttach==='function')arenaAttach(sock);if(typeof guildwarAttach==='function')guildwarAttach(sock);if(typeof roomsAttach==='function')roomsAttach(sock);
     const seen=new Map();let cb=null,last=null,ready=false; // peer id -> latest {peer,presence,guest}
     const fail=setTimeout(()=>{if(!ready){ready=true;sock.close();rej(new Error('timeout'));}},9000);
     // players already in the channel arrive before the game listens, so hand them over when it does

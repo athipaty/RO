@@ -544,3 +544,5 @@ body.touchui #hotrows,body.touchui #hotbar #hbRows{display:none!important}
 body.ui-s #hotrows{zoom:.88}body.ui-l #hotrows{zoom:1.15}
 /* low HP: red glow around the screen edge, stronger as HP drops */
 #danger{position:fixed;inset:0;pointer-events:none;z-index:4;opacity:0;will-change:opacity;background:radial-gradient(ellipse at center,rgba(200,20,20,0) 58%,rgba(200,20,20,.55) 100%)}
+/* #48 chat rooms */
+#log.f-room>div:not(#logTabs):not(.l-room){display:none}.l-room{color:#9fd8e0}.l-room b{color:inherit}

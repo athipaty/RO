@@ -113,7 +113,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 45. M (server) Parties
 - [x] 46. M (server) Whispers and friends (block list still to do)
 - [x] 47. S Chat commands: /help /where /who /sit /stand /exp /roll /emotes /clear
-- [ ] 48. M (server) Chat rooms
+- [x] 48. M (server) Chat rooms (v0.69.0: /join, /part, /rooms, /room and a Room tab; across all regions)
 - [x] 49. L (server) Guilds with emblems (v0.20.0)
 - [x] 50. L (server) Guild war (v0.44.0: Emberkeep)
 - [x] 51. M (server) PvP arenas and duels (duels v0.21.0; Ember Arena with rankings v0.43.0)
