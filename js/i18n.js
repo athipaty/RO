@@ -77,7 +77,7 @@ const TH={
   'Hide the browser bar (landscape works too)':'ซ่อนแถบเบราว์เซอร์ (ใช้แนวนอนได้)','iPhone: Share → Add to Home Screen, then open it from the icon':'iPhone: แชร์ → เพิ่มไปยังหน้าจอโฮม แล้วเปิดจากไอคอน',
   'On iPhone: tap Share (the square with an arrow), then "Add to Home Screen". Open Embervale from that icon and it fills the whole screen.':'บน iPhone: แตะแชร์ (สี่เหลี่ยมมีลูกศร) แล้วเลือก "เพิ่มไปยังหน้าจอโฮม" เปิด Embervale จากไอคอนนั้นจะเต็มจอ',
   'Embervale is already running full screen from your Home Screen.':'Embervale เปิดเต็มจอจากหน้าจอโฮมอยู่แล้ว',
-  'Change':'เปลี่ยน','Move up':'เดินขึ้น','Move down':'เดินลง','Move left':'เดินซ้าย','Move right':'เดินขวา',
+  'Quick windows':'หน้าต่างด่วน','Quests (J)':'เควส (J)',  'Change':'เปลี่ยน','Move up':'เดินขึ้น','Move down':'เดินลง','Move left':'เดินซ้าย','Move right':'เดินขวา',
 };
 // messages with numbers or names in them
 const TH_PAT=[

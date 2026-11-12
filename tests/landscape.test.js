@@ -19,6 +19,9 @@ module.exports = async t => {
     t.ok(r.menuTop < 60, 'the round buttons sit in a row at the top');
     const fold = await ev(() => { document.getElementById('zName').click(); const slim = document.getElementById('minibox').classList.contains('slim'); document.getElementById('zName').click(); return slim; });
     t.ok(fold, 'tapping the region name folds the minimap away');
+    const quick = await ev(() => { const q = document.getElementById('quick'), r = q.getBoundingClientRect(), mb = document.getElementById('minibox').getBoundingClientRect();
+      q.querySelector('[data-open="skills"]').click(); const k = panelKind; closePanel(); return { n: q.querySelectorAll('.qk').length, beside: r.right <= mb.left + 2 && r.top < 60, k }; });
+    t.ok(quick.n === 4 && quick.beside && quick.k === 'skills', 'Stats, Skills, Equip and Quests buttons sit beside the minimap and open their windows');
     t.ok(errors.length === 0, 'no script errors' + errors.map(e => ': ' + e).join(''));
   } finally { await browser.close(); }
 };

@@ -701,8 +701,22 @@ body.touchui #actions>#rideBtn.none{opacity:.5}
   /* the round buttons sit in a small row at the top centre (free space between the status box and the map) */
   body.touchui #actions>.act:not(#atkBtn){position:fixed;top:max(8px,env(safe-area-inset-top));width:38px!important;height:38px!important;transform:translateX(-50%)}
   body.touchui #actions>.act:not(#atkBtn) .aic{width:19px;height:19px}
-  body.touchui #actions>#menuBtn{left:calc(50% - 69px)}body.touchui #actions>#autoBtn{left:calc(50% - 23px)}
-  body.touchui #actions>#rideBtn{left:calc(50% + 23px)}body.touchui #actions>#sitBtn{left:calc(50% + 69px)}
+  body.touchui #actions>#menuBtn{left:calc(42% - 69px)}body.touchui #actions>#autoBtn{left:calc(42% - 23px)}
+  body.touchui #actions>#rideBtn{left:calc(42% + 23px)}body.touchui #actions>#sitBtn{left:calc(42% + 69px)}
   body.touchui #actions>.act:not(#atkBtn):active{transform:translateX(-50%) scale(.94)}
   body.touchui #autoPick{top:56px!important}
+}
+/* phones: quick window buttons on the right, under the minimap */
+#quick{display:none}
+body.touchui #quick{display:flex;flex-direction:row;gap:7px;position:fixed;z-index:3}
+body.touchui #quick .qk{width:40px;height:40px;border-radius:50%;padding:0;display:grid;place-items:center;color:#f4e7c4;cursor:pointer;
+  background:radial-gradient(circle at 35% 28%,#2c3546,#0e121a 70%);border:2px solid #9c7a3e;box-shadow:0 0 0 1px #000,0 4px 10px rgba(0,0,0,.5)}
+body.touchui #quick .qk:active{transform:scale(.94)}
+body.touchui #quick .qk svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* the buff column moves left of the quick buttons */
+body.touchui #buffs.side{margin-top:50px}
+@media (orientation:landscape) and (max-height:520px){
+  body.touchui #quick{flex-direction:row;gap:6px}
+  body.touchui #quick .qk{width:34px;height:34px}body.touchui #quick .qk svg{width:16px;height:16px}
+  body.touchui #buffs.side{margin-top:0}
 }
