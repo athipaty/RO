@@ -10,6 +10,7 @@ module.exports = async t => {
       const m = mobs.find(m => m.d.id === 'sproutling'); m.d.drops = [['sap', 1], ['red', 1]];
       P.x = Z.spawn.x; P.y = Z.spawn.y; m.x = P.x + 34; m.y = P.y - 10;
       P.ach = { got: { kill1: 1 } }; // the first-kill achievement pays gold; leave it out of this check
+      if (typeof festNow === 'function') festNow = () => null; // festival tokens would add a drop
       const bag = P.inv.length, gold = P.gold; hurtMob(m, 99999, false, 'phys');
       return { n: loot.length, bag: P.inv.length === bag, gold: P.gold === gold }; });
     t.ok(drop.n === 3 && drop.bag && drop.gold, 'a kill drops items and gold on the ground, not straight into the bag');

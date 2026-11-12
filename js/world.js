@@ -41,6 +41,7 @@ function getZone(id){
     for(const b of B){for(let y=b.y;y<b.y+b.h;y++)for(let x=b.x;x<b.x+b.w;x++)set(x,y,5);zone.buildings.push(b);
       zone.npcs.push({...b.npc,x:(b.x+b.w/2)*TILE,y:(b.y+b.h)*TILE+20});}
     for(let y=14;y<18;y++)for(let x=25;x<31;x++)set(x,y,3); // the plaza pool around the great fountain
+    zone.npcs.push({name:'Seer Valen',role:'rebirth',col:'#e8c25a',hair:'#f4efe2',x:38.5*TILE,y:15*TILE});
     zone.portals.push({x:(W-2+.5)*TILE,y:21*TILE,to:'town',side:'east'});
     zone.spawn={x:(W-6)*TILE,y:21*TILE};
   } else if(D.theme==='town'){

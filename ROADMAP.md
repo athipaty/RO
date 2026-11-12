@@ -87,7 +87,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 ### Classes and skills
 - [x] 26. M Skill tree screen with prerequisites
 - [x] 27. L Second jobs (2 per class) with a job quest (v0.15.0)
-- [ ] 28. L Rebirth / third tier
+- [x] 28. L Rebirth / third tier (v0.66.0: rebirth at Seer Valen in Aurelmark, Lv 70 + advanced calling job 50; third-tier callings still to do)
 - [x] 29. M Support skills on other players (needs parties) (v0.18.0)
 - [x] 30. M Ground-target skills (v0.59.0: Thorn Snare, Ember Wall, Haven; area skills aim at the ground)
 - [x] 31. S Choose which skill level to cast (v0.27.0)
