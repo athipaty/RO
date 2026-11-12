@@ -135,7 +135,10 @@ function render(){
     else{const e=it.e;at(e.x,e.y,()=>{if(e===P)drawPlayer(P,P.eq.weapon&&P.eq.weapon.id);else if(e.d)drawMob(e);else drawNpc(e);});}};
   back.forEach(drawItem);
   // a building that hides your hero (you are behind it) fades so you can see through it
-  for(const b of [...Z.buildings].sort((a,c)=>(a.x+a.y)-(c.x+c.y))){const hide=bldHides(b,P.x,P.y);if(hide){ctx.save();ctx.globalAlpha=.45;}drawBuilding(b);if(hide)ctx.restore();}
+  let heroHidden=false;
+  for(const b of [...Z.buildings].sort((a,c)=>(a.x+a.y)-(c.x+c.y))){const hide=bldHides(b,P.x,P.y);if(hide){heroHidden=true;ctx.save();ctx.globalAlpha=.5;}drawBuilding(b);if(hide)ctx.restore();}
+  // your hero is never lost behind a building: drawn again on top, fully visible
+  if(heroHidden&&!P.dead)drawItem({e:P,x:P.x,y:P.y});
   front.forEach(drawItem);
   // target ring
   if(P.target&&!P.target.dead){const t=P.target;at(t.x,t.y,()=>{ctx.strokeStyle='rgba(255,90,70,.9)';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.lineDashOffset=-now*20;ctx.beginPath();ctx.ellipse(t.x,t.y+2,t.d.size+9,(t.d.size+9)*.5,0,0,7);ctx.stroke();ctx.setLineDash([]);});}

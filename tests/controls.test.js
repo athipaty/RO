@@ -36,6 +36,10 @@ module.exports = async t => {
     t.ok(/Sit/.test(sit.a) && /Stand up/.test(sit.c) && sit.changed, 'the rest button shows Sit, and Stand up (a standing figure) while sitting');
     const fade = await ev(() => { enterZone('capital', 'town'); const b = Z.buildings.find(x => x.name === 'Grand Library'); return { behind: bldHides(b, (b.x - .4) * TILE, (b.y + b.h * .6) * TILE), front: bldHides(b, (b.x + b.w / 2) * TILE, (b.y + b.h + 2) * TILE) }; });
     t.ok(fade.behind && !fade.front, 'a building fades when your hero is behind it, not when in front');
+    const redraw = await ev(async () => { enterZone('capital', 'town'); const b = Z.buildings.find(x => x.name === 'Gemcutter'); P.x = b.x * TILE - 30; P.y = (b.y + b.h * .5) * TILE; P.path = [];
+      let after = 0, built = false; const db = drawBuilding, dp = drawPlayer; drawBuilding = (...a) => { built = true; return db(...a); }; drawPlayer = (...a) => { if (built && a[0] === P) after++; return dp(...a); };
+      await new Promise(r => setTimeout(r, 300)); drawBuilding = db; drawPlayer = dp; return after; });
+    t.ok(redraw > 2, 'a hero hidden by a building is drawn again on top of it');
     t.ok(errors.length === 0, 'no script errors' + errors.map(e => ': ' + e).join(''));
   } finally { await browser.close(); }
 };
