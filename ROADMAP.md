@@ -124,7 +124,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 54. M NPC dialog windows with portraits and choices (v0.16.0)
 - [x] 55. M Quest log with tracking (v0.16.0)
 - [x] 56. M Daily hunting board (covered by Guildmaster Corvin's hunting contracts and the daily quests)
-- [ ] 57. M Seasonal events
+- [x] 57. M Seasonal events (v0.64.0: five festivals a year, tokens from monsters, Festival Keeper Pim trades limited hats and treats)
 - [x] 58. S Achievements and titles (v0.47.0: 23 achievements, titles under names, /ach)
 
 ### Interface

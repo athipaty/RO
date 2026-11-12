@@ -40,6 +40,7 @@ function getZone(id){
     // Stage 6: the Arena Master by the fountain sends players to the Ember Arena
     zone.npcs.push({name:'Arena Master Vexa',role:'arena',col:'#a8323a',hair:'#1c1c1c',x:24.5*TILE,y:14.5*TILE});
     zone.npcs.push({name:'Lune the Stylist',role:'stylist',col:'#d86a9a',hair:'#7a4fb0',x:13.5*TILE,y:13.5*TILE});
+    zone.npcs.push({name:'Festival Keeper Pim',role:'festival',col:'#e07ab0',hair:'#f0c040',x:22.5*TILE,y:10.5*TILE});
     zone.npcs.push({name:'Keep Herald Orrin',role:'keep',col:'#5a3a8a',hair:'#d8b060',x:24.5*TILE,y:17.5*TILE});
     zone.spawn={x:20*TILE,y:19*TILE};
   } else if(D.theme==='keep'){
