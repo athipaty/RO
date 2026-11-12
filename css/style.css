@@ -720,3 +720,9 @@ body.touchui #buffs.side{margin-top:50px}
   body.touchui #quick .qk{width:34px;height:34px}body.touchui #quick .qk svg{width:16px;height:16px}
   body.touchui #buffs.side{margin-top:0}
 }
+@media (orientation:landscape) and (max-height:520px){
+  /* Auto sits on the right, just above the skill and potion shortcuts */
+  body.touchui #actions>#autoBtn{left:auto!important;right:calc(max(10px,env(safe-area-inset-right)) + 86px)!important;top:118px!important;transform:none!important}
+  body.touchui #actions>#autoBtn:active{transform:scale(.94)}
+  body.touchui #actions>#menuBtn{left:calc(42% - 46px)}body.touchui #actions>#rideBtn{left:42%}body.touchui #actions>#sitBtn{left:calc(42% + 46px)}
+}
