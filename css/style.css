@@ -546,3 +546,10 @@ body.ui-s #hotrows{zoom:.88}body.ui-l #hotrows{zoom:1.15}
 #danger{position:fixed;inset:0;pointer-events:none;z-index:4;opacity:0;will-change:opacity;background:radial-gradient(ellipse at center,rgba(200,20,20,0) 58%,rgba(200,20,20,.55) 100%)}
 /* #48 chat rooms */
 #log.f-room>div:not(#logTabs):not(.l-room){display:none}.l-room{color:#9fd8e0}.l-room b{color:inherit}
+/* pictures in quests: monster, item (and who drops it), the person to talk to */
+.qobjs{display:flex;flex-direction:column;gap:3px}
+.qo{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.qo .qm{width:10px;text-align:center}
+.qpic{width:24px;height:24px;object-fit:contain;flex:none;border-radius:6px;background:rgba(255,255,255,.05);vertical-align:middle}
+.qfrom{color:var(--muted);font-size:.92em}.qfrom .qpic{width:18px;height:18px;margin:0 2px 0 4px;background:none}
+.qwait{color:var(--muted)}
+#qtrack{white-space:normal}#qtrack .qo{gap:4px}#qtrack .qpic{width:20px;height:20px}#qtrack .qfrom .qpic{width:15px;height:15px}

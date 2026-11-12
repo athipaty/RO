@@ -317,10 +317,10 @@ function targetNearest(keep){
   if(best){P.target=best;P.queued=null;P.npcGoal=null;P.sitting=false;}else addLog('No monsters nearby.');}
 $('#emoteBtn').addEventListener('click',()=>{audioInit();togglePanel('emote');});
 $('#autoBtn').addEventListener('click',()=>{if(!P)return;P.auto=!P.auto;$('#autoBtn').classList.toggle('on',P.auto);
-  addLog(P.auto?`Auto-hunt on: you fight the nearest monster and drink tonics when HP runs low. Collecting drops: ${P.autoLoot===false?'off':'on'} (the Loot button).`:'Auto-hunt off.',P.auto?'l-good':'l-sys');});
+  addLog(P.auto?`Auto-hunt on: you fight the nearest monster and drink tonics when HP runs low. Collecting drops: ${P.autoLoot===false?'only equipment, sigils and boss drops':'everything'} (the Loot button).`:'Auto-hunt off.',P.auto?'l-good':'l-sys');});
 // #auto-loot: whether auto-hunt walks over to collect drops (saved with the character; on by default)
-function setAutoLoot(on,quiet){if(!P)return;P.autoLoot=!!on;syncAutoLootBtn();if(!on&&P.lootGoal&&P.auto)P.lootGoal=null;if(!quiet)addLog(on?'Auto-hunt collects drops.':'Auto-hunt leaves drops on the ground (you can still click them to pick them up).');save();if(panelKind==='settings')refreshPanel();}
-function syncAutoLootBtn(){const b=$('#autoLootBtn');if(!b)return;const on=!P||P.autoLoot!==false;b.classList.toggle('on',on);b.setAttribute('aria-checked',String(on));b.title=`Auto-hunt collects drops: ${on?'on':'off'}`;}
+function setAutoLoot(on,quiet){if(!P)return;P.autoLoot=!!on;syncAutoLootBtn();if(!on&&P.lootGoal&&P.auto)P.lootGoal=null;if(!quiet)addLog(on?'Auto-hunt collects every drop.':'Auto-hunt now collects only equipment, sigils and boss drops, and leaves materials, tonics and gold (click them to pick them up yourself).');save();if(panelKind==='settings')refreshPanel();}
+function syncAutoLootBtn(){const b=$('#autoLootBtn');if(!b)return;const on=!P||P.autoLoot!==false;b.classList.toggle('on',on);b.setAttribute('aria-checked',String(on));b.title=on?'Auto-hunt collects every drop':'Auto-hunt collects only equipment, sigils and boss drops';b.textContent=on?'Loot':'Best';}
 $('#autoLootBtn').addEventListener('click',()=>{if(!P)return;sfx('click');setAutoLoot(P.autoLoot===false);});
 $('#atkBtn').addEventListener('click',()=>{audioInit();targetNearest(true);});
 $('#sitBtn').addEventListener('click',()=>{if(!P||P.dead)return;P.sitting=!P.sitting;P.path=[];P.target=null;});

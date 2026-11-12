@@ -127,8 +127,8 @@ function greeting(key){return {hollis:'The fountain has seen a lot of heroes com
   ysolde:'Step softly. The woods are listening.',kade:'Sand gets everywhere. Watch your footing.',brannoc:'Mind the sparks.',ilsa:'Welcome back, friend!'}[key]||'Well met, traveller.';}
 function questBox(id,reward){const q=QUESTS[id],r=q.reward;let h=`<div class="qbox">`;
   const on=!!QS().active[id];
-  if(q.obj.length)h+=`<div class="ds">${q.obj.map(o=>on?`${objHave(id,o)>=objNeed(o)?'✓':'·'} ${objText(id,o)}`:`· ${o.kill?`Defeat ${o.n} ${MOBS[o.kill].name}`:o.item?`Bring ${o.n} ${ITEMS[o.item].name}`:`Reach ${ZONES[o.visit].name}`}`).join('<br>')}${q.to!==q.from?`<br>· Then talk to ${npcName(q.to)}`:''}</div>`;
-  else if(q.to!==q.from)h+=`<div class="ds">Talk to ${npcName(q.to)}</div>`;
+  if(q.obj.length)h+=`<div class="ds qobjs">${q.obj.map(o=>objLineHTML(id,o,on)).join('')}${q.to!==q.from?npcLine(q.to,'Then talk to'):''}</div>`;
+  else if(q.to!==q.from)h+=`<div class="ds qobjs">${npcLine(q.to,'Talk to')}</div>`;
   h+=`<div class="ds qrew">Rewards: ${fmt(r.exp)} EXP · ${fmt(r.jexp)} job EXP · ${fmt(r.gold)} gold${(r.items||[]).map(([i,n])=>` · ${ITEMS[i].name}${n>1?' ×'+n:''}`).join('')}</div></div>`;return h;}
 PANEL_ACTS.tnext=()=>{talk.page++;refreshPanel();};
 PANEL_ACTS.tback=()=>{talk.id=null;talk.page=0;refreshPanel();};
@@ -150,7 +150,7 @@ PANEL_ACTS.qfinish=id=>{const q=QUESTS[id],s=QS();if(!qReady(id)||q.to!==talk.np
 PANELS.quests=()=>{const s=QS(),act=Object.keys(s.active);let h=`<h2>Quest log</h2><div class="sub">Pin a quest to see it in your status box. Talk to people with a <b class="gold">!</b> over their head for new quests.</div>`;
   if(!act.length)h+=`<p class="muted">No active quests. ${nextHint()}</p>`;
   for(const id of act){const q=QUESTS[id];h+=`<div class="row qrow"><div class="grow"><div class="nm">${q.name}${qReady(id)?' <span class="gold">· ready</span>':''}</div>`+
-    `<div class="ds">${q.obj.map(o=>`${objHave(id,o)>=objNeed(o)?'✓':'·'} ${objText(id,o)}`).join('<br>')}${q.obj.length?'<br>':''}${qReady(id)?`Return to ${npcName(q.to)}.`:esc(q.wait)}</div></div>`+
+    `<div class="ds qobjs">${q.obj.map(o=>objLineHTML(id,o,true)).join('')}${qReady(id)?npcLine(q.to,'Return to'):`<span class="qwait">${esc(q.wait)}</span>${q.to!==q.from||!q.obj.length?npcLine(q.to,'Then talk to'):''}`}</div></div>`+
     `<div class="qbtns"><button class="btn small${P.track===id?' on':''}" data-act="qtrack" data-arg="${id}">${P.track===id?'Pinned':'Pin'}</button><button class="btn small" data-act="qabandon" data-arg="${id}">Abandon</button></div></div>`;}
   const story=Object.keys(QUESTS).filter(id=>!QUESTS[id].daily),done=story.filter(id=>s.done.includes(id)).length;
   h+=`<h3>Story: The Ember Below</h3><div class="ds">${done}/${story.length} chapters complete${done===story.length?'. Hearthvale is safe, for now.':''}</div>`;
@@ -162,7 +162,10 @@ PANEL_ACTS.qabandon=id=>{delete QS().active[id];if(P.track===id)P.track=Object.k
 let qhudKey='';
 function questHud(){const el=document.getElementById('qtrack');if(!el||!P)return;const s=QS();let id=P.track;if(id&&!s.active[id])id=P.track=null;
   const txt=id?`${QUESTS[id].name}\n`+(qReady(id)?`Return to ${npcName(QUESTS[id].to)}`:QUESTS[id].obj.filter(o=>objHave(id,o)<objNeed(o)).map(o=>objText(id,o)).join('\n')||`Talk to ${npcName(QUESTS[id].to)}`):'';
-  if(txt===qhudKey)return;qhudKey=txt;el.hidden=!txt;el.textContent=txt;}
+  if(txt===qhudKey)return;qhudKey=txt;el.hidden=!txt;
+  if(!txt){el.textContent='';return;}
+  const q=QUESTS[id],open=q.obj.filter(o=>objHave(id,o)<objNeed(o));
+  el.innerHTML=`<b>${esc(q.name)}</b>`+(qReady(id)?npcLine(q.to,'Return to'):open.length?open.map(o=>objLineHTML(id,o,true)).join(''):npcLine(q.to,'Talk to'));}
 setInterval(()=>{if(running&&P)questHud();},500);
 
 /* ---- putting the quest NPCs into the world, and their markers ---- */

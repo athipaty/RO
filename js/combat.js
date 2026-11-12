@@ -44,7 +44,7 @@ function killMob(m){
 function dropLoot(m,id,o={}){
   let x=m.x,y=m.y;for(let k=0;k<6;k++){const a=rnd(0,7),r=rnd(14,36),tx=m.x+Math.cos(a)*r,ty=m.y+Math.sin(a)*r;if(canStand(tx,ty,4)){x=tx;y=ty;break;}}
   const rar=id?rarityOf(id):0;if(rar>=2&&!o.rare)announce('drop',id);
-  loot.push({id,gold:o.gold||0,rare:!!o.rare||rar>=2,x,y,fx:m.x,fy:m.y,t0:now+loot.length%6*.04,exp:now+120,uid:++lootId});}
+  loot.push({id,gold:o.gold||0,rare:!!o.rare||rar>=2,boss:!!(m&&m.d&&m.d.boss),x,y,fx:m.x,fy:m.y,t0:now+loot.length%6*.04,exp:now+120,uid:++lootId});}
 function pickUp(l){const i=loot.indexOf(l);if(i<0)return;
   if(!l.gold&&carryWeight()+itemWeight(l.id)>maxWeight()){l.tooHeavy=true;floatT(P.x,P.y-40,'Too heavy!','#ff9a6a',13);addLog(`You are carrying too much to pick up ${ITEMS[l.id].name}.`,'l-bad');return;}
   loot.splice(i,1);
@@ -191,12 +191,15 @@ function questKill(id){const q=P.quest;if(!q||q.mob!==id)return;q.have=Math.min(
   if(q.have>=q.need){P.quest=null;addLog(`Contract complete: ${q.need} ${MOBS[id].name}. Reward: ${fmt(q.exp)} EXP, ${fmt(q.gold)} gold.`,'l-rare');
     P.gold+=q.gold;sfx('fanfare');fx.push({k:'lvl',x:P.x,y:P.y-30,t0:now,dur:1.6,txt:'CONTRACT DONE',col:'#ffcf5a'});announce('quest',id);gainExp(q.exp,q.jexp);save();}
   refreshPanel();}
+// with the Loot switch off, auto-hunt still collects what matters: equipment, sigils (cards), rare finds and boss drops
+function lootMatters(l){if(!l||l.ghost)return false;if(l.boss||l.rare)return true;const it=l.id&&ITEMS[l.id];
+  return !!it&&(it.type==='sigil'||(typeof GEAR!=='undefined'?GEAR.includes(it.type):['weapon','armor','head','accessory','face','mouth'].includes(it.type)));}
 function autoHunt(){
   if(!P.auto||P.dead||Z.D.safe)return;
   const f=P.hp/S.maxhp;
   if(f<.4&&(P.cd.pot_hp||0)<=now){const pot=invFind('orange')?'orange':invFind('red')?'red':null;
     if(pot)useItem(pot);else if(f<.3){P.auto=false;$('#autoBtn').classList.remove('on');addLog('Auto-hunt paused: you are out of tonics. Rest with Sit or buy more in town.','l-bad');return;}}
-  if(P.autoLoot!==false&&(!P.target||P.target.dead)&&!P.path.length&&!P.lootGoal){let bl=null,bd=320;for(const l of loot)if(now>l.t0+.4&&!l.tooHeavy){const d=dist(l,P);if(d<bd){bd=d;bl=l;}}if(bl){goLoot(bl);return;}}
+  if((!P.target||P.target.dead)&&!P.path.length&&!P.lootGoal){let bl=null,bd=320;for(const l of loot)if(now>l.t0+.4&&!l.tooHeavy&&(P.autoLoot!==false||lootMatters(l))){const d=dist(l,P);if(d<bd){bd=d;bl=l;}}if(bl){goLoot(bl);return;}}
   if((!P.target||P.target.dead)&&!P.path.length&&f>=.3){let best=null,bd=650;for(const m of mobs)if(!m.dead){const d=dist(m,P);if(d<bd){bd=d;best=m;}}if(best){P.target=best;P.queued=null;P.sitting=false;P.holdPos=false;}}
 }
 
