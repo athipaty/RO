@@ -675,3 +675,4 @@ body.touchui #actions{bottom:calc(max(4px,env(safe-area-inset-bottom)) + 10px)}
 #logSay{flex:none;padding:0 7px!important;font-size:12px}
 body:not(.touchui) #logSay{display:none}
 body.touchui #actions>#chatBtn{display:none!important}
+body.touchui #actions>#rideBtn.none{opacity:.5}

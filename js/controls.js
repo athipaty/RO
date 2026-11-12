@@ -53,10 +53,13 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
 (()=>{const acts=$('#actions');if(!acts||$('#rideBtn'))return;const b=document.createElement('button');b.type='button';b.className='act';b.id='rideBtn';
   b.setAttribute('aria-label','Ride your mount (R)');b.title='Ride (R)';
   b.innerHTML='<svg class="aic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 20V11a6 6 0 0 1 12 0v9"/><path d="M4 20h4M16 20h4"/><circle cx="8.5" cy="12.5" r=".7"/><circle cx="15.5" cy="12.5" r=".7"/></svg><span class="atx">Ride</span>';
-  b.addEventListener('click',ev=>{ev.stopPropagation();if(typeof toggleRide==='function'){sfx('click');toggleRide();}});
+  b.addEventListener('click',ev=>{ev.stopPropagation();if(!P)return;const own=Array.isArray(P.mounts)&&P.mounts.length;
+    if(!own){sfx('click');floatT(P.x,P.y-50,'No mount yet','#ffe7a0',13);addLog("You don't have a mount yet. Tobin at the Waystation in Hearthvale keeps a stable (from Lv 10).",'l-sys');return;}
+    if(typeof toggleRide==='function'){sfx('click');toggleRide();}});
   const auto=$('#autoBtn');if(auto&&auto.parentElement===acts)auto.insertAdjacentElement('afterend',b);else acts.insertBefore(b,$('#chatBtn'));
   setInterval(()=>{const own=!!(P&&Array.isArray(P.mounts)&&P.mounts.length),on=typeof riding==='function'&&riding();
-    if(b.hidden===own)b.hidden=!own;if(b.classList.contains('on')!==on)b.classList.toggle('on',on);
+    // always shown on phones; dimmed until you own a mount
+    if(b.hidden)b.hidden=false;if(b.classList.contains('none')===own)b.classList.toggle('none',!own);if(b.classList.contains('on')!==on)b.classList.toggle('on',on);
     const auto2=$('#autoBtn');if(auto2&&auto2.parentElement===acts&&b.previousElementSibling!==auto2)auto2.insertAdjacentElement('afterend',b);},400);})();
 // ---- turning Auto on asks what to pick up (one quick card), instead of a separate Loot button ----
 (()=>{const card=document.createElement('div');card.id='autoPick';card.hidden=true;card.setAttribute('role','dialog');card.setAttribute('aria-label','Auto-hunt: what should it pick up?');
