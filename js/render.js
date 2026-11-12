@@ -435,12 +435,22 @@ function drawPlayerBody(P,wid){
   drawWeaponShape(w,ang);
   ctx.restore();
 }
-function drawNpc(n){const by=drawHuman(n.x,n.y,n.col,n.hair,1,0,{look:{...lookFor(n.name),hair:n.hair}});
+function drawNpc(n){const by=npcBody(n);
   const mk=typeof npcMark==='function'?npcMark(n):'svc';if(!mk)return;
-  const b=Math.sin(now*3)*2,big=mk==='offer'||mk==='ready',r=big?9:7;
-  ctx.fillStyle=mk==='busy'?'#9aa3b2':mk==='svc'?'#d8c08a':'#ffcf5a';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(n.x,by-48+b,r,0,7);ctx.fill();if(big)ctx.stroke();
-  if(mk==='svc'&&drawRoleIcon(n.role,n.x,by-48+b))return;
-  ctx.fillStyle='#2a2018';ctx.font=`800 ${big?14:11}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.fillText(mk==='offer'?'!':mk==='svc'?'…':'?',n.x,by-48+b+(big?5:4));}
+  const y=by-48+Math.sin(now*3)*2,sp=npcMarkSprite(mk,n.role);
+  if(sp){ctx.drawImage(sp.c,n.x-12,y-12,24,24);return;}
+  drawNpcMark(mk,n.role,n.x,y);}
+function drawNpcMark(mk,role,x,y){const big=mk==='offer'||mk==='ready',r=big?9:7;
+  ctx.fillStyle=mk==='busy'?'#9aa3b2':mk==='svc'?'#d8c08a':'#ffcf5a';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();if(big)ctx.stroke();
+  if(mk==='svc'&&drawRoleIcon(role,x,y))return;
+  ctx.fillStyle='#2a2018';ctx.font=`800 ${big?14:11}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.fillText(mk==='offer'?'!':mk==='svc'?'…':'?',x,y+(big?5:4));}
+// the marker over an NPC's head, drawn once per kind and zoom
+const MARK_SPR=new Map();
+function npcMarkSprite(mk,role){if(typeof SETS!=='undefined'&&SETS.npcLive)return null;const tr=ctx.getTransform(),sc=Math.max(1,Math.round((Math.hypot(tr.a,tr.b)||1)*4)/4),key=mk+'|'+(mk==='svc'?role:'')+'|'+sc.toFixed(3);
+  let sp=MARK_SPR.get(key);if(sp!==undefined)return sp;sp=null;
+  try{const c=document.createElement('canvas');c.width=Math.ceil(24*sc);c.height=Math.ceil(24*sc);const g=c.getContext('2d');
+    if(g){const oc=ctx;try{ctx=g;g.setTransform(sc,0,0,sc,0,0);drawNpcMark(mk,role,12,12);sp={c};}finally{ctx=oc;}}}catch(e){sp=null;}
+  if(MARK_SPR.size>200)MARK_SPR.clear();MARK_SPR.set(key,sp);return sp;}
 // a small picture of what an NPC does, drawn over their head (in a circle the colour of the marker)
 function drawRoleIcon(role,x,y){const c=ctx;c.save();c.translate(x,y);c.strokeStyle='#2a2018';c.fillStyle='#2a2018';c.lineWidth=1.3;c.lineCap='round';c.lineJoin='round';
   const P_=()=>{c.fill();};let ok=true;
@@ -613,3 +623,21 @@ function renderMini(){
 
 // a monster our hits just finished fades while the server confirms the kill
 {const _dm=drawMob;drawMob=function(m){if(!m.dying)return _dm.apply(this,arguments);ctx.save();ctx.globalAlpha*=Math.max(.25,1-(now-m.dying)*1.5);const r=_dm.apply(this,arguments);ctx.restore();return r;};}
+
+// Town NPCs stand still, so each one is drawn once into a small picture (eyes open, plus a blink frame) and that
+// picture is stamped every frame instead of redrawing ~60 shapes per NPC. Remade when the zoom or their look changes.
+const NPC_SPR=new Map();
+function npcBody(n){const L=lookFor(n.name);
+  if(typeof SETS!=='undefined'&&SETS.npcLive)return drawHuman(n.x,n.y,n.col,n.hair,1,0,{look:{...L,hair:n.hair}});
+  const tr=ctx.getTransform(),sc=Math.max(1,Math.round((Math.hypot(tr.a,tr.b)||1)*4)/4),blink=((now+L.seed)%4.2)<.12;
+  const key=n.name+'|'+n.col+'|'+n.hair+'|'+L.style+'|'+sc.toFixed(3)+'|'+(blink?1:0);
+  let sp=NPC_SPR.get(key);
+  if(sp===undefined){const OX=48,OY=104,W=96,H=124;sp=null;
+    try{const c=document.createElement('canvas');c.width=Math.ceil(W*sc);c.height=Math.ceil(H*sc);const g=c.getContext('2d');
+      if(g){const oc=ctx,on=now;try{ctx=g;g.setTransform(sc,0,0,sc,(OX-n.x)*sc,(OY-n.y)*sc);
+          now=420-L.seed+(blink?.05:1); // a moment with eyes open (or shut) and hair at rest
+          const by=drawHuman(n.x,n.y,n.col,n.hair,1,0,{look:{...L,hair:n.hair}});sp={c,dy:by-n.y,OX,OY,W,H};}
+        finally{ctx=oc;now=on;}}}catch(e){sp=null;}
+    if(NPC_SPR.size>400)NPC_SPR.clear();NPC_SPR.set(key,sp);}
+  if(!sp)return drawHuman(n.x,n.y,n.col,n.hair,1,0,{look:{...L,hair:n.hair}});
+  ctx.drawImage(sp.c,n.x-sp.OX,n.y-sp.OY,sp.W,sp.H);return n.y+sp.dy;}
