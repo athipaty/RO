@@ -669,3 +669,5 @@ body.touchui #actions>#rideBtn[hidden]{display:none!important}
 .cmi:focus-visible{outline:2px solid var(--accent)}
 /* phones: the chat box sits down at the bottom edge (just above the thin EXP bar) */
 body.touchui #log{bottom:calc(max(4px,env(safe-area-inset-bottom)) + 6px)}
+/* phones: the action buttons sit down near the bottom edge too */
+body.touchui #actions{bottom:calc(max(4px,env(safe-area-inset-bottom)) + 10px)}
