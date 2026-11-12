@@ -73,7 +73,11 @@ const TH={
   'Draws at lower resolution: smoother on slower phones. Switches on by itself if the game runs slowly':'วาดภาพที่ความละเอียดต่ำลง ลื่นขึ้นบนมือถือรุ่นช้า และจะเปิดเองถ้าเกมทำงานช้า',
   'Ride your mount (R)':'ขี่สัตว์พาหนะ (R)','Ride (R)':'ขี่ (R)',  'Auto-hunt: what should I pick up?':'ล่าอัตโนมัติ: จะให้เก็บอะไร?','Auto-hunt: what should it pick up?':'ล่าอัตโนมัติ: จะให้เก็บอะไร?','Everything':'ทุกอย่าง','Only valuable':'เฉพาะของมีค่า',
   'Materials, tonics, gold and gear':'วัตถุดิบ ยา โกลด์ และอุปกรณ์','Equipment, sigils, coloured items and boss drops':'อุปกรณ์ ซิจิล ไอเทมชื่อสี และของจากบอส',
-  'Stand up (X)':'ลุกขึ้น (X)','Stand':'ลุกขึ้น',  'Write a message':'เขียนข้อความ','Write a message (Enter)':'เขียนข้อความ (Enter)',  'No mount yet':'ยังไม่มีสัตว์พาหนะ',"You don't have a mount yet. Tobin at the Waystation in Hearthvale keeps a stable (from Lv 10).":'คุณยังไม่มีสัตว์พาหนะ โทบินที่สถานีเดินทางใน Hearthvale มีคอกสัตว์ (ตั้งแต่ Lv 10)',  'Change':'เปลี่ยน','Move up':'เดินขึ้น','Move down':'เดินลง','Move left':'เดินซ้าย','Move right':'เดินขวา',
+  'Stand up (X)':'ลุกขึ้น (X)','Stand':'ลุกขึ้น',  'Write a message':'เขียนข้อความ','Write a message (Enter)':'เขียนข้อความ (Enter)',  'No mount yet':'ยังไม่มีสัตว์พาหนะ',"You don't have a mount yet. Tobin at the Waystation in Hearthvale keeps a stable (from Lv 10).":'คุณยังไม่มีสัตว์พาหนะ โทบินที่สถานีเดินทางใน Hearthvale มีคอกสัตว์ (ตั้งแต่ Lv 10)',  '⛶ Full screen':'⛶ เต็มจอ',  'Full screen':'เต็มจอ','Full':'เต็มจอ','Exit full':'ออกเต็มจอ','Go full screen':'เปิดเต็มจอ','Exit full screen':'ออกจากเต็มจอ','Add to Home Screen':'เพิ่มไปยังหน้าจอโฮม',
+  'Hide the browser bar (landscape works too)':'ซ่อนแถบเบราว์เซอร์ (ใช้แนวนอนได้)','iPhone: Share → Add to Home Screen, then open it from the icon':'iPhone: แชร์ → เพิ่มไปยังหน้าจอโฮม แล้วเปิดจากไอคอน',
+  'On iPhone: tap Share (the square with an arrow), then "Add to Home Screen". Open Embervale from that icon and it fills the whole screen.':'บน iPhone: แตะแชร์ (สี่เหลี่ยมมีลูกศร) แล้วเลือก "เพิ่มไปยังหน้าจอโฮม" เปิด Embervale จากไอคอนนั้นจะเต็มจอ',
+  'Embervale is already running full screen from your Home Screen.':'Embervale เปิดเต็มจอจากหน้าจอโฮมอยู่แล้ว',
+  'Change':'เปลี่ยน','Move up':'เดินขึ้น','Move down':'เดินลง','Move left':'เดินซ้าย','Move right':'เดินขวา',
 };
 // messages with numbers or names in them
 const TH_PAT=[

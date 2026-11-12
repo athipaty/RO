@@ -676,3 +676,5 @@ body.touchui #actions{bottom:calc(max(4px,env(safe-area-inset-bottom)) + 10px)}
 body:not(.touchui) #logSay{display:none}
 body.touchui #actions>#chatBtn{display:none!important}
 body.touchui #actions>#rideBtn.none{opacity:.5}
+#fullOffer{position:fixed;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:25;padding:6px 14px;border-radius:999px;background:rgba(14,18,26,.95);border:1px solid rgba(240,181,74,.6);color:#ffe7a0;font:700 13px Inter,var(--ui);box-shadow:0 8px 20px rgba(0,0,0,.5)}
+#fullOffer[hidden]{display:none}

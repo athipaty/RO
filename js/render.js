@@ -52,6 +52,19 @@ function drawObj(o){
     return;}
   const sp=sprite(Z.D.theme,o.kind,o.v),p=proj(o.x,o.y),w=sp.c.width*o.sc,h=sp.c.height*o.sc;
   ctx.drawImage(sp.c,p.x-sp.ax*o.sc,p.y-sp.ay*o.sc,w,h);}
+// draw order for things standing in the world and the buildings between them (a small topological sort):
+// a point west or north of a building's footprint (x<X1 and y<Y1) is behind it; anything else near it is in front.
+// Among themselves, things go back to front (x+y). Buildings entirely west/north of another come first.
+function drawOrder(items,blds){const N=[];for(const it of items)N.push({it,k:it.x+it.y,deg:0,out:[]});
+  const B=blds.map(b=>({b,X0:b.x*TILE,Y0:b.y*TILE,X1:(b.x+b.w)*TILE,Y1:(b.y+b.h)*TILE,deg:0,out:[]}));for(const n of B){n.k=n.X0+n.Y0;N.push(n);}
+  for(const bn of B)for(const n of N){if(n.b||n.it.x<bn.X0-320||n.it.x>bn.X1+320||n.it.y<bn.Y0-320||n.it.y>bn.Y1+320)continue;
+    if(n.it.x<bn.X1&&n.it.y<bn.Y1){n.out.push(bn);bn.deg++;}else{bn.out.push(n);n.deg++;}}
+  for(const a of B)for(const c of B)if(a!==c&&(a.X1<=c.X0||a.Y1<=c.Y0)&&!(c.X1<=a.X0||c.Y1<=a.Y0)){a.out.push(c);c.deg++;}
+  const out=[],ready=N.filter(n=>!n.deg),done=new Set();
+  while(ready.length){let bi=0;for(let i=1;i<ready.length;i++)if(ready[i].k<ready[bi].k)bi=i;const n=ready.splice(bi,1)[0];out.push(n);done.add(n);
+    for(const m of n.out)if(--m.deg===0)ready.push(m);}
+  if(out.length<N.length)for(const n of N.slice().sort((a,c)=>a.k-c.k))if(!done.has(n))out.push(n); // a loop should not happen; draw the rest back to front
+  return out;}
 function bldHides(b,x,y){const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE;
   if(!(x<X1+6&&y<Y1+6&&x>X0-300&&y>Y0-300))return false; // only when you are on the far side of it
   const p=proj(x,y),l=proj(X0,Y1),r=proj(X1,Y0),f=proj(X1,Y1),top=proj(X0,Y0).y-112;
@@ -122,10 +135,7 @@ function render(){
     if(typeof ghostLoot==='function')for(const l of ghostLoot(o))if(now>=l.t0&&onScr(l.x,l.y))items.push({l,x:l.x,y:l.y});}
   if(typeof petItems==='function')for(const it of petItems())if(onScr(it.x,it.y))items.push(it);
   for(const ob of Z.objs){const p=proj(ob.x,ob.y);if(p.x>camX-90&&p.x<camX+VW+90&&p.y>camY-30&&p.y<camY+VH+130)items.push({ob,x:ob.x,y:ob.y});}
-  const back=[],front=[];
-  for(const it of items){let behind=false;for(const b of Z.buildings){const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE;
-      if(it.x<X1+6&&it.y<Y1+6&&it.x>X0-300&&it.y>Y0-300){behind=true;break;}}(behind?back:front).push(it);}
-  const byDepth=(a,b)=>(a.x+a.y)-(b.x+b.y);back.sort(byDepth);front.sort(byDepth);
+  const order=drawOrder(items,Z.buildings);
   const pp=proj(P.x,P.y);
   const drawItem=it=>{if(it.ob){const op=proj(it.ob.x,it.ob.y);const cover=!P.dead&&it.ob.x+it.ob.y>P.x+P.y&&Math.abs(op.x-pp.x)<34&&op.y-pp.y<95&&op.y>pp.y;
       if(cover){ctx.save();ctx.globalAlpha=.4;drawObj(it.ob);ctx.restore();}else drawObj(it.ob);}
@@ -133,13 +143,12 @@ function render(){
     else if(it.pet)at(it.pet.x,it.pet.y,()=>drawPet(it.pet));
     else if(it.o)at(it.o.rx,it.o.ry,()=>drawOther(it.o));
     else{const e=it.e;at(e.x,e.y,()=>{if(e===P)drawPlayer(P,P.eq.weapon&&P.eq.weapon.id);else if(e.d)drawMob(e);else drawNpc(e);});}};
-  back.forEach(drawItem);
-  // a building that hides your hero (you are behind it) fades so you can see through it
+  // everything in one pass, in an order that respects each building: what is behind a building is drawn
+  // before it, what is beside or in front of it after it. A building that would still hide your hero fades.
   let heroHidden=false;
-  for(const b of [...Z.buildings].sort((a,c)=>(a.x+a.y)-(c.x+c.y))){const hide=bldHides(b,P.x,P.y);if(hide){heroHidden=true;ctx.save();ctx.globalAlpha=.5;}drawBuilding(b);if(hide)ctx.restore();}
+  for(const n of order){if(n.b){const hide=bldHides(n.b,P.x,P.y);if(hide){heroHidden=true;ctx.save();ctx.globalAlpha=.5;}drawBuilding(n.b);if(hide)ctx.restore();}else drawItem(n.it);}
   // your hero is never lost behind a building: drawn again on top, fully visible
   if(heroHidden&&!P.dead)drawItem({e:P,x:P.x,y:P.y});
-  front.forEach(drawItem);
   // target ring
   if(P.target&&!P.target.dead){const t=P.target;at(t.x,t.y,()=>{ctx.strokeStyle='rgba(255,90,70,.9)';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.lineDashOffset=-now*20;ctx.beginPath();ctx.ellipse(t.x,t.y+2,t.d.size+9,(t.d.size+9)*.5,0,0,7);ctx.stroke();ctx.setLineDash([]);});}
   // projectiles
