@@ -97,4 +97,4 @@ function itemIconURL(id){if(!ICON_CACHE[id])ICON_CACHE[id]=itemIconCanvas(id).to
 // every window's item icon
 // items added by later modules (face gear, charms, festival prizes…) are tagged here the first time they are shown
 const itemIdOf=it=>{if(!it)return null;if(!it.id)for(const k in ITEMS)if(ITEMS[k]===it){it.id=k;break;}return it.id||null;};
-icon=function(it){if(!itemIdOf(it))return `<span class="ico"></span>`;return `<img class="ico img" src="${itemIconURL(it.id)}" alt="" width="30" height="30">`;};
+icon=function(it){if(!itemIdOf(it))return `<span class="ico"></span>`;return `<img class="ico img" data-item="${it.id}" src="${itemIconURL(it.id)}" alt="" width="30" height="30">`;};

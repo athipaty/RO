@@ -103,10 +103,12 @@ const HELP_TH={
   'tonics, scroll':'ยา, ม้วนคัมภีร์','windows':'หน้าต่าง','sit':'นั่ง','target':'เล็งเป้า','attack in place':'โจมตีอยู่กับที่','Drag a title':'ลากหัวหน้าต่าง','move a window':'ย้ายหน้าต่าง','world map':'แผนที่โลก',
   'Reach Job Lv 10, then talk to Guildmaster Corvin in Hearthvale to choose a calling and unlock its skill tree.':'ไปให้ถึงเลเวลอาชีพ 10 แล้วคุยกับหัวหน้ากิลด์คอร์วินในเฮิร์ธเวลเพื่อเลือกอาชีพและปลดล็อกต้นไม้สกิล',
   '· press 1–4 under a learned skill to put it on that hotbar key · right-click a hotbar skill (or Shift+1–4) to cast it at a lower level':'· กด 1–4 ใต้สกิลที่เรียนแล้วเพื่อใส่ในแถบลัดปุ่มนั้น · คลิกขวาที่สกิลในแถบลัด (หรือ Shift+1–4) เพื่อใช้ในเลเวลที่ต่ำกว่า',
+  'Dropped by':'ดรอปจาก','Store':'ร้านค้า','How to make it':'วิธีทำ','Used to make':'ใช้ทำ','Sold at the General Store for':'มีขายที่ร้านค้าทั่วไป ราคา','boss':'บอส',
+  'Not dropped by monsters. Look for it from quests, festivals, bosses or other players.':'มอนสเตอร์ไม่ดรอป ลองหาจากเควส เทศกาล บอส หรือผู้เล่นคนอื่น',
   'Learn':'เรียน','Level up':'อัปเลเวล','Mastered':'เชี่ยวชาญแล้ว',
   'Click minimap':'คลิกแผนที่เล็ก','bigger / smaller':'ใหญ่ขึ้น / เล็กลง','close':'ปิด'};
 if(typeof LANG!=='undefined'&&LANG==='th'){
-  Object.assign(TH,HELP_TH);TH_PAT.unshift([/^(.+) · Skill points:$/,(m,a)=>`${thText(a)} · แต้มสกิล:`]);
+  Object.assign(TH,HELP_TH);TH_PAT.unshift([/^→ (.*?)(at the smithy|anywhere \(\/craft\))$/,(m,a,b)=>`→ ${a.replace(/ gold · /,' โกลด์ · ')}${b==='at the smithy'?'ที่โรงตีเหล็ก':'ที่ไหนก็ได้ (/craft)'}`],[/^(.+) · Skill points:$/,(m,a)=>`${thText(a)} · แต้มสกิล:`]);
   for(const id in SKILL_TH){const sk=SKILLS[id];if(!sk)continue;TH[sk.name]=SKILL_TH[id][0];
     const d=sk.desc;if(typeof d==='function')sk.desc=function(){return thSkillDesc(id,d.apply(this,arguments));};else if(typeof d==='string')sk.desc=thSkillDesc(id,d);
     sk.name=SKILL_TH[id][0];}
