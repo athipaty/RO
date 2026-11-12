@@ -7,9 +7,9 @@ module.exports = async t => {
     await wait(800);
     const open = await g.ev(() => { sendChat('/craft'); return { k: panelKind, rows: panel.querySelectorAll('.craftrow').length, want: BREWS.length, txt: panel.textContent }; });
     t.ok(open.k === 'craft' && open.rows === open.want && /Brewing/.test(open.txt), `/craft opens Brewing with ${open.rows} recipes`);
-    const hint = await g.ev(() => { const row = [...panel.querySelectorAll('.craftrow')].find(r => r.textContent.includes('Red Tonic')); const cm = row.querySelector('.cm');
-      return { dis: row.querySelector('button').disabled, title: cm.title, txt: cm.textContent }; });
-    t.ok(hint.dis && /Sproutling/.test(hint.title) && /Sap Drop 0\/4/.test(hint.txt), 'without materials the button is off, and each material says who drops it');
+    const hint = await g.ev(() => { const row = [...panel.querySelectorAll('.craftrow')].find(r => r.textContent.includes('Red Tonic')); const cm = row.querySelector('.cmi');
+      return { dis: row.querySelector('button').disabled, title: cm.title, txt: cm.textContent, img: !!cm.querySelector('img') }; });
+    t.ok(hint.dis && /Sproutling/.test(hint.title) && /Sap Drop/.test(hint.title) && hint.img && /0\/4/.test(hint.txt), 'ingredients show as pictures with a have/need count; the name and who drops it are in the tooltip');
     // brew Red Tonics from sap
     const brew = await g.ev(() => { giveItem('sap', 9); const red0 = invFind('red').n, g0 = P.gold; refreshPanel();
       const row = [...panel.querySelectorAll('.craftrow')].find(r => r.textContent.includes('Red Tonic')); row.querySelector('button').click();

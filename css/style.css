@@ -659,3 +659,11 @@ body.touchui #actions>#rideBtn[hidden]{display:none!important}
 #autoPick .apI{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:17px;color:#ffcf5a;background:radial-gradient(circle at 35% 30%,#3a3220,#16120a);border:1px solid rgba(240,181,74,.5)}
 #autoPick .apOpt span{display:flex;flex-direction:column;gap:2px}#autoPick .apOpt span b{font:700 13.5px Inter,var(--ui)}#autoPick .apOpt span i{font:500 11.5px Inter,var(--ui);font-style:normal;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){#autoPick{transition:none}}
+/* crafting: ingredients as pictures with have/need counts (name and source in the tooltip) */
+.cms{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:4px}
+.cmi{position:relative;width:40px;height:40px;border-radius:9px;border:1px solid rgba(239,122,111,.55);background:rgba(239,122,111,.08);display:grid;place-items:center;cursor:help}
+.cmi.ok{border-color:rgba(127,211,138,.6);background:rgba(127,211,138,.08)}
+.cmi img{width:30px;height:30px;object-fit:contain}
+.cmi b{position:absolute;right:-4px;bottom:-5px;font:700 10px Inter,var(--ui);padding:1px 4px;border-radius:6px;background:rgba(10,12,16,.92);color:#ef7a6f;font-variant-numeric:tabular-nums}
+.cmi.ok b{color:#7fd38a}
+.cmi:focus-visible{outline:2px solid var(--accent)}

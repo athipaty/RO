@@ -52,6 +52,10 @@ function drawObj(o){
     return;}
   const sp=sprite(Z.D.theme,o.kind,o.v),p=proj(o.x,o.y),w=sp.c.width*o.sc,h=sp.c.height*o.sc;
   ctx.drawImage(sp.c,p.x-sp.ax*o.sc,p.y-sp.ay*o.sc,w,h);}
+function bldHides(b,x,y){const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE;
+  if(!(x<X1+6&&y<Y1+6&&x>X0-300&&y>Y0-300))return false; // only when you are on the far side of it
+  const p=proj(x,y),l=proj(X0,Y1),r=proj(X1,Y0),f=proj(X1,Y1),top=proj(X0,Y0).y-112;
+  return p.x>l.x-6&&p.x<r.x+6&&p.y-40<f.y&&p.y>top;}
 function drawBuilding(b){
   const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,H=60,RH=52,e=12,Xc=(X0+X1)/2,Yc=(Y0+Y1)/2;
   const P2=(x,y,h=0)=>{const p=proj(x,y);return{x:p.x,y:p.y-h};};
@@ -130,7 +134,8 @@ function render(){
     else if(it.o)at(it.o.rx,it.o.ry,()=>drawOther(it.o));
     else{const e=it.e;at(e.x,e.y,()=>{if(e===P)drawPlayer(P,P.eq.weapon&&P.eq.weapon.id);else if(e.d)drawMob(e);else drawNpc(e);});}};
   back.forEach(drawItem);
-  for(const b of [...Z.buildings].sort((a,c)=>(a.x+a.y)-(c.x+c.y)))drawBuilding(b);
+  // a building that hides your hero (you are behind it) fades so you can see through it
+  for(const b of [...Z.buildings].sort((a,c)=>(a.x+a.y)-(c.x+c.y))){const hide=bldHides(b,P.x,P.y);if(hide){ctx.save();ctx.globalAlpha=.45;}drawBuilding(b);if(hide)ctx.restore();}
   front.forEach(drawItem);
   // target ring
   if(P.target&&!P.target.dead){const t=P.target;at(t.x,t.y,()=>{ctx.strokeStyle='rgba(255,90,70,.9)';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.lineDashOffset=-now*20;ctx.beginPath();ctx.ellipse(t.x,t.y+2,t.d.size+9,(t.d.size+9)*.5,0,0,7);ctx.stroke();ctx.setLineDash([]);});}

@@ -68,7 +68,7 @@ PANELS.craft=()=>{if(panelArg==='forge'){CRAFT.tab='forge';panelArg=null;}
   if(forge&&!atSmithy())h+=`<div class="arbox">You can look at the recipes here, but forging needs Brannoc's anvil at the Smithy in Hearthvale.</div>`;
   h+=list.map((r,i)=>{const [out,n,mats,gold]=r,it=ITEMS[out],ok=canMake(r)&&(!forge||atSmithy());
     const stats=it.type==='use'?it.desc:typeof itemDesc==='function'?itemDesc({id:out,s:Array(it.slots||0).fill(null)}):'';
-    const need=Object.entries(mats).map(([id,k])=>{const have=haveN(id),from=dropFrom(id);return `<span class="cm ${have>=k?'ok':''}" title="${esc(from.length?'Dropped by '+from.join(', '):'')}">${esc(ITEMS[id].name)} ${Math.min(have,k)}/${k}</span>`;}).join('');
+    const need=Object.entries(mats).map(([id,k])=>{const have=haveN(id),from=dropFrom(id);const tip=ITEMS[id].name+(from.length?' · dropped by '+from.join(', '):'');return `<span class="cmi ${have>=k?'ok':''}" title="${esc(tip)}" aria-label="${esc(tip+': '+Math.min(have,k)+' of '+k)}" tabindex="0"><img src="${itemIconURL(id)}" alt=""><b>${Math.min(have,k)}/${k}</b></span>`;}).join('');
     return `<div class="row craftrow">${icon({id:out})}<div class="grow"><div class="nm">${esc(it.name)}${n>1?` <span class="muted">×${n}</span>`:''}${it.lv>1?` <span class="muted">· Lv ${it.lv}+</span>`:''}</div><div class="ds">${esc(stats)}</div><div class="cms">${need}${gold?`<span class="cm ${P.gold>=gold?'ok':''}">${fmt(gold)} gold</span>`:''}</div></div>`+
       `<button class="btn small" data-act="craftmake" data-arg="${forge?'f':'b'}:${i}" ${ok?'':'disabled'}>${forge?'Forge':'Brew'}</button></div>`;}).join('');
   return h;};
@@ -90,3 +90,5 @@ drawItemIcon=function(g,id){const it=ITEMS[id];if(!it||!it.brew)return _drawItem
   g.beginPath();g.moveTo(13,8);g.lineTo(19,8);g.lineTo(19,12);g.arc(16,20,9,-Math.PI/2+.35,Math.PI*1.5-.35);g.closePath();g.fillStyle='rgba(255,255,255,.25)';g.fill();g.stroke();
   g.beginPath();g.arc(16,20,7.5,0,Math.PI);g.lineTo(8.5,18);g.quadraticCurveTo(16,15,23.5,18);g.closePath();g.fillStyle=it.col;g.fill();
   g.fillStyle='rgba(255,255,255,.6)';g.beginPath();g.ellipse(12.5,17,1.6,2.6,.4,0,7);g.fill();};
+// phones: tap an ingredient picture to hear its name and where it drops (no hover on a touch screen)
+document.addEventListener('click',ev=>{const c=ev.target.closest&&ev.target.closest('.cmi');if(!c)return;const t=c.getAttribute('title');if(t)floatT(P.x,P.y-50,t.split(' · ')[0],'#ffe7a0',13),addLog(t,'l-sys');});

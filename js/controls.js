@@ -30,7 +30,7 @@ const ICONS={
   menuBtn:'<path d="M4 7h16M4 12h16M4 17h16"/>',
   autoBtn:'<path d="M20 12a8 8 0 0 1-14 5.3M4 12a8 8 0 0 1 14-5.3"/><path d="M18 3v4h-4M6 21v-4h4"/>',
   chatBtn:'<path d="M4 6h16v10H9l-5 4z"/>',
-  sitBtn:'<path d="M15 4a7 7 0 1 0 5 12A8 8 0 0 1 15 4z"/>',
+  sitBtn:'<circle cx="9" cy="5" r="2.2"/><path d="M9 8v6h6v6M9 10l4 2M5 21h14"/>',
   emoteBtn:'<circle cx="12" cy="12" r="8"/><path d="M9 14c1.5 1.6 4.5 1.6 6 0"/><circle cx="9.5" cy="10" r=".6"/><circle cx="14.5" cy="10" r=".6"/>',
   atkBtn:'<path d="M5 19l9-9M14 4h6v6l-9 9-3-3"/><path d="M5 15l4 4M3 21l3-3"/>'};
 for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id);if(!b)continue;const label=b.textContent.trim();
@@ -78,3 +78,8 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
     if(b){if(!P||!running||P.auto)return;ev.stopImmediatePropagation();ev.preventDefault();if(card.hidden)open();else close();return;}
     if(!card.hidden&&!ev.target.closest('#autoPick'))close();},true);
   addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!card.hidden){ev.stopImmediatePropagation();close();}},true);})();
+// ---- the rest button shows what it will do: a seated person (sit) or a standing one (stand up) ----
+(()=>{const b=$('#sitBtn');if(!b)return;const svg=b.querySelector('svg.aic'),tx=b.querySelector('.atx');if(!svg)return;
+  const SIT='<circle cx="9" cy="5" r="2.2"/><path d="M9 8v6h6v6M9 10l4 2M5 21h14"/>',STAND='<circle cx="12" cy="4" r="2.2"/><path d="M12 7v7M12 14l-3 7M12 14l3 7M12 9l-4 3M12 9l4 3"/><path d="M18 9l2-2 2 2" />';
+  let was=null;setInterval(()=>{const sit=!!(P&&P.sitting);if(sit===was)return;was=sit;svg.innerHTML=sit?STAND:SIT;const t=sit?'Stand up (X)':'Sit to rest (X)';
+    b.setAttribute('aria-label',t);b.dataset.tip=t;if(tx)tx.textContent=sit?'Stand':'Sit';b.classList.toggle('on',sit);},250);})();
