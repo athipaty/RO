@@ -111,5 +111,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(typeof label==='function'){const _l=label;label=function(txt,...r){return _l(thText(String(txt)),...r);};}}
   // a small switch on the title screen
   const t=document.getElementById('title');if(t&&!document.getElementById('langBtn')){const b=document.createElement('button');b.id='langBtn';b.type='button';b.className='btn small ghost';
-    b.textContent=LANG==='th'?'English':'ภาษาไทย';b.setAttribute('aria-label',LANG==='th'?'Switch to English':'เปลี่ยนเป็นภาษาไทย');b.addEventListener('click',()=>setLang(LANG==='th'?'en':'th'));t.appendChild(b);}
+    b.textContent=LANG==='th'?'English':'ภาษาไทย';b.setAttribute('aria-label',LANG==='th'?'Switch to English':'เปลี่ยนเป็นภาษาไทย');b.addEventListener('click',()=>setLang(LANG==='th'?'en':'th'));
+    // in the title bar, next to About Embervale (so it never sits on top of anything)
+    const about=t.querySelector('.aboutLink');if(about)about.insertAdjacentElement('afterend',b);else t.appendChild(b);}
 },{once:true});

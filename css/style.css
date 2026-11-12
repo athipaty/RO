@@ -644,4 +644,5 @@ body.touchui #actions>#emoteBtn,body.touchui #actions>#muteBtn{display:none!impo
 /* Thai: Noto Sans Thai fills in the Thai letters behind the usual fonts */
 :root{--ui:"Alegreya Sans","Noto Sans Thai","Trebuchet MS",system-ui,sans-serif}
 html[lang="th"] body,html[lang="th"] button,html[lang="th"] input{font-family:Inter,"Noto Sans Thai",system-ui,sans-serif}
-#langBtn{position:absolute;top:12px;right:12px;z-index:5}
+#langBtn{flex:none;margin-left:8px;padding:3px 10px;font-size:12px;white-space:nowrap}
+@media (max-width:760px){#langBtn{margin-left:6px;padding:2px 8px;font-size:11px}}
