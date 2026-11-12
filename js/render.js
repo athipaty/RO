@@ -101,6 +101,7 @@ function render(){
   if(clickMark&&now-clickMark.t<.5)at(clickMark.x,clickMark.y,()=>{const a=1-(now-clickMark.t)/.5;ctx.strokeStyle=`rgba(255,240,180,${a})`;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(clickMark.x,clickMark.y,14*(1.5-a),7*(1.5-a),0,0,7);ctx.stroke();});
   // ground effects
   for(const f of fx){if(f.k==='warn')at(f.x,f.y,()=>{const a=(now-f.t0)/f.dur;ctx.fillStyle=`rgba(255,80,40,${.12+.18*a})`;ctx.strokeStyle='rgba(255,120,60,.8)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(f.x,f.y,f.r*1.1,f.r*.55,0,0,7);ctx.fill();ctx.stroke();});}
+  if(typeof drawGround==='function')drawGround();
   // entities sorted
   // everything that stands up, sorted back-to-front (x+y is depth in this view)
   const items=[];for(const m of mobs)if(!m.dead)items.push({e:m,x:m.x,y:m.y});for(const n of Z.npcs)items.push({e:n,x:n.x,y:n.y});items.push({e:P,x:P.x,y:P.y});
