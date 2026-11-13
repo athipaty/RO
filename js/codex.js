@@ -12,7 +12,7 @@ const CODEX_ABS=[['atk','ATK'],['matk','MATK'],['def','DEF'],['maxhp','Max HP'],
 const codexAbName=k=>(CODEX_ABS.find(a=>a[0]===k)||[k,k.toUpperCase()])[1];
 function codexKills(){return (typeof achData==='function'?achData().kk:(P.ach&&P.ach.kk))||{};}
 function codexAll(){const kk=codexKills();
-  return Object.values(MOBS).filter(m=>m.sig&&ITEMS[m.id+'_sig']&&(!m.world||kk[m.id])).map(m=>({id:m.id+'_sig',m,kind:m.sig.kind,b:m.sig.b||{},ch:m.sigChance||.02}));}
+  return Object.values(MOBS).filter(m=>m.sig&&ITEMS[m.id+'_sig']&&(!m.world||kk[m.id])).map(m=>({id:m.id+'_sig',m,kind:m.sig.kind,b:m.sig.b||{},ch:m.sigChance||SIG_CHANCE}));}
 // how many of a sigil you have: loose (bag + storage) and socketed in gear (worn, bag, storage)
 function codexOwned(id){let loose=0,sock=0;
   for(const e of [...P.inv,...(P.storage||[])]){if(e.id===id&&e.n!==undefined)loose+=e.n;if(Array.isArray(e.s))sock+=e.s.filter(v=>v===id).length;}

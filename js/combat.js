@@ -41,7 +41,7 @@ function killMob(m){
   questKill(m.d.id);
   if(m.d.boss)announce('boss',m.d.id);
   if(!serverSim())for(const [id,ch] of m.d.drops)if(Math.random()<ch)dropLoot(m,id);
-  if(!serverSim()&&Math.random()<(m.d.sigChance||.02)){dropLoot(m,m.d.id+'_sig',{rare:true});addLog(`A ${m.d.name} Sigil dropped! Pick it up.`,'l-rare');sfx('rare');announce('sig',m.d.id);fx.push({k:'beam',x:m.x,y:m.y,t0:now,dur:1.6});}
+  if(!serverSim()&&Math.random()<(m.d.sigChance||SIG_CHANCE)){dropLoot(m,m.d.id+'_sig',{rare:true});addLog(`A ${m.d.name} Sigil dropped! Pick it up.`,'l-rare');sfx('rare');announce('sig',m.d.id);fx.push({k:'beam',x:m.x,y:m.y,t0:now,dur:1.6});}
   if(m.d.boss&&!m.d.world){const r=(m.d.respawn||180)/60;addLog(`The ${m.d.name} has been defeated! It will rise again in ${Math.round(r*2)/2} minutes.`,'l-rare');}
   // monsters drop items, not gold (sell the loot instead); bosses still drop a gold pouch
   if(!serverSim()&&m.d.boss)dropLoot(m,null,{gold:Math.round(m.d.lv*rnd(1.5,3)*8)});
@@ -58,7 +58,7 @@ function pickUp(l){const i=loot.indexOf(l);if(i<0)return;
 function lootAt(sc){let best=null,bd=1e9;const pad=touchPick?26:15;for(const l of loot){const q=proj(l.x,l.y),d=Math.hypot(q.x-sc.x,q.y-6-sc.y);if(d<pad&&d<bd){bd=d;best=l;}}return best;}
 function goLoot(l){P.target=null;P.queued=null;P.npcGoal=null;P.lootGoal=l;if(dist(P,l)<30){pickUp(l);P.lootGoal=null;}else pathTo(l.x,l.y,true);}
 function dropText(d){const pc=c=>{const v=c*100;return(v>=10||v===Math.round(v)?Math.round(v):v.toFixed(1))+'%';};
-  return [...d.drops.map(([id,c])=>`${ITEMS[id].name} ${pc(c)}`),`Sigil ${pc(d.sigChance||.02)}`].join(' · ');}
+  return [...d.drops.map(([id,c])=>`${ITEMS[id].name} ${pc(c)}`),`Sigil ${pc(d.sigChance||SIG_CHANCE)}`].join(' · ');}
 function hurtPlayer(dmg,src){
   if(P.dead)return;P.hp-=dmg;P.sitting=false;P.hurtT=now;interruptCast();if(P.ail&&P.ail.sleep)delete P.ail.sleep;fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});sfx('hurt');floatT(P.x,P.y-30,fmt(dmg),'#ff6a5a',16);
   if(P.hp<=0){P.hp=0;die(src);}

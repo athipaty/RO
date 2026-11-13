@@ -2,7 +2,7 @@
 // which monsters drop it (with their picture, level, region and drop chance), where to buy it and what it makes.
 function itemDropSources(id){const out=[];
   for(const m of Object.values(MOBS)){for(const [d,ch] of m.drops||[])if(d===id)out.push({m,ch});}
-  if(/_sig$/.test(id)){const m=MOBS[id.slice(0,-4)];if(m)out.push({m,ch:m.sigChance||.02});}
+  if(/_sig$/.test(id)){const m=MOBS[id.slice(0,-4)];if(m)out.push({m,ch:m.sigChance||SIG_CHANCE});}
   return out.sort((a,b)=>b.ch-a.ch||a.m.lv-b.m.lv);}
 function itemMobWhere(m){if(typeof ZONES==='undefined')return '';return Object.values(ZONES).filter(z=>z.mobs&&z.mobs.some(([t])=>t===m.id)).map(z=>z.name).join(', ');}
 const pctTxt=ch=>{const p=ch*100;return (p>=10?Math.round(p):p>=1?Math.round(p*10)/10:Math.round(p*100)/100)+'%';};
