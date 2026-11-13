@@ -893,3 +893,14 @@ body.touchui #partyBox .pmr{grid-template-columns:minmax(52px,1fr) 46px auto aut
   body.touchui #partyBox:not(.fold) .phd .btn.small{font-size:10px;padding:1px 6px!important;min-height:22px}
   body.touchui #partyBox .pmr{padding:1px 0}
 }
+/* phones: the shortcut page button (js/hotpage.js) */
+#hotPage{position:fixed;z-index:3;width:40px;height:40px;border-radius:50%;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;
+  color:#ffe7a0;background:radial-gradient(circle at 35% 28%,#3a3220,#120e07 72%);border:2px solid #c9a050;box-shadow:0 0 0 1px #000,0 4px 10px rgba(0,0,0,.5);transition:opacity .45s ease,transform .45s ease}
+#hotPage[hidden]{display:none}
+#hotPage b{font:800 15px/1 Inter,var(--ui)}
+#hotPage .dots{display:flex;gap:3px}#hotPage .dots i{width:4px;height:4px;border-radius:50%;background:rgba(255,231,160,.3)}#hotPage .dots i.on{background:#ffcf5a;box-shadow:0 0 4px #ffcf5a}
+#hotPage:active{transform:scale(.92)}
+#hotPage.flip b{animation:hpFlip .28s ease-out}
+@keyframes hpFlip{0%{transform:rotateX(90deg);opacity:.2}100%{transform:none;opacity:1}}
+#hotPage:focus-visible{outline:2px solid var(--accent,#f0b54a);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){#hotPage.flip b{animation:none}}
