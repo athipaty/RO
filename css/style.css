@@ -946,3 +946,9 @@ body.touchui #partyBox .pmr{grid-template-columns:minmax(52px,1fr) 46px auto aut
   body.touchui #panel .eqslot .ds{-webkit-line-clamp:1}
   body.touchui #panel:has(.eqgrid) .sub{display:none}
 }
+/* General Store: gold and live weight in the header */
+.shopstat{display:flex;flex-direction:column;align-items:flex-end;gap:3px;font-variant-numeric:tabular-nums}
+.shopwt{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:11.5px;color:var(--muted)}
+.shopwt i{display:block;width:96px;height:4px;border-radius:2px;background:linear-gradient(90deg,#7fd38a var(--f),rgba(255,255,255,.12) var(--f))}
+.shopwt.warn{color:#e8a33d}.shopwt.warn i{background:linear-gradient(90deg,#e8a33d var(--f),rgba(255,255,255,.12) var(--f))}
+.shopwt.bad{color:#ef7a6f}.shopwt.bad i{background:linear-gradient(90deg,#ef7a6f var(--f),rgba(255,255,255,.12) var(--f))}

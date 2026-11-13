@@ -48,6 +48,10 @@ const panel=$('#panel');let panelKind=null,panelArg=null,shopTab='buy';
 const itemCat=id=>{const t=ITEMS[id].type;return t==='use'?'use':t==='sigil'?'sigil':t==='etc'?'etc':'equip';};
 const CAT_TABS=[['use','Use'],['equip','Equip'],['sigil','Sigils'],['etc','Etc']];
 let shopCat='use';
+// the store's live weight: carried / max, a thin bar, orange near the limit, red when too heavy
+function shopWeightHtml(){const w=carryWeight(),m=maxWeight(),f=m?w/m:0,cls=f>=.9?'bad':f>=.7?'warn':'';
+  const lbl=(typeof LANG!=='undefined'&&LANG==='th'?'น้ำหนัก':'Weight')+` ${fmt(w)} / ${fmt(m)}`;
+  return `<span class="shopwt ${cls}" title="${lbl}"><span>${lbl}</span><i style="--f:${Math.min(100,f*100).toFixed(0)}%"></i></span>`;}
 // General Store, Equip tab: sub-tabs by gear type, like the forge (remembered)
 let shopGear=(()=>{try{return localStorage.getItem('embervale.shopGear')||'all';}catch(e){return 'all';}})();
 const GEAR_TABS=[['weapon','Weapon'],['armor','Armour'],['head','Head'],['accessory','Accessory'],['face','Face'],['mouth','Mouth']];
@@ -181,7 +185,7 @@ function refreshPanel(){
   }
   else if(panelKind==='shop'){
     h+=`<h2>General Store</h2><div class="say">“Tonics, steel and sturdy cloth. And I'll buy whatever you dragged out of the wilds.” — Ilsa</div>`;
-    h+=`<div class="tabs"><button class="btn small ${shopTab==='buy'?'on':''}" data-act="tab" data-arg="buy">Buy</button><button class="btn small ${shopTab==='sell'?'on':''}" data-act="tab" data-arg="sell">Sell</button><span class="gold" style="margin-left:auto">${fmt(P.gold)} gold</span></div>`;
+    h+=`<div class="tabs"><button class="btn small ${shopTab==='buy'?'on':''}" data-act="tab" data-arg="buy">Buy</button><button class="btn small ${shopTab==='sell'?'on':''}" data-act="tab" data-arg="sell">Sell</button><span class="shopstat" style="margin-left:auto"><span class="gold">${fmt(P.gold)} gold</span>${shopWeightHtml()}</span></div>`;
     // type tabs under Buy / Sell: Use, Equip, Sigils, Etc (only the ones that have something)
     {const ids=shopTab==='buy'?SHOP:P.inv.map(e=>e.id);const cnt={};for(const id of ids){const c=itemCat(id);cnt[c]=(cnt[c]||0)+1;}
       const tabs=CAT_TABS.filter(([k])=>cnt[k]);if(tabs.length&&!cnt[shopCat])shopCat=tabs[0][0];
