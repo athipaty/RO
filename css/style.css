@@ -682,7 +682,7 @@ body.touchui #actions>#rideBtn.none{opacity:.5}
 @media (orientation:landscape) and (max-height:520px){
   /* status box: small and see-through; name, HP, SP and levels only (unfold for the rest) */
   body.touchui #hud{width:168px;padding:5px 8px;background:rgba(14,18,26,.42);border-color:rgba(255,255,255,.06);box-shadow:none;backdrop-filter:none}
-  body.touchui #hud .name{font-size:13px}body.touchui #hud .cls,body.touchui #hud #gold,body.touchui #hud #weight,body.touchui #hud #party,body.touchui #hud #quest{display:none!important}
+  body.touchui #hud .name{font-size:13px}body.touchui #hud .cls,body.touchui #hud #gold,body.touchui #hud #party,body.touchui #hud #quest{display:none!important}
   body.touchui #hud .bar{height:10px}body.touchui #hud .bar span{font-size:9.5px;line-height:10px}
   /* minimap: small and see-through; tap the region name to fold it to just the name */
   body.touchui #minibox{padding:4px 6px;background:rgba(14,18,26,.42);border-color:rgba(255,255,255,.06);box-shadow:none;backdrop-filter:none}
@@ -904,3 +904,5 @@ body.touchui #partyBox .pmr{grid-template-columns:minmax(52px,1fr) 46px auto aut
 @keyframes hpFlip{0%{transform:rotateX(90deg);opacity:.2}100%{transform:none;opacity:1}}
 #hotPage:focus-visible{outline:2px solid var(--accent,#f0b54a);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){#hotPage.flip b{animation:none}}
+/* phones sideways: keep the weight line (small), it turns orange with a warning when too heavy */
+@media (orientation:landscape) and (max-height:520px){body.touchui #hud #weight{display:block!important;font-size:10px;line-height:1.2;margin-top:2px}}
