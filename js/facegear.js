@@ -29,6 +29,9 @@ function drawFaceGear(fc,mo,x,hy,f){const ex=x+f*2.6,ey=hy+2.5;ctx.save();ctx.li
     case 'sunshades':ctx.fillStyle='#16161c';for(const k of [-1,1]){ctx.beginPath();ctx.roundRect(ex+k*4.8-3.6,ey-2.6,7.2,5,2);ctx.fill();}
       ctx.strokeStyle='#16161c';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(ex-1.2,ey-1.5);ctx.lineTo(ex+1.2,ey-1.5);ctx.stroke();
       ctx.fillStyle='rgba(255,255,255,.35)';for(const k of [-1,1]){ctx.fillRect(ex+k*4.8-2.4,ey-1.8,2,1);}break;
+    case 'monocle':{const mx=ex+f*4.8;ctx.strokeStyle='#d8b050';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(mx,ey,3.8,0,7);ctx.stroke();
+      ctx.fillStyle='rgba(200,230,255,.3)';ctx.beginPath();ctx.arc(mx,ey,3.3,0,7);ctx.fill();ctx.fillStyle='rgba(255,255,255,.7)';ctx.beginPath();ctx.arc(mx-1.2,ey-1.2,.9,0,7);ctx.fill();
+      ctx.strokeStyle='#c8a040';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(mx+f*3.6,ey+1);ctx.quadraticCurveTo(mx+f*6,ey+6,mx+f*3,ey+10);ctx.stroke();break;}
   }
   const my=hy+7.5;
   switch(mo){
@@ -37,6 +40,9 @@ function drawFaceGear(fc,mo,x,hy,f){const ex=x+f*2.6,ey=hy+2.5;ctx.save();ctx.li
     case 'tinwhistle':ctx.strokeStyle='#c0c8d0';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ex+f*1,my);ctx.lineTo(ex+f*8,my+1.5);ctx.stroke();ctx.fillStyle='#5a6068';ctx.beginPath();ctx.arc(ex+f*5,my+.6,.7,0,7);ctx.fill();break;
     case 'trailscarf':ctx.fillStyle='#b0503a';ctx.strokeStyle='#5a2418';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-12,hy+4.5);ctx.quadraticCurveTo(x,hy+3.5,x+12,hy+4.5);ctx.lineTo(x+10,hy+11);
       ctx.quadraticCurveTo(x,hy+13,x-10,hy+11);ctx.closePath();ctx.fill();ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.25)';ctx.beginPath();ctx.moveTo(x-9,hy+8);ctx.quadraticCurveTo(x,hy+9.5,x+9,hy+8);ctx.stroke();break;
+    case 'windscarf':{const fl=Math.sin(now*4)*1.2;ctx.fillStyle='#7fc8d8';ctx.strokeStyle='#3a7888';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-12,hy+4.5);ctx.quadraticCurveTo(x,hy+3.5,x+12,hy+4.5);ctx.lineTo(x+10,hy+10.5);
+      ctx.quadraticCurveTo(x,hy+12.5,x-10,hy+10.5);ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x-f*9,hy+8);ctx.quadraticCurveTo(x-f*16,hy+9+fl,x-f*21,hy+6+fl*1.6);ctx.lineTo(x-f*20,hy+10+fl);ctx.quadraticCurveTo(x-f*15,hy+12,x-f*8,hy+11);ctx.closePath();ctx.fill();ctx.stroke();break;}
     case 'emberpipe':ctx.strokeStyle='#a06a3a';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(ex+f*1,my);ctx.lineTo(ex+f*10,my+2.5);ctx.stroke();
       ctx.fillStyle=`rgba(255,${140+Math.sin(now*5)*40|0},60,.9)`;ctx.beginPath();ctx.arc(ex+f*10.5,my+2.7,1.4,0,7);ctx.fill();break;
   }

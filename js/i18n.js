@@ -12,6 +12,7 @@ const TH={
   'Appearance':'รูปลักษณ์','Build':'รูปร่าง','Hair':'ทรงผม','Color':'สี','Eyes':'ดวงตา','Skin':'สีผิว','Surprise me':'สุ่มให้หน่อย','Standard':'มาตรฐาน','Broad':'บึกบึน','Slender':'เพรียว',
   'Spiky':'ผมตั้ง','Long':'ผมยาว','Ponytail':'หางม้า','Twin tails':'แกละคู่','Bob':'บ็อบ','Curly':'หยิก',
   'Account':'บัญชี','Log in':'เข้าสู่ระบบ','Log out':'ออกจากระบบ','Create account':'สร้างบัญชี','Username':'ชื่อผู้ใช้','Password':'รหัสผ่าน','Signed in as':'เข้าสู่ระบบในชื่อ',
+  'Passive':'ติดตัว','Crit damage':'ความเสียหายคริติคอล','Cast time':'เวลาร่าย','Double attack':'โจมตีสองครั้ง','Damage taken':'ความเสียหายที่ได้รับ','Healing':'การรักษา','Double!':'สองครั้ง!',
   'Characters':'ตัวละคร','Empty slot':'ช่องว่าง','New character':'ตัวละครใหม่','Delete this character':'ลบตัวละครนี้','Delete':'ลบ','Keep':'เก็บไว้',
   'Up to three characters. They all share one storage at the Warehouse and the Royal Bank.':'สร้างได้สูงสุดสามตัวละคร ทุกตัวใช้คลังเก็บของร่วมกันที่โกดังและธนาคารหลวง',
   'Delete this character? This cannot be undone.':'ลบตัวละครนี้? ย้อนกลับไม่ได้','Character deleted.':'ลบตัวละครแล้ว','Loading your characters…':'กำลังโหลดตัวละคร…',

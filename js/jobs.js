@@ -140,8 +140,8 @@ PANEL_ACTS.promote=arg=>{if(!trialDone()||!JOB2[arg]||JOB2[arg].base!==P.cls)ret
 
 /* ---- hotbar: choose which four skills sit on keys 1–4 ---- */
 function hotSkills(){const c=CLASSES[P.cls],all=c.skills;let h=Array.isArray(P.hot)?P.hot.slice(0,4):null;
-  if(h)h=h.map(s=>s&&all.includes(s)?s:null);
-  if(!h||!h.some(Boolean)){h=all.slice(0,4);}
+  if(h)h=h.map(s=>s&&all.includes(s)&&SKILLS[s].kind!=='passive'?s:null);
+  if(!h||!h.some(Boolean)){h=all.filter(s=>SKILLS[s].kind!=='passive').slice(0,4);}
   while(h.length<4)h.push(null);return h;}
 PANEL_ACTS.hot=arg=>{const[id,i]=arg.split(':');if(!SKILLS[id]||!P.skills[id]||!(+i>=0&&+i<4))return;const h=hotSkills();
   const was=h.indexOf(id);if(was>=0)h[was]=h[+i];h[+i]=id;P.hot=h;rebuildHotbar();refreshPanel();save();};

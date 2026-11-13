@@ -70,9 +70,9 @@ function skillTiers(list){let h='';const tiers=[];for(const id of list){const d=
       const el=SKILL_ELEM[id];
       h+=`<div class="snode${locked?' locked':''}${l?' has':''}"><div class="snh">${typeof skillIconURL==='function'?`<img class="ico img sk" src="${skillIconURL(id)}" alt="">`:`<span class="ico" style="background:${sk.col}">${sk.g}</span>`}<div class="grow"><div class="nm">${sk.name}</div>`+
         `<div class="slv">Lv ${l}/${sk.max}${el?` · <span style="color:${ELEM[el].col}">${ELEM[el].name}</span>`:''}${CAST[id]?' · cast':''}${sk.party?' · <span style="color:#8fe0a8">party</span>':''}</div></div></div>`+
-        `<div class="ds">${l?sk.desc(castLv(id)):sk.desc(1)} · ${l?sk.sp(castLv(id)):sk.sp(nl)} SP</div>`+
+        `<div class="ds">${l?sk.desc(castLv(id)):sk.desc(1)} · ${sk.kind==='passive'?'<span style="color:#8fe0a8">Passive</span>':(l?sk.sp(castLv(id)):sk.sp(nl))+' SP'}</div>`+
         (locked?`<div class="sreq">Needs ${miss.join(' and ')}</div>`:'')+
-        `<div class="srow"><button class="btn small" data-act="learn" data-arg="${id}" ${locked||!P.skillPts||l>=sk.max?'disabled':''}>${l>=sk.max?'Mastered':l?'Level up':'Learn'}</button>${hotPicker(id)}</div>${castLvPicker(id)}</div>`;}
+        `<div class="srow"><button class="btn small" data-act="learn" data-arg="${id}" ${locked||!P.skillPts||l>=sk.max?'disabled':''}>${l>=sk.max?'Mastered':l?'Level up':'Learn'}</button>${sk.kind==='passive'?'':hotPicker(id)}</div>${sk.kind==='passive'?'':castLvPicker(id)}</div>`;}
     h+=`</div>`;});
   return h;}
 // the element each damaging skill uses (shown in the tree)

@@ -6,7 +6,7 @@
    from the earlier layout (skills on 1–4, potions and the scroll on 5–8). */
 const BAR_N=8;
 let barSel=0;
-const barSkillOk=id=>!!(SKILLS[id]&&CLASSES[P.cls].skills.includes(id));
+const barSkillOk=id=>!!(SKILLS[id]&&SKILLS[id].kind!=='passive'&&CLASSES[P.cls].skills.includes(id));
 const barItemOk=id=>!!(ITEMS[id]&&ITEMS[id].type==='use');
 function barEntry(e){if(!e||typeof e!=='object')return null;if(typeof e.s==='string'&&barSkillOk(e.s))return {s:e.s};if(typeof e.i==='string'&&barItemOk(e.i))return {i:e.i};return null;}
 function getBar(){
@@ -52,7 +52,7 @@ PANELS.hotbar=()=>{const b=getBar(),c=CLASSES[P.cls];
   let h=`<h2>Hotbar</h2><div class="sub">Pick a slot, then tap a skill or an item to put it there. Something already on the bar swaps places.${matchMedia('(pointer:fine)').matches?' You can also drag slots onto each other, or drag from this list onto the bar.':''}</div>`;
   h+=`<div class="hbslots" role="radiogroup" aria-label="Hotbar slots">`+b.map((e,i)=>`<button class="hbs${i===barSel?' on':''}" role="radio" aria-checked="${i===barSel}" data-act="hbsel" data-arg="${i}" title="Slot ${i+1}: ${esc(nameOf(e))}">${icon(e)}<em>${i+1}</em></button>`).join('')+`</div>`;
   h+=`<div class="tbtns" style="justify-content:flex-start;margin:6px 0"><span class="muted" style="font-size:12px">Slot ${barSel+1}: <b>${esc(nameOf(b[barSel]))}</b></span>${b[barSel]?`<button class="btn small" data-act="hbclear">Clear slot</button>`:''}</div>`;
-  const skills=c.skills.filter(id=>P.skills[id]);
+  const skills=c.skills.filter(id=>P.skills[id]&&SKILLS[id].kind!=='passive');
   const on=k=>b.some(x=>x&&(x.s?'s:'+x.s:'i:'+x.i)===k);
   h+=`<h3>Skills</h3>`+(skills.length?`<div class="hbpick">`+skills.map(id=>`<button class="hbp${on('s:'+id)?' used':''}" draggable="true" data-bar="s:${id}" data-act="hbput" data-arg="s:${id}" title="${esc(SKILLS[id].name)}">${icon({s:id})}<span>${esc(SKILLS[id].name)}</span></button>`).join('')+`</div>`:`<div class="sub">No skills learned yet. Learn them in the Skills window (K).</div>`);
   const items=[...new Set(P.inv.filter(e=>barItemOk(e.id)).map(e=>e.id)),...['red','orange','blue','scroll'].filter(id=>ITEMS[id])];

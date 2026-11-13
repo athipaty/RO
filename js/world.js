@@ -203,19 +203,22 @@ function computeStats(){
   for(const slot of ['weapon','armor','accessory','head','face','mouth']){const e=P.eq[slot];if(!e)continue;const it=ITEMS[e.id];
     addB(b,{atk:it.atk||0,matk:it.matk||0,def:it.def||0});addB(b,it.b);addB(b,refineBonus(e));for(const s of e.s)if(s)addB(b,ITEMS[s].b);}
   for(const k in P.buffs)addB(b,P.buffs[k].b);
+  if(typeof passiveB==='function')addB(b,passiveB()); // passive skills (js/builds.js)
   const st={};for(const k of STATS)st[k]=P.st[k]+(b[k]||0);
   const w=P.eq.weapon?ITEMS[P.eq.weapon.id]:null, bow=w&&w.wt==='bow';
   const s={...st};
   s.maxhp=Math.round(((35+lv*11)*(1+st.vit*.012)*c.hp+(b.maxhp||0))*(1+(b.hppct||0)/100));
-  s.maxsp=Math.round((10+lv*2.5)*(1+st.int*.012)*c.sp+st.int*.6+(b.maxsp||0));
-  s.atk=Math.round((bow?st.dex+(st.dex/10|0)**2+st.str/5:st.str+(st.str/10|0)**2+st.dex/5)+st.luk/5+lv/4+(b.atk||0));
-  s.matk=Math.round(st.int+(st.int/7|0)**2+lv/4+(b.matk||0));
+  s.maxsp=Math.round(((10+lv*2.5)*(1+st.int*.012)*c.sp+st.int*.6+(b.maxsp||0))*(1+(b.sppct||0)/100));
+  s.atk=Math.round(((bow?st.dex+(st.dex/10|0)**2+st.str/5:st.str+(st.str/10|0)**2+st.dex/5)+st.luk/5+lv/4+(b.atk||0))*(1+(b.atkpct||0)/100));
+  s.matk=Math.round((st.int+(st.int/7|0)**2+lv/4+(b.matk||0))*(1+(b.matkpct||0)/100));
   s.def=Math.round((b.def||0)+st.vit/2);
   s.hit=Math.round(lv+st.dex+(b.hit||0)); s.flee=Math.round(lv+st.agi+(b.flee||0)); s.crit=+(1+st.luk*.3+(b.crit||0)).toFixed(1);
-  s.delay=Math.max(.3,(1.5-st.agi*.011-st.dex*.003)*c.aspd);
+  s.delay=Math.max(.3,(1.5-st.agi*.011-st.dex*.003)*c.aspd/(1+(b.aspd||0)/100));
+  // build stats (js/builds.js): % faster casting, extra crit damage, double attack chance, damage taken cut, healing power
+  s.cast=Math.min(70,b.cast||0);s.critdmg=b.critdmg||0;s.dbl=Math.min(60,b.dbl||0);s.dmgred=Math.min(50,b.dmgred||0);s.heal=b.healpct||0;
   s.magic=!!c.magic; s.ranged=bow||!!c.magic;
   s.range=c.magic?175:bow?235:44;
-  s.speed=145; s.regen=s.maxhp*.004+st.vit*.08+(b.regen||0); s.spregen=s.maxsp*.006+st.int*.05;
+  s.speed=145; s.regen=s.maxhp*.004+st.vit*.08+(b.regen||0); s.spregen=s.maxsp*.006+st.int*.05+(b.spregen||0);
   return s;
 }
 

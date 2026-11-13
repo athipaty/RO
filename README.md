@@ -43,6 +43,7 @@ Play online: https://ro-six-bay.vercel.app/ (add `?room=yourname` to the link fo
 - Rare **sigils**: every monster can drop one. Socket it into gear with a free slot for a permanent bonus.
 - The town of Hearthvale has a shop (buy and sell), a guild hall (class change), a chapel (free heal) and a waystation (fast travel)
 - Minimap, hotbar, sitting to regenerate, death penalty, and autosave (to the server when logged in, otherwise to this device)
+- **Builds**: every first job has about 10 skills (passives plus attacks that grow with one stat) but earns only 49 skill points, so heroes of the same job play differently: a STR axe Warden, an AGI crit duelist or a VIT wall; an INT nuker, a DEX quick-caster or a Mana Shield battle mage; a DEX double-shot archer, a LUK crit sniper or an AGI skirmisher; a mace battle priest, a guardian or a healer. Gear, forged pieces and brews add attack speed, cast speed, crit damage, double attack, damage reduction and healing power to push a build further.
 - **Three character slots** per account (or per device for guests), all sharing one storage at the Warehouse and the Royal Bank. Switch characters from Settings.
 - **Original soundtrack**: a theme for each region plus a boss battle theme, synthesised live with the Web Audio API (no audio files)
 - **Sound effects** for hits, misses, magic, arrows, level-ups, loot and rare sigil drops, plus a ringing critical hit with screen shake

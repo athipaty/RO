@@ -79,7 +79,7 @@ function togglePanel(kind){if(panelKind===kind)closePanel();else openPanel(kind)
 function icon(it){return `<span class="ico" style="background:${it.col}">${it.g}</span>`;}
 function itemDesc(e){const it=ITEMS[e.id];const bits=[];
   if(it.atk)bits.push(`ATK ${it.atk}`);if(it.matk)bits.push(`MATK ${it.matk}`);if(it.def)bits.push(`DEF ${it.def}`);
-  if(it.b)for(const k in it.b)bits.push(`${k.toUpperCase().replace('MAXHP','Max HP').replace('MAXSP','Max SP')} +${it.b[k]}`);
+  if(it.b)for(const k in it.b)bits.push(typeof bonusLabel==='function'&&bonusLabel(k,it.b[k])||`${k.toUpperCase().replace('MAXHP','Max HP').replace('MAXSP','Max SP')} +${it.b[k]}`);
   if(rarityOf(e.id))bits.push(RARITY[rarityOf(e.id)].name);if(e.r){const rb=refineBonus(e);bits.push(Object.keys(rb).map(k=>`${k.toUpperCase()} +${rb[k]}`).join(', ')+' (refine)');}
   if(it.lv>1)bits.push(`Lv ${it.lv}+`);if(it.wt)bits.push(it.wt);
   if(e.s&&e.s.length)bits.push('Slots: '+e.s.map(s=>s?ITEMS[s].name.replace(' Sigil',''):'empty').join(', '));
@@ -93,7 +93,7 @@ function refreshPanel(){
     h+=`<div class="sub">Stat points: <span class="gold">${P.statPts}</span>${typeof ACH!=='undefined'?` · <button class="btn small" data-act="openach">★ Achievements &amp; titles</button>`:''}</div>`;
     for(const k of STATS){const v=P.st[k],bonus=S[k]-v,cost=statCost(v);
       h+=`<div class="st"><b>${k.toUpperCase()}</b><span class="muted" style="font-size:12px">${STAT_DESC[k]}</span><span>${v}${bonus?`<span class="gold"> +${bonus}</span>`:''}</span><button class="btn small" data-act="stat" data-arg="${k}" ${P.statPts<cost||v>=99?'disabled':''} title="Costs ${cost} points">+${cost>2?' ('+cost+')':''}</button></div>`;}
-    h+=`<h3>Combat</h3><div class="dv"><div><span>ATK</span><span>${S.atk}</span></div><div><span>Attacks/sec</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Weight</span><span>${fmt(carryWeight())}/${fmt(maxWeight())}</span></div><div><span>MATK</span><span>${S.matk}</span></div><div><span>DEF</span><span>${S.def}</span></div><div><span>HIT</span><span>${S.hit}</span></div><div><span>FLEE</span><span>${S.flee}</span></div><div><span>CRIT</span><span>${S.crit}%</span></div><div><span>Attacks/s</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Range</span><span>${S.range}px</span></div>`+(typeof WSIZE==='function'||typeof WSIZE==='object'?`<div><span>Vs size S/M/L</span><span>${WSIZE[weaponType()].join(' / ')}%</span></div>`:'')+`</div>`;
+    h+=`<h3>Combat</h3><div class="dv"><div><span>ATK</span><span>${S.atk}</span></div><div><span>Attacks/sec</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Weight</span><span>${fmt(carryWeight())}/${fmt(maxWeight())}</span></div><div><span>MATK</span><span>${S.matk}</span></div><div><span>DEF</span><span>${S.def}</span></div><div><span>HIT</span><span>${S.hit}</span></div><div><span>FLEE</span><span>${S.flee}</span></div><div><span>CRIT</span><span>${S.crit}%</span></div><div><span>Attacks/s</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Range</span><span>${S.range}px</span></div>`+(S.critdmg?`<div><span>Crit damage</span><span>${150+S.critdmg}%</span></div>`:'')+(S.cast?`<div><span>Cast time</span><span>−${S.cast}%</span></div>`:'')+(S.dbl?`<div><span>Double attack</span><span>${S.dbl}%</span></div>`:'')+(S.dmgred?`<div><span>Damage taken</span><span>−${S.dmgred}%</span></div>`:'')+(S.heal?`<div><span>Healing</span><span>+${S.heal}%</span></div>`:'')+(typeof WSIZE==='function'||typeof WSIZE==='object'?`<div><span>Vs size S/M/L</span><span>${WSIZE[weaponType()].join(' / ')}%</span></div>`:'')+`</div>`;
     h+=`<h3>Equipment</h3>`;
     for(const slot of ['head','face','mouth','weapon','armor','accessory']){const e=P.eq[slot];
       h+=`<div class="row">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="nm">${e?ITEMS[e.id].name:'<span class="muted">No '+slot+'</span>'}</div><div class="ds">${e?itemDesc(e):''}</div></div>${e?`<button class="btn small" data-act="unequip" data-arg="${slot}">Remove</button>`:''}</div>`;}
@@ -381,6 +381,9 @@ function snapshot(){if(!P)return null;
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;
   // the shared storage lives with the account (or the device), not in the character
   if(CS.shared){if(CS.oldSt)o.storage=CS.oldSt;else{o.storage=[];o.sharedSt=1;}}
+  // where you stand, and buffs still running (as seconds left: the game clock restarts with every page)
+  o.pos={x:Math.round(P.x),y:Math.round(P.y)};
+  o.savedBuffs={};for(const k in P.buffs){const f=P.buffs[k];if(k.startsWith('__')||!f||!(f.until-now>1))continue;o.savedBuffs[k]={name:f.name,left:Math.round(f.until-now),b:f.b,from:f.from};}
   if(typeof pendingEscrow==='function'){const ex=pendingEscrow();if(ex.items.length||ex.gold){o.inv=[...P.inv,...ex.items];o.gold=P.gold+ex.gold;}}
   return {v:1,p:JSON.parse(JSON.stringify(o))};}
 function save(force){const s=snapshot();if(!s)return;
@@ -514,6 +517,11 @@ function startWith(data){
   S=computeStats();if(!data||P.hp<=0){P.hp=S.maxhp;P.sp=S.maxsp;}
   $('#title').hidden=true;running=true;rebuildHotbar();
   enterZone(data&&ZONES[P.zone]?P.zone:'town');
+  if(data){const pos=data.p.pos,sb=data.p.savedBuffs;delete P.pos;delete P.savedBuffs;
+    // back where you logged out, if that spot is still open ground in the same region
+    if(pos&&ZONES[data.p.zone]&&zoneId===data.p.zone&&Number.isFinite(pos.x)&&Number.isFinite(pos.y)&&!blockedT(Math.floor(pos.x/TILE),Math.floor(pos.y/TILE))){P.x=pos.x;P.y=pos.y;P.path=[];}
+    // buffs keep the time they had left
+    if(sb&&typeof sb==='object'){P.buffs={};for(const k in sb){const f=sb[k];if(f&&f.left>0&&f.b&&typeof f.b==='object')P.buffs[k]={name:String(f.name||k),until:now+Math.min(+f.left,7200),b:f.b,...(f.from?{from:f.from}:{})};}S=computeStats();}}
   if(!data){addLog(`Welcome to Hearthvale, ${P.name}.`,'l-lvl');addLog('Spend your 24 stat points first: open Stats (C).','l-good');addLog('Then head east through the glowing gate to Greenmoss Meadow.');}
   else addLog(`Welcome back, ${P.name}.`,'l-lvl');
   CS.sum[CS.slot]=slotSum({p:P});

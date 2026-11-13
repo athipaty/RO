@@ -7,9 +7,9 @@ function addLog(msg,cls='l-sys'){const el=$('#log');const d=document.createEleme
 function aoe(x,y,r,fn){for(const m of mobs)if(!m.dead&&Math.hypot(m.x-x,m.y-y)<=r+m.d.size)fn(m);}
 function shoot(from,to,kind,col,onHit,hostile){shots.push({x:from.x,y:from.y-10,to,kind,col,onHit,spd:kind==='arrow'?620:440,hostile});}
 function dealPhys(m,mult,o={}){
-  if(m.dead)return;const crit=Math.random()*100<S.crit;
+  if(m.dead)return;const crit=Math.random()*100<S.crit+(o.critPlus||0);
   if(!o.sure&&!crit){const hc=clamp(80+S.hit-m.d.flee-(ailOn('blind')?45:0),5,100);if(Math.random()*100>hc){floatT(m.x,m.y-m.d.size-8,'Miss','#aab4c4',13);sfx('miss');if(zoneHost())sendHit(m,0,0);else provoke(m);return;}}
-  const em=elemMult(o.el,m.d.el);let dmg=S.atk*mult*rnd(.9,1.1);dmg=crit?dmg*1.5:dmg-m.d.def*.6;dmg*=em*(typeof sizeRaceMult==='function'?sizeRaceMult(m,'phys'):1);
+  const em=elemMult(o.el,m.d.el);let dmg=S.atk*mult*rnd(.9,1.1);dmg=crit?dmg*(1.5+(S.critdmg||0)/100):dmg-m.d.def*.6;dmg*=em*(typeof sizeRaceMult==='function'?sizeRaceMult(m,'phys'):1);
   if(em!==1)elemHint(m,em);if(o.ail&&Math.random()<o.ail[1])ailMob(m,o.ail[0],o.ail[2]);
   hurtMob(m,em===0?0:Math.max(1,Math.round(dmg)),crit,'phys');}
 function dealMag(m,mult,el,ail){
@@ -60,7 +60,7 @@ function goLoot(l){P.target=null;P.queued=null;P.npcGoal=null;P.lootGoal=l;if(di
 function dropText(d){const pc=c=>{const v=c*100;return(v>=10||v===Math.round(v)?Math.round(v):v.toFixed(1))+'%';};
   return [...d.drops.map(([id,c])=>`${ITEMS[id].name} ${pc(c)}`),`Sigil ${pc(d.sigChance||SIG_CHANCE)}`].join(' · ');}
 function hurtPlayer(dmg,src){
-  if(P.dead)return;P.hp-=dmg;P.sitting=false;P.hurtT=now;interruptCast();if(P.ail&&P.ail.sleep)delete P.ail.sleep;fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});sfx('hurt');floatT(P.x,P.y-30,fmt(dmg),'#ff6a5a',16);
+  if(P.dead)return;if(S&&S.dmgred)dmg=Math.max(1,Math.round(dmg*(1-S.dmgred/100)));if(typeof manaShield==='function')dmg=manaShield(dmg);P.hp-=dmg;P.sitting=false;P.hurtT=now;interruptCast();if(P.ail&&P.ail.sleep)delete P.ail.sleep;fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});sfx('hurt');floatT(P.x,P.y-30,fmt(dmg),'#ff6a5a',16);
   if(P.hp<=0){P.hp=0;die(src);}
 }
 function mobAttack(m){
@@ -70,7 +70,7 @@ function mobAttack(m){
   hurtPlayer(Math.max(1,Math.round(m.d.atk*rnd(.85,1.1)-S.def*.6)),m.d.name);
   if(m.d.ail)tryAilment(m.d.ail);
 }
-function healP(n){n=Math.max(1,Math.round(n));P.hp=Math.min(S.maxhp,P.hp+n);floatT(P.x,P.y-30,'+'+fmt(n),'#7fd38a',16);fx.push({k:'heal',x:P.x,y:P.y,t0:now,dur:.6});sfx('heal');}
+function healP(n){n=Math.max(1,Math.round(n*(1+((S&&S.heal)||0)/100)));P.hp=Math.min(S.maxhp,P.hp+n);floatT(P.x,P.y-30,'+'+fmt(n),'#7fd38a',16);fx.push({k:'heal',x:P.x,y:P.y,t0:now,dur:.6});sfx('heal');}
 function buff(id,name,dur,b){P.buffs[id]={name,until:now+dur,b};fx.push({k:'ring',x:P.x,y:P.y,r:40,col:'#f0e0a0',t0:now,dur:.5});addLog(`${name} is active for ${dur}s.`,'l-good');S=computeStats();}
 
 const EXPLOG=[];
@@ -150,7 +150,7 @@ const sellValue=id=>{const it=ITEMS[id];return it.type==='etc'?Math.round(it.pri
 /* ================= skills use ================= */
 function skillReady(id){return (P.cd[id]||0)<=now;}
 function useSkill(id){
-  const l=castLv(id);if(!l||P.dead||P.casting)return;const sk=SKILLS[id];
+  const l=castLv(id);if(!l||P.dead||P.casting)return;const sk=SKILLS[id];if(sk.kind==='passive')return;
   if((sk.kind==='target'||sk.kind==='area')&&(!P.target||P.target.dead)&&typeof followAssist==='function')followAssist();
   if(!skillReady(id))return;
   if(P.heavy>1){tooHeavy();return;}
@@ -166,7 +166,7 @@ function useSkill(id){
   }
   beginCast(id,l,cost,()=>sk.run(l));
 }
-function castTime(id){const c=CAST[id];return c?c*Math.max(.25,1-S.dex/120):0;}
+function castTime(id){const c=CAST[id];return c?c*Math.max(.25,1-S.dex/120)*(1-(S.cast||0)/100):0;}
 function beginCast(id,l,cost,fn){const ct=castTime(id);if(!ct)return castNow(id,l,cost,fn);
   P.casting={id,l,cost,fn,t0:now,dur:ct,tgt:P.target};P.queued=null;P.sitting=false;P.path=[];sfx('cast');}
 function castTick(){const c=P.casting;if(!c)return;
