@@ -16,6 +16,13 @@ function gearAll(){const kk=codexKills(),forged=new Set(typeof FORGES!=='undefin
     src.sort((a,b)=>b.ch-a.ch||a.m.lv-b.m.lv);
     const shop=typeof SHOP!=='undefined'&&SHOP.includes(id),forge=forged.has(id);
     return {id,it,src,shop,forge,other:!src.length&&!shop&&!forge,best:src.length?src[0].ch:0};});}
+// sigil slots: the usual count as dots; gear from monsters rolls one fewer to two more (js/slotvar.js)
+function gearSlotsHtml(x){const n=x.it.slots|0,max=typeof MAX_SLOTS!=='undefined'?MAX_SLOTS:4;
+  const pips=Array.from({length:max},(_,i)=>`<i class="pip${i<n?' on':''}"></i>`).join('');
+  let h=`<div class="gxslots"><span class="pips" aria-hidden="true">${pips}</span><span>${n?`${n} sigil slot${n>1?'s':''}`:'No sigil slots'}</span></div>`;
+  if(x.src.length&&typeof rollSlots==='function'){const lo=Math.max(0,n-1),hi=Math.min(max,n+2);
+    if(hi>lo)h+=`<div class="ds gxroll">From monsters: ${lo}–${hi} slots (usually ${n})</div>`;}
+  return h;}
 function gearOwned(id){let n=0;for(const e of [...P.inv,...(P.storage||[])])if(e.id===id)n+=e.n||1;for(const e of Object.values(P.eq||{}))if(e&&e.id===id)n++;return n;}
 function gearCodexHtml(){
   const all=gearAll(),pct=c=>typeof pctTxt==='function'?pctTxt(c):Math.round(c*1000)/10+'%';
@@ -30,7 +37,7 @@ function gearCodexHtml(){
   const lv=x=>x.it.lv||1;
   const sorters={lv:(a,b)=>lv(a)-lv(b)||a.it.name.localeCompare(b.it.name),lvd:(a,b)=>lv(b)-lv(a)||a.it.name.localeCompare(b.it.name),
     chance:(a,b)=>b.best-a.best||lv(a)-lv(b),stat:(a,b)=>gearStat(b.it,CODEX.gab)-gearStat(a.it,CODEX.gab)||lv(a)-lv(b),
-    name:(a,b)=>a.it.name.localeCompare(b.it.name),own:(a,b)=>(gearOwned(b.id)>0)-(gearOwned(a.id)>0)||lv(a)-lv(b)};
+    slots:(a,b)=>((b.it.slots|0)-(a.it.slots|0))||lv(a)-lv(b),name:(a,b)=>a.it.name.localeCompare(b.it.name),own:(a,b)=>(gearOwned(b.id)>0)-(gearOwned(a.id)>0)||lv(a)-lv(b)};
   list=[...list].sort(sorters[CODEX.gsort]||sorters.lv);
   const chip=(act,val,label,on,n)=>`<button type="button" class="cxchip${on?' on':''}" aria-pressed="${on}" data-act="${act}" data-arg="${val}">${label}${n!==undefined?` <span>${n}</span>`:''}</button>`;
   const dropN=all.filter(x=>x.src.length).length;
@@ -38,18 +45,18 @@ function gearCodexHtml(){
   h+=`<div class="cxrow"><span class="cxlbl">Source</span><div class="cxchips">`+GEAR_SRCS.map(([k,l])=>chip('gxsrc',k,l,CODEX.gsrc===k,all.filter(x=>bySlot(x)&&bySrc[k](x)).length)).join('')+`</div></div>`;
   h+=`<div class="cxrow"><span class="cxlbl">Slot</span><div class="cxchips">`+GEAR_SLOTS.map(([k,l])=>{const n=all.filter(x=>(k==='all'||x.it.type===k)&&bySrc[CODEX.gsrc](x)).length;return n||k==='all'||CODEX.gslot===k?chip('gxslot',k,l,CODEX.gslot===k,n):'';}).join('')+`</div></div>`;
   if(abs.length)h+=`<div class="cxrow"><span class="cxlbl">Ability</span><div class="cxchips">`+chip('gxab','all','All',CODEX.gab==='all')+abs.map(([k,l])=>chip('gxab',k,l,CODEX.gab===k,pool.filter(x=>gearStat(x.it,k)).length)).join('')+`</div></div>`;
-  const sorts=[['lv','Level ↑'],['lvd','Level ↓'],...(CODEX.gsrc==='drop'?[['chance','Best drop chance']]:[]),...(CODEX.gab!=='all'?[['stat',`Most ${gearAbName(CODEX.gab)}`]]:[]),['name','Name'],['own','Owned first']];
+  const sorts=[['lv','Level ↑'],['lvd','Level ↓'],...(CODEX.gsrc==='drop'?[['chance','Best drop chance']]:[]),...(CODEX.gab!=='all'?[['stat',`Most ${gearAbName(CODEX.gab)}`]]:[]),['slots','Most slots'],['name','Name'],['own','Owned first']];
   h+=`<div class="cxrow"><span class="cxlbl">Sort</span><div class="cxchips">`+sorts.map(([k,l])=>chip('gxsort',k,l,CODEX.gsort===k)).join('')+`</div></div>`;
   if(!list.length)return h+`<p class="muted">No equipment matches. Try another slot, source or ability.</p>`;
   h+=`<div class="cxlist gxlist">`;
   for(const x of list){const it=x.it,own=gearOwned(x.id),slot=(GEAR_SLOTS.find(s=>s[0]===it.type)||[0,it.type])[1];
-    let desc='';try{desc=itemDesc({id:x.id,s:it.slots?Array(it.slots).fill(null):[]});}catch(e){desc='';}
+    let desc='';try{desc=itemDesc({id:x.id,s:[]});}catch(e){desc='';} // slots get their own line below
     if(CODEX.gab!=='all'){const k=CODEX.gab,v=gearStat(it,k);desc+=` · <b class="cxon">${gearAbName(k)} ${v>0?'+':''}${v}</b>`;}
     const srcs=x.src.map(({m,ch})=>{const wh=typeof itemMobWhere==='function'?itemMobWhere(m):'',mp=typeof mobPicURL==='function'?mobPicURL(m.id):'';
       return `<div class="gxsrc">${mp?`<img src="${mp}" alt="" loading="lazy">`:''}<div class="grow"><b>${esc(m.name)}</b> <span class="muted">Lv ${m.lv}${m.boss?' · boss':''}</span>${wh?`<div class="ds">${esc(wh)}</div>`:''}</div><span class="gxpct">${pct(ch)}</span></div>`;}).join('');
     const tags=[x.shop?`<span class="gxtag">Store · ${fmt(it.price||0)} gold</span>`:'',x.forge?`<span class="gxtag">Forged by Brannoc</span>`:'',x.other?`<span class="gxtag">Quests, festivals or bosses</span>`:''].join('');
     h+=`<div class="cxcard gxcard${own?' have':''}"><div class="gxhead">${icon(it).replace(/ data-item="[^"]*"/,'')}<div class="grow"><div class="cxtop"><span class="nm" style="color:${rarityCol(x.id)}">${esc(it.name)}</span><span class="cxslot">${esc(slot)}</span></div>`+
-      `<div class="ds">${desc}</div>${own?`<span class="cxown">You have ${own}</span>`:''}</div></div>`+
+      `<div class="ds">${desc}</div>${gearSlotsHtml(x)}${own?`<span class="cxown">You have ${own}</span>`:''}</div></div>`+
       (srcs?`<div class="gxsrcs">${srcs}</div>`:'')+(tags?`<div class="gxtags">${tags}</div>`:'')+`</div>`;}
   return h+`</div>`;}
 PANEL_ACTS.gxsrc=v=>{CODEX.gsrc=v;saveCodex();sfx('click');refreshPanel();};
@@ -57,5 +64,5 @@ PANEL_ACTS.gxslot=v=>{CODEX.gslot=v;saveCodex();sfx('click');refreshPanel();};
 PANEL_ACTS.gxab=v=>{CODEX.gab=v;if(v!=='all')CODEX.gsort='stat';else if(CODEX.gsort==='stat')CODEX.gsort='lv';saveCodex();sfx('click');refreshPanel();};
 PANEL_ACTS.gxsort=v=>{CODEX.gsort=v;saveCodex();sfx('click');refreshPanel();};
 if(typeof TH!=='undefined')Object.assign(TH,{'Source':'แหล่งที่มา','Slot':'ช่อง','Monster drop':'ดรอปจากมอนสเตอร์','Store':'ร้านค้า','Forge':'ตีขึ้น','Quests & events':'เควสและอีเวนต์',
-  'Face':'ใบหน้า','Mouth':'ปาก','Best drop chance':'โอกาสดรอปสูงสุด','Forged by Brannoc':'แบรนน็อกตีให้ได้','Quests, festivals or bosses':'เควส เทศกาล หรือบอส',
+  'Face':'ใบหน้า','Most slots':'ช่องมากที่สุด','No sigil slots':'ไม่มีช่องซิกิล','Mouth':'ปาก','Best drop chance':'โอกาสดรอปสูงสุด','Forged by Brannoc':'แบรนน็อกตีให้ได้','Quests, festivals or bosses':'เควส เทศกาล หรือบอส',
   'No equipment matches. Try another slot, source or ability.':'ไม่มีอุปกรณ์ที่ตรงกัน ลองเลือกช่อง แหล่งที่มา หรือความสามารถอื่น'});
