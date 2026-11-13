@@ -73,7 +73,7 @@ PANEL_ACTS.invtab=k=>{invTab=k;try{localStorage.setItem('embervale.invTab',k);}c
 const NPC_PANELS=['talk','shop','smith','storage','job','heal','warp'];
 const npcBusy=()=>!!P&&NPC_PANELS.includes(panelKind)&&!panel.hidden;
 let busyHintT=0;function busyHint(){if(now<busyHintT)return;busyHintT=now+3;floatT(P.x,P.y-50,'Close the window to walk','#ffe7a0',12);}
-function openPanel(kind,arg){panelKind=kind;panelArg=arg;panel.hidden=false;if(NPC_PANELS.includes(kind)&&P){P.path=[];P.moving=false;P.target=null;P.queued=null;}refreshPanel();}
+function openPanel(kind,arg){if(kind==='storage'&&panelKind!=='storage')storageRefresh();panelKind=kind;panelArg=arg;panel.hidden=false;if(NPC_PANELS.includes(kind)&&P){P.path=[];P.moving=false;P.target=null;P.queued=null;}refreshPanel();}
 function closePanel(){const k=panelKind;panelKind=null;panel.hidden=true;if(PANEL_CLOSE[k])PANEL_CLOSE[k]();}
 function togglePanel(kind){if(panelKind===kind)closePanel();else openPanel(kind);}
 function icon(it){return `<span class="ico" style="background:${it.col}">${it.g}</span>`;}
@@ -131,6 +131,7 @@ function refreshPanel(){
   else if(panelKind==='storage'){
     h+=`<h2>Wenna the Keeper</h2><div class="say">"Leave it with me, love. It'll be right here when you come back."</div>`;
     h+=`<div class="sub">Storage ${P.storage.length}/${STORAGE_MAX} · Weight ${fmt(carryWeight())}/${fmt(maxWeight())}</div>`;
+    if(CS.shared)h+=`<p class="muted">${CS.busy||CS.oldSt?'Saving…':'Shared by all your characters.'}</p>`;
     h+=`<h3>Your bag</h3>`;if(!P.inv.length)h+=`<p class="muted">Empty.</p>`;
     P.inv.forEach((e,i)=>{h+=`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><button class="btn small" data-act="store" data-arg="${i}">Store</button></div>`;});
     h+=`<h3>In storage</h3>`;if(!P.storage.length)h+=`<p class="muted">Nothing stored yet.</p>`;
@@ -257,11 +258,13 @@ panel.addEventListener('click',ev=>{
   if(a==='close')return closePanel();
   if(PANEL_ACTS[a])return PANEL_ACTS[a](arg,b);
   if(a==='refine')return doRefine(arg);
-  if(a==='store'){const e=P.inv[+arg];if(!e)return;const st=e.n!==undefined?P.storage.find(x=>x.id===e.id&&x.n!==undefined):null;
-    if(!st&&P.storage.length>=STORAGE_MAX){addLog('Storage is full.','l-bad');return;}
-    P.inv.splice(+arg,1);if(st)st.n+=e.n;else P.storage.push(e);sfx('click');rebuildHotbar();refreshPanel();save();return;}
-  if(a==='take'){const e=P.storage[+arg];if(!e)return;if(carryWeight()+itemWeight(e.id)*(e.n||1)>maxWeight()){addLog(`Too heavy to carry ${itemName(e)}.`,'l-bad');return;}
-    P.storage.splice(+arg,1);const bag=e.n!==undefined?invFind(e.id):null;if(bag)bag.n+=e.n;else P.inv.push(e);sfx('click');rebuildHotbar();refreshPanel();save();return;}
+  if(a==='store'){const e=P.inv[+arg];if(!e||CS.busy||CS.oldSt)return;const next=storageWith(P.storage,e);
+    if(!next){addLog('Storage is full.','l-bad');return;}
+    storageApply(next,()=>{const k=P.inv.indexOf(e);if(k>=0)P.inv.splice(k,1);},()=>{P.inv.push(e);});return;}
+  if(a==='take'){const i=+arg,e=P.storage[i];if(!e||CS.busy||CS.oldSt)return;if(carryWeight()+itemWeight(e.id)*(e.n||1)>maxWeight()){addLog(`Too heavy to carry ${itemName(e)}.`,'l-bad');return;}
+    const next=P.storage.filter((_,k)=>k!==i);let into=null;
+    storageApply(next,()=>{into=e.n!==undefined?invFind(e.id):null;if(into)into.n+=e.n;else P.inv.push(e);},
+      ()=>{if(into){into.n-=e.n;if(into.n<=0){const k=P.inv.indexOf(into);if(k>=0)P.inv.splice(k,1);}}else{const k=P.inv.indexOf(e);if(k>=0)P.inv.splice(k,1);}});return;}
   if(a==='stat'){const v=P.st[arg],c=statCost(v);if(P.statPts>=c&&v<99){P.st[arg]++;P.statPts-=c;S=computeStats();}}
   if(a==='use')useInv(+arg);
   if(a==='unequip')unequip(arg);
@@ -353,52 +356,123 @@ function closeChat(onlyIfEmpty){const i=$('#chatIn');if(onlyIfEmpty&&i.value)ret
 $('#chatbar').addEventListener('submit',ev=>{ev.preventDefault();const i=$('#chatIn');sendChat(i.value);i.value='';closeChat();});
 $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDefault();$('#chatIn').value='';closeChat();}ev.stopPropagation();});
 
-/* ================= save / load ================= */
+/* ================= save / load: three character slots (per account, or per device for guests) and one shared storage ================= */
+const SLOTS=3,SLOT_KEY='embervale.slot',GUEST_ST_KEY='embervale.storage.v1';
+// slot: the chosen slot · sum: a short summary of each slot · legacy: the server only knows one character
+// shared: this character uses the shared storage · storage/rev: the shared storage and its version on the server
+// oldSt: items from this character's own old storage that are not yet in the shared one
+const CS={slot:(()=>{try{const n=+localStorage.getItem(SLOT_KEY);return n>=0&&n<SLOTS?n|0:0;}catch(e){return 0;}})(),
+  sum:[null,null,null],legacy:false,shared:false,storage:null,rev:0,busy:false,oldSt:null};
+const slotKey=n=>n?SAVE_KEY+'.s'+n:SAVE_KEY;
+const slotOpen=n=>!(ACC.token&&CS.legacy&&n>0);
+const slotQ=()=>ACC.token&&CS.legacy?'':'?slot='+CS.slot;
+function loadSlot(n){try{const s=JSON.parse(localStorage.getItem(slotKey(n))||'null');return s&&s.v===1?s:null;}catch(e){return null;}}
+function loadSave(){return loadSlot(CS.slot);}
+function guestStorage(){try{const a=JSON.parse(localStorage.getItem(GUEST_ST_KEY)||'null');return Array.isArray(a)?a:null;}catch(e){return null;}}
+function writeGuestStorage(a){try{localStorage.setItem(GUEST_ST_KEY,JSON.stringify(a||[]));}catch(e){}}
+const slotSum=s=>s&&s.p?{name:s.p.name,lv:s.p.lv,jl:s.p.jl,cls:s.p.cls,look:s.p.look,reborn:s.p.reborn,zone:s.p.zone}:null;
+function guestSlots(){return [0,1,2].filter(n=>loadSlot(n));}
+function setSlot(n){CS.slot=n;try{localStorage.setItem(SLOT_KEY,String(n));}catch(e){}}
+// add one entry to a storage list (stacking like items); returns a new list, or null when storage is full
+function storageWith(list,e){const out=list.map(x=>({...x}));const st=e.n!==undefined?out.find(x=>x.id===e.id&&x.n!==undefined):null;
+  if(st){st.n+=e.n;return out;}if(out.length>=STORAGE_MAX)return null;out.push(e);return out;}
 function snapshot(){if(!P)return null;
   const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','bar','pet','ach','emofav','mounts','mountPick','bond','useLv','rested','qs','track','bars','hbRows','reborn','autoLoot'];
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;
+  // the shared storage lives with the account (or the device), not in the character
+  if(CS.shared){if(CS.oldSt)o.storage=CS.oldSt;else{o.storage=[];o.sharedSt=1;}}
   if(typeof pendingEscrow==='function'){const ex=pendingEscrow();if(ex.items.length||ex.gold){o.inv=[...P.inv,...ex.items];o.gold=P.gold+ex.gold;}}
   return {v:1,p:JSON.parse(JSON.stringify(o))};}
 function save(force){const s=snapshot();if(!s)return;
-  if(ACC.token){ACC.cloud=s;cloudSave(force);}else try{localStorage.setItem(SAVE_KEY,JSON.stringify(s));}catch(e){}}
-function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return s&&s.v===1?s:null;}catch(e){return null;}}
-// the character you would continue with: the server copy when logged in, otherwise this device's
-function currentSave(){return ACC.token?ACC.cloud:loadSave();}
+  if(ACC.token){ACC.cloud=s;cloudSave(force);}
+  else{try{localStorage.setItem(slotKey(CS.slot),JSON.stringify(s));}catch(e){}if(CS.shared&&!CS.oldSt)writeGuestStorage(P.storage);}}
 
 /* ---- talking to the game server ---- */
 async function api(method,path,body,keepalive){
   const r=await fetch(SERVER+'/api/embervale'+path,{method,keepalive:!!keepalive,
     headers:{'Content-Type':'application/json',...(ACC.token?{Authorization:'Bearer '+ACC.token}:{})},body:body?JSON.stringify(body):undefined});
   const j=await r.json().catch(()=>({}));
-  if(!r.ok)throw Object.assign(new Error(j.error||'The server did not answer. Try again in a moment.'),{status:r.status});
+  if(!r.ok)throw Object.assign(new Error(j.error||'The server did not answer. Try again in a moment.'),{status:r.status,body:j});
   return j;}
 let cloudT=0,cloudTimer=null,cloudWarned=false;
 function cloudSave(force){
   if(!ACC.token||!ACC.cloud)return;const wait=10000-(Date.now()-cloudT);
   if(!force&&wait>0){if(!cloudTimer)cloudTimer=setTimeout(()=>{cloudTimer=null;cloudSave(true);},wait);return;}
   clearTimeout(cloudTimer);cloudTimer=null;cloudT=Date.now();
-  api('PUT','/character',{character:ACC.cloud},true).then(()=>{cloudWarned=false;}).catch(e=>{
-    if(e.status===401){addLog('Your login has expired. Log in again from the title screen to keep saving to the server.','l-bad');setAccount(null);
-      try{localStorage.setItem(SAVE_KEY,JSON.stringify(ACC.cloud||snapshot()));}catch(_){}}
+  api('PUT','/character'+slotQ(),{character:ACC.cloud},true).then(()=>{cloudWarned=false;}).catch(e=>{
+    if(e.status===401){addLog('Your login has expired. Log in again from the title screen to keep saving to the server.','l-bad');
+      const s=ACC.cloud||snapshot();if(CS.shared&&P&&!CS.oldSt){s.p.storage=P.storage;delete s.p.sharedSt;}
+      const n=CS.slot;setAccount(null);CS.shared=false;CS.oldSt=null;
+      try{localStorage.setItem(slotKey(n),JSON.stringify(s));}catch(_){}}
     else if(!cloudWarned){cloudWarned=true;addLog('Could not reach the server to save. Will keep trying.','l-bad');}});}
+// account: save this character and the shared storage in one write. The server refuses (409) when another
+// character changed the storage since we last saw it; then we take its copy and nothing is saved.
+async function storageCommit(st){
+  const s=snapshot();s.p.storage=[];s.p.sharedSt=1;
+  try{const r=await api('PUT','/character'+slotQ(),{character:s,storage:st,storageRev:CS.rev});
+    CS.rev=r.storageRev|0;CS.storage=st;ACC.cloud=s;return true;}
+  catch(e){if(e.status===409&&e.body){CS.rev=e.body.storageRev|0;CS.storage=Array.isArray(e.body.storage)?e.body.storage:[];if(!CS.oldSt)P.storage=CS.storage;}
+    addLog(e.message,'l-bad');return false;}}
+// move items between bag and storage: doInv changes the bag, undo puts it back if the server says no
+async function storageApply(next,doInv,undo){
+  doInv();
+  if(!(ACC.token&&CS.shared)){P.storage=next;if(CS.shared)CS.storage=next;sfx('click');rebuildHotbar();refreshPanel();save(true);return;}
+  CS.busy=true;refreshPanel();
+  const ok=await storageCommit(next);CS.busy=false;
+  if(ok){P.storage=next;sfx('click');}else undo();
+  rebuildHotbar();refreshPanel();}
+// a character that had its own storage before slots existed: pour it into the shared storage once
+async function mergeOldStorage(){
+  for(let i=0;i<3&&CS.oldSt;i++){
+    const st=(CS.storage||[]).map(x=>({...x}));for(const e of CS.oldSt){const s=e.n!==undefined?st.find(x=>x.id===e.id&&x.n!==undefined):null;if(s)s.n+=e.n;else st.push(e);}
+    const old=CS.oldSt;CS.oldSt=null;
+    if(!ACC.token){P.storage=CS.storage=st;save(true);return;}
+    if(await storageCommit(st)){P.storage=st;if(panelKind==='storage')refreshPanel();return;}
+    CS.oldSt=old;}}
+// opening storage picks up changes another character made
+async function storageRefresh(){
+  if(!(ACC.token&&CS.shared)||CS.busy||CS.oldSt)return;
+  try{const r=await api('GET','/characters');if(CS.busy||CS.oldSt||!Array.isArray(r.storage))return;
+    CS.rev=r.storageRev|0;P.storage=CS.storage=r.storage;if(panelKind==='storage')refreshPanel();}catch(e){}}
 function setAccount(sess){
   ACC.token=sess?sess.token:null;ACC.username=sess?sess.username:null;ACC.cloud=null;ACC.loaded=!sess;
+  CS.legacy=false;CS.storage=null;CS.rev=0;CS.sum=[null,null,null];
   try{if(sess)localStorage.setItem('embervale.account',JSON.stringify({token:sess.token,username:sess.username}));else localStorage.removeItem('embervale.account');}catch(e){}
   if(NET.room&&NET.room.relogin)NET.room.relogin();
+  if(!sess)CS.sum=[0,1,2].map(n=>slotSum(loadSlot(n)));
   refreshTitle();}
+// fill in the slot summaries (and the shared storage) for the title screen
 async function loadCloud(){
-  if(!ACC.token)return;acMsg('Loading your character…',true);
-  try{const r=await api('GET','/character');ACC.cloud=r.character&&r.character.v===1?r.character:null;ACC.loaded=true;acMsg('');}
-  catch(e){if(e.status===401){setAccount(null);acMsg('Your login has expired. Please log in again.');}else acMsg(e.message);}
+  if(!ACC.token){CS.sum=[0,1,2].map(n=>slotSum(loadSlot(n)));refreshTitle();return;}
+  acMsg('Loading your characters…',true);
+  const fail=e=>{if(e.status===401){setAccount(null);acMsg('Your login has expired. Please log in again.');}else acMsg(e.message);};
+  try{const r=await api('GET','/characters');CS.legacy=false;CS.sum=[0,1,2].map(n=>r.slots&&r.slots[n]||null);
+    CS.storage=Array.isArray(r.storage)?r.storage:null;CS.rev=r.storageRev|0;ACC.loaded=true;acMsg('');}
+  catch(e){
+    if(e.status===404){ // an older server: one character per account
+      try{const r=await api('GET','/character');CS.legacy=true;CS.sum=[slotSum(r.character&&r.character.v===1?r.character:null),null,null];ACC.loaded=true;acMsg('');}
+      catch(e2){fail(e2);}}
+    else fail(e);}
+  if(!slotOpen(CS.slot))setSlot(0);
   refreshTitle();}
 function acMsg(t,ok){const el=$('#acMsg');el.textContent=t||'';el.classList.toggle('ok',!!ok);}
+const slotDesc=s=>`Lv ${Math.floor(+s.lv)||1} · ${(CLASSES[s.cls]&&CLASSES[s.cls].name)||'Novice'}${s.reborn?' ✦':''}`;
+function renderSlots(){const box=$('#slots');if(!box)return;box.innerHTML='';
+  for(let n=0;n<SLOTS;n++){if(!slotOpen(n))continue;const s=CS.sum[n],b=document.createElement('button');
+    b.type='button';b.className='slotc'+(n===CS.slot?' on':'')+(s?'':' empty');b.dataset.slot=n;b.setAttribute('aria-pressed',n===CS.slot);
+    const nm=document.createElement('b'),ds=document.createElement('span');
+    nm.textContent=s?String(s.name).slice(0,16):'Empty slot';ds.textContent=s?slotDesc(s):'New character';
+    b.append(nm,ds);b.addEventListener('click',()=>{if(CS.slot===n)return;sfx('click');setSlot(n);acMsg('');refreshTitle();});box.appendChild(b);}}
 function refreshTitle(){
   const inAcct=!!ACC.token;$('#acOut').hidden=!inAcct;$('#acIn').hidden=inAcct;$('#acNote').hidden=inAcct;
   if(inAcct)$('#acName').textContent=ACC.username;
-  $('#acImport').hidden=!(inAcct&&ACC.loaded&&!ACC.cloud&&loadSave());
-  const s=currentSave(),c=$('#contBtn');c.hidden=!s;$('#newBtn').classList.toggle('primary',!s);$('#newBtn').classList.toggle('ghost',!!s);
-  if(s)c.textContent=`Continue as ${String(s.p.name).slice(0,16)} (Lv ${Math.floor(+s.p.lv)||1})`;
-  $('#newBtn').disabled=inAcct&&!ACC.loaded;$('#contBtn').disabled=inAcct&&!ACC.loaded;}
+  $('#acImport').hidden=!(inAcct&&ACC.loaded&&guestSlots().length&&CS.sum.some((s,i)=>!s&&slotOpen(i)));
+  renderSlots();
+  const s=CS.sum[CS.slot],busy=inAcct&&!ACC.loaded,c=$('#contBtn');
+  c.hidden=!s;$('#newBtn').hidden=!!s;$('#slotDel').hidden=!s;
+  $('#creator').hidden=!!s;$('.t-name').hidden=!!s;$('#title .tag').hidden=!!s;
+  if(s)c.textContent=`Continue as ${String(s.name).slice(0,16)} (Lv ${Math.floor(+s.lv)||1})`;
+  $('#newBtn').disabled=busy;c.disabled=busy;}
 async function accountSubmit(kind){
   const username=$('#acUser').value.trim().toLowerCase(),password=$('#acPass').value;
   if(!/^[a-z0-9_]{3,16}$/.test(username)){acMsg('Username: 3-16 letters, numbers or _');return;}
@@ -406,37 +480,76 @@ async function accountSubmit(kind){
   acMsg(kind==='register'?'Creating your account…':'Logging in…',true);
   try{const sess=await api('POST',kind==='register'?'/register':'/login',{username,password});$('#acPass').value='';
     setAccount(sess);acMsg(kind==='register'?'Account created!':'Welcome back!',true);await loadCloud();
-    if(kind==='register'&&loadSave())acMsg('Account created! You can move your guest character into it below.',true);}
+    if(kind==='register'&&guestSlots().length)acMsg('Account created! You can move your guest characters into it below.',true);}
   catch(e){acMsg(e.message);}}
 $('#acIn').addEventListener('submit',ev=>{ev.preventDefault();accountSubmit('login');});
 $('#acReg').addEventListener('click',()=>accountSubmit('register'));
 $('#acLogout').addEventListener('click',()=>{setAccount(null);acMsg('Logged out. You are playing as a guest.',true);});
-$('#acImport').addEventListener('click',async()=>{const s=loadSave();if(!s)return;ACC.cloud=s;
-  try{await api('PUT','/character',{character:s});acMsg('Your guest character is now saved to your account.',true);}catch(e){ACC.cloud=null;acMsg(e.message);}
+// move this device's guest characters (and the guest storage) into the account's empty slots
+$('#acImport').addEventListener('click',async()=>{let gst=guestStorage(),first=-1,moved=0;
+  for(const g of guestSlots()){const n=CS.sum.findIndex((x,i)=>!x&&slotOpen(i));if(n<0)break;
+    const c=JSON.parse(JSON.stringify(loadSlot(g)));
+    if(c.p.sharedSt){c.p.storage=[];delete c.p.sharedSt;}
+    if(gst&&gst.length)c.p.storage=[...(c.p.storage||[]),...gst];
+    try{await api('PUT','/character'+(CS.legacy?'':'?slot='+n),{character:c});}catch(e){acMsg(e.message);break;}
+    if(gst&&gst.length){gst=null;try{localStorage.removeItem(GUEST_ST_KEY);}catch(e){}}
+    try{localStorage.removeItem(slotKey(g));}catch(e){}
+    CS.sum[n]=slotSum(c);if(first<0)first=n;moved++;}
+  if(first>=0){setSlot(first);acMsg(moved>1?'Your guest characters are now saved to your account.':'Your guest character is now saved to your account.',true);}
   refreshTitle();});
 function startWith(data){
   P=newPlayer(data?data.p.name:($('#nameIn').value.trim()||'Wanderer'));
   setTimeout(()=>{if(typeof syncAutoLootBtn==='function')syncAutoLootBtn();},0);
   if(data){Object.assign(P,data.p);uid=Math.max(uid,data.p.uid||1);if(!('head' in P.eq))P.eq.head=null;if(!('face' in P.eq))P.eq.face=null;if(!('mouth' in P.eq))P.eq.mouth=null;P.look=lookDecode(lookCode(P.look))&&P.look;}
   else P.look={...newLook};
+  // storage: shared by every character of the account (or of this device for guests)
+  CS.shared=!(ACC.token&&CS.legacy);CS.oldSt=null;
+  if(CS.shared){
+    if(!ACC.token)CS.storage=guestStorage();
+    const own=Array.isArray(P.storage)?P.storage:[];
+    if(!P.sharedSt&&own.length)CS.oldSt=own;
+    P.storage=(CS.storage||[]).map(x=>({...x}));CS.storage=P.storage;delete P.sharedSt;}
+  else if(!Array.isArray(P.storage))P.storage=[];
   if(!Array.isArray(P.friends))P.friends=[];
   S=computeStats();if(!data||P.hp<=0){P.hp=S.maxhp;P.sp=S.maxsp;}
   $('#title').hidden=true;running=true;rebuildHotbar();
   enterZone(data&&ZONES[P.zone]?P.zone:'town');
   if(!data){addLog(`Welcome to Hearthvale, ${P.name}.`,'l-lvl');addLog('Spend your 24 stat points first: open Stats (C).','l-good');addLog('Then head east through the glowing gate to Greenmoss Meadow.');}
   else addLog(`Welcome back, ${P.name}.`,'l-lvl');
+  CS.sum[CS.slot]=slotSum({p:P});
   save();
+  if(CS.oldSt)mergeOldStorage();
 }
+// play the chosen slot: accounts fetch the full character from the server
+async function playSlot(){
+  if(!CS.sum[CS.slot])return;
+  if(!ACC.token){const s=loadSlot(CS.slot);if(s)startWith(s);return;}
+  const c=$('#contBtn');c.disabled=true;acMsg('Loading your character…',true);
+  try{const r=await api('GET','/character'+slotQ());
+    if(!CS.legacy&&r.storageRev!==undefined){CS.storage=Array.isArray(r.storage)?r.storage:null;CS.rev=r.storageRev|0;}
+    const s=r.character&&r.character.v===1?r.character:null;
+    if(!s){CS.sum[CS.slot]=null;acMsg('That slot is empty now.');refreshTitle();return;}
+    ACC.cloud=s;acMsg('');startWith(s);}
+  catch(e){if(e.status===401){setAccount(null);acMsg('Your login has expired. Please log in again.');}else acMsg(e.message);}
+  finally{c.disabled=false;}}
 setInterval(()=>{if(running)save();},15000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&running)save(true);});
 addEventListener('pagehide',()=>{if(running)save(true);});
 $('#reviveBtn').addEventListener('click',()=>{P.dead=false;S=computeStats();P.hp=Math.round(S.maxhp*.5);P.sp=Math.round(S.maxsp*.5);$('#death').hidden=true;enterZone('town');save();});
-$('#newBtn').addEventListener('click',()=>{audioInit();if(currentSave()){$('#confirm').hidden=false;return;}startWith(null);});
-$('#contBtn').addEventListener('click',()=>{audioInit();const s=currentSave();if(s)startWith(s);});
+$('#newBtn').addEventListener('click',()=>{audioInit();
+  if(CS.sum[CS.slot]){const n=CS.sum.findIndex((s,i)=>!s&&slotOpen(i));
+    if(n<0){acMsg('All your character slots are full. Delete a character first.');return;}setSlot(n);}
+  startWith(null);});
+$('#contBtn').addEventListener('click',()=>{audioInit();playSlot();});
+$('#slotDel').addEventListener('click',()=>{const s=CS.sum[CS.slot];if(!s)return;
+  $('#cfText').textContent=`Delete ${String(s.name).slice(0,16)} (Lv ${Math.floor(+s.lv)||1})? This cannot be undone. Items in storage stay for your other characters.`;$('#confirm').hidden=false;});
 $('#cfNo').addEventListener('click',()=>{$('#confirm').hidden=true;});
-$('#cfYes').addEventListener('click',async()=>{$('#confirm').hidden=true;closePanel();
-  if(ACC.token){try{await api('DELETE','/character');ACC.cloud=null;}catch(e){acMsg(e.message);return;}}else try{localStorage.removeItem(SAVE_KEY);}catch(e){}
-  if(running){running=false;P=null;$('#log').innerHTML='';$('#title').hidden=false;refreshTitle();}else startWith(null);});
+$('#cfYes').addEventListener('click',async()=>{$('#confirm').hidden=true;
+  if(ACC.token){try{await api('DELETE','/character'+slotQ());}catch(e){acMsg(e.message);return;}}
+  else try{localStorage.removeItem(slotKey(CS.slot));}catch(e){}
+  CS.sum[CS.slot]=null;acMsg('Character deleted.',true);refreshTitle();});
+// back to the character list: save, then start the page fresh so nothing of this character stays around
+function switchCharacter(){if(running)save(true);setTimeout(()=>location.reload(),ACC.token?700:50);}
 
 /* ================= loop ================= */
 let last=performance.now();
@@ -457,9 +570,10 @@ function refreshCreator(){
     [...el.children].forEach((b,i)=>b.classList.toggle('on',list[i]===newLook[key]));};
   fill('#swHair',HAIRS,'hair','Hair color');fill('#swEye',EYES,'eye','Eye color');fill('#swSkin',SKINS,'skin','Skin tone');}
 const lookCtx=$('#lookCv').getContext('2d');
-function drawLookPreview(){if(!newLook)return;const c=lookCtx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,240,240);c.setTransform(4,0,0,4,0,0);
+function drawLookPreview(){if(!newLook)return;const sv=typeof CS!=='undefined'&&CS.sum[CS.slot];const c=lookCtx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,240,240);c.setTransform(4,0,0,4,0,0);
   const main=ctx;ctx=c;const ph=Math.floor(now/1.6)%4,face=ph===1||ph===2?-1:1,back=ph>=2;
-  try{drawHuman(30,50,CLASSES.novice.col,newLook.hair,face,0,{look:{...lookFor($('#nameIn').value.trim()||'Wanderer'),...newLook},outfit:'novice',back});}finally{ctx=main;}}
+  try{if(sv){const lk={...lookFor(sv.name),...(sv.look||{})},cl=CLASSES[sv.cls]||CLASSES.novice;drawHuman(30,50,cl.col,lk.hair,face,0,{look:lk,outfit:typeof baseOf==='function'?baseOf(sv.cls):'novice',back});}
+    else drawHuman(30,50,CLASSES.novice.col,newLook.hair,face,0,{look:{...lookFor($('#nameIn').value.trim()||'Wanderer'),...newLook},outfit:'novice',back});}finally{ctx=main;}}
 function initCreator(){
   setNewLook(lookFor('Wanderer'));
   $('#nameIn').addEventListener('input',()=>{if(!lookTouched)setNewLook(lookFor($('#nameIn').value.trim()||'Wanderer'));});

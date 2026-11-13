@@ -26,7 +26,7 @@ PANELS.settings=()=>{let h=`<h2>Settings</h2><div class="sub">Saved in this brow
     `<div class="setrow"><div class="grow"><div class="nm">Performance mode</div><div class="ds">Draws at lower resolution: smoother on slower phones. Switches on by itself if the game runs slowly</div></div>${toggle('setlite',!!SETS.lite,'Performance mode on or off')}</div></div>`;
   h+=`<h3>Mouse</h3><div class="dv keylist">`+[['Click / tap','walk, attack, talk, pick up'],['Shift + click','attack in place'],['Right-click monster','monster info'],['Drag a window title','move the window'],['Esc','close · H help'],['⊞ beside the hotbar','extra rows: Alt+1–8 row 2, F1–F8 row 3']].map(([k,v])=>`<div><span>${k}</span><span>${v}</span></div>`).join('')+`</div>`;
   if(typeof keybindHtml==='function')h+=keybindHtml();
-  h+=`<div class="tbtns" style="justify-content:flex-start;margin-top:12px"><button class="btn small" data-act="sethelp">Open help</button></div>`;
+  h+=`<div class="tbtns" style="justify-content:flex-start;margin-top:12px"><button class="btn small" data-act="sethelp">Open help</button><button class="btn small" data-act="setswitch">Switch character</button></div>`;
   return h;};
 PANEL_ACTS.setmusic=()=>{audioInit();setAudio(!AU.music,AU.sfx);refreshPanel();};
 PANEL_ACTS.setsfx=()=>{audioInit();setAudio(AU.music,!AU.sfx);refreshPanel();};
@@ -37,6 +37,7 @@ PANEL_ACTS.settarget=()=>{SETS.targetBox=!SETS.targetBox;saveSets();refreshPanel
 PANEL_ACTS.setautoloot=()=>{if(P)setAutoLoot(P.autoLoot===false,true);};
 PANEL_ACTS.setlite=()=>{SETS.lite=!SETS.lite;saveSets();applySets();refreshPanel();};
 PANEL_ACTS.sethelp=()=>openPanel('help');
+PANEL_ACTS.setswitch=()=>{if(typeof switchCharacter==='function')switchCharacter();};
 // volume sliders change as you drag (no window rebuild, so the slider keeps the pointer)
 panel.addEventListener('input',ev=>{const k=ev.target.dataset&&ev.target.dataset.set;if(!k)return;const v=clamp(+ev.target.value/100,0,1);
   AU[k]=v;saveAudio();applyVolumes();const val=ev.target.parentElement.querySelector('.val');if(val)val.textContent=pct(v)+'%';});

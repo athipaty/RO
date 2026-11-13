@@ -42,7 +42,8 @@ Play online: https://ro-six-bay.vercel.app/ (add `?room=yourname` to the link fo
 - **Ground loot**: monsters drop items and gold on the ground with a set chance (shown when you target them); click to pick it up, auto-hunt collects it too
 - Rare **sigils**: every monster can drop one. Socket it into gear with a free slot for a permanent bonus.
 - The town of Hearthvale has a shop (buy and sell), a guild hall (class change), a chapel (free heal) and a waystation (fast travel)
-- Minimap, hotbar, sitting to regenerate, death penalty, and autosave to localStorage
+- Minimap, hotbar, sitting to regenerate, death penalty, and autosave (to the server when logged in, otherwise to this device)
+- **Three character slots** per account (or per device for guests), all sharing one storage at the Warehouse and the Royal Bank. Switch characters from Settings.
 - **Original soundtrack**: a theme for each region plus a boss battle theme, synthesised live with the Web Audio API (no audio files)
 - **Sound effects** for hits, misses, magic, arrows, level-ups, loot and rare sigil drops, plus a ringing critical hit with screen shake
 - **Play together**: everyone who has the shared page open sees each other walk around, with chat bubbles over their heads and in the log. On claude.ai this uses the artifact live room; anywhere else (e.g. Vercel) players meet through a free public MQTT broker, so anyone with the link can join. Chat over the public broker is not private.

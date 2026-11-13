@@ -12,6 +12,14 @@ const TH={
   'Appearance':'รูปลักษณ์','Build':'รูปร่าง','Hair':'ทรงผม','Color':'สี','Eyes':'ดวงตา','Skin':'สีผิว','Surprise me':'สุ่มให้หน่อย','Standard':'มาตรฐาน','Broad':'บึกบึน','Slender':'เพรียว',
   'Spiky':'ผมตั้ง','Long':'ผมยาว','Ponytail':'หางม้า','Twin tails':'แกละคู่','Bob':'บ็อบ','Curly':'หยิก',
   'Account':'บัญชี','Log in':'เข้าสู่ระบบ','Log out':'ออกจากระบบ','Create account':'สร้างบัญชี','Username':'ชื่อผู้ใช้','Password':'รหัสผ่าน','Signed in as':'เข้าสู่ระบบในชื่อ',
+  'Characters':'ตัวละคร','Empty slot':'ช่องว่าง','New character':'ตัวละครใหม่','Delete this character':'ลบตัวละครนี้','Delete':'ลบ','Keep':'เก็บไว้',
+  'Up to three characters. They all share one storage at the Warehouse and the Royal Bank.':'สร้างได้สูงสุดสามตัวละคร ทุกตัวใช้คลังเก็บของร่วมกันที่โกดังและธนาคารหลวง',
+  'Delete this character? This cannot be undone.':'ลบตัวละครนี้? ย้อนกลับไม่ได้','Character deleted.':'ลบตัวละครแล้ว','Loading your characters…':'กำลังโหลดตัวละคร…',
+  'All your character slots are full. Delete a character first.':'ช่องตัวละครเต็มแล้ว ลบตัวละครก่อน','That slot is empty now.':'ช่องนี้ว่างแล้ว',
+  'Shared by all your characters.':'ใช้ร่วมกันทุกตัวละครของคุณ','Saving…':'กำลังบันทึก…','Switch character':'เปลี่ยนตัวละคร','Character slots':'ช่องตัวละคร',
+  'Your guest characters are now saved to your account.':'ตัวละครแขกของคุณถูกบันทึกในบัญชีแล้ว','Your guest character is now saved to your account.':'ตัวละครแขกของคุณถูกบันทึกในบัญชีแล้ว',
+  'Account created! You can move your guest characters into it below.':'สร้างบัญชีแล้ว! ย้ายตัวละครแขกเข้ามาได้ด้านล่าง',
+  'Your storage was changed by another of your characters. Try again.':'คลังถูกเปลี่ยนโดยตัวละครอื่นของคุณ ลองอีกครั้ง',
   'Move my guest character to this account':'ย้ายตัวละครแขกมาที่บัญชีนี้','Erase and start':'ลบแล้วเริ่มใหม่','Keep my save':'เก็บเซฟไว้','Start a new adventure?':'เริ่มการผจญภัยใหม่?',
   'Start a new adventure? Your saved character will be erased.':'เริ่มการผจญภัยใหม่? ตัวละครที่บันทึกไว้จะถูกลบ','About Embervale':'เกี่ยวกับ Embervale','Controls':'การควบคุม',
   'On a phone: tap to walk and attack, and use the round buttons on the right.':'บนมือถือ: แตะเพื่อเดินและโจมตี และใช้ปุ่มกลมด้านขวา','Preview of your adventurer':'ตัวอย่างนักผจญภัยของคุณ',
@@ -81,6 +89,8 @@ const TH={
 };
 // messages with numbers or names in them
 const TH_PAT=[
+  [/^Continue as (.+) \(Lv (\d+)\)$/,'เล่นต่อเป็น $1 (Lv $2)'],[/^Lv (\d+) · (.+?)( ✦)?$/,(m,a,b,c)=>`Lv ${a} · ${thText(b)}${c||''}`],
+  [/^Delete (.+) \(Lv (\d+)\)\? This cannot be undone\. Items in storage stay for your other characters\.$/,'ลบ $1 (Lv $2)? ย้อนกลับไม่ได้ ของในคลังยังอยู่สำหรับตัวละครอื่นของคุณ'],
   [/^Lv (\d+)$/,'Lv $1'],[/^Job (\d+)$/,'อาชีพ $1'],[/^Job (max)$/,'อาชีพ สูงสุด'],[/^Weight ([\d,]+) \/ ([\d,]+)(.*)$/,(m,a,b,c)=>`น้ำหนัก ${a} / ${b}${c.replace(' · too heavy to fight',' · หนักเกินกว่าจะสู้').replace(' · no regen',' · ไม่ฟื้นพลัง')}`],
   [/^([\d,]+) gold(.*)$/,(m,a,b)=>`${a} โกลด์${b.replace(/ · (\d+) stat pts/,' · แต้มสถานะ $1').replace(/ · (\d+) skill pts/,' · แต้มสกิล $1')}`],
   [/^Base ([\d.]+)% · Job (.*)$/,(m,a,b)=>`ฐาน ${a}% · อาชีพ ${b.replace('max','สูงสุด')}`],

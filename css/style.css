@@ -293,6 +293,15 @@ button{font:inherit;color:inherit}
 #title .keys summary::before{content:'▸ ';color:var(--t-mute)}#title .keys[open] summary::before{content:'▾ '}
 #title .keys div{margin-top:8px}#title .keys b{color:var(--t-ink);font-weight:600}
 #title .acMsg:empty{display:none}
+#title .slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#title .slotc{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;padding:10px 12px;border-radius:12px;cursor:pointer;text-align:left;font:inherit;
+  background:rgba(255,255,255,.04);border:1px solid var(--t-line);color:var(--t-ink);transition:border-color .12s,background .12s}
+#title .slotc:hover{background:rgba(255,255,255,.08)}
+#title .slotc b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;font-size:14px}
+#title .slotc span{font-size:11.5px;color:var(--t-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#title .slotc.empty{border-style:dashed}#title .slotc.empty b{color:var(--t-mute);font-weight:600}
+#title .slotc.on{border-color:var(--t-acc);background:rgba(240,181,74,.1);box-shadow:0 0 0 2px rgba(240,181,74,.18)}
+#title [hidden]{display:none!important}
 @media (max-width:760px){
   #title .t-shell{padding:16px 16px 24px;gap:14px}
   #title .t-main{grid-template-columns:1fr}
