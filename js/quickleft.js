@@ -23,16 +23,31 @@
       for(let i=home.length-1;i>=0;i--){const [el,p,n]=home[i];p.insertBefore(el,n&&n.parentElement===p?n:null);}
       home.length=0;row.hidden=true;}
     else row.hidden=true;
-    if(!sideways()&&document.body.classList.contains('touchui'))stackUpright();}
+    if(!sideways()){placeSit(false);placeGW(false);if(document.body.classList.contains('touchui'))stackUpright();}}
   const vis=e=>e&&!e.hidden&&getComputedStyle(e).display!=='none'&&e.getBoundingClientRect().height>0;
   // sideways: the party box goes under the left row and stops above the chat box (it scrolls if it is long);
   // the buffs become a small row at the top centre, under Menu and Sit
-  function stackSideways(hr){
+  // sideways: Sit goes on the right, just left of Auto (same height); upright the stylesheet places it again
+  function placeSit(side){const sit=document.getElementById('sitBtn'),auto=document.getElementById('autoBtn');if(!sit)return;
+    if(side&&auto&&vis(auto)){const a=auto.getBoundingClientRect(),w=sit.getBoundingClientRect().width||38;
+      Object.assign(sit.style,{left:Math.round(a.left-w-10)+'px',top:Math.round(a.top+(a.height-w)/2)+'px',right:'auto',transform:'none'});sit.classList.add('sitR');}
+    else if(sit.classList.contains('sitR')){sit.style.left=sit.style.top=sit.style.right=sit.style.transform='';sit.classList.remove('sitR');}}
+  // sideways: the guild war banner goes in the top row, right of Menu and before the Quests button (out of the way of the hero)
+  function placeGW(side){const gw=document.getElementById('gwBar');if(!gw)return;
+    if(!side){if(gw.classList.contains('gwTop')){gw.classList.remove('gwTop');gw.style.left=gw.style.top=gw.style.maxWidth='';}return;}
+    if(gw.hidden)return;const m=document.getElementById('menuBtn'),q=document.querySelector('#quick .qk'),mini=document.getElementById('minibox');if(!m||!vis(m))return;
+    const mr=m.getBoundingClientRect(),stop=(q&&vis(q)?q.getBoundingClientRect().left:mini?mini.getBoundingClientRect().left:innerWidth)-10,left=Math.round(mr.right+10);
+    gw.classList.add('gwTop');
+    if(stop-left>=240){gw.style.left=left+'px';gw.style.maxWidth=Math.round(stop-left)+'px';gw.style.top=Math.round(mr.top+Math.max(0,(mr.height-gw.getBoundingClientRect().height)/2))+'px';}
+    else{ // narrow phones: just under the top row (and under the buff icons when there are any)
+      const bf=document.getElementById('buffs'),below=bf&&vis(bf)?bf.getBoundingClientRect().bottom:mr.bottom;const L=Math.round(Math.max(8,mr.left-20));
+      gw.style.left=L+'px';gw.style.maxWidth=Math.round(stop-L)+'px';gw.style.top=Math.round(below+6)+'px';}}
+  function stackSideways(hr){placeSit(true);placeGW(true);
     const pb=document.getElementById('partyBox'),log=document.getElementById('log'),bf=document.getElementById('buffs');
     const above=vis(row)?row.getBoundingClientRect().bottom:hr.bottom;
     if(pb){const top=Math.round(above+8),lt=vis(log)?log.getBoundingClientRect().top:innerHeight;pb.style.top=top+'px';pb.style.left=Math.round(hr.left)+'px';
       pb.style.maxHeight=Math.max(30,Math.round(lt-top-8))+'px';pb.style.overflowY='auto';}
-    if(bf){const tops=['menuBtn','sitBtn'].map(id=>document.getElementById(id)).filter(vis).map(e=>e.getBoundingClientRect());
+    if(bf){const tops=['menuBtn'].map(id=>document.getElementById(id)).filter(vis).map(e=>e.getBoundingClientRect());
       bf.style.flexDirection='row';bf.style.right='auto';
       if(tops.length){const l=Math.min(...tops.map(r=>r.left)),r=Math.max(...tops.map(r=>r.right)),b=Math.max(...tops.map(r=>r.bottom));
         const w=bf.getBoundingClientRect().width||0;bf.style.top=Math.round(b+6)+'px';bf.style.left=Math.round(Math.max(8,(l+r)/2-w/2))+'px';}}}

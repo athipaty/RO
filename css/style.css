@@ -980,3 +980,8 @@ body.touchui #panel.npcfull:has(.eqgrid)>*:not(.x){max-width:none;width:100%}
   body.touchui #panel.npcfull:has(.eqgrid) .sub{display:none}
 }
 @media (orientation:portrait){body.touchui #panel.npcfull .eqgrid{align-items:start}body.touchui #panel.npcfull #eqCv{justify-self:center}}
+/* sideways: Sit moved next to Auto, so Menu sits alone at the top */
+@media (orientation:landscape) and (max-height:520px){body.touchui #actions>#menuBtn{left:42%}body.touchui #actions>#sitBtn.sitR:active{transform:scale(.94)!important}}
+/* sideways: the guild war banner sits compact in the top row (js/quickleft.js places it) */
+body.touchui #gwBar.gwTop{transform:none!important;font-size:10.5px;padding:4px 10px;gap:6px 8px;line-height:1.25;justify-content:flex-start}
+body.touchui #gwBar.gwTop i{width:40px}

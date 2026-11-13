@@ -120,7 +120,7 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
   // sit just under the minimap, wherever it ends up
   // upright: a row under the minimap (the online badge moves below it); sideways: a row at the top, beside the minimap
   const place=()=>{const mb=$('#minibox');if(!mb)return;const r=mb.getBoundingClientRect(),land=innerWidth>innerHeight&&innerHeight<=520;
-    const top3=['#menuBtn','#rideBtn','#sitBtn'].map(s=>$(s)).filter(b=>b&&b.parentElement&&b.parentElement.id==='actions'); // Ride may live in #quickL
+    const top3=(land?['#menuBtn','#rideBtn']:['#menuBtn','#rideBtn','#sitBtn']).map(s=>$(s)).filter(b=>b&&b.parentElement&&b.parentElement.id==='actions'); // Ride may live in #quickL
     if(land){q.style.top=Math.round(r.top)+'px';q.style.right=Math.round(innerWidth-r.left+8)+'px';
       // narrow sideways phones: keep the top row of round buttons (Menu, Ride, Sit) clear of the quick buttons
       for(const b of top3)b.style.left='';
