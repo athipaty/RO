@@ -921,3 +921,28 @@ body.touchui #partyBox .pmr{grid-template-columns:minmax(52px,1fr) 46px auto aut
 #updPill b{font-weight:800}
 @keyframes updSpin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){#updPill .ud{animation:none}#updPill{transition:none}}
+/* ===== phones sideways: the Equipment window fits on one screen =====
+   small character on the left, the six slots as a 3x2 grid of compact cards, stats in one strip below */
+@media (orientation:landscape) and (max-height:520px){
+  body.touchui #panel:has(.eqgrid){width:min(980px,calc(100vw - 20px))!important;max-height:calc(100vh - 12px)!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;padding:8px 12px 10px!important}
+  body.touchui #panel:has(.eqgrid) h2{font-size:20px;margin:0}
+  body.touchui #panel:has(.eqgrid) .sub{font-size:11px;margin:0 0 4px}
+  body.touchui #panel .eqgrid{grid-template-columns:92px repeat(3,minmax(0,1fr));grid-auto-rows:auto;gap:6px;align-items:stretch;margin:4px 0 6px}
+  body.touchui #panel .eqcol{display:contents}
+  body.touchui #panel #eqCv{grid-column:1;grid-row:1/3;width:92px;height:auto;aspect-ratio:4/5;align-self:center}
+  body.touchui #panel .eqslot{display:grid;grid-template-columns:30px minmax(0,1fr) auto;grid-template-rows:auto;align-items:center;column-gap:6px;padding:5px 6px}
+  body.touchui #panel .eqslot .ico{width:30px;height:30px}
+  body.touchui #panel .eqslot .eqk{font-size:9px;line-height:1}
+  body.touchui #panel .eqslot .nm{font-size:12px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.touchui #panel .eqslot .ds{font-size:10px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  body.touchui #panel .eqslot>.btn{padding:2px 8px!important;font-size:11px;min-height:26px;align-self:center}
+  body.touchui #panel:has(.eqgrid) .dv{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:11.5px}
+  body.touchui #panel:has(.eqgrid) .dv>div{gap:5px}
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:760px){
+  body.touchui #panel .eqgrid{grid-template-columns:84px repeat(2,minmax(0,1fr));gap:5px}
+  body.touchui #panel #eqCv{grid-row:1/4;width:84px}
+  body.touchui #panel .eqslot{padding:4px 6px}
+  body.touchui #panel .eqslot .ds{-webkit-line-clamp:1}
+  body.touchui #panel:has(.eqgrid) .sub{display:none}
+}
