@@ -78,7 +78,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 18. M Refining +1 to +10 with failure chance
 - [x] 19. M Slotted gear variants (v0.58.0: picked-up gear rolls 0-4 slots around the usual count, shown as [n])
 - [x] 20. S Rarity colours and world announcements for rare drops
-- [x] 21. M Storage NPC (cart still to do)
+- [x] 21. M Storage NPC and a pushcart (cart v1.0.3: rent from the storage keepers, second load that rolls behind you)
 - [x] 22. M Crafting and brewing (v0.48.0: 9 brews and 9 forged pieces from monster materials, /craft)
 - [x] 23. L (server) Player shops while sitting
 - [x] 24. L (server) Trade window
@@ -111,7 +111,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 
 ### Social
 - [x] 45. M (server) Parties
-- [x] 46. M (server) Whispers and friends (block list still to do)
+- [x] 46. M (server) Whispers and friends (block list: covered by /mute, which hides chat, whispers and every request)
 - [x] 47. S Chat commands: /help /where /who /sit /stand /exp /roll /emotes /clear
 - [x] 48. M (server) Chat rooms (v0.69.0: /join, /part, /rooms, /room and a Room tab; across all regions)
 - [x] 49. L (server) Guilds with emblems (v0.20.0)
@@ -142,3 +142,17 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 68. S Ambient sounds per map (v0.53.0: switch in Settings)
 - [x] 69. M More original music themes (v0.55.0: Arena, Emberkeep, Mossdeep Caverns)
 - [x] 70. S Level-up light pillar, also seen on other players (v0.32.0)
+
+# Stage 8: endgame, builds and smoothness (from player feedback)
+- [x] 71. M Character slots (3 per account) and storage shared by an account's characters (v0.95.0, server)
+- [x] 72. L Build variety: passives and stat-scaled skills for every calling, build stats on gear, sigils and brews (v0.96.0–v0.97.0)
+- [x] 73. M A signature animation for every skill (v0.98.0–v0.99.0)
+- [x] 74. M Gear Awakening and Sigil Fusion with Gemcutter Sela (v1.0.0)
+- [x] 75. M Smooth big fights: shared monster pictures, cached damage digits, no layout work every frame (v1.0.1)
+- [x] 76. S Build guide with next-skill and next-stat hints (v1.0.2)
+- [x] 77. M Pushcart (v1.0.3)
+- [ ] 78. M Smooth crowds of players: other heroes drawn from cached pictures in busy towns and boss fights
+- [ ] 79. M Sigil album: collecting every sigil of a region gives a small permanent bonus
+- [ ] 80. L (server) Endless Spire: an endgame tower for level 99 heroes, harder every floor, build-gear rewards
+- [ ] 81. S Build loadouts: save two skill and stat setups and swap between them at the Guild Hall
+

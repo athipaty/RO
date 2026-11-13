@@ -21,6 +21,8 @@ const TH={
   'Not sure what to learn? Pick a build.':'ไม่แน่ใจว่าจะเรียนอะไร? เลือกสายอาชีพดู','All skills you can learn now are done for this build.':'สกิลที่เรียนได้ตอนนี้ครบแล้วสำหรับสายนี้',
   'Three ways to play each job, from first job to master calling. Follow one and the Skills and Stats windows show your next step.':'สามแนวทางของแต่ละอาชีพ ตั้งแต่อาชีพแรกจนถึงอาชีพขั้นปรมาจารย์ เลือกเดินตามสายหนึ่ง แล้วหน้าต่างสกิลและสถานะจะบอกขั้นต่อไป',
   'Free':'ฟรี',
+  '🛒 Pushcart':'🛒 รถเข็น','Pushcart':'รถเข็น','🛒 Rent a pushcart':'🛒 เช่ารถเข็น','🛒 Your pushcart':'🛒 รถเข็นของคุณ','Rent':'เช่า','Open':'เปิด','Put in':'ใส่','In the cart':'ในรถเข็น','Your bag':'กระเป๋าของคุณ',
+  'Nothing in the cart yet. Loot, potions and spare gear can ride here.':'ยังไม่มีของในรถเข็น ใส่ของที่เก็บได้ ยา และอุปกรณ์สำรองไว้ที่นี่ได้',
   'Characters':'ตัวละคร','Empty slot':'ช่องว่าง','New character':'ตัวละครใหม่','Delete this character':'ลบตัวละครนี้','Delete':'ลบ','Keep':'เก็บไว้',
   'Up to three characters. They all share one storage at the Warehouse and the Royal Bank.':'สร้างได้สูงสุดสามตัวละคร ทุกตัวใช้คลังเก็บของร่วมกันที่โกดังและธนาคารหลวง',
   'Delete this character? This cannot be undone.':'ลบตัวละครนี้? ย้อนกลับไม่ได้','Character deleted.':'ลบตัวละครแล้ว','Loading your characters…':'กำลังโหลดตัวละคร…',
