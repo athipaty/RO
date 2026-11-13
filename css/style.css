@@ -1034,3 +1034,21 @@ body.touchui #gwBar.gwTop i{width:40px}
 .albcell{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border-radius:8px;background:rgba(255,255,255,.03);font-size:11px;text-align:center;opacity:.45}
 .albcell.got{opacity:1;background:rgba(200,176,255,.08)}.albcell span:last-child{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .albq{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1px dashed rgba(255,255,255,.3);color:var(--muted);font-weight:700}
+
+/* phones: skill tree as icons with the chosen skill's card beside it (js/skillpad.js) */
+.skpwrap{display:grid;grid-template-columns:1fr;gap:10px;align-items:start}
+@media (orientation:landscape){.skpwrap{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}.skpright{position:sticky;top:0}}
+.skpsec{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:8px 0 4px}
+.skprow{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.skparrow{text-align:center;color:var(--muted);font-size:10px;margin:2px 0}
+.skpic{position:relative;width:72px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px 5px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:inherit;font:inherit;cursor:pointer}
+.skpic img{width:42px;height:42px;border-radius:50%}.skpic.pas img{border-radius:12px}
+.skpic.has{border-color:rgba(240,181,74,.45)}.skpic.locked{opacity:.42}
+.skpic.sel{outline:2px solid #f0b54a;background:rgba(240,181,74,.13)}
+.skpic.next::after{content:'';position:absolute;inset:-3px;border-radius:14px;box-shadow:0 0 0 2px #8fe0a8;pointer-events:none}
+.skplv{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}.skpic.has .skplv{color:#ffd27a}
+.skpnm{font-size:10px;line-height:1.15;text-align:center;max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.skpright .ttier{display:block}.skpright .snode{margin:0}
+.skpnext{font-size:12px;margin-top:8px;line-height:1.4}
+@media (orientation:portrait){.skpright{position:sticky;bottom:0;z-index:2;max-height:44vh;overflow:auto;margin:0 -4px;padding:8px 4px 4px;background:rgba(18,22,30,.97);border-top:1px solid rgba(240,181,74,.35);box-shadow:0 -10px 24px rgba(0,0,0,.45);border-radius:14px 14px 0 0}}
+.skpright .snode.locked{opacity:1}.skpright .snode.locked .nm,.skpright .snode.locked .ds{opacity:.75}

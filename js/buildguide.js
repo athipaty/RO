@@ -70,14 +70,20 @@ function buildNextStat(b){if(!P||!b)return null;let best=null,bv=1e9;for(const k
 const baseJob=c=>(CLASSES[c]&&CLASSES[c].base)||c;
 const AW_NAME={atkpct:'ATK %',matkpct:'MATK %',aspd:'Attack speed',dbl:'Double attack',critdmg:'Crit damage',crit:'CRIT',cast:'Cast time',dmgred:'Damage taken',hppct:'Max HP %',sppct:'Max SP %',healpct:'Healing'};
 const bName=b=>LANG==='th'&&b.th?b.th:b.name;
+// which builds this hero may see and follow: only their own job, and once they have an advanced or master calling,
+// only the builds whose route goes through it (a Ravager sees Earthsplitter and Duelist, not Iron Wall). Novices may look at all.
+function buildAllowed(b){if(!P||!b)return false;if(P.cls==='novice')return false;return b.job===baseJob(P.cls)&&b.route.includes(P.cls);}
+const buildsVisible=()=>P&&P.cls==='novice'?BUILDS:BUILDS.filter(buildAllowed);
 
-PANELS.buildguide=()=>{const mine=P&&P.cls!=='novice'?baseJob(P.cls):null;if(!GUIDE.job)GUIDE.job=mine||'warden';
+PANELS.buildguide=()=>{const mine=P&&P.cls!=='novice'?baseJob(P.cls):null;if(mine)GUIDE.job=mine;else if(!GUIDE.job)GUIDE.job='warden';
+  if(P.build&&!buildAllowed(buildById(P.build)))P.build=null; // a build from another route stops being followed
   let h=`<h2>Build guide</h2><div class="sub">Three ways to play each job, from first job to master calling. Follow one and the Skills and Stats windows show your next step.</div>`;
-  h+=`<div class="tabs itabs" role="tablist">`+['warden','arcanist','ranger','cleric'].map(j=>`<button class="btn small ${GUIDE.job===j?'on':''}" role="tab" aria-selected="${GUIDE.job===j}" data-act="guidejob" data-arg="${j}">${CLASSES[j].name}${mine===j?' ★':''}</button>`).join('')+`</div>`;
-  for(const b of BUILDS.filter(x=>x.job===GUIDE.job)){const on=P.build===b.id,cur=on||mine===b.job;
+  if(!mine)h+=`<div class="arbox">Novices can look at every job to choose a calling. Following a build starts once you take one with Guildmaster Corvin.</div>`;
+  if(!mine)h+=`<div class="tabs itabs" role="tablist">`+['warden','arcanist','ranger','cleric'].map(j=>`<button class="btn small ${GUIDE.job===j?'on':''}" role="tab" aria-selected="${GUIDE.job===j}" data-act="guidejob" data-arg="${j}">${CLASSES[j].name}${mine===j?' ★':''}</button>`).join('')+`</div>`;
+  for(const b of buildsVisible().filter(x=>x.job===GUIDE.job)){const on=P.build===b.id,cur=on||mine===b.job;
     const nx=on?buildNextSkill(b):null,ns=on?buildNextStat(b):null,tot=Object.values(b.stats).reduce((a,v)=>a+v,0);
     h+=`<div class="bgcard${on?' on':''}"><div class="bghead"><div class="grow"><div class="nm">${esc(bName(b))} <span class="muted">· ${esc(b.tag)}</span></div><div class="ds">${esc(b.desc)}</div></div>`+
-      (on?`<button class="btn small ghost" data-act="buildpick" data-arg="">Stop following</button>`:`<button class="btn small" data-act="buildpick" data-arg="${b.id}">Follow this build</button>`)+`</div>`;
+      (on?`<button class="btn small ghost" data-act="buildpick" data-arg="">Stop following</button>`:buildAllowed(b)?`<button class="btn small" data-act="buildpick" data-arg="${b.id}">Follow this build</button>`:'')+`</div>`;
     h+=`<div class="bgroute">`+b.route.map(c=>`<span class="${P.cls===c?'here':''}">${esc(CLASSES[c].name)}</span>`).join('<i>→</i>')+`</div>`;
     if(on)h+=`<div class="bgnext">${nx?`Next skill: <b>${esc(SKILLS[nx.id].name)} Lv ${nx.lv}</b>`:'All skills you can learn now are done for this build.'}${ns?` · next stat: <b>${ns.toUpperCase()}</b>`:''}</div>`;
     h+=`<h3>Stats</h3><div class="bgstats">`+Object.entries(b.stats).map(([k,v])=>`<div><span>${k.toUpperCase()}</span><i style="width:${Math.round(v/tot*100)}%"></i><b>${P.st[k]}</b></div>`).join('')+`</div>`;
@@ -91,11 +97,11 @@ PANELS.buildguide=()=>{const mine=P&&P.cls!=='novice'?baseJob(P.cls):null;if(!GU
       `<div class="ds">Awaken for: ${b.awaken.map(k=>esc(AW_NAME[k]||k)).join(', ')}</div></div>`;}
   return h;};
 PANEL_ACTS.guidejob=j=>{GUIDE.job=j;sfx('click');refreshPanel();};
-PANEL_ACTS.buildpick=id=>{P.build=id||null;sfx('click');if(id)addLog(`Following the ${bName(buildById(id))} build. The Skills window marks your next skill.`,'l-good');save();refreshPanel();};
+PANEL_ACTS.buildpick=id=>{if(id&&!buildAllowed(buildById(id)))return;P.build=id||null;sfx('click');if(id)addLog(`Following the ${bName(buildById(id))} build. The Skills window marks your next skill.`,'l-good');save();refreshPanel();};
 PANEL_ACTS.openguide=()=>{GUIDE.job=null;openPanel('buildguide');};
 
 // the Skills window: a Build guide button, and the next skill marked when you follow a build
-{const _stG=skillTreeHtml;skillTreeHtml=function(){let h=_stG.apply(this,arguments);const b=buildById(P.build),nx=buildNextSkill(b);
+{const _stG=skillTreeHtml;skillTreeHtml=function(){let h=_stG.apply(this,arguments);if(P.build&&!buildAllowed(buildById(P.build)))P.build=null;const b=buildById(P.build),nx=buildNextSkill(b);
   const bar=`<div class="bgbar"><button class="btn small" data-act="openguide">📖 Build guide</button>${b?`<span>Following <b>${esc(bName(b))}</b>${nx?` · next: <b>${esc(SKILLS[nx.id].name)} Lv ${nx.lv}</b>`:' · all done for now'}</span>`:'<span class="muted">Not sure what to learn? Pick a build.</span>'}</div>`;
   const i=h.indexOf('</div>',h.indexOf('class="sub"'));h=i<0?bar+h:h.slice(0,i+6)+bar+h.slice(i+6);
   return h;};}

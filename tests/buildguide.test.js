@@ -23,11 +23,18 @@ module.exports = async t => {
       const following = P.build === 'duel' && /Next skill: Blade Mastery Lv 1/.test(document.getElementById('panel').textContent);
       openPanel('skills'); const node = document.querySelector('.snode.bgnextnode [data-act="learn"]'), bar = document.querySelector('.bgbar') && document.querySelector('.bgbar').textContent;
       openPanel('status'); const stat = document.querySelector('.bgnextstat'); closePanel();
-      return { tabs: ['Warden', 'Arcanist', 'Ranger', 'Cleric'].every(x => s0.includes(x)), names: /Earthsplitter/.test(s0) && /Duelist/.test(s0) && /Iron Wall/.test(s0), following,
+      return { tabs: !/Arcanist/.test(s0) && !/Elementalist/.test(s0), names: /Earthsplitter/.test(s0) && /Duelist/.test(s0) && /Iron Wall/.test(s0), following,
         node: node && node.dataset.arg, bar, stat: stat && stat.dataset.arg }; });
-    t.ok(ui.tabs && ui.names, 'the guide has a tab per job and shows the three Warden builds');
+    t.ok(ui.tabs && ui.names, 'a Warden sees only the three Warden builds, no other job');
     t.ok(ui.following && ui.node === 'bladecraft' && /Following/.test(ui.bar), `following Duelist marks the next skill in the tree (${ui.node})`);
     t.ok(ui.stat === 'agi', `and the Status window points at the next stat (${ui.stat})`);
+    // other jobs and other routes cannot be followed; novices can look at everything
+    const lim = await g.ev(() => { PANEL_ACTS.buildpick('nuke'); const other = P.build; P.cls = 'ravager'; openPanel('buildguide'); const rav = document.getElementById('panel').textContent; const wallBtn = !!panel.querySelector('[data-act="buildpick"][data-arg="wall"]');
+      P.cls = 'novice'; openPanel('buildguide'); const nov = document.getElementById('panel').textContent, novBtn = !!panel.querySelector('[data-act="buildpick"][data-arg]:not([data-arg=""])'); P.cls = 'warden'; P.build = 'duel'; closePanel();
+      return { other, ravOk: /Earthsplitter/.test(rav) && /Duelist/.test(rav) && !/Iron Wall/.test(rav) && !wallBtn, nov: /Arcanist/.test(nov) && /Earthsplitter/.test(nov) && !novBtn }; });
+    t.ok(lim.other === 'duel', 'a Warden cannot follow an Arcanist build');
+    t.ok(lim.ravOk, 'a Ravager sees only the builds on the Ravager route (no Iron Wall)');
+    t.ok(lim.nov, 'a Novice can look at every job but follow nothing yet');
     // /build opens it; the choice is saved
     t.ok(await g.ev(() => { chatCommand('build', ''); const ok = panelKind === 'buildguide'; closePanel(); save(true); return ok && JSON.parse(localStorage.getItem('embervale.save.v1')).p.build === 'duel'; }), '/build opens the guide, and the followed build is saved');
     // free resets on the test server
