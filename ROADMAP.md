@@ -152,7 +152,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 76. S Build guide with next-skill and next-stat hints (v1.0.2)
 - [x] 77. M Pushcart (v1.0.3)
 - [ ] 78. M Smooth crowds of players: other heroes drawn from cached pictures in busy towns and boss fights
-- [ ] 79. M Sigil album: collecting every sigil of a region gives a small permanent bonus
+- [x] 79. M Sigil album: collecting every sigil of a region gives a small permanent bonus (v1.0.4, /album)
 - [ ] 80. L (server) Endless Spire: an endgame tower for level 99 heroes, harder every floor, build-gear rewards
 - [ ] 81. S Build loadouts: save two skill and stat setups and swap between them at the Guild Hall
 

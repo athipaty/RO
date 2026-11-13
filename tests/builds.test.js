@@ -37,7 +37,7 @@ module.exports = async t => {
     // double attack fires a second hit
     const dbl = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); const m = mobs.find(x => !x.dead); m.hp = m.maxhp = 99999; P.x = m.x - 30; P.y = m.y;
       P.target = null; P.queued = null; P.buffs.__t = { name: 't', until: now + 60, b: { dbl: 100, hit: 999 } }; S = computeStats(); let hits = 0; const _d = dealPhys; dealPhys = function () { hits++; return _d.apply(this, arguments); };
-      basicAttack(m); meleeImpact(true); await w(700); dealPhys = _d; delete P.buffs.__t; S = computeStats(); return hits; });
+      const _r = Math.random; Math.random = () => .01; basicAttack(m); Math.random = _r; meleeImpact(true); await w(700); dealPhys = _d; delete P.buffs.__t; S = computeStats(); return hits; });
     t.ok(dbl === 2, `with double attack a normal attack hits twice (${dbl} hits)`);
 
     // Arcanist: cast time, MATK %, Mana Shield

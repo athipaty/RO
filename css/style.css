@@ -1027,3 +1027,10 @@ body.touchui #gwBar.gwTop i{width:40px}
   body.touchui #panel.npcfull .ttier{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
   body.touchui #panel.npcfull:has(.ttier) .ttier{display:grid;gap:8px}
 }
+
+/* sigil album (js/album.js) */
+.albpage{border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;margin:8px 0}.albpage.done{border-color:rgba(255,215,106,.55);background:rgba(255,215,106,.06)}
+.albgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:6px;margin-top:8px}
+.albcell{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border-radius:8px;background:rgba(255,255,255,.03);font-size:11px;text-align:center;opacity:.45}
+.albcell.got{opacity:1;background:rgba(200,176,255,.08)}.albcell span:last-child{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.albq{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1px dashed rgba(255,255,255,.3);color:var(--muted);font-weight:700}
