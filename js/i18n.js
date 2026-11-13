@@ -17,6 +17,10 @@ const TH={
   'not awakened':'ยังไม่ปลุกพลัง','Now':'ตอนนี้','New':'ใหม่','nothing':'ไม่มี','empty':'ว่าง','Add':'ใส่','You have no gear to awaken.':'คุณไม่มีอุปกรณ์ให้ปลุกพลัง',
   'No loose sigils in your bag. Monsters drop them now and then.':'ไม่มีซิกิลในกระเป๋า มอนสเตอร์ดรอปเป็นครั้งคราว',
   'Radiant chance 12%, +8% for each Radiant sigil you put in. The result is near the level of the three.':'โอกาสได้แบบเรเดียนต์ 12% +8% ต่อซิกิลเรเดียนต์ที่ใส่ ผลลัพธ์ใกล้เลเวลของทั้งสาม',
+  'Build guide':'คู่มือสายอาชีพ','📖 Build guide':'📖 คู่มือสายอาชีพ','Follow this build':'เดินตามสายนี้','Stop following':'เลิกเดินตาม','Skills, in order':'สกิลตามลำดับ','Gear and sigils':'อุปกรณ์และซิกิล',
+  'Not sure what to learn? Pick a build.':'ไม่แน่ใจว่าจะเรียนอะไร? เลือกสายอาชีพดู','All skills you can learn now are done for this build.':'สกิลที่เรียนได้ตอนนี้ครบแล้วสำหรับสายนี้',
+  'Three ways to play each job, from first job to master calling. Follow one and the Skills and Stats windows show your next step.':'สามแนวทางของแต่ละอาชีพ ตั้งแต่อาชีพแรกจนถึงอาชีพขั้นปรมาจารย์ เลือกเดินตามสายหนึ่ง แล้วหน้าต่างสกิลและสถานะจะบอกขั้นต่อไป',
+  'Free':'ฟรี',
   'Characters':'ตัวละคร','Empty slot':'ช่องว่าง','New character':'ตัวละครใหม่','Delete this character':'ลบตัวละครนี้','Delete':'ลบ','Keep':'เก็บไว้',
   'Up to three characters. They all share one storage at the Warehouse and the Royal Bank.':'สร้างได้สูงสุดสามตัวละคร ทุกตัวใช้คลังเก็บของร่วมกันที่โกดังและธนาคารหลวง',
   'Delete this character? This cannot be undone.':'ลบตัวละครนี้? ย้อนกลับไม่ได้','Character deleted.':'ลบตัวละครแล้ว','Loading your characters…':'กำลังโหลดตัวละคร…',
@@ -94,6 +98,7 @@ const TH={
 };
 // messages with numbers or names in them
 const TH_PAT=[
+  [/^Next skill: (.+) Lv (\d+)(.*)$/,(m,a,b,c)=>`สกิลถัดไป: ${a} Lv ${b}${c.replace(' · next stat: ',' · ค่าสถานะถัดไป: ')}`],[/^Awaken for: (.+)$/,'ปลุกพลังเพื่อ: $1'],
   [/^Continue as (.+) \(Lv (\d+)\)$/,'เล่นต่อเป็น $1 (Lv $2)'],[/^Lv (\d+) · (.+?)( ✦)?$/,(m,a,b,c)=>`Lv ${a} · ${thText(b)}${c||''}`],
   [/^Delete (.+) \(Lv (\d+)\)\? This cannot be undone\. Items in storage stay for your other characters\.$/,'ลบ $1 (Lv $2)? ย้อนกลับไม่ได้ ของในคลังยังอยู่สำหรับตัวละครอื่นของคุณ'],
   [/^Lv (\d+)$/,'Lv $1'],[/^Job (\d+)$/,'อาชีพ $1'],[/^Job (max)$/,'อาชีพ สูงสุด'],[/^Weight ([\d,]+) \/ ([\d,]+)(.*)$/,(m,a,b,c)=>`น้ำหนัก ${a} / ${b}${c.replace(' · too heavy to fight',' · หนักเกินกว่าจะสู้').replace(' · no regen',' · ไม่ฟื้นพลัง')}`],

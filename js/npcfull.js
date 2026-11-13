@@ -3,11 +3,12 @@
    Talking to anyone in town (shops, smith, storage, guild hall, chapel, waystation, stylist, quests ...) opens
    their window full screen on touch devices, so lists and buttons have room. It stays full screen while you move
    between that person's pages (a quest chat that leads to their shop) and ends when the window closes.
-   Windows you open yourself (Stats, Items, ...) keep their usual size. Desktop is unchanged. */
+   Since v1.0.2 the windows you open yourself (Stats, Items, Skills, Shortcut keys ...) fill the screen too. Desktop is unchanged. */
 const NPCWIN={on:false,opening:false};
 function syncNpcFull(){
   // townsfolk windows, and the Equipment window, fill the screen on phones
-  const on=(NPCWIN.on||panelKind==='equip')&&!panel.hidden&&document.body.classList.contains('touchui');
+  // since v1.0.2 every window fills the screen on phones (Skills, Status, Items, Shortcut keys, ...), not just townsfolk and Equipment
+  const on=!!panelKind&&!panel.hidden&&document.body.classList.contains('touchui');
   if(panel.classList.contains('npcfull')!==on){panel.classList.toggle('npcfull',on);if(on)panel.scrollTop=0;}
   document.body.classList.toggle('npcopen',on);}
 const _openNpcFull=openNpc;

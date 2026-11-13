@@ -18,7 +18,7 @@ module.exports = async t => {
     for (const [name, vp] of [['upright', { width: 390, height: 844, isMobile: true, hasTouch: true }], ['sideways', { width: 844, height: 390, isMobile: true, hasTouch: true }]]) {
       const page = await open(browser, vp); const r = await page.evaluate(check);
       t.ok(Object.values(r.out).length >= 3 && Object.values(r.out).every(Boolean), `phone ${name}: shop, smith, quest talk and stylist windows fill the screen ${JSON.stringify(r.out)}`);
-      t.ok(r.closed && !r.own, `phone ${name}: closing ends full screen, and the Items window keeps its usual size`);
+      t.ok(r.closed && r.own, `phone ${name}: closing ends full screen, and the Items window opens full screen too`);
       t.ok(page.errors.length === 0, `phone ${name}: no script errors` + page.errors.map(e => ': ' + e).join(''));
     }
     const desk = await open(browser, { width: 1200, height: 800 });

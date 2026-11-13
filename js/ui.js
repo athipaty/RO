@@ -377,7 +377,7 @@ function setSlot(n){CS.slot=n;try{localStorage.setItem(SLOT_KEY,String(n));}catc
 function storageWith(list,e){const out=list.map(x=>({...x}));const st=e.n!==undefined?out.find(x=>x.id===e.id&&x.n!==undefined):null;
   if(st){st.n+=e.n;return out;}if(out.length>=STORAGE_MAX)return null;out.push(e);return out;}
 function snapshot(){if(!P)return null;
-  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','bar','pet','ach','emofav','mounts','mountPick','bond','useLv','rested','qs','track','bars','hbRows','reborn','autoLoot'];
+  const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','bar','pet','ach','emofav','mounts','mountPick','bond','useLv','rested','qs','track','bars','hbRows','reborn','autoLoot','build'];
   const o={};for(const k of keep)o[k]=P[k];o.uid=uid;
   // the shared storage lives with the account (or the device), not in the character
   if(CS.shared){if(CS.oldSt)o.storage=CS.oldSt;else{o.storage=[];o.sharedSt=1;}}

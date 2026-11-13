@@ -1001,3 +1001,29 @@ body.touchui #gwBar.gwTop i{width:40px}
 .fusetray{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
 .fuseslot{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:64px;border:1px dashed rgba(255,255,255,.2);border-radius:10px;padding:6px;font:inherit;color:inherit;background:rgba(255,255,255,.03)}
 .fuseslot.full{border-style:solid;border-color:rgba(200,176,255,.5);cursor:pointer}.fuseslot span{font-size:11px;text-align:center;overflow:hidden;text-overflow:ellipsis;max-width:100%;white-space:nowrap}
+
+/* Build guide (js/buildguide.js) */
+.bgcard{border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px;margin:10px 0;background:rgba(255,255,255,.03)}
+.bgcard.on{border-color:rgba(240,181,74,.6);background:rgba(240,181,74,.07)}
+.bghead{display:flex;gap:10px;align-items:flex-start}
+.bgroute{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:8px 0;font-size:12px}.bgroute span{padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.07)}
+.bgroute span.here{background:rgba(240,181,74,.25);color:#ffe0a0}.bgroute i{font-style:normal;color:var(--muted)}
+.bgnext{margin:6px 0;padding:6px 10px;border-radius:8px;background:rgba(143,224,168,.1);color:#bff0cc;font-size:13px}
+.bgstats{display:grid;gap:4px}.bgstats div{display:grid;grid-template-columns:38px 1fr 28px;gap:6px;align-items:center;font-size:12px}
+.bgstats i{display:block;height:6px;border-radius:3px;background:linear-gradient(90deg,#f0b54a,#ff7a45)}.bgstats b{text-align:right}
+.bgskills{display:flex;flex-wrap:wrap;gap:5px}.bgtier{width:100%;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.bgsk{display:inline-flex;align-items:center;gap:4px;padding:3px 7px 3px 3px;border-radius:999px;background:rgba(255,255,255,.06);font-size:12px}
+.bgsk img{width:18px;height:18px;border-radius:50%}.bgsk b{color:var(--muted);font-weight:600}.bgsk.done{opacity:.55}.bgsk.done b{color:#8fe0a8}
+.bgsk.next{outline:2px solid #8fe0a8;background:rgba(143,224,168,.15)}
+.bggear{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}.bgit{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:2px 8px 2px 2px;border-radius:8px;background:rgba(255,255,255,.05)}
+.bgit .ico{width:22px;height:22px}
+.bgbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0;font-size:13px}
+.snode.bgnextnode{outline:2px solid #8fe0a8;box-shadow:0 0 12px rgba(143,224,168,.35)}
+.bgnextstat{outline:2px solid #8fe0a8}.bghint{font-size:11px;color:#8fe0a8;margin-left:6px}
+
+/* phones sideways: full-screen windows use the width (two-column lists, the skill tree spreads out) */
+@media (orientation:landscape) and (max-height:520px){
+  body.touchui #panel.npcfull>*:not(.x){max-width:1180px}
+  body.touchui #panel.npcfull .ttier{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+  body.touchui #panel.npcfull:has(.ttier) .ttier{display:grid;gap:8px}
+}
