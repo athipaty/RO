@@ -106,8 +106,16 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
       for(const b of top3)b.style.left='';
       const qr=q.getBoundingClientRect(),last=top3[top3.length-1];
       if(last&&qr.width&&last.getBoundingClientRect().right>qr.left-6){const step=42,c0=qr.left-4-19-step*(top3.length-1);
-        top3.forEach((b,i)=>{b.style.left=Math.round(c0+i*step)+'px';});}}
-    else{for(const b of top3)b.style.left='';q.style.top=Math.round(r.bottom+8)+'px';q.style.right=Math.round(innerWidth-r.right)+'px';const ob=$('#onlineBadge');if(ob&&document.body.classList.contains('touchui')){ob.style.top=Math.round(r.bottom+58)+'px';
+        top3.forEach((b,i)=>{b.style.left=Math.round(c0+i*step)+'px';});}
+      // the online badge: just under the status box on the left (the list opens under it)
+      const ob=$('#onlineBadge'),hud=$('#hud');if(ob&&hud&&document.body.classList.contains('touchui')){const hr=hud.getBoundingClientRect();
+        ob.style.top=Math.round(hr.bottom+6)+'px';ob.style.left=Math.round(hr.left)+'px';ob.style.right='auto';
+        const wl=$('#whoList');if(wl){const br=ob.getBoundingClientRect();wl.style.top=Math.round(br.bottom+6)+'px';wl.style.left=Math.round(hr.left)+'px';wl.style.right='auto';
+          wl.style.maxHeight=Math.max(120,Math.round(innerHeight-br.bottom-16))+'px';}}}
+    else{for(const b of top3)b.style.left='';q.style.top=Math.round(r.bottom+8)+'px';q.style.right=Math.round(innerWidth-r.right)+'px';const ob=$('#onlineBadge');
+      // upright: the stylesheet decides left/right again
+      if(ob){ob.style.left=ob.style.right='';const wl=$('#whoList');if(wl){wl.style.left=wl.style.right=wl.style.maxHeight='';}}
+      if(ob&&document.body.classList.contains('touchui')){ob.style.top=Math.round(r.bottom+58)+'px';
       // the who's-online list opens UNDER the badge, so the badge can still be tapped to close it
       const wl=$('#whoList');if(wl){const br=ob.getBoundingClientRect();if(br.height)wl.style.top=Math.round(br.bottom+6)+'px';}}}};
   place();setInterval(place,600);addEventListener('resize',place);})();

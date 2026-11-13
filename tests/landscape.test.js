@@ -24,6 +24,10 @@ module.exports = async t => {
     t.ok(quick.n === 5 && quick.beside && quick.k === 'skills', 'Stats, Skills, Items, Equip and Quests buttons sit beside the minimap and open their windows');
     const auto = await ev(() => { const a = document.getElementById('autoBtn').getBoundingClientRect(), atk = document.getElementById('atkBtn').getBoundingClientRect(); return { right: a.left > innerWidth * .7, above: a.bottom < atk.top }; });
     t.ok(auto.right && auto.above, 'Auto sits on the right, above the shortcuts');
+    await wait(700);
+    const online = await ev(() => { const b = document.getElementById('onlineBadge'), r = b.getBoundingClientRect(), h = document.getElementById('hud').getBoundingClientRect(), l = document.getElementById('log').getBoundingClientRect();
+      return { shown: getComputedStyle(b).display !== 'none' && r.width > 0, under: r.top >= h.bottom && r.top - h.bottom < 14 && Math.abs(r.left - h.left) < 2, clear: r.bottom <= l.top, text: b.textContent }; });
+    t.ok(online.shown && online.under && online.clear, `the online badge shows sideways, just under the status box ("${online.text}")`);
     t.ok(errors.length === 0, 'no script errors' + errors.map(e => ': ' + e).join(''));
   } finally { await browser.close(); }
 };
