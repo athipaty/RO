@@ -175,7 +175,7 @@ function chatCommand(k,arg){
   if(k==='exp'){const cut=Date.now()-600000,rec=EXPLOG.filter(x=>x.t>=cut);
     if(!rec.length){addLog('No EXP earned in the last 10 minutes.');return true;}
     const sum=rec.reduce((a,x)=>a+x.e,0),span=Math.max(60000,Date.now()-rec[0].t);
-    addLog(`EXP per hour (last ${Math.round(span/60000)} min): ${fmt(sum*3600000/span)} · next level in ${fmt(Math.max(0,expNeed(P.lv)-P.exp))} EXP.`);return true;}
+    addLog(`EXP per hour (last ${Math.round(span/60000)} min): ${fmt(sum*3600000/span)} ${P.lv>=99?' · base level is at the cap (99).':` · next level in ${fmt(Math.max(0,expNeed(P.lv)-P.exp))} EXP.`}`);return true;}
   if(k==='w'||k==='whisper'||k==='tell'){const[to,...r]=arg.split(/\s+/);const text=r.join(' ');if(!to||!text){addLog('Usage: /w Name message');return true;}soc('whisper',{to,text});return true;}
   if(k==='r'||k==='reply'){if(!SOC.lastWhisper)addLog('Nobody has whispered to you yet.');else if(arg)soc('whisper',{to:SOC.lastWhisper,text:arg});else addLog(`Usage: /r message (replies to ${SOC.lastWhisper})`);return true;}
   if(k==='p'||k==='party'){if(!SOC.party){addLog('You are not in a party. Invite someone with /invite Name.');return true;}

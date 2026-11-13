@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='0.98.0';
+const VERSION='0.98.1';
 // chance that a normal monster drops its sigil (card); bosses set their own sigChance
 const SIG_CHANCE=.01;
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';

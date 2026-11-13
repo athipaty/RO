@@ -75,9 +75,10 @@ function buff(id,name,dur,b){P.buffs[id]={name,until:now+dur,b};fx.push({k:'ring
 
 const EXPLOG=[];
 function gainExp(e,j){
+  if(P.lv>=99)P.exp=0;
   if(isRested()){e=Math.round(e*(1+REST_BONUS));j=Math.round(j*(1+REST_BONUS));}
   {const eb=typeof eventExpBonus==='function'?eventExpBonus():0;if(eb){e=Math.round(e*(1+eb));j=Math.round(j*(1+eb));}}
-  if(e>0){texts.push({x:P.x,y:P.y-52,txt:`+${fmt(e)} EXP`,col:'#ffe27a',size:12,t0:now,dur:1.3,vx:-6});EXPLOG.push({t:Date.now(),e});while(EXPLOG.length>500)EXPLOG.shift();}
+  if(e>0&&P.lv<99){texts.push({x:P.x,y:P.y-52,txt:`+${fmt(e)} EXP`,col:'#ffe27a',size:12,t0:now,dur:1.3,vx:-6});EXPLOG.push({t:Date.now(),e});while(EXPLOG.length>500)EXPLOG.shift();}
   if(j>0&&P.jl<jobMax(P.cls))texts.push({x:P.x+4,y:P.y-40,txt:`+${fmt(j)} Job`,col:'#8fe0a8',size:11,t0:now,dur:1.3,vx:8});
   P.exp+=e;
   const jm=jobMax(P.cls);if(P.jl<jm)P.jexp+=j;
@@ -86,6 +87,7 @@ function gainExp(e,j){
   while(P.lv<99&&P.exp>=expNeed(P.lv)){P.exp-=expNeed(P.lv);P.lv++;P.statPts+=Math.floor(P.lv/5)+3;lvUp=true;if(P.lv%5===0)mile=P.lv;}
   while(P.jl<jm&&P.jexp>=jexpNeed(P.jl)){P.jexp-=jexpNeed(P.jl);P.jl++;P.skillPts++;jUp=true;}
   if(P.jl>=jm)P.jexp=0;
+  if(P.lv>=99)P.exp=0; // the base level cap: nothing more to fill
   if(lvUp){sfx('levelup');fx.push({k:'lvpillar',o:P,x:P.x,y:P.y,t0:now,dur:2.6});if(mile)announce('lv',mile);S=computeStats();P.hp=S.maxhp;P.sp=S.maxsp;fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:1.6,txt:'LEVEL UP'});addLog(`Base level ${P.lv}! You have ${P.statPts} stat points to spend (C).`,'l-lvl');save();}
   if(jUp){if(!lvUp)sfx('jobup');fx.push({k:'lvl',x:P.x,y:P.y-18,t0:now,dur:1.6,txt:'JOB UP',col:'#62bf86'});addLog(`Job level ${P.jl}! You have ${P.skillPts} skill points (K).`,'l-lvl');
     if(P.cls==='novice'&&P.jl>=10)addLog('You can now choose a calling. Talk to Guildmaster Corvin in Hearthvale.','l-rare');

@@ -9,7 +9,7 @@ function updateHud(){
   setW('hpI',P.hp/S.maxhp);setT('hpT',`${fmt(P.hp)} / ${fmt(S.maxhp)}`);
   setW('spI',P.sp/S.maxsp);setT('spT',`${fmt(P.sp)} / ${fmt(S.maxsp)}`);
   const en=expNeed(P.lv),jn=jexpNeed(P.jl),jm=P.jl>=jobMax(P.cls);
-  setT('lvT',`Lv ${P.lv}`);setT('exT',(P.exp/en*100).toFixed(1)+'%');setW('exI',P.exp/en);
+  setT('lvT',`Lv ${P.lv}`);{const bm=P.lv>=99;setT('exT',bm?'max':(P.exp/en*100).toFixed(1)+'%');setW('exI',bm?1:Math.min(1,P.exp/en));}
   setT('jlT',`Job ${P.jl}`);setT('jxT',jm?'max':(P.jexp/jn*100).toFixed(1)+'%');setW('jxI',jm?1:P.jexp/jn);
   setT('ailT',ailText());
   setT('weight',`Weight ${fmt(carryWeight())} / ${fmt(maxWeight())}`+(P.heavy===2?' · too heavy to fight':P.heavy?' · no regen':''));
@@ -514,6 +514,7 @@ function startWith(data){
     P.storage=(CS.storage||[]).map(x=>({...x}));CS.storage=P.storage;delete P.sharedSt;}
   else if(!Array.isArray(P.storage))P.storage=[];
   if(!Array.isArray(P.friends))P.friends=[];
+  if(P.lv>=99)P.exp=0; // saves from before the cap fix could hold more than 100%
   S=computeStats();if(!data||P.hp<=0){P.hp=S.maxhp;P.sp=S.maxsp;}
   $('#title').hidden=true;running=true;rebuildHotbar();
   enterZone(data&&ZONES[P.zone]?P.zone:'town');
