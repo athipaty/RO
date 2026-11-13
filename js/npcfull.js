@@ -6,7 +6,8 @@
    Windows you open yourself (Stats, Items, ...) keep their usual size. Desktop is unchanged. */
 const NPCWIN={on:false,opening:false};
 function syncNpcFull(){
-  const on=NPCWIN.on&&!panel.hidden&&document.body.classList.contains('touchui');
+  // townsfolk windows, and the Equipment window, fill the screen on phones
+  const on=(NPCWIN.on||panelKind==='equip')&&!panel.hidden&&document.body.classList.contains('touchui');
   if(panel.classList.contains('npcfull')!==on){panel.classList.toggle('npcfull',on);if(on)panel.scrollTop=0;}
   document.body.classList.toggle('npcopen',on);}
 const _openNpcFull=openNpc;
