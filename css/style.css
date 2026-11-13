@@ -832,3 +832,18 @@ body.npcopen #itemCard{z-index:50}
   body.touchui #onlineBadge{transform:none;font-size:11px;padding:3px 10px;background:rgba(14,18,26,.6);border-width:1px;white-space:nowrap}
   body.touchui #whoList{transform:none;max-height:min(58vh,230px);width:min(260px,calc(100vw - 24px));background:#141a24!important;z-index:7;backdrop-filter:none}
 }
+/* phones sideways: Stats, Skills, Items, Equip and Ride in a row on the left (js/quickleft.js) */
+#quickL{position:fixed;z-index:3;display:flex;gap:6px;transition:opacity .45s ease,transform .45s ease}
+#quickL[hidden]{display:none}
+#quickL>button{position:static!important;transform:none!important;left:auto!important;top:auto!important;width:34px!important;height:34px!important;border-radius:50%;padding:0;display:grid;place-items:center;
+  color:#f4e7c4;cursor:pointer;background:radial-gradient(circle at 35% 28%,#2c3546,#0e121a 70%);border:2px solid #9c7a3e;box-shadow:0 0 0 1px #000,0 4px 10px rgba(0,0,0,.5)}
+#quickL>button:active{transform:scale(.94)!important}
+#quickL>button svg{width:16px!important;height:16px!important;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#quickL>button.none{opacity:.5}
+#quickL>button.on{border-color:#ffcf5a;color:#ffcf5a}
+#quickL>button:focus-visible{outline:2px solid var(--accent,#f0b54a);outline-offset:2px}
+body.touchui.fightui #quickL{opacity:0;pointer-events:none;transform:translateY(-8px)}
+/* with Ride moved to the left row, Menu and Sit close the gap in the top row */
+@media (orientation:landscape) and (max-height:520px){
+  body.touchui #actions>#menuBtn{left:calc(42% - 23px)}body.touchui #actions>#sitBtn{left:calc(42% + 23px)}
+}

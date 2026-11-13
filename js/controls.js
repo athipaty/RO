@@ -60,7 +60,8 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
   setInterval(()=>{const own=!!(P&&Array.isArray(P.mounts)&&P.mounts.length),on=typeof riding==='function'&&riding();
     // always shown on phones; dimmed until you own a mount
     if(b.hidden)b.hidden=false;if(b.classList.contains('none')===own)b.classList.toggle('none',!own);if(b.classList.contains('on')!==on)b.classList.toggle('on',on);
-    const auto2=$('#autoBtn');if(auto2&&auto2.parentElement===acts&&b.previousElementSibling!==auto2)auto2.insertAdjacentElement('afterend',b);},400);})();
+    // keep it right after Auto, but only while it lives in the top row (sideways it sits in #quickL)
+    const auto2=$('#autoBtn');if(b.parentElement===acts&&auto2&&auto2.parentElement===acts&&b.previousElementSibling!==auto2)auto2.insertAdjacentElement('afterend',b);},400);})();
 // ---- turning Auto on asks what to pick up (one quick card), instead of a separate Loot button ----
 (()=>{const card=document.createElement('div');card.id='autoPick';card.hidden=true;card.setAttribute('role','dialog');card.setAttribute('aria-label','Auto-hunt: what should it pick up?');
   card.innerHTML=`<div class="apT">Auto-hunt: what should I pick up?</div>
@@ -100,7 +101,7 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
   // sit just under the minimap, wherever it ends up
   // upright: a row under the minimap (the online badge moves below it); sideways: a row at the top, beside the minimap
   const place=()=>{const mb=$('#minibox');if(!mb)return;const r=mb.getBoundingClientRect(),land=innerWidth>innerHeight&&innerHeight<=520;
-    const top3=['#menuBtn','#rideBtn','#sitBtn'].map(s=>$(s)).filter(Boolean);
+    const top3=['#menuBtn','#rideBtn','#sitBtn'].map(s=>$(s)).filter(b=>b&&b.parentElement&&b.parentElement.id==='actions'); // Ride may live in #quickL
     if(land){q.style.top=Math.round(r.top)+'px';q.style.right=Math.round(innerWidth-r.left+8)+'px';
       // narrow sideways phones: keep the top row of round buttons (Menu, Ride, Sit) clear of the quick buttons
       for(const b of top3)b.style.left='';
