@@ -496,7 +496,10 @@ function drawMob(m){
   ctx.save();ctx.translate(lunge+(m.kbX||0)*kb,(m.kbY||0)*kb);
   const col=flash?'#ffffff':d.col, dark=flash?'#ffffff':shade(d.col,-45);
   if(m.slowUntil>now){ctx.globalAlpha=.85;}
-  switch(d.shape){
+  // js/moblooks.js: monsters with a look of their own are drawn there; the rest use the shared shapes below
+  if(typeof MOB_LOOKS!=='undefined'&&MOB_LOOKS[d.id]){ctx.save();
+    MOB_LOOKS[d.id](m,{x,y,s,f,t,col,dark:flash?'#ffffff':mlShade(d.col,-55),lite:flash?'#ffffff':mlShade(d.col,45),mv:!!m.moving,flash});ctx.restore();}
+  else switch(d.shape){
     case 'blob':{shadow(x,y,s);const q=Math.sin(t*(m.moving?10:4))*.08;
       ctx.fillStyle=col;ctx.strokeStyle=dark;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y-s*.85,s*(1+q),s*(1-q)*.9,0,0,7);ctx.fill();ctx.stroke();
       ctx.fillStyle='rgba(255,255,255,.3)';ctx.beginPath();ctx.ellipse(x-s*.35,y-s*1.25,s*.25,s*.15,-.5,0,7);ctx.fill();
