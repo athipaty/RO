@@ -15,12 +15,8 @@ function showItemCard(id){const it=ITEMS[id];if(!it)return;let c=document.getEle
   const nameCol=typeof rarityCol==='function'?rarityCol(id):'#efe6d2';
   let desc='';try{desc=it.type==='use'||it.type==='etc'||!it.type?(it.desc||''):itemDesc({id,s:it.slots?Array(it.slots).fill(null):[]});}catch(e){desc=it.desc||'';}
   let h=`<button class="btn small ghost icx" data-card="close" aria-label="Close">✕</button><div class="ichead">${pic(id)}<div><div class="icnm" style="color:${nameCol}">${esc(it.name)}</div><div class="ds">${desc}</div></div></div>`;
-  // a sigil: show the monster it comes from, large, so it is easy to recognise in the field
-  const sm=/_sig$/.test(id)&&MOBS[id.slice(0,-4)];
-  if(sm&&typeof mobPicURL==='function'){const wh=itemMobWhere(sm);
-    h+=`<div class="icbig"><img src="${mobPicURL(sm.id)}" alt="${esc(sm.name)}"><div><div class="nm">${esc(sm.name)}</div><div class="ds">Lv ${sm.lv}${sm.boss?' · boss':''}${wh?' · '+esc(wh):''}</div><div class="icpct">${pctTxt(sm.sigChance||.02)} sigil drop</div></div></div>`;}
   const src=itemDropSources(id);
-  if(src.length&&!(sm&&src.length===1&&src[0].m===sm)){h+=`<h3>Dropped by</h3><div class="icmobs">`;
+  if(src.length){h+=`<h3>Dropped by</h3><div class="icmobs">`;
     for(const {m,ch} of src){const url=typeof mobPicURL==='function'?mobPicURL(m.id):'';const wh=itemMobWhere(m);
       h+=`<div class="icmob">${url?`<img src="${url}" alt="">`:''}<div class="grow"><div class="nm">${esc(m.name)} <span class="muted">Lv ${m.lv}${m.boss?' · boss':''}</span></div>${wh?`<div class="ds">${esc(wh)}</div>`:''}</div><div class="icpct">${pctTxt(ch)}</div></div>`;}
     h+=`</div>`;}

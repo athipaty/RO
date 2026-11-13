@@ -3,7 +3,7 @@
    Librarian Oren's window gets a second tab next to the Bestiary: every sigil (card) in the game with what it
    gives, which gear it goes in, which monster drops it (where and how often) and how many you own or have
    socketed. Filter by equipment (weapon / armour / head / accessory) and by ability (ATK, DEF, AGI ...), and
-   sort by monster level, strongest bonus, name or owned first. Tap a sigil picture for its full item card.
+   sort by monster level, strongest bonus, name or owned first.
    World-boss sigils stay hidden until you have defeated that boss, as in the Bestiary. Choices are remembered. */
 const CODEX=(()=>{const d={tab:'beast',slot:'all',ab:'all',sort:'lv'};try{return Object.assign(d,JSON.parse(localStorage.getItem('embervale.codex')||'{}'));}catch(e){return d;}})();
 const saveCodex=()=>{try{localStorage.setItem('embervale.codex',JSON.stringify(CODEX));}catch(e){}};
@@ -33,7 +33,7 @@ function codexHtml(){
   list=[...list].sort(sorters[CODEX.sort]||sorters.lv);
   const kinds=all.filter(s=>own(s)>0).length;
   const chip=(act,val,label,on,n)=>`<button type="button" class="cxchip${on?' on':''}" aria-pressed="${on}" data-act="${act}" data-arg="${val}">${label}${n!==undefined?` <span>${n}</span>`:''}</button>`;
-  let h=`<div class="sub">${all.length} sigils known · you have ${kinds} of them. Tap a sigil for its details.</div>`;
+  let h=`<div class="sub">${all.length} sigils known · you have ${kinds} of them.</div>`;
   h+=`<div class="cxrow"><span class="cxlbl">Equipment</span><div class="cxchips">`+CODEX_SLOTS.map(([k,l])=>chip('cxslot',k,l,CODEX.slot===k,k==='all'?all.length:all.filter(s=>s.kind===k).length)).join('')+`</div></div>`;
   h+=`<div class="cxrow"><span class="cxlbl">Ability</span><div class="cxchips">`+chip('cxab','all','All',CODEX.ab==='all')+abs.map(([k,l])=>chip('cxab',k,l,CODEX.ab===k,bySlot.filter(s=>s.b[k]).length)).join('')+`</div></div>`;
   const sorts=[['lv','Level ↑'],['lvd','Level ↓'],...(CODEX.ab!=='all'?[['best',`Most ${codexAbName(CODEX.ab)}`]]:[]),['name','Name'],['own','Owned first']];
@@ -43,7 +43,7 @@ function codexHtml(){
   for(const s of list){const it=ITEMS[s.id],o=codexOwned(s.id),wh=typeof itemMobWhere==='function'?itemMobWhere(s.m):'',killed=kk[s.m.id]||0;
     const ownTxt=o.loose||o.sock?`<span class="cxown">${[o.loose?`${o.loose} in bag`:'',o.sock?`${o.sock} socketed`:''].filter(Boolean).join(' · ')}</span>`:'';
     const mp=typeof mobPicURL==='function'?mobPicURL(s.m.id):'';
-    h+=`<div class="cxcard${o.loose||o.sock?' have':''}" data-item="${s.id}" role="button" tabindex="0" aria-label="${esc(it.name)}: details">${icon(it)}<div class="grow"><div class="cxtop"><span class="nm" style="color:${rarityCol(s.id)}">${esc(it.name)}</span><span class="cxslot">${esc((CODEX_SLOTS.find(x=>x[0]===s.kind)||[0,s.kind])[1])}</span></div>`+
+    h+=`<div class="cxcard${o.loose||o.sock?' have':''}">${icon(it).replace(/ data-item="[^"]*"/,'')}<div class="grow"><div class="cxtop"><span class="nm" style="color:${rarityCol(s.id)}">${esc(it.name)}</span><span class="cxslot">${esc((CODEX_SLOTS.find(x=>x[0]===s.kind)||[0,s.kind])[1])}</span></div>`+
       `<div class="cxb">${codexBonusHtml(s.b)}</div>`+
       `<div class="ds">From ${esc(s.m.name)} · Lv ${s.m.lv}${s.m.boss?' · boss':''}${wh?' · '+esc(wh):''} · ${typeof pctTxt==='function'?pctTxt(s.ch):Math.round(s.ch*1000)/10+'%'} drop${killed?` · ${fmt(killed)} defeated`:''}</div>${ownTxt}</div>`+
       (mp?`<figure class="cxmob"><img src="${mp}" alt="${esc(s.m.name)}" loading="lazy"><figcaption>Lv ${s.m.lv}</figcaption></figure>`:'')+`</div>`;}
@@ -61,5 +61,3 @@ PANEL_ACTS.cxsort=v=>{CODEX.sort=v;saveCodex();sfx('click');refreshPanel();};
 if(typeof TH!=='undefined')Object.assign(TH,{'Bestiary':'สารานุกรมมอนสเตอร์','Sigil Codex':'สารานุกรมซิกิล','Equipment':'อุปกรณ์','Ability':'ความสามารถ','Sort':'เรียง','All':'ทั้งหมด',
   'Weapon':'อาวุธ','Armour':'เกราะ','Head':'หัว','Accessory':'เครื่องประดับ','Level ↑':'เลเวล ↑','Level ↓':'เลเวล ↓','Name':'ชื่อ','Owned first':'ที่มีก่อน',
   'No sigils match. Try another equipment or ability.':'ไม่มีซิกิลที่ตรงกัน ลองเลือกอุปกรณ์หรือความสามารถอื่น'});
-// keyboard: Enter or Space on a codex card opens its details, like a tap
-panel.addEventListener('keydown',ev=>{const c=ev.target.closest&&ev.target.closest('.cxcard');if(c&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();c.click();}});
