@@ -49,12 +49,15 @@ function codexHtml(){
       (mp?`<figure class="cxmob"><img src="${mp}" alt="${esc(s.m.name)}" loading="lazy"><figcaption>Lv ${s.m.lv}</figcaption></figure>`:'')+`</div>`;}
   return h+`</div>`;}
 const codexTabs=()=>`<div class="tabs cxtabs" role="tablist"><button class="btn small ${CODEX.tab==='beast'?'on':''}" role="tab" aria-selected="${CODEX.tab==='beast'}" data-act="cxtab" data-arg="beast">Bestiary</button>`+
-  `<button class="btn small ${CODEX.tab==='sig'?'on':''}" role="tab" aria-selected="${CODEX.tab==='sig'}" data-act="cxtab" data-arg="sig">Sigil Codex</button></div>`;
+  `<button class="btn small ${CODEX.tab==='sig'?'on':''}" role="tab" aria-selected="${CODEX.tab==='sig'}" data-act="cxtab" data-arg="sig">Sigil Codex</button>`+
+  `<button class="btn small ${CODEX.tab==='gear'?'on':''}" role="tab" aria-selected="${CODEX.tab==='gear'}" data-act="cxtab" data-arg="gear">Equipment</button></div>`;
 const _libraryCx=PANELS.library;
 PANELS.library=()=>{
+  if(CODEX.tab==='gear'&&typeof gearCodexHtml==='function')
+    return `<h2>The Grand Library</h2><div class="say">"Every blade, robe and trinket worth owning, and where to find it: which creatures carry it and how often, what Ilsa sells, what Brannoc can forge." — Oren</div>`+codexTabs()+gearCodexHtml();
   if(CODEX.tab!=='sig')return _libraryCx().replace('<div class="sub">',codexTabs()+'<div class="sub">');
   return `<h2>The Grand Library</h2><div class="say">"Every sigil ever pressed from a monster's essence is catalogued here: what it grants, which gear it suits and who drops it." — Oren</div>`+codexTabs()+codexHtml();};
-PANEL_ACTS.cxtab=v=>{CODEX.tab=v==='sig'?'sig':'beast';saveCodex();sfx('click');refreshPanel();panel.scrollTop=0;};
+PANEL_ACTS.cxtab=v=>{CODEX.tab=v==='sig'||v==='gear'?v:'beast';saveCodex();sfx('click');refreshPanel();panel.scrollTop=0;};
 PANEL_ACTS.cxslot=v=>{CODEX.slot=v;saveCodex();sfx('click');refreshPanel();};
 PANEL_ACTS.cxab=v=>{CODEX.ab=v;if(v!=='all')CODEX.sort='best';else if(CODEX.sort==='best')CODEX.sort='lv';saveCodex();sfx('click');refreshPanel();};
 PANEL_ACTS.cxsort=v=>{CODEX.sort=v;saveCodex();sfx('click');refreshPanel();};

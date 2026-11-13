@@ -18,8 +18,15 @@ module.exports = async t => {
       const kept = JSON.parse(localStorage.getItem('embervale.codex')).sort === 'name';
       const pics = cards().every(c => c.querySelector('.cxmob img'));
       cards()[0].click(); cards()[0].querySelector('img').click(); const card = document.getElementById('itemCard'); const quiet = !card || card.hidden;
+      PANEL_ACTS.cxtab('gear'); PANEL_ACTS.gxsrc('drop'); PANEL_ACTS.gxslot('all'); PANEL_ACTS.gxab('all');
+      const gcards = [...panel.querySelectorAll('.gxcard')], expectDrop = Object.keys(ITEMS).filter(id => GEAR.includes(ITEMS[id].type) && Object.values(MOBS).some(m => !m.world && (m.drops || []).some(([d]) => d === id))).length;
+      const gearOk = gcards.length === expectDrop && gcards.every(c => c.querySelector('.gxsrc img') && /%/.test(c.querySelector('.gxpct').textContent));
+      PANEL_ACTS.gxsort('chance'); const pcts = [...panel.querySelectorAll('.gxcard')].map(c => parseFloat(c.querySelector('.gxpct').textContent)); const byChance = pcts.every((v, i) => !i || pcts[i - 1] >= v);
+      PANEL_ACTS.gxsrc('shop'); const shop = [...panel.querySelectorAll('.gxcard')].every(c => /Store ·/.test(c.textContent));
+      PANEL_ACTS.gxsrc('all'); PANEL_ACTS.gxslot('head'); const heads = [...panel.querySelectorAll('.gxcard .cxslot')].every(x => x.textContent === 'Head');
+      PANEL_ACTS.gxslot('all'); PANEL_ACTS.gxsrc('drop'); PANEL_ACTS.gxsort('lv');
       PANEL_ACTS.cxtab('beast'); const back = /Bestiary:/.test(panel.textContent);
-      return { tabs, total, expect, weaponsOnly, best, atk, first, abc, kept, back, pics, quiet };
+      return { tabs, total, expect, weaponsOnly, best, atk, first, abc, kept, back, pics, quiet, gearOk, n: gcards.length, expectDrop, byChance, shop, heads };
     });
     t.ok(r.tabs && r.total === r.expect, `the library has a Sigil Codex tab listing every sigil (${r.total} of ${r.expect}; world-boss ones hidden until defeated)`);
     t.ok(r.weaponsOnly, 'the Weapon filter shows only weapon sigils');
@@ -28,6 +35,9 @@ module.exports = async t => {
     t.ok(r.abc && r.kept, 'sorting by name works and the choice is remembered');
     t.ok(r.pics, 'every sigil card shows the monster that drops it');
     t.ok(r.quiet, 'tapping a card or its picture opens nothing extra: everything is already on the card');
+    t.ok(r.gearOk, `the Equipment tab lists every piece monsters drop (${r.n} of ${r.expectDrop}) with the monster's picture and drop chance`);
+    t.ok(r.byChance, 'sorting by best drop chance puts the likeliest drops first');
+    t.ok(r.shop && r.heads, 'the Store source shows store prices, and the Head slot shows only headgear');
     t.ok(r.back, 'the Bestiary tab still shows the monster records');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
