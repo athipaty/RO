@@ -912,3 +912,12 @@ body.touchui #partyBox .pmr{grid-template-columns:minmax(52px,1fr) 46px auto aut
 .ftabs .fdot{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#7fd38a;box-shadow:0 0 0 2px rgba(14,18,26,.95),0 0 6px rgba(127,211,138,.8)}
 .fsec{display:flex;align-items:baseline;gap:6px;margin:14px 0 4px!important}
 .fsec{color:#e8c870!important}.fsec .muted{font-size:13px}
+/* "new version" pill (js/update.js) */
+#updPill{position:fixed;top:calc(max(8px,env(safe-area-inset-top)) + 52px);left:50%;transform:translate(-50%,-12px);opacity:0;z-index:40;display:flex;align-items:center;gap:8px;
+  padding:7px 14px;border-radius:999px;cursor:pointer;color:#1a1306;font:600 13px Inter,var(--ui);background:linear-gradient(#ffe08a,#e8b43a);border:1px solid #fff2c0;
+  box-shadow:0 0 0 1px #6b4a12,0 8px 22px rgba(0,0,0,.5),0 0 18px rgba(255,207,90,.5);transition:opacity .3s,transform .3s cubic-bezier(.2,1.4,.4,1);white-space:nowrap}
+#updPill.show{opacity:1;transform:translate(-50%,0)}
+#updPill .ud{font-size:16px;animation:updSpin 2.4s linear infinite}
+#updPill b{font-weight:800}
+@keyframes updSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#updPill .ud{animation:none}#updPill{transition:none}}
