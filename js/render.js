@@ -98,18 +98,26 @@ function isoGround(z){if(z._iso&&z._isoSrc===z.img)return z._iso;z._iso=null;z._
   try{const W=z.w*TILE,H=z.h*TILE,c=document.createElement('canvas');c.width=Math.ceil((W+H)*ISO)+2;c.height=Math.ceil((W+H)*ISO/2)+2;c._ox=Math.ceil(H*ISO)+1;
     const g=c.getContext('2d');if(!g)return null;g.setTransform(ISO,ISO/2,-ISO,ISO/2,c._ox,0);g.drawImage(z.img,0,0);z._iso=c;}catch(e){z._iso=null;}
   return z._iso;}
+// the camera eases after the hero (a few pixels behind while walking) and snaps on big jumps (teleports, new regions)
+let camFX=null,camFY=null,camT=0;
+function camFollow(tx,ty){const dt=Math.min(.05,Math.max(0,now-camT));camT=now;
+  if(camFX===null||Math.abs(tx-camFX)>260||Math.abs(ty-camFY)>260){camFX=tx;camFY=ty;}
+  else{const k=1-Math.exp(-dt*16);camFX+=(tx-camFX)*k;camFY+=(ty-camFY)*k;}
+  camX=Math.round(camFX);camY=Math.round(camFY);}
 function render(){
   ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle='#0b0d12';ctx.fillRect(0,0,VW,VH);
   if(!Z||!P)return;
-  const ps=proj(P.x,P.y);camX=Math.round(ps.x-VW/2);camY=Math.round(ps.y-VH/2+10);
+  const ps=proj(P.x,P.y);camFollow(ps.x-VW/2,ps.y-VH/2+10);
   ctx.save();ctx.translate(-camX,-camY);
-  if(now<shakeUntil)ctx.translate(rnd(-4,4),rnd(-3,3));
+  // shake: a smooth wobble that fades out (random jumps every frame looked like stutter); gentler in boss fights
+  if(now<shakeUntil){const k=Math.min(1,(shakeUntil-now)*3.5)*(typeof BS!=='undefined'&&BS.bossOn?.6:1);ctx.translate(Math.sin(now*58)*4*k,Math.cos(now*47)*3*k);}
   // ground: the flat map drawn through the isometric matrix (squares become diamonds)
   // (made once per region: the map already turned into the diamond view, so each frame only copies the visible part)
   {const g=isoGround(Z);if(g){const sx=Math.max(0,camX+g._ox),sy=Math.max(0,camY),sw=Math.min(g.width-sx,VW+2),sh=Math.min(g.height-sy,VH+2);
       if(sw>0&&sh>0)ctx.drawImage(g,sx,sy,sw,sh,sx-g._ox,sy,sw,sh);}
     else{ctx.save();ctx.transform(ISO,ISO/2,-ISO,ISO/2,0,0);ctx.drawImage(Z.img,0,0);ctx.restore();}}
-  if(THEMES[Z.D.theme].lava){ctx.save();ctx.transform(ISO,ISO/2,-ISO,ISO/2,0,0);ctx.fillStyle=`rgba(255,120,40,${.05+.04*Math.sin(now*2)})`;ctx.fillRect(0,0,Z.w*TILE,Z.h*TILE);ctx.restore();}
+  // lava glow: paint only the screen (tinting the whole map through the diamond transform was the costliest fill in the crypt)
+  if(THEMES[Z.D.theme].lava){ctx.fillStyle=`rgba(255,120,40,${.05+.04*Math.sin(now*2)})`;ctx.fillRect(camX-8,camY-8,VW+16,VH+16);}
   // portals
   for(const pt of Z.portals)at(pt.x,pt.y,()=>{
     ctx.save();ctx.translate(pt.x,pt.y);
