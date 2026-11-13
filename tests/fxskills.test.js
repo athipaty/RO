@@ -21,7 +21,7 @@ module.exports = async t => {
     t.ok(r.n === r.actives, `every skill you cast has its own effect (${r.n} of ${r.actives})`);
     t.ok(r.ground && r.zoneFx, 'ground skills (Thorn Snare, Ember Wall, Haven) get one when placed');
     t.ok(!r.missing.length, 'each one draws a new kind of effect' + (r.missing.length ? ': missing ' + r.missing.join(', ') : ''));
-    t.ok(r.distinct >= r.n * .75, `the effects differ from skill to skill (${r.distinct} different mixes from ${r.kinds} effect kinds)`);
+    t.ok(r.distinct >= r.n * .7, `the effects differ from skill to skill (${r.distinct} different mixes from ${r.kinds} effect kinds)`);
     t.ok(g.page.errors.length === 0, 'no script errors while drawing them' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };

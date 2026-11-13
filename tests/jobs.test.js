@@ -6,8 +6,8 @@ module.exports = async t => {
   const g = await player('Jobber', room, { zone: 'town', server: 'http://127.0.0.1:9' });
   try {
     await wait(1200);
-    t.ok(await g.ev(() => Object.keys(CLASSES).filter(k => CLASSES[k].tier === 2).length === 8 &&
-      ['warden', 'arcanist', 'ranger', 'cleric'].every(b => jobsFrom(b).length === 2)), 'there are 8 second jobs, two for each first job');
+    t.ok(await g.ev(() => Object.keys(CLASSES).filter(k => CLASSES[k].tier === 2).length === 12 &&
+      ['warden', 'arcanist', 'ranger', 'cleric'].every(b => jobsFrom(b).length === 3)), 'there are 12 advanced callings, three for each first job');
     t.ok(await g.ev(() => Object.values(JOB2).every(j => j.skills.every(s => SKILLS[s] && SKILLS[s].desc(1) && (SKILLS[s].kind === 'passive' || SKILLS[s].sp(1) > 0)))), 'every new skill is defined');
 
     const early = await g.ev(() => { P.cls = 'warden'; P.jl = 20; P.skills = { cleave: 5 }; openPanel('job'); const s = panel.textContent;
@@ -21,7 +21,7 @@ module.exports = async t => {
       return { started, noPromote, have: P.trial.have, choices }; });
     t.ok(trial.started && trial.noPromote, 'at Job Lv 40 you can accept the trial, and cannot promote before finishing it');
     t.ok(trial.have === 25, `trial kills count only the right monster (${trial.have}/25)`);
-    t.ok(trial.choices.join() === 'bulwark,ravager', 'a finished trial offers the two Warden paths');
+    t.ok(trial.choices.join() === 'bulwark,ravager,runeguard', 'a finished trial offers the three Warden paths');
 
     const pro = await g.ev(() => { panel.querySelector('[data-act="promote"][data-arg="ravager"]').click();
       return { cls: P.cls, jl: P.jl, gold: P.gold, bones: invFind('bone') ? invFind('bone').n : 0, kept: P.skills.cleave === 5, trial: P.trial, name: document.getElementById('hCls').textContent }; });

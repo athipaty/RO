@@ -1065,3 +1065,4 @@ body:not(.touchui) #panel:has(.skpwrap){width:min(940px,96vw)!important;max-widt
 body:not(.touchui) #panel .skpwrap{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
 body:not(.touchui) #panel .skpright{position:sticky;top:0}
 @media (max-width:440px){.skpic{width:62px;padding:5px 1px 4px}.skpic img{width:36px;height:36px}.skpnm{max-width:58px;font-size:9.5px}.skprow{gap:5px;flex-wrap:nowrap}}
+.skpparty{position:absolute;top:3px;right:3px;font-size:8.5px;font-weight:700;line-height:1;padding:2px 4px;border-radius:6px;background:rgba(143,224,168,.18);color:#8fe0a8}

@@ -11,7 +11,7 @@ module.exports = async t => {
         for (const [id] of b.skills) if (!b.route.some(c => CLASSES[c].skills.includes(id))) bad.push(b.id + ' off-route ' + id); }
       const per = {}; for (const b of BUILDS) per[b.job] = (per[b.job] || 0) + 1; return { bad, per }; });
     t.ok(!data.bad.length, 'every build names real skills, callings, gear and sigils on its own route' + (data.bad.length ? ': ' + data.bad.join(', ') : ''));
-    t.ok(['warden', 'arcanist', 'ranger', 'cleric'].every(j => data.per[j] === 3), 'three builds for each first job');
+    t.ok(['warden', 'arcanist', 'ranger', 'cleric'].every(j => data.per[j] === 4), 'four builds for each first job (one more for the new calling)');
 
     // following a build: the next skill respects requirements, then moves on
     const nx = await g.ev(() => { P.cls = 'warden'; P.jl = 30; P.skills = {}; P.skillPts = 30; const b = buildById('duel'); const steps = [];
@@ -25,7 +25,7 @@ module.exports = async t => {
       openPanel('status'); const stat = document.querySelector('.bgnextstat'); closePanel();
       return { tabs: !/Arcanist/.test(s0) && !/Elementalist/.test(s0), names: /Earthsplitter/.test(s0) && /Duelist/.test(s0) && /Iron Wall/.test(s0), following,
         node: node && node.dataset.arg, bar, stat: stat && stat.dataset.arg }; });
-    t.ok(ui.tabs && ui.names, 'a Warden sees only the three Warden builds, no other job');
+    t.ok(ui.tabs && ui.names, 'a Warden sees only Warden builds, no other job');
     t.ok(ui.following && ui.node === 'bladecraft' && /Following/.test(ui.bar), `following Duelist marks the next skill in the tree (${ui.node})`);
     t.ok(ui.stat === 'agi', `and the Status window points at the next stat (${ui.stat})`);
     // other jobs and other routes cannot be followed; novices can look at everything

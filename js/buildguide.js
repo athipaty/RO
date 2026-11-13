@@ -57,6 +57,23 @@ const BUILDS=[
     desc:'Keeps the whole party alive; Exorcism and Starfall for enemies, Resurgence and Constellation for friends.',
     skills:[['mend',10],['faith',10],['renew',10],['blessing',10],['smite',5],['haven',5],['insight',10],['sanctuary',10],['exorcism',10],['divinegrace',5],['radiance',5],['astralgrace',10],['resurgence',10],['constellation',10],['starfall',5]],
     gear:['mendstole','dawnmace','manaheart','sageloop'],sigils:['sproutling','mushcap','thornmother','glowworm'],awaken:['healpct','cast']},
+  // ---- the newer advanced callings
+  {id:'rune',job:'warden',name:'Runeblade',th:'ดาบอักขระ',tag:'STR/INT rune knight',route:['warden','runeguard','runelord'],stats:{str:4,int:3,vit:2},
+    desc:'Every blow carries an element; Stormbrand and World Rune grow with INT, so a warrior that studies hits harder.',
+    skills:[['cleave',5],['bladecraft',5],['ironwill',5],['runestrike',10],['runiclore',10],['stormbrand',10],['frostrune',5],['runeward',5],['runemastery',10],['runeburst',10],['worldrune',10],['elementalavatar',5]],
+    gear:['fangblade','arcanecirclet','sageloop'],sigils:['emberimp','frostwisp','cactoid'],awaken:['atkpct','matkpct']},
+  {id:'time',job:'arcanist',name:'Timekeeper',th:'ผู้รักษากาลเวลา',tag:'INT/DEX tempo',route:['arcanist','chronomancer','timeweaver'],stats:{int:5,dex:4},
+    desc:'Fast casting and double bolts; Haste and Stasis control the fight, Paradox ends it.',
+    skills:[['emberbolt',5],['manaflow',5],['swiftcast',5],['timebolt',10],['temporalflow',10],['echobolt',10],['haste',10],['stasis',5],['eternity',10],['paradox',10],['moments',10],['timestop',5]],
+    gear:['sageloop','arcanecirclet','manaheart'],sigils:['dewdrop','glowworm','iceimp','gloomking'],awaken:['cast','matkpct']},
+  {id:'falcon',job:'ranger',name:'Falcon Hunter',th:'นักล่าคู่เหยี่ยว',tag:'DEX/AGI falconer',route:['ranger','falconer','skywarden'],stats:{dex:4,agi:4,luk:1},
+    desc:'Your falcon joins your arrows and dives on packs; Falcon Strike and Skyfall grow with AGI.',
+    skills:[['twinshot',5],['owleye',5],['falconstrike',10],['keentalon',10],['raptorstorm',10],['falcondive',10],['eaglecall',5],['apexhunter',10],['skyfall',10],['talonstorm',10],['skydominion',5]],
+    gear:['galebow','quickgrip','windscarf'],sigils:['hopper','greylupe','cavebat','rimestalker'],awaken:['aspd','critdmg']},
+  {id:'monk',job:'cleric',name:'Iron Fist',th:'หมัดเหล็ก',tag:'STR/AGI monk',route:['cleric','ascetic','lotussage'],stats:{str:4,agi:3,vit:2},
+    desc:'Fists and chi up close: Palm Strike grows with STR, Flurry with AGI, and Lotus Bloom keeps you standing.',
+    skills:[['mend',3],['macemastery',5],['palmstrike',10],['innercalm',10],['flurry',10],['chiburst',10],['ironbody',5],['stillmind',10],['hundredpalms',10],['heavenfist',10],['lotusbloom',5]],
+    gear:['dawnmace','quickgrip','stonewall'],sigils:['cactoid','cavetroll','hopper','dunetyrant'],awaken:['aspd','atkpct']},
 ];
 const buildById=id=>BUILDS.find(b=>b.id===id);
 const GUIDE={job:null};

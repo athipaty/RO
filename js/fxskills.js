@@ -184,3 +184,37 @@ const ZONE_FX={thornsnare:(l,x,y)=>fxF({k:'icicles',x,y,col:'#7a5a2a',r:26,n:9,d
   emberwall:(l,x,y)=>{fxF({k:'flare',x,y,col:'#ff7a2a',r:70,dur:.4,h:6});fxF({k:'motes',x,y,col:'#ffb060',col2:'#ff5a1a',n:16,r:60,dur:1});},
   haven:(l,x,y)=>{fxF({k:'rune',x,y,col:'#9fffc0',g:'◎',r:95,dur:1.4});fxF({k:'motes',x,y,col:'#9fffc0',shape:'petal',n:16,r:80,dur:1.4});}};
 if(typeof placeZone==='function'){const _pz=placeZone;placeZone=function(k,l,x,y){try{if(ZONE_FX[k])ZONE_FX[k](l,x,y);}catch(e){}return _pz.apply(this,arguments);};}
+
+/* ---- effects for the new callings (js/newjobs2.js) ---- */
+const SKILL_FX3={
+  runestrike:(l,t)=>{fxF({k:'rune',x:t.x,y:t.y,col:'#ff8a4a',g:'ᚱ',r:fxSz(t)+12,dur:.7});fxF({k:'crescent',x:t.x,y:t.y,ang:.8,r:32,w:12,col:'#ff7a3a',dur:.3,h:fxSz(t)});},
+  frostrune:l=>{fxF({k:'rune',x:P.x,y:P.y,o:P,col:'#8fd0f0',g:'ᛁ',r:60,dur:.9});fxF({k:'icicles',x:P.x,y:P.y,col:'#cfeeff',r:90,n:14,dur:.8,t0:now+.1});},
+  runeward:l=>{fxF({k:'dome',x:P.x,y:P.y,o:P,col:'#7fd3ff',r:36,dur:1.4});fxF({k:'rune',x:P.x,y:P.y,o:P,col:'#7fd3ff',g:'ᛉ',r:40,dur:1.2});},
+  stormbrand:(l,t)=>{fxF({k:'crescent',x:t.x,y:t.y,ang:-.6,r:34,w:12,col:'#c8b0ff',dur:.3,h:fxSz(t)});fxF({k:'chain',x:t.x,y:t.y,pts:[{x:t.x+15,y:t.y,h:200},{x:t.x,y:t.y,h:fxSz(t)}],col:'#d8c8ff',dur:.3});},
+  runeburst:l=>{for(const [i,c] of [['ᚱ','#ff8a4a'],['ᛁ','#8fd0f0'],['ᛊ','#c8b0ff']].entries())fxF({k:'rune',x:P.x+Math.cos(i*2.1)*50,y:P.y+Math.sin(i*2.1)*30,col:c[1],g:c[0],r:34,dur:.9,t0:now+i*.08});fxF({k:'flare',x:P.x,y:P.y,col:'#ffd27a',r:120,dur:.45,h:10});},
+  elementalavatar:l=>{fxF({k:'halo',x:P.x,y:P.y,o:P,col:'#ffb070',dur:1.6});fxF({k:'vortex',x:P.x,y:P.y,o:P,col:'#ff8a4a',col2:'#8fd0f0',r:60,dur:.8});fxF({k:'motes',x:P.x,y:P.y,o:P,col:'#ffd27a',col2:'#8fd0f0',orbit:true,n:18,r:34,dur:1.6});},
+  worldrune:(l,x,y)=>{fxF({k:'rune',x,y,col:'#c8964a',g:'ᛜ',r:110,dur:1.1});fxF({k:'quake',x,y,r:110,col:'#5a3a1a',glow:'#e0b070',dur:.9,t0:now+.2});},
+  timebolt:(l,t)=>{fxF({k:'rune',x:t.x,y:t.y,col:'#ffd27a',g:'⧗',r:fxSz(t)+10,dur:.6,t0:now+.2});},
+  haste:l=>{fxF({k:'motes',x:P.x,y:P.y,o:P,col:'#fff0a0',col2:'#ffd27a',n:16,r:30,dur:1.1});fxF({k:'vortex',x:P.x,y:P.y,o:P,col:'#ffd27a',col2:'#ffffff',r:40,dur:.5});},
+  stasis:(l,t)=>{fxF({k:'dome',x:t.x,y:t.y,col:'#bfe6ff',r:fxSz(t)+12,dur:1.4});fxF({k:'rune',x:t.x,y:t.y,col:'#bfe6ff',g:'⌛',r:fxSz(t)+14,dur:1.2});},
+  echobolt:(l,t)=>{fxF({k:'flare',x:t.x,y:t.y,col:'#f0e0a0',r:30,dur:.3,t0:now+.25,h:fxSz(t)});fxF({k:'flare',x:t.x,y:t.y,col:'#fff6c0',r:30,dur:.3,t0:now+.5,h:fxSz(t)});},
+  timestop:l=>{fxF({k:'rune',x:P.x,y:P.y,o:P,col:'#fff6c0',g:'◷',r:150,dur:1.4});fxF({k:'flare',x:P.x,y:P.y,col:'#ffffff',r:160,dur:.5,h:10});},
+  paradox:(l,t)=>{fxF({k:'vortex',x:t.x,y:t.y,col:'#ffe08a',col2:'#ffffff',r:40,imp:true,dur:.6});fxF({k:'flare',x:t.x,y:t.y,col:'#ffe08a',r:70,dur:.4,t0:now+.3,h:fxSz(t)});},
+  moments:(l,x,y)=>{for(let k=0;k<3;k++)fxF({k:'flare',x:x+rnd(-60,60),y:y+rnd(-40,40),col:'#fff0a0',r:60,dur:.35,t0:now+k*.22,h:8});fxF({k:'rune',x,y,col:'#fff0a0',g:'⁂',r:120,dur:1});},
+  falconstrike:(l,t)=>{fxF({k:'claws',x:t.x,y:t.y,ang:1,r:30,col:'#e8c070',dur:.3,t0:now+.12,h:fxSz(t)});},
+  falcondive:(l,x,y)=>{fxF({k:'streak',x0:x-80,y0:y-160,x,y,col:'#e8c070',w:12,dur:.3});fxF({k:'quake',x,y,r:90,col:'#6a4a2a',glow:'#e8c070',dur:.6,t0:now+.2});},
+  eaglecall:l=>{fxF({k:'halo',x:P.x,y:P.y,o:P,col:'#ffe08a',dur:1.4});fxF({k:'motes',x:P.x,y:P.y,o:P,col:'#e8c070',shape:'leaf',n:14,r:30,dur:1.2});},
+  raptorstorm:(l,t)=>{for(let k=0;k<3;k++)fxF({k:'claws',x:t.x+rnd(-8,8),y:t.y+rnd(-6,6),ang:rnd(0,3),r:30,col:'#f0b060',dur:.3,t0:now+k*.17,h:fxSz(t)});},
+  talonstorm:(l,x,y)=>{fxF({k:'vortex',x,y,col:'#e8c070',col2:'#ffffff',r:140,dur:.8});for(let k=0;k<5;k++)fxF({k:'claws',x:x+rnd(-90,90),y:y+rnd(-60,60),ang:rnd(0,3),r:34,col:'#ffd27a',dur:.3,t0:now+k*.08});},
+  skydominion:l=>{fxF({k:'halo',x:P.x,y:P.y,o:P,col:'#fff0a0',dur:1.6});fxF({k:'motes',x:P.x,y:P.y,o:P,col:'#ffe08a',col2:'#ffffff',shape:'leaf',orbit:true,n:18,r:40,dur:1.6});},
+  skyfall:(l,t)=>{fxF({k:'reticle',x:t.x,y:t.y,col:'#ffe08a',dur:.35,h:fxSz(t)});fxF({k:'quake',x:t.x,y:t.y,r:70,col:'#6a4a2a',glow:'#ffe08a',dur:.7,t0:now+.15});},
+  palmstrike:(l,t)=>{fxF({k:'flare',x:t.x,y:t.y,col:'#ffb070',r:36,dur:.3,h:fxSz(t)});fxF({k:'spikes',x:t.x,y:t.y,col:'#ffd0a0',dur:.35,h:fxSz(t)});},
+  chiburst:l=>{fxF({k:'flare',x:P.x,y:P.y,col:'#fff0a0',r:100,dur:.4,h:16});fxF({k:'rune',x:P.x,y:P.y,o:P,col:'#fff0a0',g:'☯',r:60,dur:1});},
+  ironbody:l=>{fxF({k:'dome',x:P.x,y:P.y,o:P,col:'#c8b090',r:32,dur:1.4});fxF({k:'quake',x:P.x,y:P.y,r:40,col:'#6a5a3a',glow:'#c8b090',dur:.5});},
+  flurry:(l,t)=>{for(let k=0;k<4;k++)fxF({k:'flare',x:t.x+rnd(-10,10),y:t.y+rnd(-6,6),col:'#ffd0a0',r:22,dur:.2,t0:now+k*.09,h:fxSz(t)});},
+  hundredpalms:(l,t)=>{for(let k=0;k<10;k++)fxF({k:'flare',x:t.x+rnd(-14,14),y:t.y+rnd(-10,10),col:k%2?'#ffcf8a':'#ffffff',r:20,dur:.18,t0:now+k*.055,h:fxSz(t)});fxF({k:'rune',x:t.x,y:t.y,col:'#ffcf8a',g:'✺',r:fxSz(t)+14,dur:.9});},
+  lotusbloom:l=>{fxF({k:'motes',x:P.x,y:P.y,o:P,col:'#ffb0d0',col2:'#ffffff',shape:'petal',n:24,r:44,dur:1.8});fxF({k:'rune',x:P.x,y:P.y,o:P,col:'#ffb0d0',g:'❀',r:46,dur:1.4});},
+  heavenfist:(l,t)=>{fxF({k:'beam',x:t.x,y:t.y,col:'#fff6c0',w:30,dur:.6});fxF({k:'flare',x:t.x,y:t.y,col:'#ffffff',r:70,dur:.4,t0:now+.15,h:fxSz(t)});},
+};
+for(const id in SKILL_FX3){const sk=SKILLS[id];if(!sk||!sk.run||SKILL_FX[id])continue;SKILL_FX[id]=SKILL_FX3[id];const run=sk.run,fxf=SKILL_FX3[id];
+  sk.run=function(){try{fxf.apply(this,arguments);}catch(e){}return run.apply(this,arguments);};}

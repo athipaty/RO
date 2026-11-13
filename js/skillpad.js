@@ -23,7 +23,7 @@ const skpOn=()=>true; // since v1.0.7 desktop uses the icon tree too (lines betw
       row.forEach((id,i)=>pos.set(id,i-(row.length-1)/2));});
     rows.forEach((row,ti)=>{if(ti)left+=`<div class="skparrow" aria-hidden="true">▼</div>`;left+=`<div class="skprow">`+row.map(id=>{const sk=SKILLS[id],l=P.skills[id]||0,locked=skillMissing(id).length>0;
       return `<button class="skpic${l?' has':''}${locked?' locked':''}${SKP.sel===id?' sel':''}${nx&&nx.id===id?' next':''}${sk.kind==='passive'?' pas':''}" data-act="sksel" data-arg="${id}" aria-label="${esc(sk.name)} level ${l} of ${sk.max}">`+
-        `<img src="${skillIconURL(id)}" alt=""><span class="skplv">${l}/${sk.max}</span><span class="skpnm">${esc(sk.name)}</span></button>`;}).join('')+`</div>`;});}
+        `<img src="${skillIconURL(id)}" alt="">${sk.party?'<span class="skpparty">party</span>':''}<span class="skplv">${l}/${sk.max}</span><span class="skpnm">${esc(sk.name)}</span></button>`;}).join('')+`</div>`;});}
   const card=skillTiers([SKP.sel]).replace('<div class="ttier">','<div class="ttier skpcard">');
   const sk=SKILLS[SKP.sel],nl=Math.min(sk.max,(P.skills[SKP.sel]||0)+1);
   const more=(P.skills[SKP.sel]||0)<sk.max?`<div class="skpnext"><span class="muted">At Lv ${nl}:</span> ${esc(sk.desc(nl))}</div>`:'';

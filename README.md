@@ -47,6 +47,7 @@ Play online: https://ro-six-bay.vercel.app/ (add `?room=yourname` to the link fo
 - **Gemcutter Sela (Aurelmark)**: awaken gear for a random build line (Faint, Bright or Radiant) you can keep or throw back and re-roll, and fuse three spare sigils into a new one, sometimes a stronger Radiant sigil only fusion makes.
 - **Build guide** (Skills window or /build): three builds per job with the route to master calling, stat ratio, skills in order, gear, sigils and awaken lines. Follow one and the Skills and Status windows mark your next skill and stat.
 - **Pushcart** (rent from the storage keepers, /cart) and a **Sigil album** (/album): fill a region's page of sigils for a permanent bonus, all six for +1 every stat.
+- **Three advanced callings per job**: Warden → Bulwark, Ravager or **Runeguard** (rune knight); Arcanist → Stormcaller, Hexweaver or **Chronomancer** (time magic); Ranger → Sharpshooter, Wildstalker or **Falconer** (falcon companion); Cleric → Templar, Oracle or **Ascetic** (fighting monk). Each new one rises into its own master calling: Runelord, Timeweaver, Skywarden, Lotus Sage.
 - **Three character slots** per account (or per device for guests), all sharing one storage at the Warehouse and the Royal Bank. Switch characters from Settings.
 - **Original soundtrack**: a theme for each region plus a boss battle theme, synthesised live with the Web Audio API (no audio files)
 - **Sound effects** for hits, misses, magic, arrows, level-ups, loot and rare sigil drops, plus a ringing critical hit with screen shake
