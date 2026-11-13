@@ -34,7 +34,9 @@ function buildRows(force){if(!P)return;let box=$('#hotrows');
       row.appendChild(b);if(e)rowEls.push(b);});
     box.appendChild(row);}
   placeRows();}
-function placeRows(){const box=$('#hotrows'),hb=$('#hotbar');if(!box||!hb||box.hidden)return;const r=hb.getBoundingClientRect();
+function placeRows(force){const box=$('#hotrows'),hb=$('#hotbar');if(!box||!hb||box.hidden)return;
+  // reading the bar's position makes the browser lay the page out: twice a second is plenty (it rarely moves)
+  const t=performance.now();if(!force&&t-(placeRows.t||0)<500&&box.style.bottom)return;placeRows.t=t;const r=hb.getBoundingClientRect();
   box.style.bottom=Math.max(0,innerHeight-r.top+4)+'px';}
 // cooldowns, counts and greyed-out slots, same as the main bar
 function tickRows(){for(const el of rowEls){const s=el._slot;if(!s)continue;let frac=0,off=false,n='';

@@ -16,7 +16,7 @@ FXK.quake=(f,a)=>{const rnd2=seeded(f.seed||7),r=f.r*Math.min(1,a*3);ctx.lineCap
   for(let i=0;i<fxN(7);i++){const ang=rnd2()*6.28,d=f.r*(.3+a*.8),px=f.x+Math.cos(ang)*d,py=f.y+Math.sin(ang)*d*.5-a*14;
     ctx.fillStyle=rgba(f.dust||'#d8c8a0',.6*(1-a));ctx.beginPath();ctx.arc(px,py,5+a*9,0,7);ctx.fill();}};
 // a shield bubble over the hero
-FXK.dome=(f,a)=>{const al=(a<.15?a/.15:a>.75?(1-a)/.25:1)*(.75+.25*Math.sin(now*9)),r=(f.r||32)*1.2,y=f.y-6;ctx.shadowColor=f.col;ctx.shadowBlur=14;
+FXK.dome=(f,a)=>{const al=(a<.15?a/.15:a>.75?(1-a)/.25:1)*(.75+.25*Math.sin(now*9)),r=(f.r||32)*1.2,y=f.y-6;if(!window.LITE){ctx.shadowColor=f.col;ctx.shadowBlur=14;}
   ctx.fillStyle=rgba(f.col,.3*al);ctx.strokeStyle=rgba(f.col,al);ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(f.x,y,r,r*1.05,0,Math.PI,0);ctx.ellipse(f.x,y,r,r*.5,0,0,Math.PI);ctx.fill();ctx.stroke();
   ctx.lineWidth=1;ctx.strokeStyle=rgba('#ffffff',.5*al);for(let i=-2;i<=2;i++){ctx.beginPath();ctx.ellipse(f.x,y,Math.abs(i)*r/3+1,r*1.05,0,Math.PI,0);ctx.stroke();}
   gEll(f.x,f.y,r);ctx.strokeStyle=rgba(f.col,.7*al);ctx.stroke();};
@@ -32,11 +32,11 @@ FXK.vortex=(f,a)=>{const r=f.imp?f.r*(1-a*.8):f.r*(.4+a*.6),turn=now*7;ctx.lineC
 // a glowing rune circle on the ground, turning, with a glyph floating over it
 FXK.rune=(f,a)=>{const al=a<.2?a/.2:1-(a-.2)/.8,r=f.r||28,rot=now*2;ctx.strokeStyle=rgba(f.col,.9*al);ctx.lineWidth=2;gEll(f.x,f.y,r);ctx.stroke();gEll(f.x,f.y,r*.72);ctx.stroke();
   for(let i=0;i<8;i++){const ang=rot+i*.785;ctx.beginPath();ctx.moveTo(f.x+Math.cos(ang)*r*.72,f.y+Math.sin(ang)*r*.36);ctx.lineTo(f.x+Math.cos(ang)*r,f.y+Math.sin(ang)*r*.5);ctx.stroke();}
-  if(f.g){ctx.fillStyle=rgba(f.col,al);ctx.font='800 22px "Alegreya Sans",sans-serif';ctx.textAlign='center';ctx.shadowColor=f.col;ctx.shadowBlur=10;ctx.fillText(f.g,f.x,f.y-32-a*16);ctx.shadowBlur=0;}};
+  if(f.g){ctx.fillStyle=rgba(f.col,al);ctx.font='800 22px "Alegreya Sans",sans-serif';ctx.textAlign='center';if(!window.LITE){ctx.shadowColor=f.col;ctx.shadowBlur=10;}ctx.fillText(f.g,f.x,f.y-32-a*16);ctx.shadowBlur=0;}};
 // a beam of light from the sky (f.sun: a sun disc rides down it)
 FXK.beam=(f,a)=>{const w=(f.w||22)*(1-a*.4),top=f.y-280,g=ctx.createLinearGradient(0,top,0,f.y);g.addColorStop(0,rgba(f.col,0));g.addColorStop(1,rgba(f.col,.75*(1-a)));
   ctx.fillStyle=g;ctx.fillRect(f.x-w/2,top,w,280);ctx.fillStyle=rgba('#ffffff',.6*(1-a));ctx.fillRect(f.x-w/6,top,w/3,280);
-  if(f.sun){const sy=top+Math.min(1,a*2.2)*(280-20);ctx.fillStyle=rgba('#fff6c0',1-a*.6);ctx.shadowColor='#ffd76a';ctx.shadowBlur=20;ctx.beginPath();ctx.arc(f.x,sy,12,0,7);ctx.fill();ctx.shadowBlur=0;}
+  if(f.sun){const sy=top+Math.min(1,a*2.2)*(280-20);ctx.fillStyle=rgba('#fff6c0',1-a*.6);if(!window.LITE){ctx.shadowColor='#ffd76a';ctx.shadowBlur=20;}ctx.beginPath();ctx.arc(f.x,sy,12,0,7);ctx.fill();ctx.shadowBlur=0;}
   gEll(f.x,f.y,w*1.3);ctx.fillStyle=rgba(f.col,.35*(1-a));ctx.fill();};
 // a glowing trail between two points (arrows, charges)
 FXK.streak=(f,a)=>{const p=proj(f.x0,f.y0-16),q=proj(f.x,f.y-16);ctx.lineCap='round';
@@ -109,7 +109,7 @@ for(const id in SKILL_FX){const sk=SKILLS[id];if(!sk||!sk.run)continue;const run
 // a burning rock (or star) falling from the sky, then the impact
 FXK.meteor=(f,a)=>{const fall=Math.min(1,a/.55),sx=f.x+70,sy=f.y-280,x=sx+(f.x-sx)*fall,y=sy+(f.y-sy)*fall,s=f.size||10;
   if(a<.55){const g=ctx.createLinearGradient(sx,sy,x,y);g.addColorStop(0,rgba(f.col,0));g.addColorStop(1,rgba(f.col,.8));ctx.strokeStyle=g;ctx.lineWidth=s*1.2;ctx.lineCap='round';
-    ctx.beginPath();ctx.moveTo(x+(sx-x)*.35,y+(sy-y)*.35);ctx.lineTo(x,y);ctx.stroke();ctx.fillStyle=rgba('#ffffff',.95);ctx.shadowColor=f.col;ctx.shadowBlur=16;ctx.beginPath();ctx.arc(x,y,s*.7,0,7);ctx.fill();ctx.shadowBlur=0;}
+    ctx.beginPath();ctx.moveTo(x+(sx-x)*.35,y+(sy-y)*.35);ctx.lineTo(x,y);ctx.stroke();ctx.fillStyle=rgba('#ffffff',.95);if(!window.LITE){ctx.shadowColor=f.col;ctx.shadowBlur=16;}ctx.beginPath();ctx.arc(x,y,s*.7,0,7);ctx.fill();ctx.shadowBlur=0;}
   else{const b=(a-.55)/.45,r=(f.r||40)*(.4+b);const g=ctx.createRadialGradient(f.x,f.y-6,0,f.x,f.y-6,r);g.addColorStop(0,rgba('#ffffff',.9*(1-b)));g.addColorStop(.4,rgba(f.col,.7*(1-b)));g.addColorStop(1,rgba(f.col,0));
     ctx.fillStyle=g;ctx.beginPath();ctx.arc(f.x,f.y-6,r,0,7);ctx.fill();gEll(f.x,f.y,r);ctx.strokeStyle=rgba(f.col,.8*(1-b));ctx.lineWidth=3;ctx.stroke();}};
 // crystals (ice, stone, thorns) bursting up out of the ground
@@ -117,7 +117,7 @@ FXK.icicles=(f,a)=>{const rnd2=seeded(f.seed||11),grow=Math.min(1,a/.25),al=a<.6
   for(let i=0;i<fxN(f.n||10);i++){const ang=rnd2()*6.28,d=(f.r||40)*(.25+rnd2()*.75),x=f.x+Math.cos(ang)*d,y=f.y+Math.sin(ang)*d*.5,h=(14+rnd2()*22)*grow*(f.tall||1),w=4+rnd2()*4;
     ctx.fillStyle=rgba(f.col,.85*al);ctx.strokeStyle=rgba('#ffffff',.7*al);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-w,y);ctx.lineTo(x+(rnd2()-.5)*4,y-h);ctx.lineTo(x+w,y);ctx.closePath();ctx.fill();ctx.stroke();}};
 // a glowing halo with rays over someone's head
-FXK.halo=(f,a)=>{const al=(a<.2?a/.2:a>.7?(1-a)/.3:1),y=f.y-(f.h||46)-Math.sin(now*4)*2;ctx.shadowColor=f.col;ctx.shadowBlur=12;ctx.strokeStyle=rgba(f.col,al);ctx.lineWidth=3;
+FXK.halo=(f,a)=>{const al=(a<.2?a/.2:a>.7?(1-a)/.3:1),y=f.y-(f.h||46)-Math.sin(now*4)*2;if(!window.LITE){ctx.shadowColor=f.col;ctx.shadowBlur=12;}ctx.strokeStyle=rgba(f.col,al);ctx.lineWidth=3;
   ctx.beginPath();ctx.ellipse(f.x,y,13,5,0,0,7);ctx.stroke();ctx.shadowBlur=0;ctx.lineWidth=1.5;
   for(let i=0;i<8;i++){const ang=now*1.5+i*.785,r1=16,r2=22+Math.sin(now*6+i)*3;ctx.strokeStyle=rgba(f.col,.6*al);ctx.beginPath();ctx.moveTo(f.x+Math.cos(ang)*r1,y+Math.sin(ang)*r1*.4);ctx.lineTo(f.x+Math.cos(ang)*r2,y+Math.sin(ang)*r2*.4);ctx.stroke();}};
 

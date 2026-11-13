@@ -40,6 +40,8 @@ function hpPlace(){const on=hpPhone()&&running&&!!P;pageBtn.hidden=!on;if(!on)re
   const vis=e=>{const s=getComputedStyle(e);if(s.display==='none'||s.visibility==='hidden')return false;const r=e.getBoundingClientRect();return r.width>2&&r.height>2;};
   const busy=[...document.querySelectorAll('#hotbar .slot,#actions>.act,#hotbar button,#minibox,#quick .qk,#quickL>button,#buffs .buff,#onlineBadge,#log,#partyBox,#hud')].filter(e=>e!==pageBtn&&vis(e)).map(e=>e.getBoundingClientRect());
   const atk=$('#atkBtn'),ar=atk&&vis(atk)?atk.getBoundingClientRect():{left:innerWidth-90,top:innerHeight-90,width:80,height:80};
+  const sig=innerWidth+'x'+innerHeight+'|'+Math.round(ar.left)+','+Math.round(ar.top)+'|'+busy.map(r=>Math.round(r.left)+','+Math.round(r.top)+','+Math.round(r.width)+','+Math.round(r.height)).join(';');
+  if(sig===hpPlace.sig)return;hpPlace.sig=sig;
   const ax=ar.left+ar.width/2,ay=ar.top+ar.height/2,S=40,m=6;
   const free=(x,y)=>x-S/2>=8&&x+S/2<=innerWidth-8&&y-S/2>=8&&y+S/2<=innerHeight-8&&busy.every(r=>x+S/2+m<=r.left||x-S/2-m>=r.right||y+S/2+m<=r.top||y-S/2-m>=r.bottom);
   let best=null,bd=1e9;for(let x=innerWidth-8-S/2;x>innerWidth*.5;x-=8)for(let y=8+S/2;y<innerHeight-8-S/2;y+=8){if(!free(x,y))continue;const d=Math.hypot(x-ax,y-ay);if(d<bd){bd=d;best=[x,y];}}

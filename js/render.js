@@ -187,7 +187,7 @@ function render(){
     const pop=e<.1?1.8-8*e:1,x=t.x+(t.vx||0)*e,y=t.y-120*e+125*e*e;
     // each floating number is drawn once into a small picture and reused (outlined text every frame is slow)
     if(!t.img)t.img=floatImg(t.txt,t.col,t.size);const im=t.img;
-    ctx.save();ctx.translate(x,y);ctx.scale(pop,pop);ctx.drawImage(im,-im._w/2,-im._b,im._w,im._h);ctx.restore();ctx.globalAlpha=1;});
+    if(pop!==1){ctx.save();ctx.translate(x,y);ctx.scale(pop,pop);drawFloat(im,-im._w/2,-im._b);ctx.restore();}else drawFloat(im,x-im._w/2,y-im._b);ctx.globalAlpha=1;});
   ctx.restore();
   drawAmbient();
   if(THEMES[Z.D.theme].dark&&!(P&&ailOn('blind'))){const g=ctx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.22,VW/2,VH/2,Math.max(VW,VH)*.7);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(5,4,10,.62)');ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);ctx.restore();}
@@ -218,17 +218,31 @@ function drawAmbient(){
   ctx.restore();
 }
 // names are drawn once into a small picture and reused (stroked text every frame is slow on phones)
-const LABELS=new Map();
-function labelImg(txt,col,size){const k=size+'|'+col+'|'+txt;let c=LABELS.get(k);if(c){LABELS.delete(k);LABELS.set(k,c);return c;}
-  const s=Math.max(1,Math.min(2,DPR)),f=`700 ${size}px "Alegreya Sans",sans-serif`;const m=document.createElement('canvas').getContext('2d');m.font=f;
+const LABELS=new Map();let MEAS=null;const measCtx=()=>MEAS||(MEAS=document.createElement('canvas').getContext('2d'));
+function labelImg(txt,col,size){const k=size+'|'+col+'|'+txt;let c=LABELS.get(k);if(c)return c; // a plain lookup: names repeat every frame
+  const s=Math.max(1,Math.min(2,DPR)),f=`700 ${size}px "Alegreya Sans",sans-serif`;const m=measCtx();m.font=f;
   const w=Math.ceil(m.measureText(txt).width)+8,h=Math.ceil(size*1.5)+6;c=document.createElement('canvas');c.width=w*s;c.height=h*s;c._w=w;c._h=h;c._b=Math.ceil(size*1.1)+3;
   const g=c.getContext('2d');g.scale(s,s);g.font=f;g.textAlign='center';g.lineJoin='round';g.lineWidth=3;g.strokeStyle='rgba(0,0,0,.75)';g.strokeText(txt,w/2,c._b);g.fillStyle=col;g.fillText(txt,w/2,c._b);
-  LABELS.set(k,c);if(LABELS.size>500)LABELS.delete(LABELS.keys().next().value);return c;}
-function floatImg(txt,col,size){const s=Math.max(1,Math.min(2,DPR)),f=`900 ${size}px "Alegreya Sans",sans-serif`,m=document.createElement('canvas').getContext('2d');m.font=f;
+  if(LABELS.size>=600)LABELS.clear();LABELS.set(k,c);return c;}
+const GLYPHS=new Map();
+function glyphImg(ch,col,size,fill){const k=size+'|'+(fill?col:'#')+'|'+ch;let c=GLYPHS.get(k);if(c)return c;
+  const s=Math.max(1,Math.min(2,DPR)),f=`900 ${size}px "Alegreya Sans",sans-serif`,m=measCtx();m.font=f;const lw=Math.max(3,size/4.5),adv=m.measureText(ch).width,w=Math.ceil(adv+lw*2+4),h=Math.ceil(size*1.4+lw*2);
+  c=document.createElement('canvas');c.width=w*s;c.height=h*s;c._w=w;c._h=h;c._b=Math.ceil(size+lw);c._adv=adv;const g=c.getContext('2d');g.scale(s,s);g.font=f;g.textAlign='left';g.lineJoin='round';
+  if(fill){g.fillStyle=col;g.fillText(ch,lw+2,c._b);}else{g.lineWidth=lw;g.strokeStyle='rgba(25,12,4,.92)';g.strokeText(ch,lw+2,c._b);}
+  GLYPHS.set(k,c);if(GLYPHS.size>600)GLYPHS.delete(GLYPHS.keys().next().value);return c;}
+// a number made of cached digits: {parts, _w, _h, _b}; drawn with drawFloat
+function floatGlyphs(txt,col,size){const parts=[];let x=0,h=0,b=0;for(const ch of txt){const st=glyphImg(ch,col,size,false),fl=glyphImg(ch,col,size,true);parts.push([x,st,fl]);x+=st._adv;h=st._h;b=st._b;}
+  const lw=Math.max(3,size/4.5);return {parts,_w:x+lw*2+4,_h:h,_b:b};}
+function drawFloat(im,x0,y0){if(!im.parts){ctx.drawImage(im,x0,y0,im._w,im._h);return;}
+  for(const [x,st] of im.parts)ctx.drawImage(st,x0+x,y0,st._w,st._h);for(const [x,,fl] of im.parts)ctx.drawImage(fl,x0+x,y0,fl._w,fl._h);}
+function floatImg(txt,col,size){if(/^[0-9,+\-]{1,9}$/.test(txt))return floatGlyphs(txt,col,size);
+  const s=Math.max(1,Math.min(2,DPR)),f=`900 ${size}px "Alegreya Sans",sans-serif`,m=measCtx();m.font=f;
   const lw=Math.max(3,size/4.5),w=Math.ceil(m.measureText(txt).width+lw*2+4),h=Math.ceil(size*1.4+lw*2),c=document.createElement('canvas');c.width=w*s;c.height=h*s;c._w=w;c._h=h;c._b=Math.ceil(size+lw);
   const g=c.getContext('2d');g.scale(s,s);g.font=f;g.textAlign='center';g.lineJoin='round';g.lineWidth=lw;g.strokeStyle='rgba(25,12,4,.92)';g.strokeText(txt,w/2,c._b);g.fillStyle=col;g.fillText(txt,w/2,c._b);return c;}
+// once the fonts are in, stop asking every call
+let FONTS_OK=false;const fontsReady=()=>FONTS_OK||(FONTS_OK=!document.fonts||document.fonts.status==='loaded');
 function label(txt,x,y,col,size){if(typeof x!=='number')return;txt=String(txt);
-  if(document.fonts&&document.fonts.status!=='loaded'){ctx.font=`700 ${size}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.strokeText(txt,x,y);ctx.fillStyle=col;ctx.fillText(txt,x,y);return;}
+  if(!fontsReady()){ctx.font=`700 ${size}px "Alegreya Sans",sans-serif`;ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.strokeText(txt,x,y);ctx.fillStyle=col;ctx.fillText(txt,x,y);return;}
   const c=labelImg(txt,col,size);ctx.drawImage(c,x-c._w/2,y-c._b,c._w,c._h);}
 function bubble(txt,x,y){
   ctx.font='600 12.5px "Alegreya Sans",sans-serif';const maxW=190,words=txt.split(' '),lines=[];let line='';

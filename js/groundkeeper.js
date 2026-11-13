@@ -37,7 +37,7 @@ function gkBlank(z){const c=z&&z._iso;if(!c)return false;if(!c.width)return true
 function gkClearCaches(){try{if(typeof LABELS!=='undefined')LABELS.clear();}catch(e){}
   try{if(typeof SPR!=='undefined')for(const k in SPR)delete SPR[k];}catch(e){}
   try{if(typeof NPC_SPR!=='undefined')NPC_SPR.clear();if(typeof MARK_SPR!=='undefined')MARK_SPR.clear();}catch(e){}
-  try{if(typeof texts!=='undefined')for(const t of texts)t.img=null;}catch(e){}}
+  try{if(typeof texts!=='undefined')for(const t of texts)t.img=null;if(typeof GLYPHS!=='undefined')GLYPHS.clear();}catch(e){}}
 function gkCheck(force){if(!running||!Z)return;
   if(force||gkBlank(Z)){Z._gkBad=true;GK.rebuilds++;if(!force)gkClearCaches();isoGround(Z);}}
 // every 4 s while playing (not during a boss fight: a check is cheap, but never risk a hitch there)

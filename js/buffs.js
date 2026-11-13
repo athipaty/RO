@@ -7,8 +7,16 @@ function buffList(){const out=[];if(!P)return out;
   if(typeof isRested==='function'&&isRested())out.push({id:'rested',name:'Well rested',s:Math.ceil(restedLeft()/1000),rest:true});
   return out;}
 let buffSig='';
-function renderBuffs(){const el=$('#buffs');if(!el)return;const list=buffList();
+let buffShape='',buffT=0;
+function renderBuffs(){const el=$('#buffs');if(!el)return;
+  // checked a few times a second, not every frame; when only the seconds change, just the numbers are updated
+  const t=performance.now();if(t-buffT<120)return;buffT=t;const list=buffList();
   const sig=list.map(b=>b.id+':'+b.s+':'+(b.from||'')).join('|');if(sig===buffSig)return;buffSig=sig;
+  const shape=list.map(b=>b.id+':'+(b.from||'')).join('|');
+  if(shape===buffShape&&el.children.length===list.length){list.forEach((b,i)=>{const sp=el.children[i],bt=sp&&sp.querySelector('b');if(!bt)return;const v=fmtSecs(b.s);if(bt.textContent!==v)bt.textContent=v;
+    const end=b.s<=5;if(sp.classList.contains('ending')!==end)sp.classList.toggle('ending',end);
+    const tip=`${b.name}${b.from?` · from ${b.from}`:''} · ${v} left${b.rest?' · +10% EXP':''}`;sp.title=tip;sp.setAttribute('aria-label',tip);});return;}
+  buffShape=shape;
   const h0=el.hidden?0:el.offsetHeight;el.hidden=!list.length;
   if(!list.length)el.innerHTML='';
   else el.innerHTML=list.map(b=>{const sk=SKILLS[b.id],tip=`${b.name}${b.from?` · from ${b.from}`:''} · ${fmtSecs(b.s)} left${b.rest?' · +10% EXP':''}`;
@@ -34,3 +42,6 @@ function buffInfo(id){if(!P)return;const b=P.buffs[id];
   floatT(P.x,P.y-60,`${name}${stats?' · '+stats:''} · ${left}`,'#ffe7a0',13);sfx('click');}
 document.addEventListener('click',ev=>{const t=ev.target.closest&&ev.target.closest('#buffs .buff[data-buff]');if(!t)return;ev.stopPropagation();buffInfo(t.dataset.buff);},true);
 document.addEventListener('keydown',ev=>{const t=ev.target.closest&&ev.target.closest('#buffs .buff[data-buff]');if(t&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();buffInfo(t.dataset.buff);}});
+
+// a buff you just got shows on the next frame, not after the next check
+if(typeof buff==='function'){const _buffNow=buff;buff=function(){const r=_buffNow.apply(this,arguments);buffT=0;return r;};}
