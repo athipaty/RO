@@ -51,7 +51,8 @@ $('#pLoot').addEventListener('click',()=>{if(SOC.party)soc('partyLoot',{loot:SOC
 function renderParty(){const box=$('#partyBox'),p=SOC.party;box.hidden=!p;if(!p)return;
   const me=selfPeer(),lead=p.leader===me,list=box.querySelector('.pm');
   // sit just under the status box, whatever its size
-  const hud=$('#hud');box.style.top=(hud.hidden?10:hud.getBoundingClientRect().bottom+6)+'px';
+  // (phones: js/quickleft.js stacks it with the other boxes so nothing overlaps)
+  const hud=$('#hud');if(!document.body.classList.contains('touchui'))box.style.top=(hud.hidden?10:hud.getBoundingClientRect().bottom+6)+'px';else if(typeof phoneLayout==='function')setTimeout(phoneLayout,0);
   const fold=box.classList.contains('fold'),f=$('#pFold');f.textContent=fold?'+':'−';f.setAttribute('aria-expanded',String(!fold));f.title=fold?'Show party members':'Fold the party box';
   box.querySelector('.pt').textContent=fold?`Party (${p.members.length})`:`Party · ${p.mode==='share'?'sharing EXP':'each keeps own EXP'}${p.loot==='turns'?' · loot by turns':''}`;
   // the loot rule needs a server that knows it (older ones send no loot field)

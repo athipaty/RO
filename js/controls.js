@@ -20,7 +20,8 @@ updateHud=function(){_updateHudC.apply(this,arguments);if(!P)return;const te=$('
   addEventListener('pointerup',stop,true);addEventListener('pointercancel',stop,true);})();
 // ---- buffs: a column on the right under the minimap ----
 (()=>{const b=$('#buffs');if(!b)return;document.body.appendChild(b);b.classList.add('side');
-  const place=()=>{const mb=$('#minibox');if(!mb)return;const r=mb.getBoundingClientRect();b.style.top=Math.round(r.bottom+8)+'px';b.style.right=Math.round(innerWidth-r.right)+'px';};
+  // phones: js/quickleft.js places it with everything else so nothing overlaps
+  const place=()=>{if(document.body.classList.contains('touchui'))return;const mb=$('#minibox');if(!mb)return;const r=mb.getBoundingClientRect();b.style.top=Math.round(r.bottom+8)+'px';b.style.right=Math.round(innerWidth-r.right)+'px';b.style.left='';b.style.flexDirection='';};
   place();setInterval(place,500);addEventListener('resize',place);})();
 // ---- minimap size button ----
 (()=>{const mb=$('#minibox');if(!mb||$('#miniSize'))return;const b=document.createElement('button');b.type='button';b.id='miniSize';b.className='btn small';
@@ -63,24 +64,42 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
     // keep it right after Auto, but only while it lives in the top row (sideways it sits in #quickL)
     const auto2=$('#autoBtn');if(b.parentElement===acts&&auto2&&auto2.parentElement===acts&&b.previousElementSibling!==auto2)auto2.insertAdjacentElement('afterend',b);},400);})();
 // ---- turning Auto on asks what to pick up (one quick card), instead of a separate Loot button ----
-(()=>{const card=document.createElement('div');card.id='autoPick';card.hidden=true;card.setAttribute('role','dialog');card.setAttribute('aria-label','Auto-hunt: what should it pick up?');
-  card.innerHTML=`<div class="apT">Auto-hunt: what should I pick up?</div>
-    <button type="button" class="apOpt" data-loot="1"><b class="apI">✦</b><span><b>Everything</b><i>Materials, tonics, gold and gear</i></span></button>
-    <button type="button" class="apOpt" data-loot="0"><b class="apI">★</b><span><b>Only valuable</b><i>Equipment, sigils, coloured items and boss drops</i></span></button>`;
+(()=>{const card=document.createElement('div');card.id='autoPick';card.className='ring';card.hidden=true;card.setAttribute('role','dialog');card.setAttribute('aria-label','Auto-hunt: what should it pick up?');
+  // two round choices spring out of the Auto button, each joined to it by a glowing line that draws itself in
+  const NS='http://www.w3.org/2000/svg';
+  card.innerHTML=`<svg class="apLinks" aria-hidden="true"><defs><linearGradient id="apGrad" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffcf5a"/><stop offset="1" stop-color="#ffe9b0"/></linearGradient></defs>
+      <path class="apLine" data-for="1"/><path class="apLine" data-for="0"/><path class="apFlow" data-for="1"/><path class="apFlow" data-for="0"/></svg>
+    <div class="apT">Pick up</div>
+    <button type="button" class="apOpt" data-loot="1" aria-label="Everything: materials, tonics, gold and gear"><b class="apI">✦</b><span><b>Everything</b><i>All drops</i></span></button>
+    <button type="button" class="apOpt" data-loot="0" aria-label="Only valuable: equipment, sigils, coloured items and boss drops"><b class="apI">★</b><span><b>Only valuable</b><i>Gear, sigils, rare</i></span></button>`;
   document.body.appendChild(card);
   const close=()=>{card.classList.remove('show');setTimeout(()=>{if(!card.classList.contains('show'))card.hidden=true;},180);};
   const open=()=>{const b=$('#autoBtn').getBoundingClientRect();card.hidden=false;
     for(const o of card.querySelectorAll('.apOpt'))o.classList.toggle('on',(o.dataset.loot==='1')===(P.autoLoot!==false));
-    const w=card.offsetWidth,h=card.offsetHeight;card.style.left=Math.max(8,Math.min(innerWidth-w-8,b.left+b.width/2-w/2))+'px';card.style.top=Math.max(8,b.top-h-10)+'px';
-    requestAnimationFrame(()=>card.classList.add('show'));};
+    const ax=b.left+b.width/2,ay=b.top+b.height/2,dir=ax>innerWidth/2?-1:1,R=46/2,dx=Math.max(78,b.width/2+62),spread=46;
+    card.classList.toggle('left',dir<0);card.style.setProperty('--ax',ax+'px');card.style.setProperty('--ay',ay+'px');
+    const svg=card.querySelector('.apLinks');svg.setAttribute('width',innerWidth);svg.setAttribute('height',innerHeight);
+    const g=card.querySelector('#apGrad');g.setAttribute('x1',ax);g.setAttribute('y1',ay);
+    [['1',-spread],['0',spread]].forEach(([k,dy],i)=>{const o=card.querySelector(`.apOpt[data-loot="${k}"]`);
+      const ox=ax+dir*dx,oy=Math.max(R+8,Math.min(innerHeight-R-8,ay+dy));
+      o.style.left=ox+'px';o.style.top=oy+'px';o.style.setProperty('--fx',(ax-ox)+'px');o.style.setProperty('--fy',(ay-oy)+'px');o.style.transitionDelay=(i*45)+'ms';
+      if(i===1){g.setAttribute('x2',ox);g.setAttribute('y2',oy);}
+      // a gentle curve from the edge of Auto to the edge of the choice
+      const sx=ax+dir*(b.width/2-2),ex=ox-dir*R,cx=(sx+ex)/2,cy=(ay+oy)/2+(oy-ay)*-.35;const d=`M${sx} ${ay} Q${cx} ${cy} ${ex} ${oy}`;
+      for(const p of card.querySelectorAll(`path[data-for="${k}"]`)){p.setAttribute('d',d);const L=p.getTotalLength?p.getTotalLength():120;p.style.setProperty('--len',L);}});
+    // the little 'Pick up' label sits just beside Auto, between the two lines
+    const t=card.querySelector('.apT');t.style.left=(ax+dir*(b.width/2+8))+'px';t.style.top=ay+'px';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>card.classList.add('show')));};
   // start auto-hunt with the chosen pick-up rule
-  card.addEventListener('click',ev=>{const o=ev.target.closest('.apOpt');if(!o)return;ev.stopPropagation();setAutoLoot(o.dataset.loot==='1',true);close();
+  card.addEventListener('click',ev=>{const o=ev.target.closest('.apOpt');if(!o)return;ev.stopPropagation();setAutoLoot(o.dataset.loot==='1',true);
+    o.classList.add('picked');setTimeout(()=>o.classList.remove('picked'),300);close();
     P.auto=true;$('#autoBtn').classList.add('on');sfx('click');
     addLog(`Auto-hunt on: you fight the nearest monster and drink tonics when HP runs low. Picking up: ${P.autoLoot===false?'only valuable things':'everything'}.`,'l-good');});
-  // a tap on Auto while it is off opens the card; while it is on, it turns off as before
+  // a tap on Auto while it is off opens the choices; while it is on, it turns off as before
   addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('#autoBtn');
     if(b){if(!P||!running||P.auto)return;ev.stopImmediatePropagation();ev.preventDefault();if(card.hidden)open();else close();return;}
-    if(!card.hidden&&!ev.target.closest('#autoPick'))close();},true);
+    if(!card.hidden&&!ev.target.closest('#autoPick .apOpt'))close();},true);
+  addEventListener('resize',()=>{if(!card.hidden)close();});
   addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!card.hidden){ev.stopImmediatePropagation();close();}},true);})();
 // ---- the rest button shows what it will do: a seated person (sit) or a standing one (stand up) ----
 (()=>{const b=$('#sitBtn');if(!b)return;const svg=b.querySelector('svg.aic'),tx=b.querySelector('.atx');if(!svg)return;
