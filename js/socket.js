@@ -20,7 +20,7 @@ PANELS.socket=()=>{
   const sig=ITEMS[SIGPICK.sig];if(!sig||!invFind(SIGPICK.sig)){SIGPICK.sig=null;return '<p class="muted">That sigil is no longer in your bag.</p>';}
   const kind=sig.kind,list=socketTargets(SIGPICK.sig),mob=MOBS[SIGPICK.sig.replace('_sig','')];
   let h=`<h2>Socket a sigil</h2><div class="sockhead">${icon(sig)}<div class="grow"><div class="nm" style="color:${rarityCol(SIGPICK.sig)}">${esc(sig.name)}</div>`+
-    `<div class="ds">${mob?esc(mob.sig.txt):''} · fits ${/^[aeiou]/.test(kind)?'an':'a'} ${kind}</div></div></div>`;
+    `<div class="ds">${esc(sig.txt||(mob?mob.sig.txt:''))} · fits ${/^[aeiou]/.test(kind)?'an':'a'} ${kind}</div></div></div>`;
   h+=`<div class="sub">Choose the gear to put it in. A socketed sigil stays in that gear for good.</div>`;
   if(!list.length)h+=`<p class="muted">You have no ${kind} with sigil slots. Look for gear with slots at the General Store, from the forge, or as monster drops.</p>`;
   else{h+=`<div class="socklist" role="radiogroup" aria-label="Gear for this sigil">`;
@@ -43,7 +43,7 @@ PANEL_ACTS.sockok=()=>{
   if(!g||!sig||!invFind(SIGPICK.sig))return;const k=g.e.s.indexOf(null);if(k<0)return;
   g.e.s[k]=SIGPICK.sig;takeItem(SIGPICK.sig);
   const mob=MOBS[SIGPICK.sig.replace('_sig','')];
-  addLog(`Socketed ${sig.name} into ${itemName(g.e)}${g.worn?'':' (in your bag)'}.${mob?' '+mob.sig.txt+'.':''}`,'l-good');sfx('rare');
+  addLog(`Socketed ${sig.name} into ${itemName(g.e)}${g.worn?'':' (in your bag)'}.${sig.txt?' '+sig.txt+'.':mob?' '+mob.sig.txt+'.':''}`,'l-good');sfx('rare');
   if(g.worn){S=computeStats();P.hp=Math.min(P.hp,S.maxhp);P.sp=Math.min(P.sp,S.maxsp);}
   SIGPICK.sig=null;SIGPICK.pick=null;save();invTab='sigil';openPanel('items');};
 // Thai labels for the picker

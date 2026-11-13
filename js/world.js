@@ -201,7 +201,7 @@ function maxWeight(){return 800+((S&&S.str)||P.st.str)*30;}
 function computeStats(){
   const c=CLASSES[P.cls], b={}, lv=P.lv;
   for(const slot of ['weapon','armor','accessory','head','face','mouth']){const e=P.eq[slot];if(!e)continue;const it=ITEMS[e.id];
-    addB(b,{atk:it.atk||0,matk:it.matk||0,def:it.def||0});addB(b,it.b);addB(b,refineBonus(e));for(const s of e.s)if(s)addB(b,ITEMS[s].b);}
+    addB(b,{atk:it.atk||0,matk:it.matk||0,def:it.def||0});addB(b,it.b);addB(b,refineBonus(e));if(e.aw&&e.aw.k)addB(b,{[e.aw.k]:+e.aw.v||0});for(const s of e.s)if(s)addB(b,ITEMS[s].b);}
   for(const k in P.buffs)addB(b,P.buffs[k].b);
   if(typeof passiveB==='function')addB(b,passiveB()); // passive skills (js/builds.js)
   const st={};for(const k of STATS)st[k]=P.st[k]+(b[k]||0);

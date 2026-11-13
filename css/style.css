@@ -994,3 +994,10 @@ body.touchui #panel.npcfull:has(.eqgrid)>*:not(.x){max-width:none;width:100%}
 /* sideways: the guild war banner sits compact in the top row (js/quickleft.js places it) */
 body.touchui #gwBar.gwTop{transform:none!important;font-size:10.5px;padding:4px 10px;gap:6px 8px;line-height:1.25;justify-content:flex-start}
 body.touchui #gwBar.gwTop i{width:40px}
+
+/* Gemcutter Sela: awakening and sigil fusion (js/awaken.js) */
+.awbox{border:1px solid rgba(255,215,106,.35);border-radius:12px;padding:12px;margin:8px 0;background:rgba(255,215,106,.06)}
+.awrow{display:flex;gap:10px;align-items:baseline;margin-top:6px}.awrow span{min-width:42px}
+.fusetray{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
+.fuseslot{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:64px;border:1px dashed rgba(255,255,255,.2);border-radius:10px;padding:6px;font:inherit;color:inherit;background:rgba(255,255,255,.03)}
+.fuseslot.full{border-style:solid;border-color:rgba(200,176,255,.5);cursor:pointer}.fuseslot span{font-size:11px;text-align:center;overflow:hidden;text-overflow:ellipsis;max-width:100%;white-space:nowrap}
