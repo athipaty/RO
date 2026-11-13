@@ -3,7 +3,10 @@
 for(const id in ITEMS)ITEMS[id].id=id;
 const ICON_CACHE={},ICON_CANVAS={};
 const OL='#2a1c14';
-function shade(hex,k){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;
+// one shade for the whole game: -1..1 is a fraction (icons), anything bigger is an amount to add (render.js: roofs, monsters).
+// Before, this one replaced render.js's and turned every shade(col,-40) black.
+function shade(hex,k){const n=parseInt(String(hex).slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;
+  if(Math.abs(k)>1){const a=v=>Math.max(0,Math.min(255,Math.round(v+k)));return `rgb(${a(r)},${a(g)},${a(b)})`;}
   const f=v=>Math.max(0,Math.min(255,Math.round(k<0?v*(1+k):v+(255-v)*k)));return `rgb(${f(r)},${f(g)},${f(b)})`;}
 
 // draws item `id` into context g, in a 32x32 box
