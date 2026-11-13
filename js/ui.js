@@ -48,11 +48,23 @@ const panel=$('#panel');let panelKind=null,panelArg=null,shopTab='buy';
 const itemCat=id=>{const t=ITEMS[id].type;return t==='use'?'use':t==='sigil'?'sigil':t==='etc'?'etc':'equip';};
 const CAT_TABS=[['use','Use'],['equip','Equip'],['sigil','Sigils'],['etc','Etc']];
 let shopCat='use';
+// General Store, Equip tab: sub-tabs by gear type, like the forge (remembered)
+let shopGear=(()=>{try{return localStorage.getItem('embervale.shopGear')||'all';}catch(e){return 'all';}})();
+const GEAR_TABS=[['weapon','Weapon'],['armor','Armour'],['head','Head'],['accessory','Accessory'],['face','Face'],['mouth','Mouth']];
+// gear-type chips + rows grouped into sections ("All") or one type; rowOf(x) draws a row, okOf(x) lights the tab's dot
+function gearTabsHtml(list,typeOf,rowOf,okOf){
+  const types=GEAR_TABS.filter(([k])=>list.some(x=>typeOf(x)===k));if(shopGear!=='all'&&!types.some(([k])=>k===shopGear))shopGear='all';
+  let h=`<div class="ftabs" role="tablist" aria-label="Gear type">`+[['all','All'],...types].map(([k,l])=>{const part=list.filter(x=>k==='all'||typeOf(x)===k),on=shopGear===k;
+    return `<button class="cxchip${on?' on':''}" role="tab" aria-selected="${on}" data-act="shopgear" data-arg="${k}">${l} <span>${part.length}</span>${okOf&&part.some(okOf)?'<i class="fdot" title="Something here you can buy and wear now"></i>':''}</button>`;}).join('')+`</div>`;
+  if(shopGear==='all')for(const [k,l] of types){const part=list.filter(x=>typeOf(x)===k);h+=`<h3 class="fsec">${l} <span class="muted">${part.length}</span></h3>`+part.map(rowOf).join('');}
+  else h+=list.filter(x=>typeOf(x)===shopGear).map(rowOf).join('');
+  return h;}
 let invTab=(()=>{try{return localStorage.getItem('embervale.invTab')||'use';}catch(e){return 'use';}})();
 // other files (trade.js) register extra windows here: render, button actions, and what to do on close
 const PANELS={},PANEL_ACTS={},PANEL_CLOSE={};
 PANEL_ACTS.openach=()=>openPanel('ach');
 PANEL_ACTS.shopcat=k=>{shopCat=k;refreshPanel();};
+PANEL_ACTS.shopgear=k=>{shopGear=k;try{localStorage.setItem('embervale.shopGear',k);}catch(e){}sfx('click');refreshPanel();};
 PANEL_ACTS.invtab=k=>{invTab=k;try{localStorage.setItem('embervale.invTab',k);}catch(e){}refreshPanel();};
 const NPC_PANELS=['talk','shop','smith','storage','job','heal','warp'];
 const npcBusy=()=>!!P&&NPC_PANELS.includes(panelKind)&&!panel.hidden;
@@ -174,12 +186,17 @@ function refreshPanel(){
     {const ids=shopTab==='buy'?SHOP:P.inv.map(e=>e.id);const cnt={};for(const id of ids){const c=itemCat(id);cnt[c]=(cnt[c]||0)+1;}
       const tabs=CAT_TABS.filter(([k])=>cnt[k]);if(tabs.length&&!cnt[shopCat])shopCat=tabs[0][0];
       if(tabs.length>1)h+=`<div class="tabs itabs" role="tablist">`+tabs.map(([k,l])=>`<button class="btn small ${shopCat===k?'on':''}" role="tab" aria-selected="${shopCat===k}" data-act="shopcat" data-arg="${k}">${l} <span class="muted">${cnt[k]}</span></button>`).join('')+`</div>`;}
-    if(shopTab==='buy'){for(const id of SHOP){if(itemCat(id)!==shopCat)continue;const it=ITEMS[id];const why=it.type==='use'?null:canEquip(it);
-      h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name}</div><div class="ds">${itemDesc({id,s:it.slots?Array(it.slots).fill(null):[]})}${why&&it.type!=='use'?` · <span style="color:#ef7a6f">${why.replace('Requires ','')}</span>`:''}</div></div><span class="gold" style="font-variant-numeric:tabular-nums">${fmt(it.price)}</span><button class="btn small" data-act="buy" data-arg="${id}" ${P.gold<it.price?'disabled':''}>Buy</button></div>`;}}
+    if(shopTab==='buy'){const buyRow=id=>{const it=ITEMS[id];const why=it.type==='use'?null:canEquip(it);
+      return `<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name}</div><div class="ds">${itemDesc({id,s:it.slots?Array(it.slots).fill(null):[]})}${why&&it.type!=='use'?` · <span style="color:#ef7a6f">${why.replace('Requires ','')}</span>`:''}</div></div><span class="gold" style="font-variant-numeric:tabular-nums">${fmt(it.price)}</span><button class="btn small" data-act="buy" data-arg="${id}" ${P.gold<it.price?'disabled':''}>Buy</button></div>`;};
+      const ids=SHOP.filter(id=>itemCat(id)===shopCat);
+      if(shopCat==='equip')h+=gearTabsHtml(ids,id=>ITEMS[id].type,buyRow,id=>P.gold>=ITEMS[id].price&&!canEquip(ITEMS[id]));
+      else h+=ids.map(buyRow).join('');}
     else{const etc=P.inv.filter(e=>ITEMS[e.id].type==='etc'&&!ITEMS[e.id].keep);const tot=etc.reduce((a,e)=>a+sellValue(e.id)*e.n,0);
       if(shopCat==='etc')h+=`<div class="row"><div class="grow">Sell all monster loot</div><span class="gold">${fmt(tot)}</span><button class="btn small" data-act="sellall" ${tot?'':'disabled'}>Sell all</button></div>`;
       if(!P.inv.length)h+=`<p class="muted">Nothing to sell.</p>`;
-      P.inv.forEach((e,i)=>{const it=ITEMS[e.id];if(itemCat(e.id)!==shopCat)return;h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><span class="gold">${fmt((typeof sellValueOf==='function'?sellValueOf(e):sellValue(e.id)))}</span><button class="btn small" data-act="sell" data-arg="${i}">Sell 1</button>${e.n>1?`<button class="btn small" data-act="sellstack" data-arg="${i}" title="Sell all ${e.n} for ${fmt((typeof sellValueOf==='function'?sellValueOf(e):sellValue(e.id))*e.n)} gold">Sell all</button>`:''}</div>`;});}
+      const sellRow=([e,i])=>{const it=ITEMS[e.id];return `<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><span class="gold">${fmt((typeof sellValueOf==='function'?sellValueOf(e):sellValue(e.id)))}</span><button class="btn small" data-act="sell" data-arg="${i}">Sell 1</button>${e.n>1?`<button class="btn small" data-act="sellstack" data-arg="${i}" title="Sell all ${e.n} for ${fmt((typeof sellValueOf==='function'?sellValueOf(e):sellValue(e.id))*e.n)} gold">Sell all</button>`:''}</div>`;};
+      const mine=P.inv.map((e,i)=>[e,i]).filter(([e])=>itemCat(e.id)===shopCat);
+      if(shopCat==='equip')h+=gearTabsHtml(mine,([e])=>ITEMS[e.id].type,sellRow,null);else h+=mine.map(sellRow).join('');}
   }
   else if(panelKind==='job'){
     h+=`<h2>Guild Hall</h2>`;
