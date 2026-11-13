@@ -805,3 +805,16 @@ body.npcopen #itemCard{z-index:50}
 .cxb .cxon{color:#ffcf5a;text-decoration:underline;text-underline-offset:3px}
 .cxown{display:inline-block;margin-top:4px;font-size:11.5px;color:#7fd38a}
 @media (max-width:420px){.cxlbl{width:auto;padding-top:0}.cxrow{flex-direction:column;gap:4px}.cxlist{grid-template-columns:1fr}}
+/* codex cards: the monster that drops the sigil, and the whole card opens the details */
+.cxcard{cursor:pointer;align-items:center}
+.cxcard:hover{background:rgba(240,181,74,.06)}
+.cxcard:focus-visible{outline:2px solid var(--accent,#f0b54a);outline-offset:2px}
+.cxmob{flex:none;margin:0;width:62px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.cxmob img{width:56px;height:56px;object-fit:contain;border-radius:10px;background:radial-gradient(circle at 50% 60%,rgba(255,255,255,.08),transparent 70%)}
+.cxmob figcaption{font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+/* item card for a sigil: its monster, large */
+#itemCard .icbig{display:flex;gap:14px;align-items:center;margin:12px 0 2px;padding:10px 12px;border-radius:14px;background:radial-gradient(ellipse at 20% 60%,rgba(255,207,90,.1),transparent 65%),rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09)}
+#itemCard .icbig img{width:96px;height:96px;flex:none;object-fit:contain}
+#itemCard .icbig .nm{font-weight:800;font-size:16px}
+#itemCard .icbig .icpct{margin-top:4px;font-size:13px}
+#itemCard{background:#141a24!important;backdrop-filter:none}

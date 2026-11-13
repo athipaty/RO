@@ -16,14 +16,18 @@ module.exports = async t => {
       const first = cards().slice(0, 2).map(c => c.querySelector('.nm').textContent).sort().join(',');
       PANEL_ACTS.cxsort('name'); const names = cards().map(c => c.querySelector('.nm').textContent); const abc = names.every((n, i) => !i || names[i - 1].localeCompare(n) <= 0);
       const kept = JSON.parse(localStorage.getItem('embervale.codex')).sort === 'name';
+      const pics = cards().every(c => c.querySelector('.cxmob img'));
+      cards()[0].querySelector('.cxb').click(); const card = document.getElementById('itemCard'); const big = !card.hidden && !!card.querySelector('.icbig img'); hideItemCard();
       PANEL_ACTS.cxtab('beast'); const back = /Bestiary:/.test(panel.textContent);
-      return { tabs, total, expect, weaponsOnly, best, atk, first, abc, kept, back };
+      return { tabs, total, expect, weaponsOnly, best, atk, first, abc, kept, back, pics, big };
     });
     t.ok(r.tabs && r.total === r.expect, `the library has a Sigil Codex tab listing every sigil (${r.total} of ${r.expect}; world-boss ones hidden until defeated)`);
     t.ok(r.weaponsOnly, 'the Weapon filter shows only weapon sigils');
     t.ok(r.best, `choosing ATK sorts by the biggest ATK bonus (${r.atk.join(', ')})`);
     t.ok(r.first === 'Mossbug Sigil,Thornling Sigil', 'Owned first puts sigils in the bag or socketed in gear at the top');
     t.ok(r.abc && r.kept, 'sorting by name works and the choice is remembered');
+    t.ok(r.pics, 'every sigil card shows the monster that drops it');
+    t.ok(r.big, 'tapping a card opens its details with a large picture of the monster');
     t.ok(r.back, 'the Bestiary tab still shows the monster records');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
