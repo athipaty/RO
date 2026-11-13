@@ -34,6 +34,11 @@ module.exports = async t => {
     const wear = await g.ev(() => { P.lv = 14; const def0 = (S = computeStats()).def; const vest = P.inv.find(e => e.id === 'lupevest'); useInv(P.inv.indexOf(vest)); S = computeStats(); return { worn: P.eq.armor && P.eq.armor.id === 'lupevest', def: S.def - def0 }; });
     t.ok(wear.worn && wear.def > 0, `forged gear can be worn (+${wear.def} DEF over the tunic)`);
     t.ok(await g.ev(() => { save(); const s = JSON.parse(localStorage.getItem(SAVE_KEY)); return s.p.eq.armor.id === 'lupevest'; }), 'and is saved like any other gear');
+    const ft = await g.ev(() => { openPanel('craft', 'forge'); PANEL_ACTS.forgetype('all'); const secs = [...panel.querySelectorAll('.fsec')].length, tabs = [...panel.querySelectorAll('.ftabs [data-act=forgetype]')].map(b => b.dataset.arg);
+      PANEL_ACTS.forgetype('weapon'); const onlyW = [...panel.querySelectorAll('.craftrow [data-act=craftmake]')].every(b => ITEMS[FORGES[+b.dataset.arg.split(':')[1]][0]].type === 'weapon');
+      const keep = localStorage.getItem('embervale.forgeType') === 'weapon'; PANEL_ACTS.forgetype('all'); closePanel(); return { secs, tabs, onlyW, keep }; });
+    t.ok(ft.tabs[0] === 'all' && ft.tabs.includes('weapon') && ft.tabs.includes('armor') && ft.secs === ft.tabs.length - 1, `the forge has gear-type tabs (${ft.tabs.join(', ')}) and All is split into sections`);
+    t.ok(ft.onlyW && ft.keep, 'the Weapon tab lists only weapons, and the choice is remembered');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
     if (process.env.SHOTS) { await g.ev(() => { giveItem('fang', 5); giveItem('fur', 1); openPanel('craft', 'forge'); }); await wait(300); await g.page.screenshot({ path: process.env.SHOTS + '/craft.png' }); }
   } finally { await g.close(); }

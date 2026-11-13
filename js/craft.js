@@ -44,7 +44,9 @@ const FORGES=[
   ['corerod',1,{core:5,shadeveil:3},11000],
   ['fangblade',1,{fang:5,fur:3,shard:2},18000],
 ];
-const CRAFT={tab:'brew'};
+const CRAFT={tab:'brew',ftype:(()=>{try{return localStorage.getItem('embervale.forgeType')||'all';}catch(e){return 'all';}})()};
+// the forge's gear-type tabs (only types that have recipes are shown)
+const FORGE_TYPES=[['weapon','Weapon'],['armor','Armour'],['head','Head'],['accessory','Accessory'],['face','Face'],['mouth','Mouth']];
 // which monsters drop a material (for the "from …" hints)
 const dropFrom=id=>Object.values(MOBS).filter(m=>!m.boss&&(m.drops||[]).some(([d])=>d===id)).map(m=>m.name);
 const atSmithy=()=>zoneId==='town'&&Z.npcs.some(n=>n.role==='smith'&&dist(P,n)<170);
@@ -66,12 +68,23 @@ PANELS.craft=()=>{if(panelArg==='forge'){CRAFT.tab='forge';panelArg=null;}
   let h=`<h2>${forge?'Forge':'Brewing'}</h2><div class="sub">${forge?'Brannoc turns monster materials into gear. Forging works at the Smithy in Hearthvale.':'Brew tonics and battle brews from monster materials, anywhere.'} You have ${fmt(P.gold)} gold.</div>`;
   h+=`<div class="tabs" role="tablist">`+[['brew','Brewing'],['forge','Forge']].map(([k,l])=>`<button class="btn small ${CRAFT.tab===k?'on':''}" role="tab" aria-selected="${CRAFT.tab===k}" data-act="crafttab" data-arg="${k}">${l}</button>`).join('')+`</div>`;
   if(forge&&!atSmithy())h+=`<div class="arbox">You can look at the recipes here, but forging needs Brannoc's anvil at the Smithy in Hearthvale.</div>`;
-  h+=list.map((r,i)=>{const [out,n,mats,gold]=r,it=ITEMS[out],ok=canMake(r)&&(!forge||atSmithy());
+  const row=(r,i)=>{const [out,n,mats,gold]=r,it=ITEMS[out],ok=canMake(r)&&(!forge||atSmithy());
     const stats=it.type==='use'?it.desc:typeof itemDesc==='function'?itemDesc({id:out,s:Array(it.slots||0).fill(null)}):'';
     const need=Object.entries(mats).map(([id,k])=>{const have=haveN(id),from=dropFrom(id);const tip=ITEMS[id].name+(from.length?' · dropped by '+from.join(', '):'');return `<span class="cmi ${have>=k?'ok':''}" data-item="${id}" title="${esc(tip)}" aria-label="${esc(tip+': '+Math.min(have,k)+' of '+k)}" tabindex="0"><img src="${itemIconURL(id)}" alt=""><b>${Math.min(have,k)}/${k}</b></span>`;}).join('');
     return `<div class="row craftrow">${icon({id:out})}<div class="grow"><div class="nm">${esc(it.name)}${n>1?` <span class="muted">×${n}</span>`:''}${it.lv>1?` <span class="muted">· Lv ${it.lv}+</span>`:''}</div><div class="ds">${esc(stats)}</div><div class="cms">${need}${gold?`<span class="cm ${P.gold>=gold?'ok':''}">${fmt(gold)} gold</span>`:''}</div></div>`+
-      `<button class="btn small" data-act="craftmake" data-arg="${forge?'f':'b'}:${i}" ${ok?'':'disabled'}>${forge?'Forge':'Brew'}</button></div>`;}).join('');
+      `<button class="btn small" data-act="craftmake" data-arg="${forge?'f':'b'}:${i}" ${ok?'':'disabled'}>${forge?'Forge':'Brew'}</button></div>`;};
+  if(!forge)return h+list.map(row).join('');
+  // forge: tabs by gear type (with a dot when something there can be forged now); "All" is split into sections
+  const typeOf=r=>ITEMS[r[0]].type,types=FORGE_TYPES.filter(([k])=>FORGES.some(r=>typeOf(r)===k));
+  if(CRAFT.ftype!=='all'&&!types.some(([k])=>k===CRAFT.ftype))CRAFT.ftype='all';
+  const ready=k=>FORGES.some(r=>(k==='all'||typeOf(r)===k)&&canMake(r));
+  h+=`<div class="ftabs" role="tablist" aria-label="Gear type">`+[['all','All'],...types].map(([k,l])=>{const n=k==='all'?FORGES.length:FORGES.filter(r=>typeOf(r)===k).length,on=CRAFT.ftype===k;
+    return `<button class="cxchip${on?' on':''}" role="tab" aria-selected="${on}" data-act="forgetype" data-arg="${k}">${l} <span>${n}</span>${ready(k)?'<i class="fdot" title="You can forge something here now"></i>':''}</button>`;}).join('')+`</div>`;
+  const idx=FORGES.map((r,i)=>[r,i]);
+  if(CRAFT.ftype==='all')for(const [k,l] of types){const part=idx.filter(([r])=>typeOf(r)===k);h+=`<h3 class="fsec">${l} <span class="muted">${part.length}</span></h3>`+part.map(([r,i])=>row(r,i)).join('');}
+  else h+=idx.filter(([r])=>typeOf(r)===CRAFT.ftype).map(([r,i])=>row(r,i)).join('');
   return h;};
+PANEL_ACTS.forgetype=k=>{CRAFT.ftype=k;try{localStorage.setItem('embervale.forgeType',k);}catch(e){}sfx('click');refreshPanel();};
 PANEL_ACTS.crafttab=k=>{CRAFT.tab=k==='forge'?'forge':'brew';refreshPanel();};
 PANEL_ACTS.craftmake=arg=>{const [k,i]=arg.split(':');craftMake(k==='f'?FORGES:BREWS,+i);};
 PANEL_ACTS.openforge=()=>openPanel('craft','forge');

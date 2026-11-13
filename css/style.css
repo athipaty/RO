@@ -906,3 +906,9 @@ body.touchui #partyBox .pmr{grid-template-columns:minmax(52px,1fr) 46px auto aut
 @media (prefers-reduced-motion:reduce){#hotPage.flip b{animation:none}}
 /* phones sideways: keep the weight line (small), it turns orange with a warning when too heavy */
 @media (orientation:landscape) and (max-height:520px){body.touchui #hud #weight{display:block!important;font-size:10px;line-height:1.2;margin-top:2px}}
+/* forge: gear-type tabs and sections */
+.ftabs{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 4px}
+.ftabs .cxchip{position:relative}
+.ftabs .fdot{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#7fd38a;box-shadow:0 0 0 2px rgba(14,18,26,.95),0 0 6px rgba(127,211,138,.8)}
+.fsec{display:flex;align-items:baseline;gap:6px;margin:14px 0 4px!important}
+.fsec{color:#e8c870!important}.fsec .muted{font-size:13px}
