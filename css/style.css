@@ -1052,3 +1052,16 @@ body.touchui #gwBar.gwTop i{width:40px}
 .skpnext{font-size:12px;margin-top:8px;line-height:1.4}
 @media (orientation:portrait){.skpright{position:sticky;bottom:0;z-index:2;max-height:44vh;overflow:auto;margin:0 -4px;padding:8px 4px 4px;background:rgba(18,22,30,.97);border-top:1px solid rgba(240,181,74,.35);box-shadow:0 -10px 24px rgba(0,0,0,.45);border-radius:14px 14px 0 0}}
 .skpright .snode.locked{opacity:1}.skpright .snode.locked .nm,.skpright .snode.locked .ds{opacity:.75}
+/* skill tree lines (js/skilllinks.js) */
+.skpleft{position:relative}#panel{--skl:0}
+svg.sklinks{position:absolute;left:0;top:0;pointer-events:none;z-index:0;overflow:visible}
+.skpic,.skpsec,#panel .snode,#panel h3{position:relative;z-index:1}
+.skparrow{display:none}.skprow{margin-top:34px}.skpsec+.skprow{margin-top:4px}
+#panel .tarrow{visibility:hidden;height:18px}
+.skpic{background:#1b212c}#panel .snode{background-color:#1b212c}
+
+/* desktop: the skill window is wide enough for the tree and the card side by side */
+body:not(.touchui) #panel:has(.skpwrap){width:min(940px,96vw)!important;max-width:none!important}
+body:not(.touchui) #panel .skpwrap{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+body:not(.touchui) #panel .skpright{position:sticky;top:0}
+@media (max-width:440px){.skpic{width:62px;padding:5px 1px 4px}.skpic img{width:36px;height:36px}.skpnm{max-width:58px;font-size:9.5px}.skprow{gap:5px;flex-wrap:nowrap}}

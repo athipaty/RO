@@ -17,8 +17,9 @@ module.exports = async t => {
     t.ok(/Whirlwind/.test(r.title) && r.side, 'tapping a skill shows its card on the right side');
     t.ok(r.learned && r.still === 'whirl', 'Learn works from the card and the skill stays selected');
     t.ok(r.secs.join() === 'Warden,Ravager', 'skills are grouped by calling: ' + r.secs.join(', '));
-    const desk = await g.ev(() => { document.body.classList.remove('touchui'); openPanel('skills'); const n = panel.querySelectorAll('.skpic').length, c = panel.querySelectorAll('.snode').length; closePanel(); document.body.classList.add('touchui'); return { n, c }; });
-    t.ok(desk.n === 0 && desk.c > 5, 'desktop keeps the full tree of cards');
+    const desk = await g.ev(async () => { document.body.classList.remove('touchui'); P.skills = { cleave: 5, bladecraft: 3 }; openPanel('skills'); await new Promise(r => setTimeout(r, 300)); const n = panel.querySelectorAll('.skpic').length, lines = panel.querySelectorAll('svg.sklinks path').length, gold = [...panel.querySelectorAll('svg.sklinks path')].some(p => p.getAttribute('stroke') === '#e8c25a'), dashed = [...panel.querySelectorAll('svg.sklinks path')].some(p => p.getAttribute('stroke-dasharray')); closePanel(); document.body.classList.add('touchui'); return { n, lines, gold, dashed }; });
+    t.ok(desk.n > 5, 'desktop shows the same icon tree');
+    t.ok(desk.lines > 6 && desk.gold && desk.dashed, `lines join each skill to the skills it unlocks (${desk.lines / 2} lines: gold when met, dashed when not)`);
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };

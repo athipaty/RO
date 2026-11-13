@@ -28,16 +28,16 @@ module.exports = async t => {
     t.ok(pro.cls === 'ravager' && pro.jl === 1 && pro.kept, 'you become a Ravager at Job Lv 1 and keep your Warden skills');
     t.ok(pro.gold === 1000 && pro.bones === 0 && !pro.trial, 'the fee and trial items are taken');
 
-    const tree = await g.ev(() => { P.skillPts = 10; openPanel('skills'); const hs = [...panel.querySelectorAll('h3')].map(h => h.textContent);
-      const learn = panel.querySelector('[data-act="learn"][data-arg="frenzy"]'); const lockedFrenzy = learn.disabled;
-      for (let i = 0; i < 3; i++) panel.querySelector('[data-act="learn"][data-arg="rendingblow"]').click();
-      panel.querySelector('[data-act="learn"][data-arg="frenzy"]').click(); closePanel();
+    const tree = await g.ev(() => { P.skillPts = 10; openPanel('skills'); const hs = [...panel.querySelectorAll('.skpsec')].map(h => h.textContent + ' skills'); const lb = id => { PANEL_ACTS.sksel(id); const b = panel.querySelector(`[data-act="learn"][data-arg="${id}"]`); if (!b) throw new Error('no learn for ' + id + ' sel=' + SKP.sel + ' ' + panelKind); return b; };
+      const learn = lb('frenzy'); const lockedFrenzy = learn.disabled;
+      for (let i = 0; i < 3; i++) lb('rendingblow').click();
+      lb('frenzy').click(); closePanel();
       return { hs, lockedFrenzy, rb: P.skills.rendingblow, fr: P.skills.frenzy }; });
     t.ok(tree.hs.join('|') === 'Warden skills|Ravager skills', 'the skill tree shows Warden skills and Ravager skills in two sections');
     t.ok(tree.lockedFrenzy && tree.rb === 3 && tree.fr === 1, 'Frenzy needs Rending Blow 3, then can be learned');
 
-    const hot = await g.ev(() => { openPanel('skills'); panel.querySelector('[data-act="hot"][data-arg="rendingblow:0"]').click();
-      panel.querySelector('[data-act="hot"][data-arg="frenzy:1"]').click(); closePanel();
+    const hot = await g.ev(() => { openPanel('skills'); PANEL_ACTS.sksel('rendingblow'); panel.querySelector('[data-act="hot"][data-arg="rendingblow:0"]').click();
+      PANEL_ACTS.sksel('frenzy'); panel.querySelector('[data-act="hot"][data-arg="frenzy:1"]').click(); closePanel();
       const slots = hotSlots().slice(0, 4).map(s => s && s.skill); const title = document.querySelectorAll('#hotbar .slot')[0].title; return { slots, title }; });
     t.ok(hot.slots[0] === 'rendingblow' && hot.slots[1] === 'frenzy' && /Rending Blow/.test(hot.title), 'you can put new skills on hotbar keys 1 and 2');
 

@@ -23,9 +23,10 @@ module.exports = async t => {
     t.ok(w.a.dbl === 5, 'the Twinfang Saber gives a 5% double attack');
     // skill tree: passives say Passive and cannot go on the hotbar or be cast
     const tree = await g.ev(() => { P.skillPts = 5; openPanel('skills'); const txt = document.getElementById('panel').textContent;
+      const pasOk = !!document.querySelector('.skpic.pas[data-arg="duelist"]') && (PANEL_ACTS.sksel('duelist'), /Passive/.test(document.getElementById('panel').textContent));
       const sp = P.sp; P.sp = 999; useSkill('duelist'); const cast = P.sp !== 999; P.sp = sp;
       openPanel('hotbar'); const inPick = !!document.querySelector('[data-bar="s:duelist"]'); closePanel();
-      return { names: ['Blade Mastery', "Duelist's Rhythm", 'Lethal Edge', 'Sundering Blow', 'Stoneblood', 'Second Wind'].every(n => txt.includes(n)), passive: /Passive/.test(txt), cast, inPick, hot: hotSkills().every(s => !s || SKILLS[s].kind !== 'passive') }; });
+      return { names: ['Blade Mastery', "Duelist's Rhythm", 'Lethal Edge', 'Sundering Blow', 'Stoneblood', 'Second Wind'].every(n => txt.includes(n)), passive: pasOk, cast, inPick, hot: hotSkills().every(s => !s || SKILLS[s].kind !== 'passive') }; });
     t.ok(tree.names && tree.passive, 'the Warden tree lists the six new skills, passives marked Passive');
     t.ok(!tree.cast && !tree.inPick && tree.hot, 'passives cannot be cast or put on the hotbar');
     // Lethal Edge needs Duelist's Rhythm 3, then hits a monster

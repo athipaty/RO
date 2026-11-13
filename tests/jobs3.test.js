@@ -12,10 +12,10 @@ module.exports = async t => {
       const choices = [...document.querySelectorAll('#panel [data-act="ascend"]')].map(b => b.dataset.arg);
       PANEL_ACTS.ascend('aegislord');
       const c = CLASSES[P.cls]; const sk = c.skills;
-      P.skills.titanslam = 3; P.skillPts = 0; openPanel('skills'); const tree = document.getElementById('panel').textContent;
+      P.skills.titanslam = 3; P.skillPts = 0; openPanel('skills'); const tree = [...panel.querySelectorAll('.skpsec')].map(e => e.textContent).join('|');
       const descs = c.own.map(id => SKILLS[id].desc(5));
       return { early, canStart, choices, cls: P.cls, jl: P.jl, gold: P.gold, fur: invFind('fur') ? invFind('fur').n : 0, tier: c.tier, keeps: sk.includes('cleave') && sk.includes('shieldbash') && sk.includes('titanslam') && sk.includes('fortress'),
-        tree3: tree.includes('Warden skills') && tree.includes('Bulwark skills') && tree.includes('Aegis Lord skills'), descs,
+        tree3: tree === 'Warden|Bulwark|Aegis Lord', descs,
         allTier3: Object.keys(CLASSES).filter(k => CLASSES[k].tier === 3).length, party: !!SKILLS.fortress.party };
     });
     t.ok(r.early && r.canStart, 'Valen asks for base level 50 again, then offers the Trial of Ascension');
