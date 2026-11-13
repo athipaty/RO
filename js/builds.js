@@ -79,7 +79,9 @@ function passiveB(){const b={};if(!P||!P.skills)return b;const L=id=>P.skills[id
   add('crit',L('huntersluck'));add('critdmg',L('huntersluck')*4);add('flee',L('fleetstep')*2);add('aspd',L('fleetstep')*2);
   if(wt==='mace'||wt==='club'){add('atk',L('macemastery')*3);add('hit',L('macemastery'));}
   add('hppct',L('faith')*2);add('healpct',L('faith')*3);add('dmgred',L('divineguard')*1.5);add('def',L('divineguard'));
+  for(const f of PASSIVE_MORE)f(add,L,wt); // advanced and master callings (js/builds2.js, js/builds3.js)
   return b;}
+const PASSIVE_MORE=[];
 
 // Mana Shield: part of each hit comes out of SP (called from hurtPlayer)
 function manaShield(dmg){const b=P&&P.buffs&&P.buffs.manashield;if(!b||!(b.until>now)||!b.b||!b.b.msh)return dmg;

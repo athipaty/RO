@@ -8,7 +8,7 @@ module.exports = async t => {
     await wait(1200);
     t.ok(await g.ev(() => Object.keys(CLASSES).filter(k => CLASSES[k].tier === 2).length === 8 &&
       ['warden', 'arcanist', 'ranger', 'cleric'].every(b => jobsFrom(b).length === 2)), 'there are 8 second jobs, two for each first job');
-    t.ok(await g.ev(() => Object.values(JOB2).every(j => j.skills.every(s => SKILLS[s] && SKILLS[s].desc(1) && SKILLS[s].sp(1) > 0))), 'every new skill is defined');
+    t.ok(await g.ev(() => Object.values(JOB2).every(j => j.skills.every(s => SKILLS[s] && SKILLS[s].desc(1) && (SKILLS[s].kind === 'passive' || SKILLS[s].sp(1) > 0)))), 'every new skill is defined');
 
     const early = await g.ev(() => { P.cls = 'warden'; P.jl = 20; P.skills = { cleave: 5 }; openPanel('job'); const s = panel.textContent;
       const btn = !!panel.querySelector('[data-act="trial"]'); closePanel(); return { s, btn }; });
