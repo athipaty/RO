@@ -4,7 +4,12 @@
    so a Lethal Edge looks nothing like a Sundering Blow, and a Killing Shot is unmistakable. Lite mode draws fewer bits. */
 const FXK={};
 const fxN=n=>window.LITE?Math.ceil(n/2):n;
-const rgba=(hex,al)=>{const h=hex.replace('#','');const n=parseInt(h.length===3?h.split('').map(c=>c+c).join(''):h,16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${Math.max(0,Math.min(1,al))})`;};
+// colours: the hex is parsed once and kept ("rgba(r,g,b," + alpha), since effects ask for them hundreds of times a second
+const RGBA_PRE=new Map();
+const rgba=(hex,al)=>{let pre=RGBA_PRE.get(hex);if(pre===undefined){const h=String(hex).replace('#','');const n=parseInt(h.length===3?h.split('').map(c=>c+c).join(''):h,16);pre=`rgba(${n>>16&255},${n>>8&255},${n&255},`;if(RGBA_PRE.size<500)RGBA_PRE.set(hex,pre);}
+  return pre+(al<=0?0:al>=1?1:Math.round(al*1000)/1000)+')';};
+// an effect far off screen is not drawn (its time still runs)
+const fxOff=(x,y)=>{const p=proj(x,y);return p.x<camX-320||p.x>camX+VW+320||p.y<camY-420||p.y>camY+VH+260;};
 const gEll=(x,y,r)=>{ctx.beginPath();ctx.ellipse(x,y,r,r*.5,0,0,7);};
 // curved blade swoosh(es): f.ang direction, f.r size, f.h height above ground
 FXK.crescent=(f,a)=>{const sw=Math.min(1,a*2.4),y=f.y-(f.h||18),s0=(f.ang||0)-1.25;ctx.lineCap='round';
@@ -67,7 +72,7 @@ FXK.stampede=(f,a)=>{const rnd2=seeded(f.seed||5);for(let i=0;i<fxN(8);i++){cons
   ctx.fillStyle=rgba(f.col,.5*(1-a));ctx.beginPath();ctx.arc(x,y-6,9+rnd2()*6,0,7);ctx.fill();ctx.fillStyle=rgba('#3e3020',.6*(1-a));ctx.fillRect(x-12,y-2,4,3);ctx.fillRect(x-20,y-1,4,3);}};
 
 {const _dfx=drawFx;drawFx=function(){_dfx.apply(this,arguments);
-  for(const f of fx){const d=FXK[f.k];if(!d||now<f.t0)continue;const a=Math.min(1,(now-f.t0)/f.dur);if(f.o){f.x=f.o===P?P.x:f.o.x;f.y=f.o===P?P.y:f.o.y;}
+  for(const f of fx){const d=FXK[f.k];if(!d||now<f.t0)continue;const a=Math.min(1,(now-f.t0)/f.dur);if(f.o){f.x=f.o===P?P.x:f.o.x;f.y=f.o===P?P.y:f.o.y;}if(f.k!=='chain'&&f.k!=='streak'&&fxOff(f.x,f.y))continue;
     ctx.save();const sp=proj(f.x,f.y);ctx.translate(sp.x-f.x,sp.y-f.y);try{if(f.k==='chain'||f.k==='streak'){ctx.translate(f.x-sp.x,f.y-sp.y);}d(f,a);}catch(e){}ctx.restore();}};}
 
 /* ---- which effects each skill fires (added in front of the skill's own work) ---- */

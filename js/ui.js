@@ -90,7 +90,7 @@ function itemDesc(e,noSlots){const it=ITEMS[e.id];const bits=[];
   if(it.desc&&it.type==='use'&&(it.heal||it.sp||it.cure)&&typeof potCd==='function')return it.desc+` Cooldown ${potCd(it)}s.`;
   return it.desc||bits.join(' · ');}
 function refreshPanel(){
-  if(!panelKind||!P)return;let h=`<button class="btn small x" data-act="close" aria-label="Close">✕</button>`;
+  if(!panelKind||!P)return;if(panel.dataset.kind!==panelKind)panel.dataset.kind=panelKind; /* CSS keys window layouts on this (cheaper than :has()) */let h=`<button class="btn small x" data-act="close" aria-label="Close">✕</button>`;
   const c=CLASSES[P.cls];
   if(panelKind==='status'){S=computeStats();
     h+=`<h2>${esc(P.name)}</h2><div class="sub">${c.name} · Base Lv ${P.lv} · Job Lv ${P.jl}</div>`;

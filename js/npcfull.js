@@ -9,8 +9,8 @@ function syncNpcFull(){
   // townsfolk windows, and the Equipment window, fill the screen on phones
   // since v1.0.2 every window fills the screen on phones (Skills, Status, Items, Shortcut keys, ...), not just townsfolk and Equipment
   const on=!!panelKind&&!panel.hidden&&document.body.classList.contains('touchui');
-  if(panel.classList.contains('npcfull')!==on){panel.classList.toggle('npcfull',on);if(on)panel.scrollTop=0;}
-  document.body.classList.toggle('npcopen',on);}
+  if(panel.classList.contains('npcfull')!==on){panel.classList.toggle('npcfull',on);if(on)requestAnimationFrame(()=>{panel.scrollTop=0;});} // after the window is filled: no extra layout pass
+  if(document.body.classList.contains('npcopen')!==on)document.body.classList.toggle('npcopen',on);}
 const _openNpcFull=openNpc;
 openNpc=function(n){NPCWIN.opening=true;NPCWIN.on=true;try{return _openNpcFull.apply(this,arguments);}finally{NPCWIN.opening=false;syncNpcFull();}};
 const _openPanelFull=openPanel;

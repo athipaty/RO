@@ -55,14 +55,20 @@ function drawObj(o){
 // draw order for things standing in the world and the buildings between them (a small topological sort):
 // a point west or north of a building's footprint (x<X1 and y<Y1) is behind it; anything else near it is in front.
 // Among themselves, things go back to front (x+y). Buildings entirely west/north of another come first.
-function drawOrder(items,blds){const N=[];for(const it of items)N.push({it,k:it.x+it.y,deg:0,out:[]});
+function drawOrder(items,blds){
+  // no buildings in this region: plain back-to-front order
+  if(!blds.length){const N=new Array(items.length);for(let i=0;i<items.length;i++){const it=items[i];N[i]={it,k:it.x+it.y};}return N.sort((a,c)=>a.k-c.k);}
+  const N=[];for(const it of items)N.push({it,k:it.x+it.y,deg:0,out:[]});
   const B=blds.map(b=>({b,X0:b.x*TILE,Y0:b.y*TILE,X1:(b.x+b.w)*TILE,Y1:(b.y+b.h)*TILE,deg:0,out:[]}));for(const n of B){n.k=n.X0+n.Y0;N.push(n);}
   for(const bn of B)for(const n of N){if(n.b||n.it.x<bn.X0-320||n.it.x>bn.X1+320||n.it.y<bn.Y0-320||n.it.y>bn.Y1+320)continue;
     if(n.it.x<bn.X1&&n.it.y<bn.Y1){n.out.push(bn);bn.deg++;}else{bn.out.push(n);n.deg++;}}
   for(const a of B)for(const c of B)if(a!==c&&(a.X1<=c.X0||a.Y1<=c.Y0)&&!(c.X1<=a.X0||c.Y1<=a.Y0)){a.out.push(c);c.deg++;}
-  const out=[],ready=N.filter(n=>!n.deg),done=new Set();
-  while(ready.length){let bi=0;for(let i=1;i<ready.length;i++)if(ready[i].k<ready[bi].k)bi=i;const n=ready.splice(bi,1)[0];out.push(n);done.add(n);
-    for(const m of n.out)if(--m.deg===0)ready.push(m);}
+  // Kahn's order, always taking the ready item furthest back (smallest x+y) from a small heap (was a scan of the whole list per item)
+  const out=[],done=new Set(),H=[];
+  const up=i=>{const n=H[i];while(i>0){const p=(i-1)>>1;if(H[p].k<=n.k)break;H[i]=H[p];i=p;}H[i]=n;};
+  const pop=()=>{const top=H[0],last=H.pop();if(H.length){let i=0;const L=H.length;for(;;){let c=2*i+1;if(c>=L)break;if(c+1<L&&H[c+1].k<H[c].k)c++;if(H[c].k>=last.k)break;H[i]=H[c];i=c;}H[i]=last;}return top;};
+  for(const n of N)if(!n.deg){H.push(n);up(H.length-1);}
+  while(H.length){const n=pop();out.push(n);done.add(n);for(const m of n.out)if(--m.deg===0){H.push(m);up(H.length-1);}}
   if(out.length<N.length)for(const n of N.slice().sort((a,c)=>a.k-c.k))if(!done.has(n))out.push(n); // a loop should not happen; draw the rest back to front
   return out;}
 function bldHides(b,x,y){const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE;
@@ -580,6 +586,7 @@ function drawMob(m){
 }
 function drawFx(){
   for(const f of fx){if(now<f.t0)continue;const a=(now-f.t0)/f.dur;if(f.o){f.x=f.o===P?P.x:f.o.rx;f.y=f.o===P?P.y:f.o.ry;}const ax=f.k==='lvl'?P.x:f.x,ay=f.k==='lvl'?P.y:f.y;
+    if(typeof fxOff==='function'&&fxOff(ax,ay))continue; // far off screen: not drawn
     ctx.save();const sp=proj(ax,ay);ctx.translate(sp.x-ax,sp.y-ay);
     switch(f.k){
       case 'critburst':ctx.strokeStyle=`rgba(255,226,120,${1-a})`;ctx.lineWidth=3;for(let k=0;k<10;k++){const ang=k/10*Math.PI*2+.3,r1=8+a*18,r2=18+a*40;ctx.beginPath();ctx.moveTo(f.x+Math.cos(ang)*r1,f.y+Math.sin(ang)*r1);ctx.lineTo(f.x+Math.cos(ang)*r2,f.y+Math.sin(ang)*r2);ctx.stroke();}break;
