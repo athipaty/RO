@@ -114,6 +114,26 @@ function drawSign(b,h){if(!b.name)return;const p=proj((b.x+b.w/2)*TILE,(b.y+b.h)
 
 // take over the house drawing (js/render.js), keeping the trade dressing from js/buildings.js on top
 {const _base=typeof _drawBuildingB==='function'?_drawBuildingB:null;
-  drawBuilding=function(b){const A=archiOf(b);if(A){try{drawArchi(b,A);}catch(e){if(_base)_base.apply(this,arguments);}}else if(_base)_base.apply(this,arguments);
+  const body=function(b){const A=archiOf(b);if(A){try{drawArchi(b,A);}catch(e){if(_base)_base.call(this,b);}}else if(_base)_base.call(this,b);};
+  drawBuilding=function(b){const A=archiOf(b);
+    // the building itself never changes, so it is drawn once into a picture (per region and resolution) and copied every frame;
+    // the trade dressing (smoke, banners, lamps) and the sign stay live on top
+    if(!bldCacheBlit(b,()=>body.call(this,b)))body.call(this,b);
     try{dressBuilding(b);}catch(e){}
     try{drawSign(b,A?Math.min(A.h||60,60)-6:54);}catch(e){}};}
+
+/* ---- building pictures: each building's body drawn once and reused (it was the costliest part of a town frame) ---- */
+const BLD_CACHE={zone:null,dpr:0,map:new Map()};
+function bldCacheBlit(b,draw){if(window.__bldLive||typeof DPR!=='number'||!DPR)return false;
+  if(BLD_CACHE.zone!==zoneId||BLD_CACHE.dpr!==DPR){BLD_CACHE.zone=zoneId;BLD_CACHE.dpr=DPR;BLD_CACHE.map.clear();}
+  const key=b.x+','+b.y+','+b.name;let e=BLD_CACHE.map.get(key);
+  if(!e){const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE+30,Y1=(b.y+b.h)*TILE+30;
+    const ps=[proj(X0,Y0),proj(X1,Y0),proj(X1,Y1),proj(X0,Y1)];
+    const minX=Math.floor(Math.min(...ps.map(p=>p.x))-50),maxX=Math.ceil(Math.max(...ps.map(p=>p.x))+50),minY=Math.floor(Math.min(...ps.map(p=>p.y))-260),maxY=Math.ceil(Math.max(...ps.map(p=>p.y))+40);
+    const c=document.createElement('canvas');c.width=Math.ceil((maxX-minX)*DPR);c.height=Math.ceil((maxY-minY)*DPR);const g=c.getContext('2d');
+    if(!g||!c.width||!c.height)return false;g.setTransform(DPR,0,0,DPR,-minX*DPR,-minY*DPR);
+    const main=ctx,t0=now;ctx=g;now=0;try{draw();}catch(err){ctx=main;now=t0;return false;}finally{ctx=main;now=t0;}
+    e={c,x:minX,y:minY,w:c.width/DPR,h:c.height/DPR};BLD_CACHE.map.set(key,e);}
+  // a building that hides your hero is faded (globalAlpha .5): drawn shape by shape that looked almost solid, so the
+  // single picture is faded only a little to keep the same look (your hero is drawn on top anyway)
+  const a0=ctx.globalAlpha;if(a0<1)ctx.globalAlpha=Math.min(1,a0+.3);ctx.drawImage(e.c,e.x,e.y,e.w,e.h);ctx.globalAlpha=a0;return true;}

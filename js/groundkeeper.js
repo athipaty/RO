@@ -32,7 +32,11 @@ enterZone=function(){const before=Z;const r=_enterZoneGK.apply(this,arguments);i
 function gkBlank(z){const c=z&&z._iso;if(!c)return false;if(!c.width)return true;
   try{const g=c.getContext('2d');if(!g||(g.isContextLost&&g.isContextLost()))return true;
     const T=TILE,cx=Math.round((z.w-z.h)/2*T*ISO+c._ox),cy=Math.round((z.w+z.h)/2*T*ISO/2);
-    return g.getImageData(Math.max(0,Math.min(c.width-1,cx)),Math.max(0,Math.min(c.height-1,cy)),1,1).data[3]===0;}catch(e){return false;}}
+    // read the pixel through a tiny canvas of its own: reading the big ground picture directly can make the browser
+    // move it off the graphics card for good, and it is copied to the screen every frame
+    const pc=gkBlank.pc||(gkBlank.pc=document.createElement('canvas'));pc.width=pc.height=1;const pg=pc.getContext('2d',{willReadFrequently:true});
+    pg.clearRect(0,0,1,1);pg.drawImage(c,Math.max(0,Math.min(c.width-1,cx)),Math.max(0,Math.min(c.height-1,cy)),1,1,0,0,1,1);
+    return pg.getImageData(0,0,1,1).data[3]===0;}catch(e){return false;}}
 // throw away pictures that may have been wiped with the ground (they redraw themselves on next use)
 function gkClearCaches(){try{if(typeof LABELS!=='undefined')LABELS.clear();}catch(e){}
   try{if(typeof SPR!=='undefined')for(const k in SPR)delete SPR[k];}catch(e){}
