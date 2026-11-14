@@ -31,7 +31,8 @@ function guildAttach(sock){
       members:st.members.slice(0,30).map(m=>({u:clean(m.u,16),c:clean(m.c,16),rank:['leader','officer','member'].includes(m.rank)?m.rank:'member',on:!!m.on,z:ZONES[m.z]?m.z:null}))}:null;
     if(was&&!GD.g)addLog('You are no longer in a guild.');
     if(panelKind==='guild')refreshPanel();});
-  sock.on('guildCreated',m=>{P.gold=Math.max(0,P.gold-GUILD_COST);sfx('fanfare');fx.push({k:'lvl',x:P.x,y:P.y-30,t0:now,dur:2,txt:'GUILD FOUNDED',col:'#ffcf5a'});
+  sock.on('socialError',m=>{if(GD.busy&&m)gSay(clean(m.error,120));});
+  sock.on('guildCreated',m=>{GD.busy=false;GD.msg='';clearTimeout(GD.wait);P.gold=Math.max(0,P.gold-GUILD_COST);sfx('fanfare');fx.push({k:'lvl',x:P.x,y:P.y-30,t0:now,dur:2,txt:'GUILD FOUNDED',col:'#ffcf5a'});
     addLog(`You founded ${clean(m&&m.name,20)}! Invite players from the online list (the ● online button).`,'l-rare');save(true);});
   sock.on('guildInvite',m=>{if(!m||!m.gid||typeof isMuted==='function'&&isMuted(m.from))return;GD.invite={gid:String(m.gid),guild:clean(m.guild,20),from:clean(m.from,16),emblem:embOk(m.emblem)};showGuildInvite();});
   sock.on('guildChat',m=>{if(!m)return;const from=clean(m.from,16),text=clean(m.text,120);if(!text||(from&&typeof isMuted==='function'&&isMuted(from)))return;logLine('guild',from?`[Guild] ${from}: `:'[Guild] ',text);if(from)sfx('ping');});
@@ -60,7 +61,9 @@ PANELS.guild=()=>{let h='';
     h+=`<h2>Found a guild</h2><div class="sub">Or ask a guild leader or officer to invite you. Founding costs ${fmt(GUILD_COST)} gold.</div>`;
     h+=`<div class="gform"><canvas id="embCv" width="96" height="96" aria-hidden="true"></canvas><div class="grow"><label class="ds" for="gName">Guild name (3–20 letters)</label>`+
       `<input id="gName" maxlength="20" autocomplete="off" value="${esc(d.name)}" placeholder="e.g. Ember Wardens">${embPicker(d.emblem)}</div></div>`;
-    h+=`<button class="btn" data-act="gcreate" ${P.gold<GUILD_COST?'disabled':''}>Found guild (${fmt(GUILD_COST)} gold)</button>${P.gold<GUILD_COST?` <span class="muted">You have ${fmt(P.gold)} gold.</span>`:''}`;
+    h+=`<div class="ds" style="margin:2px 0 6px">English letters, numbers, spaces, ' and - only.</div>`;
+    h+=`<button class="btn" data-act="gcreate" ${P.gold<GUILD_COST||GD.busy?'disabled':''}>${GD.busy?'Founding…':`Found guild (${fmt(GUILD_COST)} gold)`}</button>${P.gold<GUILD_COST?` <span class="muted">You have ${fmt(P.gold)} gold.</span>`:''}`;
+    if(GD.msg)h+=`<div class="gmsg" role="alert">${esc(GD.msg)}</div>`;
     return h;}
   const rk=myGRank(),boss=rk==='leader',staff=boss||rk==='officer',on=g.members.filter(m=>m.on).length;
   h+=`<div class="thead"><canvas id="embCv" width="96" height="96" aria-hidden="true"></canvas><div><h2>${esc(g.name)}</h2><div class="sub">${g.members.length}/30 members · ${on} online · you are ${RANK_NAME[rk]||'a member'}</div></div></div>`;
@@ -92,10 +95,13 @@ refreshPanel=function(){const n=document.getElementById('gName'),t=document.getE
   const t2=document.getElementById('gNotice');if(t2&&note!==null)t2.value=note;if(f==='gName'||f==='gNotice'){const e=document.getElementById(f);if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length);}}};
 PANEL_ACTS.gemb=arg=>{const[k,i]=arg.split(':').map(Number);if(GD.g){GD.edit=[...(GD.edit||GD.g.emblem)];GD.edit[k]=i;}else GD.draft.emblem[k]=i;
   refreshPanel();if(GD.g){const d=panel.querySelector('details');if(d)d.open=true;}};
-PANEL_ACTS.gcreate=()=>{const name=($('#gName')||{}).value||'';GD.draft.name=name;
-  if(!/^[A-Za-z0-9][A-Za-z0-9 '-]{1,18}[A-Za-z0-9]$/.test(name.trim())){addLog("Guild names are 3-20 letters, numbers, spaces, ' or -.",'l-bad');return;}
-  if(P.gold<GUILD_COST){addLog(`Founding a guild costs ${fmt(GUILD_COST)} gold.`,'l-bad');return;}
-  gsoc('guildCreate',{name:name.trim(),emblem:GD.draft.emblem});};
+// founding: problems are shown in the window itself (the chat log is easy to miss on a phone)
+function gSay(msg){GD.msg=msg;GD.busy=false;clearTimeout(GD.wait);addLog(msg,'l-bad');if(panelKind==='guild')refreshPanel();}
+PANEL_ACTS.gcreate=()=>{const name=($('#gName')||{}).value||'';GD.draft.name=name;GD.msg='';
+  if(!/^[A-Za-z0-9][A-Za-z0-9 '-]{1,18}[A-Za-z0-9]$/.test(name.trim())){gSay("Guild names are 3-20 English letters, numbers, spaces, ' or - (they must start and end with a letter or number).");return;}
+  if(P.gold<GUILD_COST){gSay(`Founding a guild costs ${fmt(GUILD_COST)} gold.`);return;}
+  if(!gsoc('guildCreate',{name:name.trim(),emblem:GD.draft.emblem})){gSay('The game server is not reachable right now. Try again in a moment.');return;}
+  GD.busy=true;refreshPanel();clearTimeout(GD.wait);GD.wait=setTimeout(()=>{if(GD.busy&&!GD.g)gSay('No answer from the game server. Check your connection and try again.');},8000);};
 PANEL_ACTS.gnotice=()=>gsoc('guildEdit',{notice:($('#gNotice')||{}).value||''});
 PANEL_ACTS.gemblem=()=>{if(GD.edit)gsoc('guildEdit',{emblem:GD.edit});GD.edit=null;};
 PANEL_ACTS.grank=arg=>{const i=arg.lastIndexOf(':');gsoc('guildRank',{u:arg.slice(0,i),rank:arg.slice(i+1)});};

@@ -1146,3 +1146,31 @@ body.touchui #combo{top:46%;right:auto;left:max(22px,env(safe-area-inset-left));
 /* loot flying into the bag (js/feel2.js) */
 .lootfly{position:fixed;width:26px;height:26px;z-index:30;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
 .gotloot{animation:gotLoot .35s ease-out}@keyframes gotLoot{40%{transform:scale(1.18)}100%{transform:scale(1)}}
+/* boss bar (js/feel3.js) */
+#bossBar{position:fixed;left:50%;transform:translateX(-50%);top:12px;z-index:8;width:min(440px,62vw);pointer-events:none;text-align:center}
+#bossBar[hidden]{display:none}
+#bossBar .bbn{font:800 14px "Alegreya Sans",sans-serif;color:#ffcf5a;text-shadow:0 2px 3px #000;letter-spacing:.5px}
+#bossBar .bbt{position:relative;height:12px;margin-top:2px;border-radius:7px;background:rgba(10,8,8,.8);border:1px solid rgba(255,190,90,.6);overflow:hidden;box-shadow:0 0 12px rgba(255,80,40,.35)}
+#bossBar .bbt em{position:absolute;left:0;top:0;bottom:0;background:rgba(255,240,200,.75);transition:width .9s ease-out .25s}
+#bossBar .bbt i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#a01e14,#e0503a 60%,#ff8a5a);transition:width .15s;z-index:1}
+#bossBar .bbv{font:700 10px Inter,var(--ui);color:#f4e6c4;text-shadow:0 1px 2px #000;margin-top:1px}
+#bossBar.hitq .bbt{animation:bbFlash .5s}@keyframes bbFlash{30%{box-shadow:0 0 26px rgba(255,90,50,.95);border-color:#ffd2a0}}
+body.touchui #bossBar{width:min(380px,56vw)}body.touchui #bossBar .bbn{font-size:12px}
+/* auto-hunt summary (js/feel3.js) */
+#huntCard{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);opacity:0;pointer-events:none;z-index:41;width:min(380px,calc(100vw - 32px));padding:14px 16px;border-radius:18px;text-align:center;
+  background:linear-gradient(180deg,rgba(20,26,38,.97),rgba(12,15,22,.97));border:1px solid rgba(127,211,138,.55);box-shadow:0 18px 50px rgba(0,0,0,.6);transition:opacity .3s,transform .3s}
+#huntCard.show{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
+#huntCard .hct{font:800 18px "Alegreya Sans",sans-serif;color:#9fe8b0}
+#huntCard .hcs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}#huntCard .hcs b{display:block;font:800 18px Inter,var(--ui);color:#f4ead2}#huntCard .hcs span{font-size:11px;color:#9fb0c4}
+#huntCard .hci{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}#huntCard .hcit{position:relative;width:38px;height:38px;border-radius:8px;background:rgba(255,255,255,.06);display:grid;place-items:center}
+#huntCard .hcit img{width:30px;height:30px}#huntCard .hcit b{position:absolute;right:-3px;bottom:-4px;font:700 10px Inter,var(--ui);padding:0 4px;border-radius:6px;background:#0d121a;color:#efe6d2}
+#huntCard .hcx{margin-top:10px;font-size:11px;color:#7d8a9c}
+/* hit direction (js/feel3.js) */
+#hitDir{position:fixed;inset:0;pointer-events:none;z-index:4;opacity:0}
+#hitDir.on{animation:hitDir .6s ease-out}
+#hitDir[data-side="l"]{background:linear-gradient(90deg,rgba(255,40,30,.55),transparent 18%)}#hitDir[data-side="r"]{background:linear-gradient(270deg,rgba(255,40,30,.55),transparent 18%)}
+#hitDir[data-side="t"]{background:linear-gradient(180deg,rgba(255,40,30,.55),transparent 22%)}#hitDir[data-side="b"]{background:linear-gradient(0deg,rgba(255,40,30,.55),transparent 22%)}
+@keyframes hitDir{0%{opacity:1}100%{opacity:0}}
+.gmsg{margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(239,90,70,.12);border:1px solid rgba(239,90,70,.5);color:#ffb4a4;font-size:13px}
+/* upright phones: the map box never grows into the status box (long event lines wrap instead) */
+@media (orientation:portrait){body.touchui #minibox{max-width:min(216px,calc(100vw - 214px))!important;box-sizing:border-box}body.touchui #minibox #evT{white-space:normal;overflow-wrap:anywhere}}

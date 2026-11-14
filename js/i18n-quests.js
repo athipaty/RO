@@ -267,3 +267,10 @@ Object.assign(TH,{'Next skill:':'สกิลถัดไป:','· next stat:':'
   'Job Lv 10 as a Novice, then talk to Guildmaster Corvin in Hearthvale.':'ถึงเลเวลอาชีพ 10 ตอนเป็นมือใหม่ แล้วคุยกับหัวหน้ากิลด์คอร์วินใน Hearthvale'});
 TH_PAT.unshift([/^Job Lv (\d+), then pass Guildmaster Corvin's trial in the Guild Hall\.$/,'ถึงเลเวลอาชีพ $1 แล้วผ่านบททดสอบของหัวหน้ากิลด์คอร์วินที่หอกิลด์'],
   [/^Be Reborn, reach job level (\d+) and base level (\d+), then pass Seer Valen's Trial of Ascension in Aurelmark\.$/,'เกิดใหม่ ถึงเลเวลอาชีพ $1 และเลเวลฐาน $2 แล้วผ่านบททดสอบแห่งการเลื่อนขั้นของผู้หยั่งรู้วาเลนที่ Aurelmark']);
+Object.assign(TH,{"English letters, numbers, spaces, ' and - only.":"ใช้ได้เฉพาะตัวอักษรภาษาอังกฤษ ตัวเลข ช่องว่าง ' และ - เท่านั้น",'Founding…':'กำลังก่อตั้ง…',
+  "Guild names are 3-20 English letters, numbers, spaces, ' or - (they must start and end with a letter or number).":"ชื่อกิลด์ต้องยาว 3-20 ตัว ใช้ได้เฉพาะตัวอักษรภาษาอังกฤษ ตัวเลข ช่องว่าง ' หรือ - (ขึ้นต้นและลงท้ายด้วยตัวอักษรหรือตัวเลข)",
+  'The game server is not reachable right now. Try again in a moment.':'ตอนนี้ติดต่อเซิร์ฟเวอร์เกมไม่ได้ ลองใหม่อีกครั้ง','No answer from the game server. Check your connection and try again.':'เซิร์ฟเวอร์เกมไม่ตอบ ตรวจสอบการเชื่อมต่อแล้วลองใหม่'});
+TH_PAT.unshift([/^Founding a guild costs ([\d,]+) gold\.$/,'การก่อตั้งกิลด์ใช้ $1 โกลด์']);
+Object.assign(TH,{'That guild name is taken.':'ชื่อกิลด์นี้มีคนใช้แล้ว','Leave your guild first.':'ออกจากกิลด์เดิมก่อน','Could not create the guild.':'สร้างกิลด์ไม่สำเร็จ',
+  'Something went wrong with the guild. Try again.':'เกิดข้อผิดพลาดกับกิลด์ ลองใหม่อีกครั้ง',"Guild names are 3-20 letters, numbers, spaces, ' or -.":"ชื่อกิลด์ต้องยาว 3-20 ตัว ใช้ตัวอักษรภาษาอังกฤษ ตัวเลข ช่องว่าง ' หรือ -",
+  'Guilds need an account. Log in from the title screen to create or join one.':'กิลด์ต้องใช้บัญชี เข้าสู่ระบบจากหน้าแรกเพื่อสร้างหรือเข้าร่วม'});

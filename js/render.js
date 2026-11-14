@@ -180,7 +180,7 @@ function render(){
   // NPC names show when you are near or point at them; from afar the role icon over their head says who they are
   for(const n of Z.npcs){const d=Math.hypot(n.x-P.x,n.y-P.y),a=n===hoverNpc?1:clamp((260-d)/80,0,1);if(a<=0)continue;
     at(n.x,n.y,()=>{ctx.globalAlpha=a;label(n.name,n.x,n.y+22,'#ffe7a0',12);ctx.globalAlpha=1;});}
-  for(const o of others)at(o.rx,o.ry,()=>{if(o.vd)shopSign(o.rx,o.ry,o.vd);label(`${o.n} · Lv${o.lv}`,o.rx,o.ry+22,o.guest?'#b8c4d4':inParty(o.peer)?'#8fe0a8':'#9fd3ff',12);if(o.guild)guildLabel(o.guild,o.rx,o.ry+44);if(o.ti&&typeof titleLabel==='function')titleLabel(o.ti,o.rx,o.ry+(o.guild?60:36));if(typeof bondLabel==='function')bondLabel(o,o.rx,o.ry-62);
+  for(const o of others)at(o.rx,o.ry,()=>{if(o.vd)shopSign(o.rx,o.ry,o.vd);label(`${o.n} · Lv${o.lv}${CLASSES[o.cls]&&o.cls!=='novice'?' · '+CLASSES[o.cls].name:''}`,o.rx,o.ry+22,o.guest?'#b8c4d4':inParty(o.peer)?'#8fe0a8':'#9fd3ff',12);if(o.guild)guildLabel(o.guild,o.rx,o.ry+44);if(o.ti&&typeof titleLabel==='function')titleLabel(o.ti,o.rx,o.ry+(o.guild?60:36));if(typeof bondLabel==='function')bondLabel(o,o.rx,o.ry-62);
     if(Math.hypot(o.x-P.x,o.y-P.y)<520){ctx.fillStyle='#000';ctx.fillRect(o.rx-17,o.ry+27,34,5);ctx.fillStyle='#62bf86';ctx.fillRect(o.rx-16,o.ry+28,32*(o.hp||0)/100,3);}
     if(o.bubble&&now<o.bubble.until)bubble(o.bubble.txt,o.rx,o.ry-58);
     if(o.emote&&now-o.emote.start<3)drawEmote(o.emote.k,o.rx+20,o.ry-52,now-o.emote.start);});
