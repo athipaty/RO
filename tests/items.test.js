@@ -41,14 +41,14 @@ module.exports = async t => {
 
     // ---- #21 storage
     const stor = await g.ev(() => { enterZone('town'); openPanel('storage'); const n0 = (invFind('red') || {}).n;
-      const i = P.inv.findIndex(e => e.id === 'red'); panel.querySelector(`[data-act="store"][data-arg="${i}"]`).click();
+      const i = P.inv.findIndex(e => e.id === 'red'); panel.querySelector(`[data-act="store"][data-arg="${i}"]`).click(); { const q = document.querySelector('#qtyPick:not([hidden]) [data-q="ok"]'); if (q) q.click(); }
       const stored = P.storage.some(e => e.id === 'red' && e.n === n0) && !invFind('red');
       save(); return { stored, n0 }; });
     t.ok(stor.stored, 'Store moves a stack from the bag into storage');
     await g.page.reload(); await wait(600);
     await g.ev(() => document.getElementById('contBtn').click()); await wait(500);
     const back = await g.ev(n0 => { const kept = P.storage.some(e => e.id === 'red' && e.n === n0); openPanel('storage');
-      panel.querySelector('[data-act="take"][data-arg="0"]').click(); return { kept, taken: (invFind('red') || {}).n === n0 && !P.storage.some(e => e.id === 'red') }; }, stor.n0);
+      panel.querySelector('[data-act="take"][data-arg="0"]').click(); { const q = document.querySelector('#qtyPick:not([hidden]) [data-q="ok"]'); if (q) q.click(); } return { kept, taken: (invFind('red') || {}).n === n0 && !P.storage.some(e => e.id === 'red') }; }, stor.n0);
     t.ok(back.kept, 'storage is kept after reloading the game');
     t.ok(back.taken, 'Take moves it back into the bag');
 

@@ -10,10 +10,10 @@ module.exports = async t => {
       const after = !!panel.querySelector('[data-act="opencart"]'); closePanel(); return { offer, after, gold: P.gold, cart: Array.isArray(P.cart) }; });
     t.ok(rent.offer && rent.after && rent.cart && rent.gold === 2500, 'Wenna rents a pushcart for 2,500 gold, once');
     const mv = await g.ev(() => { P.inv.push({ id: 'pelt', n: 40 }); const w0 = carryWeight(); openPanel('items'); const btn = !!panel.querySelector('.cartbtn [data-act="opencart"]');
-      openPanel('cart'); const i = P.inv.findIndex(e => e.id === 'pelt'); __q(`[data-act="cartin"][data-arg="${i}"]`).click();
-      const inCart = P.cart.some(e => e.id === 'pelt' && e.n === 40), w1 = carryWeight(); P.inv.push({ id: 'pelt', n: 5 }); refreshPanel(); const j = P.inv.findIndex(e => e.id === 'pelt'); __q(`[data-act="cartin"][data-arg="${j}"]`).click();
+      openPanel('cart'); const i = P.inv.findIndex(e => e.id === 'pelt'); __q(`[data-act="cartin"][data-arg="${i}"]`).click(); { const q = document.querySelector('#qtyPick:not([hidden]) [data-q="ok"]'); if (q) q.click(); }
+      const inCart = P.cart.some(e => e.id === 'pelt' && e.n === 40), w1 = carryWeight(); P.inv.push({ id: 'pelt', n: 5 }); refreshPanel(); const j = P.inv.findIndex(e => e.id === 'pelt'); __q(`[data-act="cartin"][data-arg="${j}"]`).click(); { const q = document.querySelector('#qtyPick:not([hidden]) [data-q="ok"]'); if (q) q.click(); }
       const stacked = P.cart.filter(e => e.id === 'pelt').length === 1 && P.cart.find(e => e.id === 'pelt').n === 45;
-      __q('[data-act="cartout"][data-arg="0"]').click(); const back = (invFind('pelt') || {}).n === 45 && !P.cart.length; closePanel();
+      __q('[data-act="cartout"][data-arg="0"]').click(); { const q = document.querySelector('#qtyPick:not([hidden]) [data-q="ok"]'); if (q) q.click(); } const back = (invFind('pelt') || {}).n === 45 && !P.cart.length; closePanel();
       return { btn, inCart, lighter: w1 < w0, stacked, back }; });
     t.ok(mv.btn, 'the Items window has a Cart button once you own one');
     t.ok(mv.inCart && mv.lighter && mv.stacked, 'items put in the cart leave your bag weight, and stacks merge');

@@ -1080,3 +1080,12 @@ body:not(.touchui) #panel .skpwrap{grid-template-columns:minmax(0,1.3fr) minmax(
 body:not(.touchui) #panel .skpright{position:sticky;top:0}
 @media (max-width:440px){.skpic{width:62px;padding:5px 1px 4px}.skpic img{width:36px;height:36px}.skpnm{max-width:58px;font-size:9.5px}.skprow{gap:5px;flex-wrap:nowrap}}
 .skpparty{position:absolute;top:3px;right:3px;font-size:8.5px;font-weight:700;line-height:1;padding:2px 4px;border-radius:6px;background:rgba(143,224,168,.18);color:#8fe0a8}
+/* how-many picker (js/qty.js) */
+#qtyPick{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:60;width:min(320px,calc(100vw - 32px));padding:14px;display:grid;gap:10px;background:#141a24!important;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+#qtyPick[hidden]{display:none}
+#qtyPick .qhead{display:flex;gap:10px;align-items:center}#qtyPick .qhead img{width:40px;height:40px;object-fit:contain;flex:none;border-radius:8px;background:rgba(255,255,255,.05)}
+#qtyPick .qrow{display:grid;grid-template-columns:44px 1fr 44px;gap:8px}#qtyPick .qrow .btn{min-height:40px;font-size:18px}
+#qtyPick input[type=number]{min-width:0;height:40px;text-align:center;font:700 18px Inter,var(--ui);border-radius:8px;border:1px solid rgba(255,255,255,.18);background:#0d121a;color:#efe6d2}
+#qtyPick input[type=range]{width:100%;accent-color:#f0b54a}
+#qtyPick .qchips{display:flex;flex-wrap:wrap;gap:6px}#qtyPick .qtotal{font-weight:700;color:#ffcf5a;text-align:center}
+#qtyPick .tbtns{display:flex;justify-content:flex-end;gap:8px}#qtyPick .tbtns .btn{min-height:38px;padding:6px 16px!important}
