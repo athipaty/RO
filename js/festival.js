@@ -74,10 +74,10 @@ PANELS.festival=()=>{const fe=festNow();
   if(!fe){h+=`<div class="say">"No festival right now, friend. Come back when the town is dressed up! Here's when they are:"</div>`;}
   else{const F=FESTS[fe],n=tokCount(F.tok),pr=ITEMS[F.prize],tr=ITEMS[F.treat];
     h+=`<div class="say">"The ${F.name} is on! Bring me ${ITEMS[F.tok].name}s from the monsters you defeat and I'll make it worth your while."</div>`;
-    h+=`<div class="sub">You have <b>${n}</b> ${ITEMS[F.tok].name}${n===1?'':'s'}. Monsters drop them 12% of the time during the festival; bosses always drop 3.</div>`;
-    h+=`<div class="row"><div class="grow"><div class="nm">${pr.name}</div><div class="ds">${pr.desc}</div></div><span>${PRIZE_COST} tokens</span><button class="btn small" data-act="festbuy" data-arg="prize" ${n>=PRIZE_COST?'':'disabled'}>Trade</button></div>`;
-    h+=`<div class="row"><div class="grow"><div class="nm">${tr.name}</div><div class="ds">${tr.desc}</div></div><span>${TREAT_COST} tokens</span><button class="btn small" data-act="festbuy" data-arg="treat" ${n>=TREAT_COST?'':'disabled'}>Trade</button></div>`;}
-  h+=`<h3>Festival calendar</h3>`+FEST_ORDER.map(k=>`<div class="row"><div class="grow"><div class="nm" style="color:${FESTS[k].col}">${FESTS[k].name}${k===fe?' · on now':''}</div><div class="ds">${FESTS[k].when} · prize: ${ITEMS[FESTS[k].prize].name}</div></div></div>`).join('');
+    h+=`<div class="sub">You have:</div><div class="cms">${itemHaveChip(F.tok)}</div><div class="sub">Monsters drop them 12% of the time during the festival; bosses always drop 3.</div>`;
+    h+=`<div class="row">${icon({id:F.prize})}<div class="grow"><div class="nm">${pr.name}</div><div class="ds">${pr.desc}</div><div class="cms">${itemChip(F.tok,PRIZE_COST)}</div></div><button class="btn small" data-act="festbuy" data-arg="prize" ${n>=PRIZE_COST?'':'disabled'}>Trade</button></div>`;
+    h+=`<div class="row">${icon({id:F.treat})}<div class="grow"><div class="nm">${tr.name}</div><div class="ds">${tr.desc}</div><div class="cms">${itemChip(F.tok,TREAT_COST)}</div></div><button class="btn small" data-act="festbuy" data-arg="treat" ${n>=TREAT_COST?'':'disabled'}>Trade</button></div>`;}
+  h+=`<h3>Festival calendar</h3>`+FEST_ORDER.map(k=>`<div class="row">${icon({id:FESTS[k].prize})}<div class="grow"><div class="nm" style="color:${FESTS[k].col}">${FESTS[k].name}${k===fe?' · on now':''}</div><div class="ds">${FESTS[k].when}</div><div class="ds">Prize: ${ITEMS[FESTS[k].prize].name}</div></div></div>`).join('');
   return h;};
 PANEL_ACTS.festbuy=k=>{const fe=festNow();if(!fe)return;const F=FESTS[fe],cost=k==='prize'?PRIZE_COST:TREAT_COST,id=k==='prize'?F.prize:F.treat;
   if(tokCount(F.tok)<cost)return;takeItem(F.tok,cost);giveItem(id,1,true);sfx('fanfare');addLog(`Pim hands you a ${ITEMS[id].name}. Happy ${F.name}!`,'l-rare');save();refreshPanel();};

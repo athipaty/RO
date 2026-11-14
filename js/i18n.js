@@ -56,7 +56,7 @@ const TH={
   'Fold the party box':'ย่อกล่องปาร์ตี้',
   // panels
   'Equipment':'อุปกรณ์','Your bag':'กระเป๋าของคุณ','Combat':'การต่อสู้','Quest log':'บันทึกเควส','World map':'แผนที่โลก','Hotbar':'แถบลัด','Skill tree':'ต้นไม้สกิล','Achievements':'ความสำเร็จ',
-  'Remove':'ถอด','Wear':'สวมใส่','Buy':'ซื้อ','Sell':'ขาย','Sell 1':'ขาย 1','Sell all':'ขายทั้งหมด','Store':'ร้านค้า','Take':'หยิบ','Cancel':'ยกเลิก','Back':'กลับ','Done':'เสร็จ','Close':'ปิด','close':'ปิด',
+  'Remove':'ถอด','Wear':'สวมใส่','Buy':'ซื้อ','Sell':'ขาย','Sell 1':'ขาย 1','Sell all':'ขายทั้งหมด','Store':'ฝาก','Take':'หยิบ','Cancel':'ยกเลิก','Back':'กลับ','Done':'เสร็จ','Close':'ปิด','close':'ปิด',
   'Accept':'ตกลง','Abandon':'ยกเลิกเควส','Go':'ไป','Ride':'ขี่','Heal':'รักษา','Refine':'ตีบวก','Cut':'เจียระไน','Notes':'บันทึก','Fight':'สู้','Goodbye':'ลาก่อน','Not now':'ไว้ทีหลัง','Next ▸':'ถัดไป ▸',
   'Drops':'ของดรอป','Element':'ธาตุ','Found in':'พบได้ที่','Inflicts':'ทำให้ติดสถานะ','Behaviour':'พฤติกรรม','Size and race':'ขนาดและเผ่าพันธุ์','Base EXP':'EXP ฐาน','Job EXP':'EXP อาชีพ',
   'Your hit chance':'โอกาสโจมตีโดน','You dodge':'โอกาสหลบ','Weight':'น้ำหนัก','Range':'ระยะ','Attacks/sec':'การโจมตี/วินาที','Attacks/s':'การโจมตี/วิ','Vs size S/M/L':'ต่อขนาด เล็ก/กลาง/ใหญ่',

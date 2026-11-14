@@ -22,6 +22,6 @@ function npcLine(key,verb){return `<span class="qo">${qimg(npcPicURL(key),npcNam
 // a whole objective line: check mark, picture, text, and where an item comes from
 function objLineHTML(id,o,on){const mark=on?(objHave(id,o)>=objNeed(o)?'✓':'·'):'·';
   const text=on?objText(id,o):o.kill?`Defeat ${o.n} ${MOBS[o.kill].name}`:o.item?`Bring ${o.n} ${ITEMS[o.item].name}`:`Reach ${ZONES[o.visit].name}`;
-  const pic=o.kill?qimg(mobPicURL(o.kill),MOBS[o.kill].name):o.item?qimg(itemIconURL(o.item),ITEMS[o.item].name):'';
+  const pic=o.kill?qimg(mobPicURL(o.kill),MOBS[o.kill].name):o.item?`<span class="qtap" data-item="${o.item}" tabindex="0">${qimg(itemIconURL(o.item),ITEMS[o.item].name)}</span>`:'';
   const src=o.item?dropSources(o.item):[];
   return `<span class="qo"><span class="qm">${mark}</span>${pic}<span>${esc(text)}${src.length?` <span class="qfrom">· from ${src.map(m=>qimg(mobPicURL(m.id),m.name)+esc(m.name)).join(', ')}</span>`:''}</span></span>`;}

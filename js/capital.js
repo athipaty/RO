@@ -23,12 +23,12 @@ const GEM_CHANCE=[.9,.7,.5,.3],GEM_GOLD=[2000,5000,12000,30000];
 function gemList(){const out=[];for(const s of GEAR)if(P.eq[s]&&Array.isArray(P.eq[s].s))out.push({e:P.eq[s],where:'equipped'});
   for(const e of P.inv)if(e.uid&&Array.isArray(e.s)&&GEAR.includes(ITEMS[e.id].type))out.push({e,where:'in bag'});return out;}
 PANELS.gemcut=()=>{let h=`<h2>Gemcutter Sela</h2><div class="say">"Every piece of gear can hold up to four sigils, if you trust my hand. I cut one new slot at a time. The deeper I go, the likelier the stone resists, but I never break your gear, only my fee."</div>`;
-  const gl=invFind('glintstone'),haveG=gl?gl.n:0;h+=`<div class="sub">${fmt(P.gold)} gold · ${haveG} Glintstone</div>`;
+  const gl=invFind('glintstone'),haveG=gl?gl.n:0;h+=`<div class="sub">${fmt(P.gold)} gold</div><div class="cms">${itemHaveChip('glintstone')}</div>`;
   const list=gemList();if(!list.length)return h+`<div class="sub">You have no gear that can take a slot.</div>`;
   for(const {e,where} of list){const n=e.s.length,it=ITEMS[e.id];
     if(n>=4){h+=`<div class="row"><div class="grow"><div class="nm">${esc(itemName(e))}</div><div class="ds">${where} · already has 4 slots</div></div></div>`;continue;}
     const g=GEM_GOLD[n],ok=P.gold>=g&&haveG>=n+1;
-    h+=`<div class="row"><div class="grow"><div class="nm">${esc(itemName(e))}</div><div class="ds">${where} · ${n} slot${n===1?'':'s'} → ${n+1} · ${Math.round(GEM_CHANCE[n]*100)}% · ${fmt(g)} gold + ${n+1} Glintstone</div></div><button class="btn small" data-act="gemcut" data-arg="${e.uid}" ${ok?'':'disabled'}>Cut</button></div>`;}
+    h+=`<div class="row"><div class="grow"><div class="nm">${esc(itemName(e))}</div><div class="ds">${where} · ${n} slot${n===1?'':'s'} → ${n+1} · ${Math.round(GEM_CHANCE[n]*100)}%</div><div class="cms">${itemChip('glintstone',n+1)}${goldChip(g)}</div></div><button class="btn small" data-act="gemcut" data-arg="${e.uid}" ${ok?'':'disabled'}>Cut</button></div>`;}
   return h;};
 PANEL_ACTS.gemcut=uid=>{const found=gemList().find(x=>String(x.e.uid)===String(uid));if(!found)return;const e=found.e,n=e.s.length;if(n>=4)return;
   const g=GEM_GOLD[n];if(P.gold<g||!takeItem('glintstone',n+1)){refreshPanel();return;}P.gold-=g;

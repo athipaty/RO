@@ -19,6 +19,7 @@ function awRoll(e){const pool=awPool(e),[k,lo,hi]=pool[Math.floor(Math.random()*
   const v=q===2?hi:Math.max(lo,Math.round(lo+(hi-lo)*(q?(.55+Math.random()*.4):Math.random()*.5)));return {k,v,q};}
 const AWK={tab:'slots',pending:null,tray:[]};
 function awCan(e){const c=AW_COST[awTier(e)];return P.gold>=c.gold&&Object.entries(c.mats).every(([id,n])=>((invFind(id)||{}).n||0)>=n);}
+function awCostChips(e){const c=AW_COST[awTier(e)];return Object.entries(c.mats).map(([id,n])=>itemChip(id,n)).join('')+goldChip(c.gold);}
 function awCostText(e){const c=AW_COST[awTier(e)];return Object.entries(c.mats).map(([id,n])=>`${n} ${ITEMS[id].name} (${(invFind(id)||{}).n||0})`).join(' + ')+` + ${fmt(c.gold)} gold`;}
 
 /* ---- Radiant sigils: every sigil gets a stronger twin that only fusion makes ---- */
@@ -57,7 +58,7 @@ const trayCount=id=>AWK.tray.filter(x=>x===id).length;
     const list=gemList();if(!list.length)return h+`<div class="sub">You have no gear to awaken.</div>`;
     h+=`<div class="sub">${fmt(P.gold)} gold · lines: Faint, Bright, Radiant (rare, the top value)</div>`;
     for(const {e,where} of list){h+=`<div class="row">${icon({id:e.id})}<div class="grow"><div class="nm">${esc(itemName(e))}</div>`+
-      `<div class="ds">${where} · ${e.aw?`<span style="color:${AW_Q[e.aw.q||0].col}">${esc(awText(e.aw))}</span>`:'not awakened'}</div><div class="ds muted">${esc(awCostText(e))}</div></div>`+
+      `<div class="ds">${where} · ${e.aw?`<span style="color:${AW_Q[e.aw.q||0].col}">${esc(awText(e.aw))}</span>`:'not awakened'}</div><div class="cms">${awCostChips(e)}</div></div>`+
       `<button class="btn small" data-act="awaken" data-arg="${e.uid}" ${awCan(e)?'':'disabled'}>${e.aw?'Re-awaken':'Awaken'}</button></div>`;}
     return h;}
   // fuse

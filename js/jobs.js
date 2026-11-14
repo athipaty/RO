@@ -115,21 +115,32 @@ questKill=function(id){_questKill(id);const t=P&&P.trial;if(!t)return;const T=TR
   t.have++;if(t.have===T.need){addLog(`Trial: all ${T.need} ${MOBS[id].name} defeated. Bring ${T.items} ${ITEMS[T.item].name} back to Guildmaster Corvin.`,'l-rare');sfx('fanfare');}
   else if(t.have%5===0)addLog(`Trial: ${t.have}/${T.need} ${MOBS[id].name}.`,'l-good');refreshPanel();};
 
+// what a trial or contract asks for, as pictures: the monster (and how many), the item (tap it for its card) and the fee
+function mobChip(id,n,have){const m=MOBS[id];if(!m)return '';const k=have==null?null:Math.min(have,n),url=typeof mobPicURL==='function'?mobPicURL(id):'';
+  const tip=`${m.name} · Lv ${m.lv}`+(typeof itemMobWhere==='function'&&itemMobWhere(m)?` · ${itemMobWhere(m)}`:'');
+  return `<span class="cmi mob ${k!=null&&k>=n?'ok':k==null?'nt':''}" title="${esc(tip)}" aria-label="${esc(m.name+': '+(k==null?n:k+' / '+n))}" tabindex="0">${url?`<img src="${url}" alt="">`:''}<b>${k==null?'×'+n:k+'/'+n}</b></span>`;}
+function itemChip(id,n){const it=ITEMS[id];if(!it)return '';const have=Math.min((invFind(id)||{}).n||0,n),url=typeof itemIconURL==='function'?itemIconURL(id):'';
+  return `<span class="cmi ${have>=n?'ok':''}" data-item="${id}" title="${esc(it.name)}" aria-label="${esc(it.name+': '+have+' / '+n)}" tabindex="0">${url?`<img src="${url}" alt="">`:''}<b>${have}/${n}</b></span>`;}
+function itemHaveChip(id){const it=ITEMS[id];if(!it)return '';const have=(invFind(id)||{}).n||0;
+  return `<span class="cmi nt" data-item="${id}" title="${esc(it.name)}" aria-label="${esc(it.name+': '+have)}" tabindex="0"><img src="${itemIconURL(id)}" alt=""><b>×${have}</b></span>`;}
+const goldChip=g=>`<span class="cm ${P.gold>=g?'ok':''}">${fmt(g)} gold</span>`;
+// a trial row: name, what to do in words, then the pictures
+function trialRowHtml(name,T,killed,gold,btn){
+  return `<div class="row"><div class="grow"><div class="nm">${name}</div><div class="ds">Defeat ${T.need} ${MOBS[T.mob].name}, bring ${T.items} ${ITEMS[T.item].name}, pay ${fmt(gold)} gold.</div>`+
+    `<div class="cms">${mobChip(T.mob,T.need,killed)}${itemChip(T.item,T.items)}${goldChip(gold)}</div><div class="ds muted">Tap a picture to see it.</div></div>${btn||''}</div>`;}
+
 function jobHallHtml(c){let h='';const T=TRIALS[P.cls];
   if(c.tier===2)return `<div class="say">“${c.name}. I remember when you couldn't hold a club straight. The guild is proud of you.” — Corvin</div>`;
   if(!T)return '';
   if(P.jl<JOB2_LV)return `<div class="say">“A ${c.name}, and a fine one. At Job Level ${JOB2_LV} I can test you for an advanced calling. You're at ${P.jl} now.” — Corvin</div>`+jobPreview();
   if(!P.trial)return `<div class="say">“You're ready for the next step. ${T.say}” — Corvin</div>`+
-    `<div class="row"><div class="grow"><div class="nm">Trial of the ${c.name}</div><div class="ds">Defeat ${T.need} ${MOBS[T.mob].name}, bring ${T.items} ${ITEMS[T.item].name} and a ${fmt(T.gold)} gold guild fee.</div></div><button class="btn small" data-act="trial">Accept trial</button></div>`+jobPreview();
-  const it=invFind(T.item),have=it?it.n:0;
+    trialRowHtml(`Trial of the ${c.name}`,T,null,T.gold,`<button class="btn small" data-act="trial">Accept trial</button>`)+jobPreview();
   h+=`<div class="say">“${trialDone()?'You did it. Now choose. Like the first time, this is for life.':'Not finished yet. Keep at it.'}” — Corvin</div>`;
-  h+=`<div class="row"><div class="grow"><div class="nm">Trial of the ${c.name}</div><div class="ds">`+
-    `${Math.min(P.trial.have,T.need)>=T.need?'✓':'·'} ${MOBS[T.mob].name} ${Math.min(P.trial.have,T.need)}/${T.need} &nbsp; `+
-    `${have>=T.items?'✓':'·'} ${ITEMS[T.item].name} ${have}/${T.items} &nbsp; ${P.gold>=T.gold?'✓':'·'} ${fmt(T.gold)} gold</div></div></div>`;
+  h+=trialRowHtml(`Trial of the ${c.name}`,T,P.trial.have,T.gold);
   if(trialDone()){h+=`<div class="choice">`;for(const id of jobsFrom(P.cls)){const k=CLASSES[id];
     h+=`<button data-act="promote" data-arg="${id}"><b style="color:${k.acc}">${k.name}</b><small>${k.desc}</small><small>New skills: ${k.own.map(s=>SKILLS[s].name).join(', ')}</small></button>`;}h+=`</div>`;}
   return h;}
-function jobPreview(){return `<div class="ds" style="margin:6px 0 2px">Advanced callings: `+jobsFrom(P.cls).map(id=>`<b style="color:${CLASSES[id].acc}">${CLASSES[id].name}</b> (${CLASSES[id].own.map(s=>SKILLS[s].name).join(', ')})`).join(' or ')+`</div>`;}
+function jobPreview(){return `<div class="ds" style="margin:6px 0 2px">Advanced callings:</div>`+jobsFrom(P.cls).map(id=>`<div class="ds"><b style="color:${CLASSES[id].acc}">${CLASSES[id].name}</b> <span>${CLASSES[id].own.map(s=>SKILLS[s].name).join(', ')}</span></div>`).join('');}
 PANEL_ACTS.trial=()=>{if(P.trial||!TRIALS[P.cls]||P.jl<JOB2_LV)return;P.trial={have:0};const T=TRIALS[P.cls];
   addLog(`Trial accepted: defeat ${T.need} ${MOBS[T.mob].name} and bring ${T.items} ${ITEMS[T.item].name}.`,'l-good');sfx('click');refreshPanel();save();};
 PANEL_ACTS.promote=arg=>{if(!trialDone()||!JOB2[arg]||JOB2[arg].base!==P.cls)return;const T=TRIALS[P.cls],k=CLASSES[arg];

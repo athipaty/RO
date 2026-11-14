@@ -676,6 +676,9 @@ body.touchui #actions>#rideBtn[hidden]{display:none!important}
 .cmi b{position:absolute;right:-4px;bottom:-5px;font:700 10px Inter,var(--ui);padding:1px 4px;border-radius:6px;background:rgba(10,12,16,.92);color:#ef7a6f;font-variant-numeric:tabular-nums}
 .cmi.ok b{color:#7fd38a}
 .cmi:focus-visible{outline:2px solid var(--accent)}
+.cmi.nt{border-color:rgba(232,194,90,.45);background:rgba(232,194,90,.07)}.cmi.nt b{color:#f0d890}
+.cmi.mob{flex:none}.cmi.mob img{width:34px;height:34px}.row>.cmi.mob{margin-right:2px}
+.qtap{display:inline-flex;cursor:pointer;border-radius:6px}.qtap .qpic{outline:1px solid rgba(232,194,90,.45)}.qtap:focus-visible{outline:2px solid var(--accent)}
 /* phones: the chat box sits down at the bottom edge (just above the thin EXP bar) */
 body.touchui #log{bottom:calc(max(4px,env(safe-area-inset-bottom)) + 6px)}
 /* phones: the action buttons sit down near the bottom edge too */

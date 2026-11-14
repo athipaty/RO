@@ -208,7 +208,7 @@ const HELP_TH={
   'tonics, scroll':'ยา, ม้วนคัมภีร์','windows':'หน้าต่าง','sit':'นั่ง','target':'เล็งเป้า','attack in place':'โจมตีอยู่กับที่','Drag a title':'ลากหัวหน้าต่าง','move a window':'ย้ายหน้าต่าง','world map':'แผนที่โลก',
   'Reach Job Lv 10, then talk to Guildmaster Corvin in Hearthvale to choose a calling and unlock its skill tree.':'ไปให้ถึงเลเวลอาชีพ 10 แล้วคุยกับหัวหน้ากิลด์คอร์วินในเฮิร์ธเวลเพื่อเลือกอาชีพและปลดล็อกต้นไม้สกิล',
   '· press 1–4 under a learned skill to put it on that hotbar key · right-click a hotbar skill (or Shift+1–4) to cast it at a lower level':'· กด 1–4 ใต้สกิลที่เรียนแล้วเพื่อใส่ในแถบลัดปุ่มนั้น · คลิกขวาที่สกิลในแถบลัด (หรือ Shift+1–4) เพื่อใช้ในเลเวลที่ต่ำกว่า',
-  'Dropped by':'ดรอปจาก','Store':'ร้านค้า','How to make it':'วิธีทำ','Used to make':'ใช้ทำ','Sold at the General Store for':'มีขายที่ร้านค้าทั่วไป ราคา','boss':'บอส',
+  'Dropped by':'ดรอปจาก','In the store':'ร้านค้า','How to make it':'วิธีทำ','Used to make':'ใช้ทำ','Sold at the General Store for':'มีขายที่ร้านค้าทั่วไป ราคา','boss':'บอส',
   'Not dropped by monsters. Look for it from quests, festivals, bosses or other players.':'มอนสเตอร์ไม่ดรอป ลองหาจากเควส เทศกาล บอส หรือผู้เล่นคนอื่น',
   'Trial of Ascension':'บททดสอบแห่งการเลื่อนขั้น','The trial':'บททดสอบ','Accept trial':'รับบททดสอบ',
   'Reborn heroes with an advanced calling at job level 50 and base level 50 can rise into a master calling.':'ผู้กล้าที่เกิดใหม่และมีอาชีพขั้นสูงเลเวลอาชีพ 50 กับเลเวลฐาน 50 สามารถเลื่อนเป็นอาชีพระดับปรมาจารย์ได้',

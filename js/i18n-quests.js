@@ -103,3 +103,162 @@ if(LANG==='th'){const _t0=thText0;thText0=function(s){const r=_t0(s);return r===
     if(typeof drawBuilding==='function'){const _db=drawBuilding;drawBuilding=function(b){const en=b.name,th=NPC_TH[en];if(!th)return _db.apply(this,arguments);b.name=th;try{return _db.apply(this,arguments);}finally{b.name=en;}};}});}
 // "Return to / Talk to <name>" lines and "X is ready. Return to <name>." keep the name pattern above; translate the name part
 TH_PAT.unshift([/^(Return to|Then talk to|Talk to) (.+?)\.?$/,(m,a,b)=>`${{'Return to':'กลับไปหา','Then talk to':'แล้วไปคุยกับ','Talk to':'คุยกับ'}[a]} ${NPC_TH[b]||b}`]);
+
+/* ---- the Guild Hall (Corvin): trials, hunting contracts, retraining and the calling descriptions ---- */
+Object.assign(TH,{
+  'Tap a picture to see it.':'แตะรูปเพื่อดูรายละเอียด','Advanced callings:':'อาชีพขั้นสูง:',
+  'Take one contract at a time. It completes automatically wherever you are.':'รับสัญญาได้ทีละงาน งานจะสำเร็จเองไม่ว่าคุณจะอยู่ที่ไหน',
+  'Contract abandoned.':'ยกเลิกสัญญาแล้ว','CONTRACT DONE':'สัญญาสำเร็จ','GUILD FOUNDED':'ก่อตั้งกิลด์แล้ว',
+  'Retraining':'ฝึกใหม่','Reset stat points':'รีเซ็ตแต้มสถานะ','Reset skill points':'รีเซ็ตแต้มสกิล','Reset':'รีเซ็ต','Confirm':'ยืนยัน','click again to confirm':'กดอีกครั้งเพื่อยืนยัน',
+  'Corvin undoes your training for free while Embervale is being tested, so try every build you like. You get every point back to spend again.':'ระหว่างที่ Embervale ยังอยู่ในช่วงทดสอบ คอร์วินล้างการฝึกให้ฟรี ลองทุกสายที่ชอบได้เลย คุณจะได้แต้มคืนทั้งหมดเพื่อลงใหม่',
+  'Corvin can undo your training for a fee. You get every point back to spend again.':'คอร์วินล้างการฝึกให้ได้โดยเสียค่าธรรมเนียม คุณจะได้แต้มคืนทั้งหมดเพื่อลงใหม่',
+  // first callings
+  'Shield-wall fighter. The most HP, heavy melee hits and a spinning area attack.':'นักสู้กำแพงโล่ HP มากที่สุด ตีระยะประชิดหนัก และมีท่าหมุนโจมตีรอบตัว',
+  'Ranged spellcaster. Fragile, but casts fire, frost and lightning from a distance.':'นักเวทระยะไกล ตัวบาง แต่ร่ายไฟ น้ำแข็ง และสายฟ้าได้จากที่ไกล',
+  'Archer. Fast attacks from long range, scaling with DEX.':'นักธนู โจมตีเร็วจากระยะไกล แรงขึ้นตาม DEX',
+  'Battle healer. Heals and buffs itself, and its holy Smite hits undead for double.':'นักบวชสายต่อสู้ รักษาและบัฟตัวเองได้ และ Smite ศักดิ์สิทธิ์ทำความเสียหายสองเท่าต่ออันเดด',
+  // advanced callings
+  'An immovable shield-bearer. Huge HP and DEF, stuns with the shield and draws every monster to itself.':'ผู้ถือโล่ที่ไม่มีวันขยับ HP และ DEF มหาศาล ใช้โล่ทำให้มึน และดึงมอนสเตอร์ทุกตัวเข้าหาตัว',
+  'A reckless berserker. Trades defence for raw damage and shatters the ground around it.':'นักรบคลั่งไม่กลัวตาย แลกการป้องกันกับพลังทำลายล้าง และทุบพื้นรอบตัวให้แตก',
+  'A master of the elements. Slow, devastating spells that hit whole packs at once.':'ปรมาจารย์แห่งธาตุ เวทช้าแต่ทำลายล้าง โจมตีมอนสเตอร์ทั้งฝูงพร้อมกัน',
+  'A shadow mage. Curses foes, slows them to a crawl and drains their life to stay standing.':'จอมเวทเงา สาปศัตรู ทำให้ช้าลงจนแทบคลาน และดูดพลังชีวิตเพื่อยืนหยัดต่อ',
+  'A patient marksman. Enormous single shots and the widest arrow storms.':'มือแม่นธนูผู้อดทน ยิงนัดเดียวแรงมหาศาล และพายุลูกธนูที่กว้างที่สุด',
+  'A hunter of the deep woods. Venom, snares and speed keep monsters from ever reaching it.':'นักล่าแห่งป่าลึก พิษ กับดัก และความเร็ว ทำให้มอนสเตอร์เข้าไม่ถึงตัว',
+  'A holy warrior. Fights up close with sacred strikes and a shield of light.':'นักรบศักดิ์สิทธิ์ สู้ระยะประชิดด้วยการโจมตีศักดิ์สิทธิ์และโล่แห่งแสง',
+  'A seer of the light. The strongest healing and holy magic that scours undead.':'ผู้หยั่งรู้แห่งแสง การรักษาที่แรงที่สุด และเวทศักดิ์สิทธิ์ที่ชำระล้างอันเดด',
+  'A rune-scribed knight. Fire, frost and storm ride along with every blow; INT makes the runes burn hotter.':'อัศวินผู้สลักรูน ไฟ น้ำแข็ง และพายุติดไปกับทุกการโจมตี INT ทำให้รูนลุกโชนยิ่งขึ้น',
+  'A keeper of moments. Hastens itself, freezes foes in time and strikes twice in the same instant.':'ผู้เฝ้าห้วงเวลา เร่งตัวเอง หยุดเวลาของศัตรู และโจมตีสองครั้งในชั่วพริบตาเดียว',
+  'Hunts with a falcon. The bird strikes on its own, dives on whole packs and joins your arrows.':'ล่าพร้อมเหยี่ยว นกโจมตีเองได้ โฉบลงใส่ทั้งฝูง และร่วมยิงไปกับลูกธนูของคุณ',
+  'A fighting monk. Fast flurries up close, chi that burns and heals, and a body like iron.':'พระนักสู้ รัวหมัดเร็วในระยะประชิด ลมปราณที่ทั้งเผาและรักษา และร่างกายแกร่งดั่งเหล็ก',
+  // master callings
+  'The last wall. Shakes the earth to stun whole packs and shields the party behind a fortress of steel.':'กำแพงด่านสุดท้าย เขย่าแผ่นดินให้ทั้งฝูงมึน และปกป้องปาร์ตี้หลังป้อมเหล็ก',
+  'War given a body. Blood-fuelled fury and blows that split the ground for a whole area.':'สงครามที่มีร่างกาย ความคลั่งจากเลือด และการโจมตีที่ผ่าแผ่นดินทั้งบริเวณ',
+  'Commands the sky. Lances of thunder and meteors that wipe out entire packs.':'บัญชาท้องฟ้า หอกสายฟ้าและอุกกาบาตที่กวาดล้างทั้งฝูง',
+  'Opens rifts into nothing. Drains life to stay standing and drags whole groups into the void.':'เปิดรอยแยกสู่ความว่างเปล่า ดูดพลังชีวิตเพื่อยืนหยัด และลากทั้งกลุ่มลงสู่ห้วงสุญญตา',
+  'Never misses twice, because never misses. The strongest single shot and a sky full of arrows.':'ไม่เคยพลาดซ้ำ เพราะไม่เคยพลาดเลย ยิงนัดเดียวแรงที่สุด และฝนลูกธนูเต็มฟ้า',
+  'Runs with the pack. A howl that speeds up the whole party and volleys that pin monsters down.':'วิ่งไปกับฝูง เสียงหอนที่เร่งทั้งปาร์ตี้ และห่าธนูที่ตรึงมอนสเตอร์ไว้กับที่',
+  'Carries the sunrise into battle. Holy blows around it and a ward that guards every friend nearby.':'นำแสงอรุณเข้าสู่สนามรบ การโจมตีศักดิ์สิทธิ์รอบตัว และม่านปกป้องเพื่อนทุกคนที่อยู่ใกล้',
+  'Reads the stars and calls them down. The greatest healing in Embervale, and falling stars for enemies.':'อ่านดวงดาวแล้วเรียกลงมา การรักษาที่ยิ่งใหญ่ที่สุดใน Embervale และดาวตกใส่ศัตรู',
+  'Writes the runes of the world itself. Every swing is a storm of fire, frost and wind.':'จารึกรูนของโลกเอง ทุกการฟันคือพายุแห่งไฟ น้ำแข็ง และลม',
+  'Holds the hours in one hand. Stops the world for a heartbeat and strikes in every moment at once.':'กุมกาลเวลาไว้ในมือเดียว หยุดโลกชั่วจังหวะหัวใจ และโจมตีในทุกห้วงขณะพร้อมกัน',
+  'Rules the open sky. A storm of talons, and a falcon that never lets a target go.':'ครองท้องฟ้ากว้าง พายุกรงเล็บ และเหยี่ยวที่ไม่เคยปล่อยเป้าหมาย',
+  'The still centre of the storm. Hundred-palm strikes, and a lotus that heals the whole body.':'ใจกลางที่สงบนิ่งของพายุ ฝ่ามือร้อยครั้ง และดอกบัวที่รักษาทั้งร่าง',
+});
+TH_PAT.unshift(
+  [/^Trial of the (.+)$/,'บททดสอบ $1'],
+  [/^Defeat (\d+) (.+), bring (\d+) (.+), pay ([\d,]+) gold\.$/,'ปราบ $2 $1 ตัว นำ $4 $3 ชิ้นมา และจ่าย $5 โกลด์'],
+  [/^Progress (\d+)\/(\d+)$/,'ความคืบหน้า $1/$2'],
+  [/^Reward ([\d,]+) EXP, ([\d,]+) job EXP, ([\d,]+) gold$/,'รางวัล $1 EXP, $2 EXP อาชีพ, $3 โกลด์'],
+  [/^Reward ([\d,]+) EXP, ([\d,]+) gold$/,'รางวัล $1 EXP, $2 โกลด์'],
+  [/^Starts with: (.+)$/,'เริ่มต้นพร้อม: $1'],[/^New skills: (.+)$/,'สกิลใหม่: $1'],[/^Become a (.+)$/,'เป็น $1'],
+  [/^Gives back (\d+) points?( ·)?$/,'คืนให้ $1 แต้ม$2'],
+  [/^Trial accepted: defeat (\d+) (.+) and bring (\d+) (.+)\.$/,'รับบททดสอบแล้ว: ปราบ $2 $1 ตัว และนำ $4 $3 ชิ้นมา'],
+  [/^Trial: all (\d+) (.+) defeated\. Bring (\d+) (.+) back to Guildmaster Corvin\.$/,'บททดสอบ: ปราบ $2 ครบ $1 ตัวแล้ว นำ $4 $3 ชิ้นกลับไปให้หัวหน้ากิลด์คอร์วิน'],
+  [/^Trial: (\d+)\/(\d+) (.+)\.$/,'บททดสอบ: $3 $1/$2'],
+  [/^Ascension trial accepted: defeat (\d+) (.+) and bring (\d+) (.+) to Seer Valen\.$/,'รับบททดสอบแห่งการเลื่อนขั้นแล้ว: ปราบ $2 $1 ตัว และนำ $4 $3 ชิ้นไปให้ผู้หยั่งรู้วาเลน'],
+  [/^You are a (.+)\. The stars remember your name\.$/,'คุณคือ $1 ดวงดาวจดจำชื่อของคุณ'],
+  [/^Contract accepted: defeat (\d+) (.+)\.$/,'รับสัญญาแล้ว: ปราบ $2 $1 ตัว'],
+  [/^Contract complete: (\d+) (.+)\. Reward: ([\d,]+) EXP, ([\d,]+) gold\.$/,'สัญญาสำเร็จ: $2 $1 ตัว รางวัล: $3 EXP, $4 โกลด์'],
+  [/^You are now a (.+)! You keep all your skills\. New ones are waiting in the skill tree \(K\): (.+)\.$/,'ตอนนี้คุณเป็น $1 แล้ว! สกิลเดิมยังอยู่ครบ สกิลใหม่รออยู่ในต้นไม้สกิล (K): $2'],
+  [/^Your stats are reset\. (\d+) stat points to spend again \(C\)\.$/,'รีเซ็ตสถานะแล้ว ได้แต้มสถานะคืน $1 แต้ม (C)'],
+  [/^Your skills are reset\. (\d+) skill points to spend again \(K\)\.$/,'รีเซ็ตสกิลแล้ว ได้แต้มสกิลคืน $1 แต้ม (K)'],
+);
+
+/* ---- every other building: store, smithy, warehouse, waystation (bunks, stable), arena, stylist, festival, Emberkeep,
+   gemcutter, library and the Hall of Callings ---- */
+Object.assign(TH,{
+  // store and gear lines
+  'Sell all monster loot':'ขายของจากมอนสเตอร์ทั้งหมด','Slots: empty':'ช่อง: ว่าง','Uncommon':'ไม่ธรรมดา','Rare':'หายาก','Epic':'มหากาพย์','Legendary':'ตำนาน',
+  'You have:':'คุณมี:','Use':'ใช้','Etc':'อื่นๆ',
+  // smithy
+  '⚒ Forge gear from monster materials':'⚒ ตีอุปกรณ์จากวัตถุดิบมอนสเตอร์','Refine':'ตีบวก','Sure?':'แน่ใจ?','Fully refined.':'ตีบวกเต็มแล้ว','breaks on failure':'พังถ้าล้มเหลว',
+  'You have no gear to refine.':'คุณไม่มีอุปกรณ์ให้ตีบวก','equipped':'สวมอยู่','in bag':'ในกระเป๋า',
+  // warehouse and pushcart
+  'Nothing stored yet.':'ยังไม่มีของในคลัง','Take':'เอาออก','Empty.':'ว่าง',
+  // waystation: bunks and stable
+  'Bunk room':'ห้องพัก','Rent a bunk':'เช่าเตียง','Rest':'พัก','Travel':'เดินทาง','Stable':'คอกสัตว์','Well rested':'พักผ่อนเต็มที่',
+  'Full HP and SP, and you wake':'HP และ SP เต็ม และตื่นมาแบบ',
+  '“A good mount saves a lot of boot leather. Press R to ride; you\'ll hop off when you fight.”':'“สัตว์พาหนะดีๆ ช่วยประหยัดพื้นรองเท้าได้เยอะ กด R เพื่อขี่ แล้วจะลงเองเมื่อต่อสู้”',
+  'You are riding it.':'คุณกำลังขี่อยู่','Yours.':'ของคุณ','Buy':'ซื้อ','Ride':'ขี่','Get off':'ลง',
+  // arena
+  'Ranked fights against other players. Fall to 1 HP and you\'re out; the last team standing wins. Nobody dies or loses EXP. Leaving the arena during a match counts as a loss.':'การต่อสู้จัดอันดับกับผู้เล่นคนอื่น เหลือ 1 HP ก็ตกรอบ ทีมสุดท้ายที่ยังยืนอยู่ชนะ ไม่มีใครตายหรือเสีย EXP ออกจากสนามระหว่างแมตช์นับเป็นแพ้',
+  'Ranked matches need an account so your rating is kept. Log in or sign up from the title screen. You can still visit the arena and watch.':'แมตช์จัดอันดับต้องมีบัญชีเพื่อเก็บคะแนน เข้าสู่ระบบหรือสมัครจากหน้าแรก แต่ยังเข้าไปดูในสนามได้',
+  'Visit the arena':'ไปที่สนามประลอง','Back to Hearthvale':'กลับ Hearthvale','Find a match':'หาแมตช์','Join queue':'เข้าคิว','Leave queue':'ออกจากคิว','Top 20':'20 อันดับแรก',
+  'rating':'คะแนน','wins':'ชนะ','losses':'แพ้','draws':'เสมอ','Name':'ชื่อ','Rating':'คะแนน','Loading…':'กำลังโหลด…',
+  'Just you against one opponent.':'คุณคนเดียวกับคู่ต่อสู้หนึ่งคน','You will queue alone; your party stays as it is.':'คุณจะเข้าคิวคนเดียว ปาร์ตี้ยังอยู่เหมือนเดิม',
+  'You and your partner against another pair.':'คุณกับคู่หูเจออีกคู่หนึ่ง','Needs a party of exactly two; the leader joins for both.':'ต้องมีปาร์ตี้สองคนพอดี หัวหน้าปาร์ตี้เข้าคิวให้ทั้งคู่',
+  'No ranked matches yet. Be the first!':'ยังไม่มีแมตช์จัดอันดับ มาเป็นคนแรกสิ!',
+  // stylist
+  'Pick something new first':'เลือกอะไรใหม่ก่อน','Back to my current look':'กลับไปลุคปัจจุบัน','Hairstyle':'ทรงผม','Hair colour':'สีผม','Eye colour':'สีตา','Skin tone':'สีผิว','Preview of your new look':'ตัวอย่างลุคใหม่ของคุณ',
+  // festival
+  'Monsters drop them 12% of the time during the festival; bosses always drop 3.':'ช่วงเทศกาลมอนสเตอร์ดรอป 12% และบอสดรอป 3 ชิ้นเสมอ',
+  'all of February':'ตลอดเดือนกุมภาพันธ์','April 10 – 20':'10 – 20 เมษายน','all of October':'ตลอดเดือนตุลาคม','all of November':'ตลอดเดือนพฤศจิกายน','all of December':'ตลอดเดือนธันวาคม',
+  // Emberkeep
+  'Nobody holds Emberkeep yet.':'ยังไม่มีใครครอง Emberkeep','Go to Emberkeep':'ไปที่ Emberkeep','No guild has reached the ring yet.':'ยังไม่มีกิลด์ไหนเข้าถึงวงแหวน',
+  'Only guild members can capture the crystal or fight in the war. You can still go and watch.':'เฉพาะสมาชิกกิลด์เท่านั้นที่ยึดคริสตัลหรือร่วมสงครามได้ แต่ยังไปดูได้',
+  'Guild':'กิลด์','Points':'แต้ม','(your guild!)':'(กิลด์ของคุณ!)','Held by':'ครองโดย',
+  // gemcutter
+  '"Every blade has a voice it hasn\'t used yet. Let me wake it. If you don\'t like what it says, I\'ll put it back to sleep and you keep the old one."':'"อาวุธทุกชิ้นมีเสียงที่ยังไม่เคยเปล่ง ให้ข้าปลุกมัน ถ้าเจ้าไม่ชอบสิ่งที่มันพูด ข้าจะให้มันหลับต่อ แล้วเจ้าเก็บอันเดิมไว้"',
+  '"Three sigils into one. The stone decides what it becomes, but now and then it comes out Radiant, and nobody else in Embervale can make those."':'"ซิกิลสามอันรวมเป็นหนึ่ง หินเป็นผู้ตัดสินว่ามันจะกลายเป็นอะไร แต่บางครั้งก็ออกมาเป็นเรเดียนต์ ซึ่งไม่มีใครใน Embervale ทำได้นอกจากที่นี่"',
+  'Cut':'เจาะ','You have no gear that can take a slot.':'คุณไม่มีอุปกรณ์ที่เจาะช่องได้',
+  // library
+  '"Every sigil ever pressed from a monster\'s essence is catalogued here: what it grants, which gear it suits and who drops it." — Oren':'"ซิกิลทุกอันที่เคยกลั่นจากแก่นของมอนสเตอร์ถูกบันทึกไว้ที่นี่: ให้อะไร เหมาะกับอุปกรณ์แบบไหน และใครดรอป" — Oren',
+  '"Every blade, robe and trinket worth owning, and where to find it: which creatures carry it and how often, what Ilsa sells, what Brannoc can forge." — Oren':'"อาวุธ เสื้อคลุม และเครื่องประดับทุกชิ้นที่ควรมี และหาได้จากที่ไหน: สัตว์ตัวไหนพกมาและบ่อยแค่ไหน Ilsa ขายอะไร Brannoc ตีอะไรได้" — Oren',
+  'No sigil slots':'ไม่มีช่องซิกิล','Bestiary':'สารานุกรมมอนสเตอร์','Sigils':'ซิกิล','Equipment':'อุปกรณ์','Ability':'ความสามารถ','Sort':'เรียง','Source':'แหล่งที่มา','Slot':'ช่อง','All':'ทั้งหมด',
+  'Max HP':'HP สูงสุด','Max SP':'SP สูงสุด','Max HP %':'HP สูงสุด %',
+  // Hall of Callings: rebirth
+  'The rite of rebirth':'พิธีเกิดใหม่','You go back to':'คุณจะกลับไปที่','base level 1, stats reset':'เลเวลฐาน 1 รีเซ็ตสถานะ','You keep':'สิ่งที่เก็บไว้',
+  'calling, skills, job level, gear, gold left':'อาชีพ สกิล เลเวลอาชีพ อุปกรณ์ และโกลด์ที่เหลือ','You start with':'เริ่มต้นด้วย','Every level':'ทุกเลเวล','+1 extra stat point':'แต้มสถานะเพิ่ม +1',
+  'For good':'ถาวร','+25% Max HP and SP, a golden aura':'HP และ SP สูงสุด +25% และออร่าสีทอง','Earn an advanced calling first.':'ได้อาชีพขั้นสูงก่อน',
+  'You have already been reborn.':'คุณเกิดใหม่แล้ว','Be reborn':'เกิดใหม่','You are Reborn. Valen bows to you.':'คุณเป็นผู้เกิดใหม่แล้ว วาเลนโค้งให้คุณ',
+});
+TH_PAT.unshift(
+  [/^(Lv \d+(?:–\d+|\+)) · (.+)$/,(m,a,b)=>{const t=b.split(' · ').map(x=>({'not visited yet':'ยังไม่เคยไป','boss':'บอส'}[x]||x.replace(/^World boss: /,'บอสโลก: '))).join(' · ');return t===b?m:`${a} · ${t}`;}],
+  [/^Capital city · not visited yet$/,'เมืองหลวง · ยังไม่เคยไป'],[/^Capital city$/,'เมืองหลวง'],
+  [/^: \+(\d+)% EXP and job EXP for (\d+) minutes$/,': EXP และ EXP อาชีพ +$1% เป็นเวลา $2 นาที'],[/^([\dhms: ]+) left$/,'เหลือ $1'],
+  [/^Needs base level (\d+)$/,'ต้องมีเลเวลฐาน $1'],[/^· Lv (\d+)\+ · \+(\d+)% speed$/,'· Lv $1+ · ความเร็ว +$2%'],
+  [/^To \+(\d+): (\d+)%( ·)?$/,'ตีบวกเป็น +$1: $2%$3'],
+  [/^(equipped|in bag) · (\d+) slots? → (\d+) · (\d+)%$/,(m,w,a,b,c)=>`${w==='equipped'?'สวมอยู่':'ในกระเป๋า'} · ${a} ช่อง → ${b} · ${c}%`],
+  [/^(equipped|in bag) · already has 4 slots$/,(m,w)=>`${w==='equipped'?'สวมอยู่':'ในกระเป๋า'} · มีครบ 4 ช่องแล้ว`],
+  [/^(equipped|in bag) ·$/,(m,w)=>`${w==='equipped'?'สวมอยู่':'ในกระเป๋า'} ·`],[/^(equipped|in bag) · not awakened$/,(m,w)=>`${w==='equipped'?'สวมอยู่':'ในกระเป๋า'} · ยังไม่ปลุกพลัง`],
+  [/^Fuse \(([\d,]+) gold\)$/,'หลอม ($1 โกลด์)'],
+  [/^([\d,]+) gold · lines: Faint, Bright, Radiant \(rare, the top value\)$/,'$1 โกลด์ · ระดับ: จาง สว่าง เรเดียนต์ (หายาก ค่าสูงสุด)'],
+  [/^Storage (\d+)\/(\d+) · Weight ([\d,]+)\/([\d,]+)$/,'คลัง $1/$2 · น้ำหนัก $3/$4'],
+  [/^A second load that rolls along behind you: (\d+) stacks, ([\d,]+) weight, usable anywhere\. Yours to keep\.$/,'สัมภาระชุดที่สองที่เข็นตามหลังคุณ: $1 ช่อง น้ำหนัก $2 ใช้ได้ทุกที่ เป็นของคุณตลอดไป'],
+  [/^(\d+)\/(\d+) stacks · ([\d,]+)\/([\d,]+) weight$/,'$1/$2 ช่อง · น้ำหนัก $3/$4'],
+  [/^Cart (\d+)\/(\d+) · cart weight ([\d,]+)\/([\d,]+) · bag ([\d,]+)\/([\d,]+)$/,'รถเข็น $1/$2 · น้ำหนักรถเข็น $3/$4 · กระเป๋า $5/$6'],
+  [/^You don't have a pushcart\. (.+) rent them out for ([\d,]+) gold\.$/,'คุณยังไม่มีรถเข็น เช่าได้จาก Wenna ใน Hearthvale หรือ Ivo ใน Aurelmark ราคา $2 โกลด์'],
+  [/^You are in a (.+) match\.$/,'คุณอยู่ในแมตช์ $1'],[/^Waiting for a (.+) opponent…$/,'กำลังรอคู่ต่อสู้ $1…'],
+  [/^Every evening at 20:00 \(Thailand time\) guilds fight for the Ember Crystal for (\d+) minutes\. A guild that stands alone in the golden ring for (\d+) seconds takes the crystal, and the guild holding it scores a point every second\. Rival guilds in the ring stop a capture\. The guild with the most points owns Emberkeep until the next war, and its members get \+10% EXP\.$/,
+    'ทุกเย็นเวลา 20:00 (เวลาไทย) กิลด์ต่างๆ จะชิง Ember Crystal กันเป็นเวลา $1 นาที กิลด์ที่ยืนอยู่ในวงแหวนทองลำพังครบ $2 วินาทีจะยึดคริสตัลได้ และกิลด์ที่ครองอยู่ได้แต้มทุกวินาที กิลด์คู่แข่งในวงแหวนจะหยุดการยึด กิลด์ที่ได้แต้มมากที่สุดครอง Emberkeep จนถึงสงครามครั้งถัดไป และสมาชิกได้ EXP +10%'],
+  [/^The next war starts (.+)\.$/,(m,a)=>`สงครามครั้งถัดไปเริ่ม${a==='every evening at 20:00 (Thailand time)'?'ทุกเย็นเวลา 20:00 (เวลาไทย)':a==='starting now'?'แล้ว':a.replace(/^in (\d+) minutes?$/,'ในอีก $1 นาที').replace(/^at (.+?)( tomorrow)?$/,(x,t,tm)=>`เวลา ${t}${tm?' พรุ่งนี้':''}`)}`],
+  [/^The war is on · (.+) left$/,'สงครามกำลังดำเนินอยู่ · เหลือ $1'],
+  [/^You fight for (.+?)\. During the war, .+$/,(m,a)=>`คุณสู้ในนาม ${a} ระหว่างสงคราม สมาชิกกิลด์อื่นใน keep โจมตีคุณได้และคุณก็โจมตีเขาได้ ถ้าเหลือ 1 HP คุณจะถูกส่งกลับไปที่ประตู`],
+  [/^You fight for$/,'คุณสู้ในนาม'],[/^\. During the war, members of other guilds in the keep can attack you and you them; if you fall to 1 HP you are sent back to the gate\.$/,' ระหว่างสงคราม สมาชิกกิลด์อื่นใน keep โจมตีคุณได้และคุณก็โจมตีเขาได้ ถ้าเหลือ 1 HP คุณจะถูกส่งกลับไปที่ประตู'],
+  [/^Prize: (.+)$/,'รางวัล: $1'],[/^(.+) · on now$/,(m,a)=>`${a} · กำลังจัดอยู่`],
+  [/^(\d+) sigils known · you have (\d+) of them\.$/,'รู้จักซิกิล $1 แบบ · คุณมี $2 แบบ'],
+  [/^Bestiary: (\d+) of (\d+) monsters recorded\.$/,'สารานุกรม: บันทึกมอนสเตอร์แล้ว $1 จาก $2 ชนิด'],
+  [/^(\d+) pieces of equipment · (\d+) drop from monsters\.$/,'อุปกรณ์ $1 ชิ้น · ดรอปจากมอนสเตอร์ $2 ชิ้น'],
+  [/^From monsters: (\d+)–(\d+) slots \(usually (\d+)\)$/,'จากมอนสเตอร์: $1–$2 ช่อง (ปกติ $3)'],[/^(\d+) sigil slots?$/,'ช่องซิกิล $1 ช่อง'],
+  [/^You have (\d+)$/,'คุณมี $1'],
+  [/^From (.+?) · Lv (\d+)(.*) · ([\d.]+%) drop(?: · ([\d,]+) defeated)?$/,(m,a,b,c,d,e)=>`จาก ${a} · Lv ${b}${c.replace(' · boss',' · บอส')} · ดรอป ${d}${e?` · ปราบแล้ว ${e}`:''}`],
+  [/^Needs base level (\d+)\+, an advanced calling at job level 50, and ([\d,]+) gold\.$/,'ต้องมีเลเวลฐาน $1+ อาชีพขั้นสูงเลเวลอาชีพ 50 และ $2 โกลด์'],
+  [/^(\d+) stat points$/,'แต้มสถานะ $1 แต้ม'],
+  [/^Reach base level (\d+)( again)? first \(you are (\d+)\)\.$/,(m,a,g,b)=>`ไปให้ถึงเลเวลฐาน ${a}${g?' อีกครั้ง':''} ก่อน (ตอนนี้ ${b})`],
+  [/^Reach job level (\d+) first \(you are (\d+)\)\.$/,'ไปให้ถึงเลเวลอาชีพ $1 ก่อน (ตอนนี้ $2)'],
+  [/^A (.+) cannot use (.+)s\.$/,'$1 ใช้ $2 ไม่ได้'],[/^base level (\d+)\.$/,'ต้องมีเลเวลฐาน $1'],[/^Requires base level (\d+)\.$/,'ต้องมีเลเวลฐาน $1'],
+);
+// gear lines are built from parts ("ATK 22 · Lv 6+ · club · Slots: empty"): put each part into Thai, but only when every part is known
+const TH_WT={sword:'ดาบ',club:'กระบอง',axe:'ขวาน',wand:'คทา',bow:'ธนู',mace:'ตะบอง',dagger:'มีดสั้น',staff:'ไม้เท้า',spear:'หอก',fist:'สนับมือ',knuckle:'สนับมือ',book:'หนังสือ',instrument:'เครื่องดนตรี'};
+const TH_STATK=/^(ATK|MATK|DEF|STR|AGI|VIT|INT|DEX|LUK|CRIT|FLEE|HIT|ASPD|Max HP|Max SP|HP regen|SP regen|MDEF)( [+-]?\d+%?)$/;
+function thGearPart(p){if(!p)return '';if(TH_STATK.test(p))return p.replace('Max HP','HP สูงสุด').replace('Max SP','SP สูงสุด').replace('HP regen','ฟื้น HP').replace('SP regen','ฟื้น SP');
+  if(/^Lv \d+\+$/.test(p))return p;if(TH_WT[p])return TH_WT[p];if(TH[p]&&/[฀-๿]/.test(TH[p]))return TH[p];
+  if(/^Slots: /.test(p))return 'ช่อง: '+p.slice(7).split(', ').map(x=>x==='empty'?'ว่าง':x).join(', ');
+  if(/ \(refine\)$/.test(p))return p.replace(' (refine)',' (ตีบวก)');return null;}
+TH_PAT.push([/^.+ · .+$/,m=>{const parts=m.replace(/ ·$/,'').split(' · '),out=parts.map(thGearPart);return out.every(x=>x!==null)?out.join(' · ')+(/ ·$/.test(m)?' ·':''):m;}]);
+// stat bonus lists ("+80 Max HP, Healing +5%", "Attack speed +3%"): each part into Thai when every part is known
+const TH_BONUS={'Attack speed':'ความเร็วโจมตี','Cast time':'เวลาร่าย','Crit damage':'ความเสียหายคริติคอล','Double attack':'โจมตีสองครั้ง','Damage taken':'ความเสียหายที่ได้รับ','Healing':'การรักษา','SP regen':'ฟื้น SP','HP regen':'ฟื้น HP','Max HP':'HP สูงสุด','Max SP':'SP สูงสุด'};
+const thStatName=n=>TH_BONUS[n]||(/^[A-Z]{2,5}$/.test(n)?n:null);
+function thBonusPart(p){let m=p.match(/^\+(\d+%?) (.+)$/);if(m){const n=thStatName(m[2]);return n?`+${m[1]} ${n}`:null;}
+  m=p.match(/^(.+?) ([+−-]?\d[\d.]*%?(?:\/s)?)$/);if(m){const n=thStatName(m[1]);return n?`${n} ${m[2]}`:null;}return null;}
+TH_PAT.push([/^[^,]+(?:, [^,]+)*,?$/,m=>{const end=/,$/.test(m),parts=m.replace(/,$/,'').split(', '),out=parts.map(thBonusPart);return out.every(x=>x)?out.join(', ')+(end?',':''):m;}]);

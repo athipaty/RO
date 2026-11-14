@@ -125,7 +125,7 @@ function refreshPanel(){
       const armed=refineArm===key,risk=REFINE_CHANCE[next]<1;
       h+=`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)} <span class="muted">${where}</span></div>`+
         (r>=10?`<div class="ds">Fully refined.</div></div>`:
-        `<div class="ds">To +${next}: ${Math.round(REFINE_CHANCE[next]*100)}% · ${ITEMS[mat].name} + ${fmt(fee)} gold${risk?' · <span style="color:var(--warn)">breaks on failure</span>':''}</div></div>`+
+        `<div class="ds">To +${next}: ${Math.round(REFINE_CHANCE[next]*100)}%${risk?' · <span style="color:var(--warn)">breaks on failure</span>':''}</div><div class="cms">${itemChip(mat,1)}${goldChip(fee)}</div></div>`+
         `<button class="btn small" data-act="refine" data-arg="${key}" ${!has||P.gold<fee?'disabled':''}>${armed?'Sure?':'Refine'}</button>`)+`</div>`;}
   }
   else if(panelKind==='storage'){
@@ -212,9 +212,10 @@ function refreshPanel(){
       h+=`</div>`;}
     h+=respecHtml();
     h+=`<h3>Hunting contracts</h3>`;
-    if(P.quest){const q=P.quest,m=MOBS[q.mob];h+=`<div class="row"><div class="grow"><div class="nm">Defeat ${q.need} ${m.name}</div><div class="ds">Progress ${q.have}/${q.need} · Reward ${fmt(q.exp)} EXP, ${fmt(q.gold)} gold · found in ${Object.values(ZONES).find(z=>(z.mobs||[]).some(x=>x[0]===q.mob)).name}</div></div><button class="btn small" data-act="qdrop">Abandon</button></div>`;}
+    const mobZone=id=>(Object.values(ZONES).find(z=>(z.mobs||[]).some(x=>x[0]===id))||{}).name||'';
+    if(P.quest){const q=P.quest,m=MOBS[q.mob];h+=`<div class="row">${mobChip(q.mob,q.need,q.have)}<div class="grow"><div class="nm">Defeat ${q.need} ${m.name}</div><div class="ds">Progress ${q.have}/${q.need}</div><div class="ds">Reward ${fmt(q.exp)} EXP, ${fmt(q.gold)} gold</div><div class="ds muted">${mobZone(q.mob)}</div></div><button class="btn small" data-act="qdrop">Abandon</button></div>`;}
     else{h+=`<div class="ds" style="margin-bottom:4px">Take one contract at a time. It completes automatically wherever you are.</div>`;
-      for(const o of contractOffers()){const m=MOBS[o.mob];h+=`<div class="row"><div class="grow"><div class="nm">Defeat ${o.need} ${m.name} <span class="muted">Lv ${m.lv}</span></div><div class="ds">Reward ${fmt(o.exp)} EXP, ${fmt(o.jexp)} job EXP, ${fmt(o.gold)} gold · ${Object.values(ZONES).find(z=>(z.mobs||[]).some(x=>x[0]===o.mob)).name}</div></div><button class="btn small" data-act="qtake" data-arg="${o.mob}">Accept</button></div>`;}}
+      for(const o of contractOffers()){const m=MOBS[o.mob];h+=`<div class="row">${mobChip(o.mob,o.need,null)}<div class="grow"><div class="nm">Defeat ${o.need} ${m.name} <span class="muted">Lv ${m.lv}</span></div><div class="ds">Reward ${fmt(o.exp)} EXP, ${fmt(o.jexp)} job EXP, ${fmt(o.gold)} gold</div><div class="ds muted">${mobZone(o.mob)}</div></div><button class="btn small" data-act="qtake" data-arg="${o.mob}">Accept</button></div>`;}}
   }
   else if(panelKind==='emote'){
     h+=`<h2>Emotes</h2><div class="sub">Everyone nearby sees it over your head. You can also type /heart, /gg and so on in chat.</div><div class="emgrid">`;

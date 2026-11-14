@@ -18,7 +18,7 @@ function codexOwned(id){let loose=0,sock=0;
   for(const e of [...P.inv,...(P.storage||[])]){if(e.id===id&&e.n!==undefined)loose+=e.n;if(Array.isArray(e.s))sock+=e.s.filter(v=>v===id).length;}
   for(const e of Object.values(P.eq||{}))if(e&&Array.isArray(e.s))sock+=e.s.filter(v=>v===id).length;
   return {loose,sock};}
-function codexBonusHtml(b){return Object.entries(b).map(([k,v])=>{const on=CODEX.ab===k;const t=`+${v}${k==='hppct'?'%':''} ${k==='hppct'?'Max HP':codexAbName(k)}`;
+function codexBonusHtml(b){return Object.entries(b).map(([k,v])=>{const on=CODEX.ab===k;const t=CODEX_ABS.some(a=>a[0]===k)||typeof bonusLabel!=='function'||!bonusLabel(k,v)?`+${v}${k==='hppct'?'%':''} ${k==='hppct'?'Max HP':codexAbName(k)}`:bonusLabel(k,v);
   return on?`<b class="cxon">${t}</b>`:t;}).join(', ');}
 function codexHtml(){
   const all=codexAll(),kk=codexKills();

@@ -6,7 +6,7 @@
    have not defeated stay hidden, as in the Bestiary. Choices are remembered with the Sigil Codex's. */
 Object.assign(CODEX,Object.assign({gslot:'all',gsrc:'drop',gab:'all',gsort:'lv'},CODEX));
 const GEAR_SLOTS=[['all','All'],['weapon','Weapon'],['armor','Armour'],['head','Head'],['face','Face'],['mouth','Mouth'],['accessory','Accessory']];
-const GEAR_SRCS=[['all','All'],['drop','Monster drop'],['shop','Store'],['forge','Forge'],['other','Quests & events']];
+const GEAR_SRCS=[['all','All'],['drop','Monster drop'],['shop','Shop'],['forge','Forge'],['other','Quests & events']];
 const GEAR_ABS=[...CODEX_ABS,['regen','HP regen'],['vs_beast','vs Beast'],['vs_insect','vs Insect'],['vs_plant','vs Plant'],['vs_spirit','vs Spirit'],['vs_undead','vs Undead']];
 const gearAbName=k=>(GEAR_ABS.find(a=>a[0]===k)||[k,k.toUpperCase()])[1];
 const gearStat=(it,k)=>k==='atk'||k==='matk'||k==='def'?(it[k]||0)+((it.b&&it.b[k])||0):((it.b&&it.b[k])||0);
@@ -63,6 +63,6 @@ PANEL_ACTS.gxsrc=v=>{CODEX.gsrc=v;saveCodex();sfx('click');refreshPanel();};
 PANEL_ACTS.gxslot=v=>{CODEX.gslot=v;saveCodex();sfx('click');refreshPanel();};
 PANEL_ACTS.gxab=v=>{CODEX.gab=v;if(v!=='all')CODEX.gsort='stat';else if(CODEX.gsort==='stat')CODEX.gsort='lv';saveCodex();sfx('click');refreshPanel();};
 PANEL_ACTS.gxsort=v=>{CODEX.gsort=v;saveCodex();sfx('click');refreshPanel();};
-if(typeof TH!=='undefined')Object.assign(TH,{'Source':'แหล่งที่มา','Slot':'ช่อง','Monster drop':'ดรอปจากมอนสเตอร์','Store':'ร้านค้า','Forge':'ตีขึ้น','Quests & events':'เควสและอีเวนต์',
+if(typeof TH!=='undefined')Object.assign(TH,{'Source':'แหล่งที่มา','Slot':'ช่อง','Monster drop':'ดรอปจากมอนสเตอร์','Shop':'ร้านค้า','Forge':'ตีขึ้น','Quests & events':'เควสและอีเวนต์',
   'Face':'ใบหน้า','Most slots':'ช่องมากที่สุด','No sigil slots':'ไม่มีช่องซิกิล','Mouth':'ปาก','Best drop chance':'โอกาสดรอปสูงสุด','Forged by Brannoc':'แบรนน็อกตีให้ได้','Quests, festivals or bosses':'เควส เทศกาล หรือบอส',
   'No equipment matches. Try another slot, source or ability.':'ไม่มีอุปกรณ์ที่ตรงกัน ลองเลือกช่อง แหล่งที่มา หรือความสามารถอื่น'});

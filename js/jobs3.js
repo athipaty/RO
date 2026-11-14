@@ -101,9 +101,8 @@ function ascensionHtml(){const c=CLASSES[P.cls];let h=`<h3>Trial of Ascension</h
   h+=`<div class="sub">Reborn heroes with an advanced calling at job level ${JOB3_LV} and base level ${JOB3_BASE_LV} can rise into a master calling.</div>`;
   if(next.length)h+=`<div class="ds" style="margin:6px 0">${next.map(id=>`<b style="color:${CLASSES[id].acc}">${CLASSES[id].name}</b>: ${CLASSES[id].desc} New skills: ${CLASSES[id].own.map(s=>SKILLS[s].name).join(', ')}.`).join('<br>')}</div>`;
   if(why)return h+`<div class="sub muted">${esc(why)}</div>`;
-  if(!P.trial3)return h+`<div class="row"><div class="grow"><div class="nm">The trial</div><div class="ds">Defeat ${T.need} ${MOBS[T.mob].name} in Frostpeak Pass, bring ${T.items} ${ITEMS[T.item].name} and ${fmt(JOB3_GOLD)} gold.</div></div><button class="btn small" data-act="trial3">Accept trial</button></div>`;
-  const it=invFind(T.item),have=it?it.n:0,k=Math.min(P.trial3.have,T.need);
-  h+=`<div class="row"><div class="grow"><div class="nm">The trial</div><div class="ds">${k>=T.need?'✓':'·'} ${MOBS[T.mob].name} ${k}/${T.need} &nbsp; ${have>=T.items?'✓':'·'} ${ITEMS[T.item].name} ${have}/${T.items} &nbsp; ${P.gold>=JOB3_GOLD?'✓':'·'} ${fmt(JOB3_GOLD)} gold</div></div></div>`;
+  if(!P.trial3)return h+trialRowHtml('The trial',T,null,JOB3_GOLD,`<button class="btn small" data-act="trial3">Accept trial</button>`);
+  h+=trialRowHtml('The trial',T,P.trial3.have,JOB3_GOLD);
   if(trial3Done())h+=`<div class="choice">`+next.map(id=>`<button data-act="ascend" data-arg="${id}"><b style="color:${CLASSES[id].acc}">Become a ${CLASSES[id].name}</b><small>${CLASSES[id].desc}</small></button>`).join('')+`</div>`;
   return h;}
 if(typeof PANELS!=='undefined'&&PANELS.rebirth){const _rb=PANELS.rebirth;PANELS.rebirth=function(){return _rb.apply(this,arguments)+ascensionHtml();};}
