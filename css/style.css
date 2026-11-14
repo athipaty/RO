@@ -1089,3 +1089,16 @@ body:not(.touchui) #panel .skpright{position:sticky;top:0}
 #qtyPick input[type=range]{width:100%;accent-color:#f0b54a}
 #qtyPick .qchips{display:flex;flex-wrap:wrap;gap:6px}#qtyPick .qtotal{font-weight:700;color:#ffcf5a;text-align:center}
 #qtyPick .tbtns{display:flex;justify-content:flex-end;gap:8px}#qtyPick .tbtns .btn{min-height:38px;padding:6px 16px!important}
+/* level-up card (js/rewards.js) */
+#lvCard{position:fixed;left:50%;top:max(14px,env(safe-area-inset-top));transform:translate(-50%,-140%);z-index:40;min-width:200px;max-width:calc(100vw - 32px);padding:10px 18px 12px;border-radius:16px;
+  background:linear-gradient(180deg,rgba(60,42,12,.96),rgba(26,20,10,.96));border:1px solid #f0c060;box-shadow:0 10px 34px rgba(0,0,0,.55),0 0 24px rgba(255,190,70,.35);text-align:center;transition:transform .35s cubic-bezier(.2,1.4,.4,1);pointer-events:auto}
+#lvCard.show{transform:translate(-50%,0)}
+#lvCard .lvt{font:800 24px "Alegreya Sans",sans-serif;color:#ffd77a;letter-spacing:.5px;text-shadow:0 2px 0 #3a2508}
+#lvCard .lvs{font-size:13px;color:#f4e6c4}
+#lvCard .lvb{display:flex;gap:8px;justify-content:center;margin-top:8px}#lvCard .lvb .btn{min-height:34px;padding:4px 14px!important}
+/* next goal chip (js/goal.js) */
+#goalChip{position:fixed;top:200px;right:10px;z-index:6;display:flex;align-items:center;gap:6px;padding:5px 10px 5px 8px;border-radius:999px;border:1px solid rgba(255,207,90,.45);
+  background:rgba(14,18,26,.82);color:#f4e6c4;font:600 12px Inter,var(--ui);cursor:pointer;text-align:left;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+#goalChip[hidden]{display:none}#goalChip .gi{color:#ffcf5a;font-size:11px;flex:none}#goalChip .gt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:60px;flex:1 1 auto}#goalChip .gw{color:#9fb0c4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;max-width:48%}
+body.touchui #goalChip{right:auto;font-size:11px;padding:6px 10px 6px 8px;max-height:34px;box-sizing:border-box}
+body.npcopen #goalChip{display:none}
