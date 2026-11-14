@@ -35,8 +35,10 @@ FXK.vortex=(f,a)=>{const r=f.imp?f.r*(1-a*.8):f.r*(.4+a*.6),turn=now*7;ctx.lineC
     for(let s=0;s<=14;s++){const k=s/14,ang=turn+arm*1.256+k*3.2,d=r*k;const x=f.x+Math.cos(ang)*d,y=f.y-10+Math.sin(ang)*d*.5;s?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();}
   gEll(f.x,f.y,r);ctx.fillStyle=rgba(f.col,.12*(1-a));ctx.fill();};
 // a glowing rune circle on the ground, turning, with a glyph floating over it
-FXK.rune=(f,a)=>{const al=a<.2?a/.2:1-(a-.2)/.8,r=f.r||28,rot=now*2;ctx.strokeStyle=rgba(f.col,.9*al);ctx.lineWidth=2;gEll(f.x,f.y,r);ctx.stroke();gEll(f.x,f.y,r*.72);ctx.stroke();
-  for(let i=0;i<8;i++){const ang=rot+i*.785;ctx.beginPath();ctx.moveTo(f.x+Math.cos(ang)*r*.72,f.y+Math.sin(ang)*r*.36);ctx.lineTo(f.x+Math.cos(ang)*r,f.y+Math.sin(ang)*r*.5);ctx.stroke();}
+FXK.rune=(f,a)=>{const al=a<.2?a/.2:1-(a-.2)/.8,r=f.r||28,rot=now*2;ctx.strokeStyle=rgba(f.col,.9*al);ctx.lineWidth=2;
+  // both rings and the eight ticks in one path, one stroke
+  ctx.beginPath();ctx.ellipse(f.x,f.y,r,r*.5,0,0,7);ctx.moveTo(f.x+r*.72,f.y);ctx.ellipse(f.x,f.y,r*.72,r*.36,0,0,7);
+  for(let i=0;i<8;i++){const ang=rot+i*.785;ctx.moveTo(f.x+Math.cos(ang)*r*.72,f.y+Math.sin(ang)*r*.36);ctx.lineTo(f.x+Math.cos(ang)*r,f.y+Math.sin(ang)*r*.5);}ctx.stroke();
   if(f.g){ctx.fillStyle=rgba(f.col,al);ctx.font='800 22px "Alegreya Sans",sans-serif';ctx.textAlign='center';if(!window.LITE){ctx.shadowColor=f.col;ctx.shadowBlur=10;}ctx.fillText(f.g,f.x,f.y-32-a*16);ctx.shadowBlur=0;}};
 // a beam of light from the sky (f.sun: a sun disc rides down it)
 FXK.beam=(f,a)=>{const w=(f.w||22)*(1-a*.4),top=f.y-280,g=ctx.createLinearGradient(0,top,0,f.y);g.addColorStop(0,rgba(f.col,0));g.addColorStop(1,rgba(f.col,.75*(1-a)));

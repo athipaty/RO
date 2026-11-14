@@ -596,7 +596,7 @@ function drawFx(){
     switch(f.k){
       case 'critburst':ctx.strokeStyle=`rgba(255,226,120,${1-a})`;ctx.lineWidth=3;for(let k=0;k<10;k++){const ang=k/10*Math.PI*2+.3,r1=8+a*18,r2=18+a*40;ctx.beginPath();ctx.moveTo(f.x+Math.cos(ang)*r1,f.y+Math.sin(ang)*r1);ctx.lineTo(f.x+Math.cos(ang)*r2,f.y+Math.sin(ang)*r2);ctx.stroke();}break;
       case 'spark':{ctx.globalAlpha=1-a;ctx.strokeStyle=f.col||'#fff6d0';ctx.lineWidth=2.5;ctx.lineCap='round';
-        for(let k=0;k<6;k++){const ang=k/6*Math.PI*2+f.r,r1=4+a*10,r2=10+a*20;ctx.beginPath();ctx.moveTo(f.x+Math.cos(ang)*r1,f.y+Math.sin(ang)*r1*.8);ctx.lineTo(f.x+Math.cos(ang)*r2,f.y+Math.sin(ang)*r2*.8);ctx.stroke();}
+        ctx.beginPath();for(let k=0;k<6;k++){const ang=k/6*Math.PI*2+f.r,r1=4+a*10,r2=10+a*20;ctx.moveTo(f.x+Math.cos(ang)*r1,f.y+Math.sin(ang)*r1*.8);ctx.lineTo(f.x+Math.cos(ang)*r2,f.y+Math.sin(ang)*r2*.8);}ctx.stroke(); // six rays, one stroke
         ctx.fillStyle='#fffbe8';ctx.beginPath();ctx.arc(f.x,f.y,7*(1-a)+1,0,7);ctx.fill();ctx.globalAlpha=1;break;}
       case 'ring':ctx.strokeStyle=f.col;ctx.globalAlpha=1-a;ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(f.x,f.y,f.r*(.4+.6*a),f.r*(.4+.6*a)*.6,0,0,7);ctx.stroke();ctx.globalAlpha=1;break;
       case 'nova':ctx.globalAlpha=(1-a)*.6;ctx.fillStyle='#bfe8ff';ctx.beginPath();ctx.ellipse(f.x,f.y,f.r*a,f.r*a*.6,0,0,7);ctx.fill();ctx.globalAlpha=1;

@@ -58,6 +58,13 @@ function renderParty(){const box=$('#partyBox'),p=SOC.party;box.hidden=!p;if(!p)
   // the loot rule needs a server that knows it (older ones send no loot field)
   const lb=$('#pLoot');lb.hidden=!lead||!p.loot;lb.textContent=p.loot==='turns'?'Loot: each own':'Loot: take turns';lb.title=p.loot==='turns'?'Everyone rolls their own drops again':'One drop roll per kill, given to each member in turn';
   const mb=$('#pMode');mb.hidden=!lead;mb.textContent=p.mode==='share'?'Each keeps own':'Share EXP';
+  // the rows are rebuilt only when something in them changes (rebuilding twice a second wasted work and could swallow a tap
+  // on Follow); otherwise just the HP bars move
+  const fol=m=>typeof following==='function'&&following(m.peer);
+  const key=p.leader+'|'+lead+'|'+p.members.map(m=>{const o=NET.others.get(m.peer);return m.peer+':'+m.name+':'+(!o?'a':o.dead?'d':o.z===zoneId?'':o.z)+':'+(fol(m)?1:0);}).join(',');
+  if(list._key===key&&list.children.length===p.members.length){p.members.forEach((m,i)=>{const isMe=m.peer===me,o=NET.others.get(m.peer),hp=isMe?(S?P.hp/S.maxhp:1):o?(o.hp||0)/100:0;
+      const bar=list.children[i].querySelector('.ph'),v=(clamp(hp,0,1)*100).toFixed(0)+'%';if(bar&&bar._hp!==v){bar._hp=v;bar.style.setProperty('--hp',v);}});return;}
+  list._key=key;
   list.textContent='';
   for(const m of p.members){const isMe=m.peer===me,o=NET.others.get(m.peer);
     const row=document.createElement('div');row.className='pmr';
