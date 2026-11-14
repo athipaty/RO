@@ -30,7 +30,7 @@ function vib(pattern,gap){if(!vibOn())return;const t=performance.now();if(t-VIB.
 function levelCard(lines,btns){let el=document.getElementById('lvCard');
   if(!el){el=document.createElement('div');el.id='lvCard';el.setAttribute('role','status');document.body.appendChild(el);
     el.addEventListener('click',ev=>{const b=ev.target.closest('[data-lv]');if(b){ev.stopPropagation();const k=b.dataset.lv;el.classList.remove('show');
-        if(k==='stats')openPanel('status');else if(k==='skills')openPanel('skills');return;}el.classList.remove('show');});}
+        if(k==='stats')openPanel('status');else if(k==='skills')openPanel('skills');else if(k==='quests')openPanel('quests');return;}el.classList.remove('show');});}
   el.innerHTML=`<div class="lvt">${lines[0]}</div>${lines.slice(1).map(s=>`<div class="lvs">${s}</div>`).join('')}`+(btns.length?`<div class="lvb">${btns.map(([k,l])=>`<button class="btn small" data-lv="${k}">${l}</button>`).join('')}</div>`:'');
   el.classList.remove('show');void el.offsetWidth;el.classList.add('show');clearTimeout(levelCard.t);levelCard.t=setTimeout(()=>el.classList.remove('show'),5200);}
 {const _ge=gainExp;gainExp=function(){const lv=P.lv,jl=P.jl,sp=P.statPts,kp=P.skillPts;const r=_ge.apply(this,arguments);

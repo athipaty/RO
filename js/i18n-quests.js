@@ -274,3 +274,7 @@ TH_PAT.unshift([/^Founding a guild costs ([\d,]+) gold\.$/,'การก่อ�
 Object.assign(TH,{'That guild name is taken.':'ชื่อกิลด์นี้มีคนใช้แล้ว','Leave your guild first.':'ออกจากกิลด์เดิมก่อน','Could not create the guild.':'สร้างกิลด์ไม่สำเร็จ',
   'Something went wrong with the guild. Try again.':'เกิดข้อผิดพลาดกับกิลด์ ลองใหม่อีกครั้ง',"Guild names are 3-20 letters, numbers, spaces, ' or -.":"ชื่อกิลด์ต้องยาว 3-20 ตัว ใช้ตัวอักษรภาษาอังกฤษ ตัวเลข ช่องว่าง ' หรือ -",
   'Guilds need an account. Log in from the title screen to create or join one.':'กิลด์ต้องใช้บัญชี เข้าสู่ระบบจากหน้าแรกเพื่อสร้างหรือเข้าร่วม'});
+// quest log leftovers
+Object.assign(TH,{'Pin a quest to see it in your status box. Talk to people with a':'ปักหมุดเควสเพื่อแสดงในกล่องสถานะ คุยกับคนที่มีเครื่องหมาย','over their head for new quests.':'เหนือหัวเพื่อรับเควสใหม่','Pin':'ปักหมุด'});
+TH_PAT.unshift([/^Bring (.+) (\d+)\/(\d+)$/,'นำ $1 มา $2/$3'],[/^No active quests\.\s*(.*)$/,(m,a)=>`ยังไม่มีเควส ${a?thText(a):''}`],[/^(.+) has something for you\.$/,(m,a)=>`${NPC_TH[a]||a} มีงานให้คุณ`],
+  [/^(\d+)\/(\d+) chapters complete(.*)$/,(m,a,b,c)=>`จบแล้ว ${a}/${b} บท${c?' Hearthvale ปลอดภัย ในตอนนี้':''}`],[/^The next chapter opens at Base Lv (\d+)\.$/,'บทถัดไปเปิดที่เลเวลฐาน $1']);

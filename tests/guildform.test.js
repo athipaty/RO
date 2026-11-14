@@ -7,7 +7,7 @@ module.exports = async t => {
     const r = await g.ev(async () => { const sleep = ms => new Promise(r => setTimeout(r, ms)), out = {};
       // pretend: logged in, server reachable; a fake socket records what is sent and lets us answer
       const H = {}, sent = []; const fake = { connected: true, id: 'me', on: (ev, fn) => { (H[ev] = H[ev] || []).push(fn); }, emit: (ev, d) => sent.push(ev) };
-      guildAttach(fake); const keep = { tok: ACC.token, room: NET.room, sock: SOCK }; ACC.token = 'x'; NET.room = { server: true, presence: () => {}, send: () => {}, leave: () => {} }; SOCK = fake; P.gold = 20000;
+      guildAttach(fake); const keep = { tok: ACC.token, room: NET.room, sock: SOCK }; ACC.token = 'x'; NET.room = { server: true, presence: () => Promise.resolve(), send: () => Promise.resolve(), leave: () => Promise.resolve() }; SOCK = fake; P.gold = 20000;
       openPanel('guild'); await sleep(50);
       document.getElementById('gName').value = 'สมาคมไทย'; panel.querySelector('[data-act="gcreate"]').click(); await sleep(50);
       out.thai = (panel.querySelector('.gmsg') || {}).textContent || ''; out.notSent = !sent.includes('guildCreate');
