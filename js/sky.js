@@ -28,7 +28,7 @@ function drawSky(){if(!Z||!P)return;const t=performance.now(),dt=Math.min(.05,(t
   if(hasSky()){const h=gameHour(),d=darkness(h)*(skyOn?.55:.35);
     if(d>0){const lc=skyLayer(W,H),g=lc.getContext('2d');g.setTransform(lc.width/W,0,0,lc.height/H,0,0);g.globalCompositeOperation='source-over';g.clearRect(0,0,W,H);
       g.fillStyle=`rgba(12,16,44,${d})`;g.fillRect(0,0,W,H);g.globalCompositeOperation='destination-out';
-      const hole=(x,y,r)=>{const gr=g.createRadialGradient(x,y,r*.15,x,y,r);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.beginPath();g.arc(x,y,r,0,7);g.fill();};
+      const hs=skyHoleSprite(),hole=(x,y,r)=>g.drawImage(hs,x-r,y-r,r*2,r*2); // one soft light picture, stamped for each light
       const me=scr(P.x,P.y);hole(me.x,me.y-16,Math.min(W,H)*.32);
       for(const n of Z.npcs){const p=scr(n.x,n.y);if(p.x>-100&&p.x<W+100&&p.y>-100&&p.y<H+100)hole(p.x,p.y-16,110);}
       for(const o of NET.others.values())if(o.z===zoneId){const p=scr(o.rx,o.ry);hole(p.x,p.y-16,120);}
@@ -39,7 +39,7 @@ function drawSky(){if(!Z||!P)return;const t=performance.now(),dt=Math.min(.05,(t
   const kind=skyOn?weatherNow(zoneId):'clear';if(kind!==SKY.kind||SKY.lite!==!!window.LITE){SKY.kind=kind;SKY.lite=!!window.LITE;SKY.parts=skyParts(kind);}
   if(kind==='rain'||kind==='blizzard'||kind==='snow'||kind==='sand'){ctx.fillStyle=kind==='sand'?'rgba(200,150,80,.22)':kind==='rain'?'rgba(40,60,90,.16)':'rgba(220,235,250,.12)';ctx.fillRect(0,0,W,H);}
   if(kind==='fog'){SKY.fogX+=dt*12;for(let i=0;i<4;i++){const x=((SKY.fogX*(1+i*.3)+i*W*.4)%(W*1.6))-W*.3,y=H*(.2+i*.22);
-    const gr=ctx.createRadialGradient(x,y,10,x,y,W*.45);gr.addColorStop(0,'rgba(230,236,240,.35)');gr.addColorStop(1,'rgba(230,236,240,0)');ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);}}
+    const gr=ctx.createRadialGradient(x,y,10,x,y,W*.45);gr.addColorStop(0,'rgba(230,236,240,.35)');gr.addColorStop(1,'rgba(230,236,240,0)');ctx.fillStyle=gr;const R=W*.45,x0=Math.max(0,x-R),y0=Math.max(0,y-R),x1=Math.min(W,x+R),y1=Math.min(H,y+R);if(x1>x0&&y1>y0)ctx.fillRect(x0,y0,x1-x0,y1-y0);}} // only the patch's own square (outside it the fog is clear)
   // all drops of one kind go into a single path and are drawn once (one stroke per drop was slow)
   if(kind==='rain'){ctx.strokeStyle='rgba(180,210,240,.55)';ctx.lineWidth=1.2;ctx.beginPath();}
   else if(kind==='snow'||kind==='blizzard'){ctx.fillStyle='rgba(255,255,255,.85)';ctx.beginPath();}
@@ -53,6 +53,9 @@ function drawSky(){if(!Z||!P)return;const t=performance.now(),dt=Math.min(.05,(t
     if(p.y>1.05){p.y=-.05;p.x=Math.random()*1.2-.1;}if(p.y<-.05){p.y=1.05;p.x=Math.random();}if(p.x>1.05)p.x=-.05;if(p.x<-.05)p.x=1.05;}
   if(kind==='rain'||kind==='sand')ctx.stroke();else if(kind==='snow'||kind==='blizzard'||kind==='embers')ctx.fill();
   ctx.restore();}
+// the light around you, townsfolk and other players at night: a radial fade made once (was a new gradient per light per frame)
+let skyHoleC=null;function skyHoleSprite(){if(skyHoleC)return skyHoleC;const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
+  const gr=g.createRadialGradient(64,64,64*.15,64,64,64);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.beginPath();g.arc(64,64,64,0,7);g.fill();return skyHoleC=c;}
 let skyLayerC=null;function skyLayer(W,H){if(!skyLayerC)skyLayerC=document.createElement('canvas');const k=window.LITE?.25:.34,w=Math.max(1,Math.round(W*k)),h=Math.max(1,Math.round(H*k));if(skyLayerC.width!==w||skyLayerC.height!==h){skyLayerC.width=w;skyLayerC.height=h;}return skyLayerC;}
 
 /* ---- the region line under the minimap: level range · time of day · weather ---- */

@@ -202,6 +202,11 @@ function render(){
   if(P&&ailOn('blind'))drawBlind();
 }
 const amb=[];let ambZone=null,ambLast=0;
+// a soft glowing dot (what shadowBlur 6 around a 1.6 px dot looks like), drawn once per colour and stamped
+const GLOW_DOTS=new Map();
+function glowDot(col){let c=GLOW_DOTS.get(col);if(c)return c;c=document.createElement('canvas');c.width=c.height=32;const g=c.getContext('2d');
+  const gr=g.createRadialGradient(16,16,0,16,16,16);gr.addColorStop(0,col);gr.addColorStop(.2,col);gr.addColorStop(.32,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,32,32);
+  g.globalAlpha=.55;g.shadowColor=col;g.shadowBlur=12;g.fillStyle=col;g.beginPath();g.arc(16,16,3.2,0,7);g.fill();GLOW_DOTS.set(col,c);return c;}
 const AMB={meadow:{n:18,col:'#fff6a8'},woods:{n:26,col:'#d8ff7a'},dunes:{n:40,col:'rgba(230,200,140,.7)'},crypt:{n:34,col:'#ff9a4a'},frost:{n:70,col:'#ffffff'},town:{n:10,col:'#ffd8e8'}};
 const REDUCED_MOTION=matchMedia('(prefers-reduced-motion: reduce)');
 function drawAmbient(){
@@ -216,7 +221,7 @@ function drawAmbient(){
     else{a.x+=Math.sin(a.p*.8+a.s)*dt*18;a.y+=Math.cos(a.p*.6)*dt*14;}
     if(a.y>VH+10)a.y=-10;if(a.y<-10)a.y=VH+10;if(a.x>VW+10)a.x=-10;if(a.x<-10)a.x=VW+10;
     ctx.fillStyle=cfg.col;
-    if(zoneId==='woods'||zoneId==='meadow'){ctx.globalAlpha=.35+.65*Math.abs(Math.sin(a.p*2));ctx.shadowColor=cfg.col;ctx.shadowBlur=6;ctx.beginPath();ctx.arc(a.x,a.y,1.6*a.s,0,7);ctx.fill();ctx.shadowBlur=0;}
+    if(zoneId==='woods'||zoneId==='meadow'){ctx.globalAlpha=.35+.65*Math.abs(Math.sin(a.p*2));const gl=glowDot(cfg.col),r=8*a.s;ctx.drawImage(gl,a.x-r,a.y-r,r*2,r*2);}
     else if(zoneId==='dunes'){ctx.globalAlpha=.5;ctx.fillRect(a.x,a.y,6*a.s,1);}
     else if(zoneId==='town'){ctx.globalAlpha=.8;ctx.beginPath();ctx.ellipse(a.x,a.y,2.4*a.s,1.4*a.s,a.p,0,7);ctx.fill();}
     else{ctx.globalAlpha=zoneId==='crypt'?.4+.6*Math.abs(Math.sin(a.p*3)):.85;ctx.beginPath();ctx.arc(a.x,a.y,(zoneId==='frost'?1.8:1.3)*a.s,0,7);ctx.fill();}
@@ -601,8 +606,10 @@ function drawFx(){
         ctx.strokeStyle=`rgba(255,255,255,${1-a})`;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,17+a*6,-2+a*1.2,-.4+a*1.2);ctx.stroke();ctx.restore();break;}
       case 'impact':{ctx.fillStyle=`rgba(255,255,255,${(1-a)*.95})`;ctx.beginPath();for(let k=0;k<16;k++){const r=k%2?3+a*5:8+a*20,an=k/16*Math.PI*2+.2;ctx.lineTo(f.x+Math.cos(an)*r,f.y+Math.sin(an)*r*.8);}ctx.closePath();ctx.fill();
         ctx.strokeStyle=`rgba(255,220,150,${(1-a)*.8})`;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(f.x,f.y,10+a*26,(10+a*26)*.6,0,0,7);ctx.stroke();break;}
-      case 'bolt':{ctx.strokeStyle=`rgba(220,200,255,${1-a})`;ctx.lineWidth=3;ctx.shadowColor='#c8b0ff';ctx.shadowBlur=12;ctx.beginPath();let bx=f.x,by=f.y-200;ctx.moveTo(bx,by);
-        for(let k=0;k<6;k++){bx+=rnd(-12,12);by+=33;ctx.lineTo(bx,by);}ctx.stroke();ctx.shadowBlur=0;break;}
+      case 'bolt':{ctx.beginPath();let bx=f.x,by=f.y-200;ctx.moveTo(bx,by);for(let k=0;k<6;k++){bx+=rnd(-12,12);by+=33;ctx.lineTo(bx,by);}
+        // the glow is a wide faint stroke under the bolt (a blur shadow on every frame was costly)
+        ctx.lineJoin='round';ctx.strokeStyle=`rgba(200,176,255,${.22*(1-a)})`;ctx.lineWidth=12;ctx.stroke();ctx.strokeStyle=`rgba(200,176,255,${.35*(1-a)})`;ctx.lineWidth=6;ctx.stroke();
+        ctx.strokeStyle=`rgba(220,200,255,${1-a})`;ctx.lineWidth=3;ctx.stroke();break;}
       case 'arrowfall':{const y=f.y-90*(1-a);ctx.strokeStyle='#e8dcb0';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(f.x,y-14);ctx.lineTo(f.x,y);ctx.stroke();break;}
       case 'pillar':{const g=ctx.createLinearGradient(f.x,f.y-120,f.x,f.y);g.addColorStop(0,'rgba(255,250,200,0)');g.addColorStop(1,`rgba(255,245,180,${.8*(1-a)})`);ctx.fillStyle=g;ctx.fillRect(f.x-14,f.y-120,28,122);break;}
       case 'heal':for(let k=0;k<6;k++){ctx.fillStyle=`rgba(140,240,150,${1-a})`;const ang=k*1.05+now*3;ctx.fillRect(f.x+Math.cos(ang)*14-2,f.y-10-a*30-k*3,4,4);}break;

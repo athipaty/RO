@@ -543,7 +543,7 @@ body.touchui #emoteBar{left:max(10px,env(safe-area-inset-left));transform:none;b
 @media (prefers-reduced-motion:reduce){.shotflash{animation:none;opacity:0}}
 /* ===== #62 extra hotbar rows above the main bar ===== */
 #hotrows{position:fixed;left:50%;transform:translateX(-50%);bottom:70px;display:flex;flex-direction:column;gap:4px;z-index:5;pointer-events:none}
-#hotrows .hrow{display:flex;gap:5px;padding:5px;border-radius:14px;background:rgba(14,18,26,.72);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(8px);pointer-events:auto}
+#hotrows .hrow{display:flex;gap:5px;padding:5px;border-radius:14px;background:rgba(14,18,26,.86);border:1px solid rgba(255,255,255,.08);pointer-events:auto}
 #hotrows .slot.empty{opacity:.45;border-style:dashed}
 #hotrows .slot .k{font-size:9px}
 #hotrows .slot[draggable=true]{cursor:grab}
