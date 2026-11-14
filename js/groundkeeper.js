@@ -38,7 +38,8 @@ function gkBlank(z){const c=z&&z._iso;if(!c)return false;if(!c.width)return true
     pg.clearRect(0,0,1,1);pg.drawImage(c,Math.max(0,Math.min(c.width-1,cx)),Math.max(0,Math.min(c.height-1,cy)),1,1,0,0,1,1);
     return pg.getImageData(0,0,1,1).data[3]===0;}catch(e){return false;}}
 // throw away pictures that may have been wiped with the ground (they redraw themselves on next use)
-function gkClearCaches(){try{if(typeof LABELS!=='undefined')LABELS.clear();}catch(e){}
+function gkClearCaches(){try{if(typeof smallPicsClear==='function')smallPicsClear();}catch(e){}
+  try{if(typeof LABELS!=='undefined')LABELS.clear();}catch(e){}
   try{if(typeof SPR!=='undefined')for(const k in SPR)delete SPR[k];}catch(e){}
   try{if(typeof NPC_SPR!=='undefined')NPC_SPR.clear();if(typeof MARK_SPR!=='undefined')MARK_SPR.clear();}catch(e){}
   try{if(typeof texts!=='undefined')for(const t of texts)t.img=null;if(typeof GLYPHS!=='undefined')GLYPHS.clear();}catch(e){}}

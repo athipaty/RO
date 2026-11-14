@@ -133,7 +133,22 @@ function bldCacheBlit(b,draw){if(window.__bldLive||typeof DPR!=='number'||!DPR)r
     const c=document.createElement('canvas');c.width=Math.ceil((maxX-minX)*DPR);c.height=Math.ceil((maxY-minY)*DPR);const g=c.getContext('2d');
     if(!g||!c.width||!c.height)return false;g.setTransform(DPR,0,0,DPR,-minX*DPR,-minY*DPR);
     const main=ctx,t0=now;ctx=g;now=0;try{draw();}catch(err){ctx=main;now=t0;return false;}finally{ctx=main;now=t0;}
-    e={c,x:minX,y:minY,w:c.width/DPR,h:c.height/DPR};BLD_CACHE.map.set(key,e);}
+    // a spot on the front wall (always painted) to check later that the picture was not wiped by the browser
+    const wall=proj((X0+X1-30)/2,Y1-30);e={c,x:minX,y:minY,w:c.width/DPR,h:c.height/DPR,cx:Math.round((wall.x-minX)*DPR),cy:Math.round((wall.y-20-minY)*DPR)};BLD_CACHE.map.set(key,e);}
   // a building that hides your hero is faded (globalAlpha .5): drawn shape by shape that looked almost solid, so the
   // single picture is faded only a little to keep the same look (your hero is drawn on top anyway)
   const a0=ctx.globalAlpha;if(a0<1)ctx.globalAlpha=Math.min(1,a0+.3);ctx.drawImage(e.c,e.x,e.y,e.w,e.h);ctx.globalAlpha=a0;return true;}
+
+/* ---- keep the building pictures alive (phones can wipe pictures while the game is in the background) ---- */
+function bldCacheClear(){BLD_CACHE.map.clear();BLD_CACHE.zone=null;}
+// a wiped picture reads as transparent at its wall spot: checked through a 1x1 canvas, never reading the picture itself
+function bldCacheCheck(){if(!BLD_CACHE.map.size)return;try{const pc=bldCacheCheck.pc||(bldCacheCheck.pc=document.createElement('canvas'));pc.width=pc.height=1;const g=pc.getContext('2d',{willReadFrequently:true});
+  for(const e of BLD_CACHE.map.values()){if(!e.c.width){bldCacheClear();return;}g.clearRect(0,0,1,1);g.drawImage(e.c,Math.max(0,Math.min(e.c.width-1,e.cx)),Math.max(0,Math.min(e.c.height-1,e.cy)),1,1,0,0,1,1);
+    if(g.getImageData(0,0,1,1).data[3]===0){bldCacheClear();return;}}}catch(err){}}
+{const _ezB=enterZone;enterZone=function(){bldCacheClear();return _ezB.apply(this,arguments);};}
+// the other small pictures made once and reused (glows, loot beams, night lights): forget them too
+function smallPicsClear(){bldCacheClear();try{if(typeof GLOW_DOTS!=='undefined')GLOW_DOTS.clear();if(typeof BEAMS!=='undefined')BEAMS.clear();if(typeof NL_GLOW!=='undefined')NL_GLOW=null;if(typeof skyHoleC!=='undefined')skyHoleC=null;}catch(e){}}
+const bldSoon=()=>smallPicsClear();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)bldSoon();});addEventListener('pageshow',bldSoon);
+if(typeof cv!=='undefined'&&cv)cv.addEventListener('contextrestored',bldSoon);
+setInterval(()=>{if(!document.hidden)bldCacheCheck();},3000);
