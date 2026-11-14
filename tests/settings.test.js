@@ -5,7 +5,7 @@ module.exports = async t => {
   try {
     await wait(1500);
     const open = await g.ev(() => { document.querySelector('[data-open="settings"]').click(); return { kind: panelKind, n: panel.querySelectorAll('.setlist:not(.keybinds) .setrow').length, kb: panel.querySelectorAll('.keybinds .setrow').length, want: KEY_ACTIONS.length }; });
-    t.ok(open.kind === 'settings' && open.n === 12 && open.kb === open.want && open.kb >= 24, `the dock opens Settings with sound, display and ${open.kb} key options`);
+    t.ok(open.kind === 'settings' && open.n === 13 && open.kb === open.want && open.kb >= 24, `the dock opens Settings with sound, display and ${open.kb} key options`);
     const vol = await g.ev(() => { audioInit(); const s = panel.querySelector('[data-set="mv"]'); s.value = 40; s.dispatchEvent(new Event('input', { bubbles: true }));
       const saved = JSON.parse(localStorage.getItem('embervale.audio')); return { mv: AU.mv, saved: saved.mv, label: s.parentElement.querySelector('.val').textContent, gain: AU.mus ? +AU.mus.gain.value.toFixed(3) : null }; });
     t.ok(vol.mv === .4 && vol.saved === .4 && vol.label === '40%', `the music slider sets and saves the volume (${vol.label})`);

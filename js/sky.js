@@ -32,6 +32,7 @@ function drawSky(){if(!Z||!P)return;const t=performance.now(),dt=Math.min(.05,(t
       const me=scr(P.x,P.y);hole(me.x,me.y-16,Math.min(W,H)*.32);
       for(const n of Z.npcs){const p=scr(n.x,n.y);if(p.x>-100&&p.x<W+100&&p.y>-100&&p.y<H+100)hole(p.x,p.y-16,110);}
       for(const o of NET.others.values())if(o.z===zoneId){const p=scr(o.rx,o.ry);hole(p.x,p.y-16,120);}
+      if(typeof nightLights==='function')for(const l of nightLights())hole(l.x,l.y,l.r); // lit windows in town
       ctx.drawImage(lc,0,0,W,H);}
     const warm=h>=5&&h<7?1-Math.abs(h-6):h>=17&&h<20?1-Math.abs(h-18.5)/1.5:0;
     if(warm>0){ctx.fillStyle=`rgba(255,140,60,${.12*warm})`;ctx.fillRect(0,0,W,H);}}

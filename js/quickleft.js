@@ -55,9 +55,11 @@
   function stackUpright(){
     const pb=document.getElementById('partyBox'),hud=document.getElementById('hud'),q=document.getElementById('quick'),ob=document.getElementById('onlineBadge'),bf=document.getElementById('buffs'),mb=document.getElementById('minibox');
     if(pb&&hud){const hr=hud.getBoundingClientRect();let top=hr.bottom+6;pb.style.left='';pb.style.maxHeight='';pb.style.overflowY='';
-      if(vis(q)){const qr=q.getBoundingClientRect(),w=pb.getBoundingClientRect().width||175;if(qr.left<hr.left+w+6&&qr.bottom>top)top=qr.bottom+8;}
+      const qTop=vis(q)&&!document.body.classList.contains('thumbq'); // in the thumb column (js/phoneui.js) they are not up here
+      if(qTop){const qr=q.getBoundingClientRect(),w=pb.getBoundingClientRect().width||175;if(qr.left<hr.left+w+6&&qr.bottom>top)top=qr.bottom+8;}
+      if(mb&&vis(mb)){const mr=mb.getBoundingClientRect(),w=pb.getBoundingClientRect().width||175;if(hr.left+w+6>mr.left&&mr.bottom>top)top=Math.max(top,mr.bottom+8);} // too wide to sit beside the map
       pb.style.top=Math.round(top)+'px';}
-    if(bf&&mb){const mr=mb.getBoundingClientRect();let top=mr.bottom+8;for(const e of [q,ob])if(vis(e))top=Math.max(top,e.getBoundingClientRect().bottom+8);
+    if(bf&&mb){const mr=mb.getBoundingClientRect();let top=mr.bottom+8;for(const e of [document.body.classList.contains('thumbq')?null:q,ob])if(e&&vis(e))top=Math.max(top,e.getBoundingClientRect().bottom+8);
       bf.style.flexDirection='';bf.style.left='';bf.style.top=Math.round(top)+'px';bf.style.right=Math.round(innerWidth-mr.right)+'px';bf.style.marginTop='0';}}
   window.phoneLayout=sync;
   sync();setInterval(sync,300);addEventListener('resize',()=>setTimeout(sync,60));
