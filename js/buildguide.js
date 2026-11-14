@@ -76,7 +76,19 @@ const BUILDS=[
     gear:['dawnmace','quickgrip','stonewall'],sigils:['cactoid','cavetroll','hopper','dunetyrant'],awaken:['aspd','atkpct']},
 ];
 const buildById=id=>BUILDS.find(b=>b.id===id);
-const GUIDE={job:null};
+const GUIDE={job:null,open:null};
+// your hero dressed as a job (that job's outfit, mantle and a weapon it uses), drawn once per job and look
+const JOBPIC={};
+function jobPicURL(cls){const C=CLASSES[cls];if(!C||!P)return '';const key=cls+'|'+JSON.stringify(P.look||{})+'|'+P.name;if(JOBPIC[key])return JOBPIC[key];
+  const base=CLASSES[baseJob(cls)]||C,wid=base.gift&&ITEMS[base.gift]?base.gift:null;
+  const c=document.createElement('canvas');c.width=112;c.height=128;const g=c.getContext('2d');g.scale(2,2);const main=ctx;ctx=g;
+  try{drawPlayer({name:P.name,look:P.look,cls,eq:wid?{weapon:{id:wid}}:{},x:28,y:56,face:1,back:false,moving:false,sitting:false,held:true},wid);}catch(e){}finally{ctx=main;}
+  return JOBPIC[key]=c.toDataURL();}
+// how you reach a job of a route
+function jobHowTo(cls){const C=CLASSES[cls];if(!C)return '';
+  if(!C.tier||C.tier===1)return `Job Lv 10 as a Novice, then talk to Guildmaster Corvin in Hearthvale.`;
+  if(C.tier===2)return `Job Lv ${typeof JOB2_LV!=='undefined'?JOB2_LV:40}, then pass Guildmaster Corvin's trial in the Guild Hall.`;
+  return `Be Reborn, reach job level ${typeof JOB3_LV!=='undefined'?JOB3_LV:50} and base level ${typeof JOB3_BASE_LV!=='undefined'?JOB3_BASE_LV:50}, then pass Seer Valen's Trial of Ascension in Aurelmark.`;}
 // the next skill level to take for a build (requirements first); null when everything you can learn is done
 function buildNextSkill(b){if(!P||!b)return null;const can=new Set(CLASSES[P.cls]?CLASSES[P.cls].skills:[]),seen=new Set();
   const need=(id,lv)=>{if(seen.has(id))return null;seen.add(id);const r=SKILL_REQ[id]||{};
@@ -101,9 +113,16 @@ PANELS.buildguide=()=>{const mine=P&&P.cls!=='novice'?baseJob(P.cls):null;if(min
     const nx=on?buildNextSkill(b):null,ns=on?buildNextStat(b):null,tot=Object.values(b.stats).reduce((a,v)=>a+v,0);
     h+=`<div class="bgcard${on?' on':''}"><div class="bghead"><div class="grow"><div class="nm">${esc(bName(b))} <span class="muted">· ${esc(b.tag)}</span></div><div class="ds">${esc(b.desc)}</div></div>`+
       (on?`<button class="btn small ghost" data-act="buildpick" data-arg="">Stop following</button>`:buildAllowed(b)?`<button class="btn small" data-act="buildpick" data-arg="${b.id}">Follow this build</button>`:'')+`</div>`;
-    h+=`<div class="bgroute">`+b.route.map(c=>`<span class="${P.cls===c?'here':''}">${esc(CLASSES[c].name)}</span>`).join('<i>→</i>')+`</div>`;
+    const at=b.route.indexOf(P.cls),nextJob=P.cls==='novice'?b.route[0]:at>=0?b.route[at+1]:null,openJob=GUIDE.open&&GUIDE.open[0]===b.id?GUIDE.open[1]:null;
+    h+=`<div class="bgroute">`+b.route.map(c=>`<button class="bgjob${P.cls===c?' here':''}${c===nextJob?' next':''}${c===openJob?' open':''}" data-act="guideroute" data-arg="${b.id}:${c}" aria-expanded="${c===openJob}" title="${esc(CLASSES[c].name)}">`+
+      `<img src="${jobPicURL(c)}" alt="" style="background:radial-gradient(circle at 50% 60%,${CLASSES[c].acc||CLASSES[c].col}55,transparent 70%)"><span style="color:${CLASSES[c].acc||CLASSES[c].col}">${esc(CLASSES[c].name)}</span>${P.cls===c?'<small>You</small>':c===nextJob?'<small>Next ▸</small>':''}</button>`).join('<i>→</i>')+`</div>`;
+    if(openJob){const C=CLASSES[openJob];h+=`<div class="bgjobcard"><img src="${jobPicURL(openJob)}" alt="" style="background:radial-gradient(circle at 50% 60%,${C.acc||C.col}55,transparent 70%)"><div class="grow"><div class="nm" style="color:${C.acc||C.col}">${esc(C.name)}</div><div class="ds">${esc(C.desc||'')}</div>`+
+      `<div class="ds"><b>How to get it:</b> ${jobHowTo(openJob)}</div><div class="bgskills">`+(C.own||C.skills).filter(id=>SKILLS[id]).map(id=>`<span class="bgsk" title="${esc(SKILLS[id].name)}">${typeof skillIconURL==='function'?`<img src="${skillIconURL(id)}" alt="">`:''}${esc(SKILLS[id].name)}</span>`).join('')+`</div></div></div>`;}
     if(on)h+=`<div class="bgnext">${nx?`Next skill: <b>${esc(SKILLS[nx.id].name)} Lv ${nx.lv}</b>`:'All skills you can learn now are done for this build.'}${ns?` · next stat: <b>${ns.toUpperCase()}</b>`:''}</div>`;
-    h+=`<h3>Stats</h3><div class="bgstats">`+Object.entries(b.stats).map(([k,v])=>`<div><span>${k.toUpperCase()}</span><i style="width:${Math.round(v/tot*100)}%"></i><b>${P.st[k]}</b></div>`).join('')+`</div>`;
+    // gold: the share of your stat points this build puts in each stat; blue: how your points are shared now
+    const spent=k=>Math.max(0,(P.st[k]||1)-1),mySum=Object.keys(b.stats).reduce((a,k)=>a+spent(k),0);
+    h+=`<h3>Stats</h3><div class="bglegend"><span class="g"></span>This build <span class="y"></span>You now</div><div class="bgstats">`+Object.entries(b.stats).map(([k,v])=>{const goal=Math.round(v/tot*100),mine=mySum?Math.round(spent(k)/mySum*100):0;
+      return `<div><span>${k.toUpperCase()}</span><div class="bgbars"><i style="width:${goal}%"></i><em style="width:${mine}%"></em></div><b>${goal}%</b><small>${mine}%</small></div>`;}).join('')+`</div>`;
     h+=`<h3>Skills, in order</h3><div class="bgskills">`;let tier=-1;
     for(const [id,lv] of b.skills){const sk=SKILLS[id];if(!sk)continue;const ti=b.route.findIndex(c=>CLASSES[c].skills.includes(id));
       if(ti!==tier){tier=ti;h+=`<div class="bgtier">${esc(CLASSES[b.route[Math.max(0,ti)]].name)}</div>`;}
@@ -113,6 +132,7 @@ PANELS.buildguide=()=>{const mine=P&&P.cls!=='novice'?baseJob(P.cls):null;if(min
       b.sigils.filter(m=>ITEMS[m+'_sig']).map(m=>`<span class="bgit">${icon({id:m+'_sig'})}${esc(ITEMS[m+'_sig'].name)}</span>`).join('')+`</div>`+
       `<div class="ds">Awaken for: ${b.awaken.map(k=>esc(AW_NAME[k]||k)).join(', ')}</div></div>`;}
   return h;};
+PANEL_ACTS.guideroute=arg=>{const [id,c]=String(arg).split(':');GUIDE.open=GUIDE.open&&GUIDE.open[0]===id&&GUIDE.open[1]===c?null:[id,c];sfx('click');refreshPanel();};
 PANEL_ACTS.guidejob=j=>{GUIDE.job=j;sfx('click');refreshPanel();};
 PANEL_ACTS.buildpick=id=>{if(id&&!buildAllowed(buildById(id)))return;P.build=id||null;sfx('click');if(id)addLog(`Following the ${bName(buildById(id))} build. The Skills window marks your next skill.`,'l-good');save();refreshPanel();};
 PANEL_ACTS.openguide=()=>{GUIDE.job=null;openPanel('buildguide');};

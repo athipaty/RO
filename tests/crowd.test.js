@@ -8,7 +8,7 @@ module.exports = async t => {
     const r = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); enterZone('meadow'); await w(300);
       for (let i = 0; i < 30; i++) mobs.push(spawnMob(Z.D.mobs[i % Z.D.mobs.length][0]));
       mobs.forEach((m, i) => { m.idx = i; const a = i / mobs.length * 6.28, d = 50 + (i % 6) * 35; m.x = P.x + Math.cos(a) * d; m.y = P.y + Math.sin(a) * d * .7; m.hp = 1e9; m.d = { ...m.d, hp: 1e9, atk: 0 }; });
-      const kinds = new Set(mobs.map(m => m.d.id)).size; CROWD.frame = -1; const on = crowdOn(); CROWD.draws = 0; running = false; await w(50);
+      skyOn = false; const kinds = new Set(mobs.map(m => m.d.id)).size; CROWD.frame = -1; const on = crowdOn(); CROWD.draws = 0; running = false; await w(50);
       now += .1; render(); const draws = CROWD.draws;
       // the picture lands where the monster stands: compare a live drawing with the shared one, pixel for pixel near it
       const m = mobs.find(x => x.d.id === 'sproutling') || mobs[0]; const others = mobs.filter(x => x !== m); others.forEach(x => { x._sx = x.x; x.x = -9999; });

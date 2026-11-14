@@ -262,3 +262,8 @@ const thStatName=n=>TH_BONUS[n]||(/^[A-Z]{2,5}$/.test(n)?n:null);
 function thBonusPart(p){let m=p.match(/^\+(\d+%?) (.+)$/);if(m){const n=thStatName(m[2]);return n?`+${m[1]} ${n}`:null;}
   m=p.match(/^(.+?) ([+−-]?\d[\d.]*%?(?:\/s)?)$/);if(m){const n=thStatName(m[1]);return n?`${n} ${m[2]}`:null;}return null;}
 TH_PAT.push([/^[^,]+(?:, [^,]+)*,?$/,m=>{const end=/,$/.test(m),parts=m.replace(/,$/,'').split(', '),out=parts.map(thBonusPart);return out.every(x=>x)?out.join(', ')+(end?',':''):m;}]);
+// build guide: job pictures in the route, the job card and the stat legend
+Object.assign(TH,{'Next skill:':'สกิลถัดไป:','· next stat:':'· สถานะถัดไป:','This build':'สายนี้','You':'คุณ','Next ▸':'ถัดไป ▸','You now':'ของคุณตอนนี้','How to get it:':'วิธีได้อาชีพนี้:',
+  'Job Lv 10 as a Novice, then talk to Guildmaster Corvin in Hearthvale.':'ถึงเลเวลอาชีพ 10 ตอนเป็นมือใหม่ แล้วคุยกับหัวหน้ากิลด์คอร์วินใน Hearthvale'});
+TH_PAT.unshift([/^Job Lv (\d+), then pass Guildmaster Corvin's trial in the Guild Hall\.$/,'ถึงเลเวลอาชีพ $1 แล้วผ่านบททดสอบของหัวหน้ากิลด์คอร์วินที่หอกิลด์'],
+  [/^Be Reborn, reach job level (\d+) and base level (\d+), then pass Seer Valen's Trial of Ascension in Aurelmark\.$/,'เกิดใหม่ ถึงเลเวลอาชีพ $1 และเลเวลฐาน $2 แล้วผ่านบททดสอบแห่งการเลื่อนขั้นของผู้หยั่งรู้วาเลนที่ Aurelmark']);
