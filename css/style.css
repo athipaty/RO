@@ -1135,3 +1135,14 @@ body.touchui #panel.sheetin{animation:sheetUp .28s cubic-bezier(.2,.9,.3,1)}
 @keyframes sheetUp{from{translate:0 40px;opacity:.4}to{translate:0 0;opacity:1}}
 body.touchui #panel .sheetgrip{width:44px;height:5px;border-radius:3px;background:rgba(255,255,255,.28);margin:-2px auto 6px;touch-action:none}
 body:not(.touchui) #panel .sheetgrip{display:none}
+/* combo counter (js/feel2.js) */
+#combo{position:fixed;right:max(16px,env(safe-area-inset-right));top:42%;z-index:7;pointer-events:none;text-align:center;opacity:0;transform:translateX(20px);transition:opacity .3s,transform .3s}
+#combo.show{opacity:1;transform:none}
+#combo b{display:block;font:900 34px "Alegreya Sans",sans-serif;line-height:1;color:#fff;text-shadow:0 2px 0 #3a2508,0 0 14px rgba(255,190,70,.7)}
+#combo span{font:800 10px Inter,var(--ui);letter-spacing:3px;color:#ffcf5a}
+#combo[data-tier="2"] b{color:#ffd27a}#combo[data-tier="3"] b{color:#ff9a5a;text-shadow:0 2px 0 #3a1008,0 0 18px rgba(255,110,60,.9)}
+#combo.pop b{animation:comboPop .25s ease-out}@keyframes comboPop{0%{transform:scale(1.6)}100%{transform:scale(1)}}
+body.touchui #combo{top:46%;right:auto;left:max(22px,env(safe-area-inset-left));transform:translateX(-12px)}body.touchui #combo.show{transform:none}
+/* loot flying into the bag (js/feel2.js) */
+.lootfly{position:fixed;width:26px;height:26px;z-index:30;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
+.gotloot{animation:gotLoot .35s ease-out}@keyframes gotLoot{40%{transform:scale(1.18)}100%{transform:scale(1)}}
