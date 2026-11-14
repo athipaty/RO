@@ -676,6 +676,11 @@ body.touchui #actions>#rideBtn[hidden]{display:none!important}
 .cmi b{position:absolute;right:-4px;bottom:-5px;font:700 10px Inter,var(--ui);padding:1px 4px;border-radius:6px;background:rgba(10,12,16,.92);color:#ef7a6f;font-variant-numeric:tabular-nums}
 .cmi.ok b{color:#7fd38a}
 .cmi:focus-visible{outline:2px solid var(--accent)}
+.sigstrip{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.sigslot{width:26px;height:26px;border-radius:6px;border:1px dashed rgba(232,194,90,.45);background:rgba(232,194,90,.05);display:grid;place-items:center;flex:none}
+.sigslot.full{border-style:solid;border-color:rgba(255,207,90,.75);background:rgba(255,207,90,.12);cursor:pointer}.sigslot img{width:22px;height:22px;object-fit:contain}
+.sigslot.full:focus-visible{outline:2px solid var(--accent)}
+body.touchui #panel .eqslot .sigstrip{margin-top:2px}body.touchui #panel.npcfull .sigslot{width:30px;height:30px}body.touchui #panel.npcfull .sigslot img{width:26px;height:26px}
 .cmi.nt{border-color:rgba(232,194,90,.45);background:rgba(232,194,90,.07)}.cmi.nt b{color:#f0d890}
 .cmi.mob{flex:none}.cmi.mob img{width:34px;height:34px}.row>.cmi.mob{margin-right:2px}
 .qtap{display:inline-flex;cursor:pointer;border-radius:6px}.qtap .qpic{outline:1px solid rgba(232,194,90,.45)}.qtap:focus-visible{outline:2px solid var(--accent)}

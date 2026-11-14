@@ -106,11 +106,14 @@ function drawArchi(b,A){
     ctx.fillStyle=shade(rc,40);ctx.beginPath();ctx.moveTo(tt.x-r-3,tt.y);ctx.lineTo(tt.x,tt.y-44);ctx.lineTo(tt.x-4,tt.y+(r+3)*.45);ctx.closePath();ctx.globalAlpha=.4;ctx.fill();ctx.globalAlpha=1;
     ctx.fillStyle='#ffd27a';ctx.beginPath();ctx.arc(tt.x,tt.y-47,2.5,0,7);ctx.fill();}
   // the sign board over the door
-  const sg=P2(Xc,Y1,Math.min(H,60)-6);ctx.font='700 12px "Alegreya Sans",sans-serif';const tw=ctx.measureText(b.name).width+14;
+  drawSign(b,Math.min(H,60)-6);}
+// the sign board over the door; drawn again after the trade dressing so banners and awnings never cover it
+function drawSign(b,h){if(!b.name)return;const p=proj((b.x+b.w/2)*TILE,(b.y+b.h)*TILE),sg={x:p.x,y:p.y-h};ctx.font='700 12px "Alegreya Sans",sans-serif';const tw=ctx.measureText(b.name).width+14;
   ctx.fillStyle='#2b2216';ctx.fillRect(sg.x-tw/2,sg.y-8,tw,18);ctx.strokeStyle='#b8924f';ctx.lineWidth=1;ctx.strokeRect(sg.x-tw/2+.5,sg.y-7.5,tw-1,17);
   ctx.fillStyle='#efe6d2';ctx.textAlign='center';ctx.fillText(b.name,sg.x,sg.y+5);}
 
 // take over the house drawing (js/render.js), keeping the trade dressing from js/buildings.js on top
 {const _base=typeof _drawBuildingB==='function'?_drawBuildingB:null;
   drawBuilding=function(b){const A=archiOf(b);if(A){try{drawArchi(b,A);}catch(e){if(_base)_base.apply(this,arguments);}}else if(_base)_base.apply(this,arguments);
-    try{dressBuilding(b);}catch(e){}};}
+    try{dressBuilding(b);}catch(e){}
+    try{drawSign(b,A?Math.min(A.h||60,60)-6:54);}catch(e){}};}

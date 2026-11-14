@@ -77,12 +77,16 @@ function openPanel(kind,arg){if(kind==='storage'&&panelKind!=='storage')storageR
 function closePanel(){const k=panelKind;panelKind=null;panel.hidden=true;if(PANEL_CLOSE[k])PANEL_CLOSE[k]();}
 function togglePanel(kind){if(panelKind===kind)closePanel();else openPanel(kind);}
 function icon(it){return `<span class="ico" style="background:${it.col}">${it.g}</span>`;}
-function itemDesc(e){const it=ITEMS[e.id];const bits=[];
+// the sigil slots of a piece of gear as pictures: a socketed sigil opens its item card when tapped, an empty slot is a dashed box
+function sigStripHtml(e){if(!e||!Array.isArray(e.s)||!e.s.length)return '';
+  return `<div class="sigstrip" aria-label="Sigil slots">`+e.s.map(s=>s&&ITEMS[s]?`<span class="sigslot full" data-item="${s}" tabindex="0" title="${esc(ITEMS[s].name)}" aria-label="${esc(ITEMS[s].name)}"><img src="${typeof itemIconURL==='function'?itemIconURL(s):''}" alt=""></span>`:
+    `<span class="sigslot" title="Empty slot" aria-label="Empty slot"></span>`).join('')+`</div>`;}
+function itemDesc(e,noSlots){const it=ITEMS[e.id];const bits=[];
   if(it.atk)bits.push(`ATK ${it.atk}`);if(it.matk)bits.push(`MATK ${it.matk}`);if(it.def)bits.push(`DEF ${it.def}`);
   if(it.b)for(const k in it.b)bits.push(typeof bonusLabel==='function'&&bonusLabel(k,it.b[k])||`${k.toUpperCase().replace('MAXHP','Max HP').replace('MAXSP','Max SP')} +${it.b[k]}`);
   if(rarityOf(e.id))bits.push(RARITY[rarityOf(e.id)].name);if(e.r){const rb=refineBonus(e);bits.push(Object.keys(rb).map(k=>`${k.toUpperCase()} +${rb[k]}`).join(', ')+' (refine)');}
   if(it.lv>1)bits.push(`Lv ${it.lv}+`);if(it.wt)bits.push(it.wt);
-  if(e.s&&e.s.length)bits.push('Slots: '+e.s.map(s=>s?ITEMS[s].name.replace(' Sigil',''):'empty').join(', '));
+  if(e.s&&e.s.length&&!noSlots)bits.push('Slots: '+e.s.map(s=>s?ITEMS[s].name.replace(' Sigil',''):'empty').join(', '));
   if(it.desc&&it.type==='use'&&(it.heal||it.sp||it.cure)&&typeof potCd==='function')return it.desc+` Cooldown ${potCd(it)}s.`;
   return it.desc||bits.join(' · ');}
 function refreshPanel(){
@@ -106,7 +110,7 @@ function refreshPanel(){
     if(!P.inv.length)h+=`<p class="muted">Your bag is empty.</p>`;
     else if(!cnt[invTab])h+=`<p class="muted">${{use:'No potions or scrolls. Ilsa sells them at the General Store.',equip:'No spare gear. What you wear is in the Equip window.',sigil:'No sigils yet. Every monster has a small chance to drop its sigil; socket it into gear with a free slot.',etc:'No monster loot yet.'}[invTab]}</p>`;
     P.inv.forEach((e,i)=>{const it=ITEMS[e.id];if(cat(e)!==invTab)return;const verb=it.type==='use'?'Use':it.type==='sigil'?'Socket':it.type==='etc'?'':'Equip';
-      h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div><div class="ds">${itemDesc(e)}</div></div>${verb?`<button class="btn small" data-act="use" data-arg="${i}">${verb}</button>`:''}</div>`;});
+      h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div><div class="ds">${itemDesc(e,e.s&&e.s.length)}</div>${sigStripHtml(e)}</div>${verb?`<button class="btn small" data-act="use" data-arg="${i}">${verb}</button>`:''}</div>`;});
   }
   else if(panelKind==='skills'){
     h+=skillTreeHtml();
@@ -139,7 +143,7 @@ function refreshPanel(){
   }
   else if(panelKind==='equip'){S=computeStats();
     const slotBox=s=>{const e=P.eq[s];return `<div class="eqslot">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="eqk">${s}</div>`+
-      (e?`<div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}</div><div class="ds">${itemDesc(e)}</div></div><button class="btn small" data-act="unequip" data-arg="${s}">Remove</button>`:`<div class="muted">Empty</div></div>`)+`</div>`;};
+      (e?`<div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}</div><div class="ds">${itemDesc(e,1)}</div>${sigStripHtml(e)}</div><button class="btn small" data-act="unequip" data-arg="${s}">Remove</button>`:`<div class="muted">Empty</div></div>`)+`</div>`;};
     h+=`<h2>Equipment</h2><div class="sub">Refine gear with Brannoc the Smith in Hearthvale.</div>`;
     h+=`<div class="eqgrid"><div class="eqcol">${slotBox('head')}${slotBox('face')}${slotBox('mouth')}</div><canvas id="eqCv" width="240" height="300" aria-label="Your character"></canvas><div class="eqcol">${slotBox('weapon')}${slotBox('armor')}${slotBox('accessory')}</div></div>`;
     h+=`<div class="dv"><div><span>ATK</span><span>${S.atk}</span></div><div><span>MATK</span><span>${S.matk}</span></div><div><span>DEF</span><span>${S.def}</span></div><div><span>HIT</span><span>${S.hit}</span></div>`+

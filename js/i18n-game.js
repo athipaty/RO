@@ -161,7 +161,7 @@ const ITEM_TH={
 const ITEM_FLAVOR_TH={'Thin brass frames.':'กรอบทองเหลืองบางเฉียบ','Leather straps and tinted lenses.':'สายหนังกับเลนส์สี','A masquerade half-mask.':'หน้ากากครึ่งหน้าแบบงานเต้นรำ',
   'Looking cool is half the fight.':'ดูเท่ไว้ก่อน ชนะไปครึ่งแล้ว','A meadow classic.':'ของคู่ทุ่งหญ้า','Pulled up over nose and mouth.':'ดึงขึ้นมาปิดจมูกและปาก','A reed flute that glows at the tip.':'ขลุ่ยไม้อ้อที่ปลายเรืองแสง'};
 const SLOT_TH={armor:'เกราะ',accessory:'เครื่องประดับ',weapon:'อาวุธ',head:'หมวก'},RACE_TH={Beasts:'สัตว์',Insects:'แมลง',Plants:'พืช','Spirits and the Undead':'วิญญาณและอันเดด'};
-const thStats=s=>s.replace(/Max HP/g,'HP สูงสุด').replace(/Max SP/g,'SP สูงสุด').replace(/HP regen/g,'ฟื้นฟู HP').replace(/ and /g,' และ ').replace(/\.$/,'');
+const thStats=s=>Object.entries(typeof TH_BONUS!=='undefined'?TH_BONUS:{}).reduce((t,[en,th])=>t.split(en).join(th),s).replace(/attacks (\d+)% faster/g,'โจมตีเร็วขึ้น $1%').replace(/spells cast (\d+)% faster/g,'ร่ายเวทเร็วขึ้น $1%').replace(/critical damage/g,'ความเสียหายคริติคอล').replace(/SP regen per second/g,'ฟื้น SP ต่อวินาที').replace(/SP per second/g,'SP ต่อวินาที').replace(/\. Only made by sigil fusion\.?$/,' · ได้จากการหลอมซิกิลเท่านั้น').replace(/Max HP/g,'HP สูงสุด').replace(/Max SP/g,'SP สูงสุด').replace(/HP regen/g,'ฟื้นฟู HP').replace(/ and /g,' และ ').replace(/\.$/,'');
 function thItemDesc(id,en){if(typeof en!=='string')return en;if(ITEM_TH[id])return ITEM_TH[id];let m;
   if(m=en.match(/^Restores (\d+) (HP|SP)\.$/))return `ฟื้นฟู ${m[1]} ${m[2]}`;
   if(m=en.match(/^Socket into an? (\w+): (.+)$/))return `ใส่ในช่องของ${SLOT_TH[m[1]]||m[1]}: ${thStats(m[2])}`;

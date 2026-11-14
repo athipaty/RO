@@ -169,7 +169,7 @@ TH_PAT.unshift(
 Object.assign(TH,{
   // store and gear lines
   'Sell all monster loot':'ขายของจากมอนสเตอร์ทั้งหมด','Slots: empty':'ช่อง: ว่าง','Uncommon':'ไม่ธรรมดา','Rare':'หายาก','Epic':'มหากาพย์','Legendary':'ตำนาน',
-  'You have:':'คุณมี:','Use':'ใช้','Etc':'อื่นๆ',
+  'You have:':'คุณมี:','Refine gear with Brannoc the Smith in Hearthvale.':'ตีบวกอุปกรณ์ได้ที่ช่างตีเหล็กแบรนน็อคใน Hearthvale','head':'หัว','face':'หน้า','mouth':'ปาก','weapon':'อาวุธ','armor':'ชุดเกราะ','accessory':'เครื่องประดับ','Empty':'ว่าง','Sigil slots':'ช่องซิกิล','Use':'ใช้','Etc':'อื่นๆ',
   // smithy
   '⚒ Forge gear from monster materials':'⚒ ตีอุปกรณ์จากวัตถุดิบมอนสเตอร์','Refine':'ตีบวก','Sure?':'แน่ใจ?','Fully refined.':'ตีบวกเต็มแล้ว','breaks on failure':'พังถ้าล้มเหลว',
   'You have no gear to refine.':'คุณไม่มีอุปกรณ์ให้ตีบวก','equipped':'สวมอยู่','in bag':'ในกระเป๋า',

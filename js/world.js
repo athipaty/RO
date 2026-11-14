@@ -1,4 +1,6 @@
 "use strict";
+// building keepers stand beside the door (in tiles from its middle), so they never hide the sign above it
+const NPC_BESIDE=1.9;
 /* ================= state ================= */
 let loot=[], lootId=0, hoverLoot=null;
 let wbMob=null; // the world boss in this region, when the server has one here
@@ -39,7 +41,7 @@ function getZone(id){
              {x:34,y:27,w:8,h:5,name:'Grand Waystation',roof:'#3e7a4a',npc:{name:'Wayfarer Mira',role:'warp',col:'#4f8a4a',hair:'#d8b060'}},
              {x:44,y:30,w:7,h:5,name:'Forge Royal',roof:'#5a4a42',npc:{name:'Smith Garrow',role:'smith',col:'#6a5040',hair:'#8a5a2b'}}];
     for(const b of B){for(let y=b.y;y<b.y+b.h;y++)for(let x=b.x;x<b.x+b.w;x++)set(x,y,5);zone.buildings.push(b);
-      zone.npcs.push({...b.npc,x:(b.x+b.w/2)*TILE,y:(b.y+b.h)*TILE+20});}
+      zone.npcs.push({...b.npc,x:(b.x+b.w/2+NPC_BESIDE)*TILE,y:(b.y+b.h)*TILE+20});}
     for(let y=14;y<18;y++)for(let x=25;x<31;x++)set(x,y,3); // the plaza pool around the great fountain
     zone.npcs.push({name:'Seer Valen',role:'rebirth',col:'#e8c25a',hair:'#f4efe2',x:38.5*TILE,y:15*TILE});
     zone.portals.push({x:(W-2+.5)*TILE,y:21*TILE,to:'town',side:'east'});
@@ -54,7 +56,7 @@ function getZone(id){
              {x:14,y:20,w:6,h:4,name:'Warehouse',roof:'#7a6a3a',npc:{name:'Wenna the Keeper',role:'storage',col:'#8a6a9a',hair:'#d86a9a'}}];
     for(const b of B){for(let y=b.y;y<b.y+b.h;y++)for(let x=b.x;x<b.x+b.w;x++)set(x,y,5);
       zone.buildings.push(b);
-      const nx=(b.x+b.w/2)*TILE, ny=(b.y+b.h)*TILE+20;
+      const nx=(b.x+b.w/2+NPC_BESIDE)*TILE, ny=(b.y+b.h)*TILE+20;
       zone.npcs.push({...b.npc,x:nx,y:ny});}
     for(let y=12;y<16;y++)for(let x=18;x<22;x++)set(x,y,3);
     for(let y=13;y<=16;y++)for(let x=W-5;x<W;x++)set(x,y,1);
