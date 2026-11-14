@@ -31,12 +31,13 @@ const HUNT={on:false,t0:0,kills:0,exp:0,jexp:0,items:new Map(),hiddenAt:0};
 {const _kmH=killMob;killMob=function(m){const mine=m&&!m.dead&&(m.myDmg||0)>0;const r=_kmH.apply(this,arguments);if(mine&&HUNT.on)HUNT.kills++;return r;};}
 {const _geH=gainExp;gainExp=function(e,j){if(HUNT.on){HUNT.exp+=Math.max(0,e||0);HUNT.jexp+=Math.max(0,j||0);}return _geH.apply(this,arguments);};}
 {const _puH=pickUp;pickUp=function(l){const had=loot.indexOf(l)>=0;const r=_puH.apply(this,arguments);try{if(HUNT.on&&had&&loot.indexOf(l)<0&&!l.gold)HUNT.items.set(l.id,(HUNT.items.get(l.id)||0)+1);}catch(e){}return r;};}
+// a slim strip at the top (never takes taps, fades after 5 s); the full list of items goes to the chat log
 function huntCard(title){const mins=Math.max(1,Math.round((performance.now()-HUNT.t0)/60000));if(HUNT.kills<3)return;
-  let el=document.getElementById('huntCard');if(!el){el=document.createElement('div');el.id='huntCard';el.setAttribute('role','dialog');document.body.appendChild(el);el.addEventListener('click',()=>el.classList.remove('show'));}
-  const items=[...HUNT.items.entries()].sort((a,b)=>(typeof rarityOf==='function'?rarityOf(b[0])-rarityOf(a[0]):0)||b[1]-a[1]).slice(0,10);
-  el.innerHTML=`<div class="hct">${esc(title)}</div><div class="hcs"><div><b>${mins}</b><span>min</span></div><div><b>${fmt(HUNT.kills)}</b><span>defeated</span></div><div><b>${fmt(HUNT.exp)}</b><span>EXP</span></div><div><b>${fmt(HUNT.jexp)}</b><span>job EXP</span></div></div>`+
-    (items.length?`<div class="hci">${items.map(([id,n])=>`<span class="hcit" data-item="${id}" title="${esc(ITEMS[id]?ITEMS[id].name:id)}"><img src="${itemIconURL(id)}" alt=""><b>${n}</b></span>`).join('')}</div>`:'')+`<div class="hcx">Tap to close</div>`;
-  el.classList.remove('show');void el.offsetWidth;el.classList.add('show');}
+  let el=document.getElementById('huntCard');if(!el){el=document.createElement('div');el.id='huntCard';el.setAttribute('role','status');document.body.appendChild(el);}
+  const items=[...HUNT.items.entries()].sort((a,b)=>(typeof rarityOf==='function'?rarityOf(b[0])-rarityOf(a[0]):0)||b[1]-a[1]),nItems=items.reduce((a,[,n])=>a+n,0);
+  el.innerHTML=`<b>${esc(title)}</b><span>${mins} min</span><span>${fmt(HUNT.kills)} defeated</span><span>+${fmt(HUNT.exp)} EXP</span>`+(nItems?`<span class="hci">${items.slice(0,4).map(([id])=>`<img src="${itemIconURL(id)}" alt="">`).join('')}${nItems} items</span>`:'');
+  el.classList.remove('show');void el.offsetWidth;el.classList.add('show');clearTimeout(huntCard.t);huntCard.t=setTimeout(()=>el.classList.remove('show'),5000);
+  addLog(`${title}: ${mins} min, ${fmt(HUNT.kills)} defeated, ${fmt(HUNT.exp)} EXP, ${fmt(HUNT.jexp)} job EXP${items.length?'. Items: '+items.map(([id,n])=>`${ITEMS[id]?ITEMS[id].name:id} ×${n}`).join(', '):''}.`,'l-good');}
 function huntReset(){HUNT.t0=performance.now();HUNT.kills=0;HUNT.exp=0;HUNT.jexp=0;HUNT.items.clear();}
 setInterval(()=>{try{if(!P||!running)return;const on=!!P.auto;if(on&&!HUNT.on){HUNT.on=true;huntReset();}else if(!on&&HUNT.on){HUNT.on=false;huntCard('Auto-hunt summary');}}catch(e){}},500);
 document.addEventListener('visibilitychange',()=>{try{if(document.hidden){HUNT.hiddenAt=performance.now();return;}
@@ -68,3 +69,5 @@ function hitSource(src){if(src&&typeof src.x==='number')return src;if(typeof src
     el.dataset.side=side;el.classList.remove('on');void el.offsetWidth;el.classList.add('on');}catch(e){}return r;};}
 
 if(typeof TH!=='undefined')Object.assign(TH,{'Auto-hunt summary':'สรุปการล่าอัตโนมัติ','While you were away':'ระหว่างที่คุณไม่อยู่','defeated':'ปราบแล้ว','min':'นาที','job EXP':'EXP อาชีพ','Tap to close':'แตะเพื่อปิด','⇅ Sort':'⇅ เรียง','Sort by kind, rarity and name':'เรียงตามชนิด ความหายาก และชื่อ'});
+if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(\d+) min$/,'$1 นาที'],[/^([\d,]+) defeated$/,'ปราบ $1 ตัว'],[/^\+([\d,]+) EXP$/,'+$1 EXP'],[/^(\d+) items$/,'$1 ชิ้น'],
+  [/^(Auto-hunt summary|While you were away): (\d+) min, ([\d,]+) defeated, ([\d,]+) EXP, ([\d,]+) job EXP(?:\. Items: (.+))?\.$/,(m,a,b,c,d,e,f)=>`${thText(a)}: ${b} นาที ปราบ ${c} ตัว ${d} EXP ${e} EXP อาชีพ${f?' ไอเทม: '+f:''}`]);

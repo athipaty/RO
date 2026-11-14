@@ -6,8 +6,19 @@
 const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const inStandalone=()=>!!(navigator.standalone||matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches);
 const isFull=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
+// iPhone Safari cannot go full screen for web pages: show, step by step, how to add the game to the Home Screen
+const SHARE_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5v10h14V11h-1"/></svg>';
+const ADD_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>';
 function fullHint(){const msg='On iPhone: tap Share (the square with an arrow), then "Add to Home Screen". Open Embervale from that icon and it fills the whole screen.';
-  addLog(msg,'l-rare');if(typeof floatT==='function'&&P)floatT(P.x,P.y-50,'Add to Home Screen','#ffe7a0',13);}
+  addLog(msg,'l-rare');let el=document.getElementById('iosFull');
+  if(!el){el=document.createElement('div');el.id='iosFull';el.setAttribute('role','dialog');el.setAttribute('aria-label','Play full screen on iPhone');document.body.appendChild(el);
+    el.addEventListener('click',ev=>{if(ev.target.closest('[data-x]')||ev.target===el)el.classList.remove('show');});}
+  el.innerHTML=`<div class="ifb"><div class="ift">Play full screen on iPhone</div><div class="ifs">Safari cannot make web pages full screen, but the Home Screen version can, sideways too:</div>`+
+    `<ol><li><span class="ifi">${SHARE_SVG}</span><span>Tap <b>Share</b> in Safari's bar (the square with an arrow)</span></li>`+
+    `<li><span class="ifi">${ADD_SVG}</span><span>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b></span></li>`+
+    `<li><span class="ifi"><img src="img/icon-192.png" alt=""></span><span>Open <b>Embervale</b> from the new icon: no browser bar, the whole screen is the game</span></li></ol>`+
+    `<div class="ifs">Your character and progress stay the same (log in with your account there too).</div><div class="tbtns"><button class="btn" data-x="1">Got it</button></div></div>`;
+  el.classList.add('show');}
 function toggleFull(){
   if(isFull()){const ex=document.exitFullscreen||document.webkitExitFullscreen;try{ex&&ex.call(document);}catch(e){}return;}
   if(inStandalone()){addLog('Embervale is already running full screen from your Home Screen.');return;}
@@ -29,3 +40,15 @@ if(typeof PANELS!=='undefined'&&PANELS.settings){const _ps=PANELS.settings;PANEL
   const check=()=>{const land=innerWidth>innerHeight,touch=document.body.classList.contains('touchui')||'ontouchstart' in window;
     if(running&&land&&touch&&!isFull()&&!inStandalone()){b.hidden=false;clearTimeout(t);t=setTimeout(()=>{b.hidden=true;},6000);}else b.hidden=true;};
   addEventListener('orientationchange',()=>setTimeout(check,400));if(screen.orientation)screen.orientation.addEventListener('change',()=>setTimeout(check,400));})();
+
+/* ---- turning the phone: make sure the game picture really matches the screen ----
+   iPhones (Safari and Home Screen apps) often report the new size late after rotating, so the "resize" event can come
+   while the old size is still in place; the picture then stays at the upright size, stretched and blurry sideways.
+   After any rotation the size is checked again several times, and every half second as a safety net; whenever the
+   canvas size and the drawing size differ, the picture is rebuilt at the right size. */
+function fitCanvas(){try{if(typeof cv==='undefined'||!cv)return;const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;
+  if(w!==VW||h!==VH){resize();if(typeof bsApply==='function')bsApply();if(typeof LABELS!=='undefined')LABELS.clear();if(typeof placeControls==='function')placeControls();}}catch(e){}}
+const fitSoon=()=>{for(const ms of [50,200,500,900,1500])setTimeout(fitCanvas,ms);};
+addEventListener('orientationchange',fitSoon);if(screen.orientation)screen.orientation.addEventListener('change',fitSoon);
+if(window.visualViewport)visualViewport.addEventListener('resize',fitSoon);addEventListener('pageshow',fitSoon);
+setInterval(fitCanvas,500);

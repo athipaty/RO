@@ -12,7 +12,10 @@ function updateHud(){
   setT('lvT',`Lv ${P.lv}`);{const bm=P.lv>=99;setT('exT',bm?'max':(P.exp/en*100).toFixed(1)+'%');setW('exI',bm?1:Math.min(1,P.exp/en));}
   setT('jlT',`Job ${P.jl}`);setT('jxT',jm?'max':(P.jexp/jn*100).toFixed(1)+'%');setW('jxI',jm?1:P.jexp/jn);
   setT('ailT',ailText());
-  setT('weight',`Weight ${fmt(carryWeight())} / ${fmt(maxWeight())}`+(P.heavy===2?' · too heavy to fight':P.heavy?' · no regen':''));
+  {const wt=`Weight ${fmt(carryWeight())} / ${fmt(maxWeight())}`+(P.heavy===2?' · too heavy to fight':P.heavy?' · no regen':'');
+    // phones hide the gold line to keep the box small, so the gold rides at the end of the weight line
+    const g=document.body.classList.contains('touchui')&&!P.heavy?`${fmt(P.gold)} gold`:'',key=wt+'|'+g;
+    if(hudCache.weight!==key){hudCache.weight=key;const el=document.getElementById('weight');el.textContent=wt;if(g){const s=document.createElement('span');s.className='wgold';s.textContent=g;el.appendChild(s);}}}
   {const we=$('#weight'),hv=!!P.heavy;if(we.classList.contains('heavy')!==hv)we.classList.toggle('heavy',hv);}
   setT('gold',`${fmt(P.gold)} gold`+(P.statPts?` · ${P.statPts} stat pts`:'')+(P.skillPts?` · ${P.skillPts} skill pts`:'')+(isRested()?` · ${restedText()}`:''));
   const pc=partyCount();const pe=$('#party');if(pe.hidden!==!pc)pe.hidden=!pc;if(pc)setT('party',`Party: ${SOC.party.mode==='share'?'sharing EXP':'+25% EXP each'} · ${pc} member${pc>1?'s':''} here`);
@@ -381,9 +384,11 @@ function setSlot(n){CS.slot=n;try{localStorage.setItem(SLOT_KEY,String(n));}catc
 // add one entry to a storage list (stacking like items); returns a new list, or null when storage is full
 function storageWith(list,e){const out=list.map(x=>({...x}));const st=e.n!==undefined?out.find(x=>x.id===e.id&&x.n!==undefined):null;
   if(st){st.n+=e.n;return out;}if(out.length>=STORAGE_MAX)return null;out.push(e);return out;}
+// fields added by later modules (they push their names here): saved and loaded with the character like the rest
+const SAVE_EXTRA=['trial3','callSeen','callDone'];
 function snapshot(){if(!P)return null;
   const keep=['name','look','storage','friends','cls','lv','exp','jl','jexp','st','statPts','skillPts','skills','gold','inv','eq','hp','sp','zone','visited','quest','trial','hot','bar','pet','ach','emofav','mounts','mountPick','bond','useLv','rested','qs','track','bars','hbRows','reborn','autoLoot','build','cart','album'];
-  const o={};for(const k of keep)o[k]=P[k];o.uid=uid;
+  const o={};for(const k of [...keep,...SAVE_EXTRA])if(P[k]!==undefined||keep.includes(k))o[k]=P[k];o.uid=uid;
   // the shared storage lives with the account (or the device), not in the character
   if(CS.shared){if(CS.oldSt)o.storage=CS.oldSt;else{o.storage=[];o.sharedSt=1;}}
   // where you stand, and buffs still running (as seconds left: the game clock restarts with every page)

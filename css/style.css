@@ -1156,15 +1156,11 @@ body.touchui #combo{top:46%;right:auto;left:max(22px,env(safe-area-inset-left));
 #bossBar .bbv{font:700 10px Inter,var(--ui);color:#f4e6c4;text-shadow:0 1px 2px #000;margin-top:1px}
 #bossBar.hitq .bbt{animation:bbFlash .5s}@keyframes bbFlash{30%{box-shadow:0 0 26px rgba(255,90,50,.95);border-color:#ffd2a0}}
 body.touchui #bossBar{width:min(380px,56vw)}body.touchui #bossBar .bbn{font-size:12px}
-/* auto-hunt summary (js/feel3.js) */
-#huntCard{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);opacity:0;pointer-events:none;z-index:41;width:min(380px,calc(100vw - 32px));padding:14px 16px;border-radius:18px;text-align:center;
-  background:linear-gradient(180deg,rgba(20,26,38,.97),rgba(12,15,22,.97));border:1px solid rgba(127,211,138,.55);box-shadow:0 18px 50px rgba(0,0,0,.6);transition:opacity .3s,transform .3s}
-#huntCard.show{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
-#huntCard .hct{font:800 18px "Alegreya Sans",sans-serif;color:#9fe8b0}
-#huntCard .hcs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}#huntCard .hcs b{display:block;font:800 18px Inter,var(--ui);color:#f4ead2}#huntCard .hcs span{font-size:11px;color:#9fb0c4}
-#huntCard .hci{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}#huntCard .hcit{position:relative;width:38px;height:38px;border-radius:8px;background:rgba(255,255,255,.06);display:grid;place-items:center}
-#huntCard .hcit img{width:30px;height:30px}#huntCard .hcit b{position:absolute;right:-3px;bottom:-4px;font:700 10px Inter,var(--ui);padding:0 4px;border-radius:6px;background:#0d121a;color:#efe6d2}
-#huntCard .hcx{margin-top:10px;font-size:11px;color:#7d8a9c}
+/* auto-hunt summary strip (js/feel3.js): never takes taps */
+#huntCard{position:fixed;left:50%;top:max(56px,calc(env(safe-area-inset-top) + 50px));transform:translate(-50%,-10px);opacity:0;pointer-events:none;z-index:9;display:flex;align-items:center;gap:10px;
+  max-width:calc(100vw - 24px);padding:6px 14px;border-radius:999px;background:rgba(14,18,26,.85);border:1px solid rgba(127,211,138,.5);font:600 12px Inter,var(--ui);color:#e8eef4;white-space:nowrap;transition:opacity .3s,transform .3s}
+#huntCard.show{opacity:1;transform:translate(-50%,0)}#huntCard b{color:#9fe8b0}#huntCard span{color:#c8d0dc}
+#huntCard .hci{display:inline-flex;align-items:center;gap:2px}#huntCard .hci img{width:18px;height:18px}
 /* hit direction (js/feel3.js) */
 #hitDir{position:fixed;inset:0;pointer-events:none;z-index:4;opacity:0}
 #hitDir.on{animation:hitDir .6s ease-out}
@@ -1174,3 +1170,42 @@ body.touchui #bossBar{width:min(380px,56vw)}body.touchui #bossBar .bbn{font-size
 .gmsg{margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(239,90,70,.12);border:1px solid rgba(239,90,70,.5);color:#ffb4a4;font-size:13px}
 /* upright phones: the map box never grows into the status box (long event lines wrap instead) */
 @media (orientation:portrait){body.touchui #minibox{max-width:min(216px,calc(100vw - 214px))!important;box-sizing:border-box}body.touchui #minibox #evT{white-space:normal;overflow-wrap:anywhere}}
+/* bounty board (js/bounties.js) */
+.bty.claimed{opacity:.55}.bwk{font:700 10px Inter,var(--ui);padding:1px 6px;border-radius:999px;background:rgba(197,140,255,.2);color:#d8b4ff;vertical-align:1px}
+.bpts{display:flex;align-items:center;gap:10px;margin:8px 0 2px}.bpts span{font-size:12px;color:#c8d0dc;white-space:nowrap}
+.bbar{flex:1;height:8px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden}.bbar i{display:block;height:100%;background:linear-gradient(90deg,#c88a2a,#ffcf5a)}
+/* daily login gift card */
+#loginCard{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);opacity:0;pointer-events:none;z-index:42;width:min(520px,calc(100vw - 24px));padding:14px;border-radius:18px;text-align:center;
+  background:linear-gradient(180deg,rgba(40,30,12,.97),rgba(16,14,10,.97));border:1px solid #f0c060;box-shadow:0 18px 50px rgba(0,0,0,.6);transition:opacity .3s,transform .3s}
+#loginCard.show{opacity:1;transform:translate(-50%,-50%) scale(1)}#loginCard.show [data-lg]{pointer-events:auto}
+#loginCard .lgt{font:800 18px "Alegreya Sans",sans-serif;color:#ffd77a}
+#loginCard .lgd{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:10px 0}
+#loginCard .lgx{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+#loginCard .lgx span{font:700 10px Inter,var(--ui);color:#c8b890}#loginCard .lgx img{width:28px;height:28px}#loginCard .lgx small{font-size:9px;color:#9fb0c4;line-height:1.1}
+#loginCard .lgc{font-size:20px;color:#ffcf5a;line-height:28px}
+#loginCard .lgx.got{opacity:.45}#loginCard .lgx.today{border-color:#ffcf5a;background:rgba(255,207,90,.15);box-shadow:0 0 12px rgba(255,190,70,.4)}
+#loginCard .lgs{font-size:11px;color:#c8b890}#loginCard .tbtns{justify-content:center;margin-top:10px}
+.bgift .cmi b{position:static;font-size:20px;background:none;padding:0}
+.lrow.cur{background:rgba(159,211,255,.07);border-radius:8px}
+/* gathering timing game (js/gathering.js) */
+#gatherBox{position:fixed;left:50%;bottom:22%;transform:translateX(-50%);z-index:42;width:min(320px,calc(100vw - 40px));padding:12px 14px;border-radius:16px;text-align:center;
+  background:rgba(14,18,26,.94);border:1px solid rgba(255,207,90,.55);box-shadow:0 12px 34px rgba(0,0,0,.55);touch-action:none;cursor:pointer}
+#gatherBox[hidden]{display:none}#gatherBox .gtt{font:800 15px "Alegreya Sans",sans-serif;color:#f4ead2}
+#gatherBox .gbar{position:relative;height:18px;margin:10px 0 6px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden}
+#gatherBox .gbar i{position:absolute;top:0;bottom:0}#gatherBox .gg{background:rgba(127,211,138,.45)}#gatherBox .gy{background:#ffcf5a}
+#gatherBox .gbar b{position:absolute;top:-2px;bottom:-2px;width:4px;margin-left:-2px;border-radius:2px;background:#fff;box-shadow:0 0 6px #fff}
+#gatherBox .gts{font-size:12px;color:#c8d0dc}
+.combos{margin-top:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04)}.combos summary{cursor:pointer;font-weight:700;color:#ffcf5a}.combos p{margin:5px 0}
+/* iPhone: how to play full screen (js/fullscreen.js) */
+#iosFull{position:fixed;inset:0;z-index:70;display:none;place-items:center;background:rgba(5,7,12,.6)}#iosFull.show{display:grid}
+#iosFull .ifb{width:min(420px,calc(100vw - 28px));max-height:calc(100vh - 24px);overflow:auto;padding:16px 18px;border-radius:18px;background:#141a24;border:1px solid rgba(255,207,90,.5);box-shadow:0 18px 50px rgba(0,0,0,.6)}
+#iosFull .ift{font:800 19px "Alegreya Sans",sans-serif;color:#ffd77a}#iosFull .ifs{font-size:12.5px;color:#c8d0dc;margin:6px 0}
+#iosFull ol{list-style:none;padding:0;margin:10px 0;display:grid;gap:10px}#iosFull li{display:flex;gap:10px;align-items:center;font-size:13.5px;color:#efe6d2}
+#iosFull .ifi{flex:none;width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.07);display:grid;place-items:center}
+#iosFull .ifi svg{width:22px;height:22px;fill:none;stroke:#7fb8ff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}#iosFull .ifi img{width:30px;height:30px;border-radius:7px}
+#iosFull .tbtns{justify-content:flex-end}
+#giftPill{position:fixed;left:50%;transform:translateX(-50%);top:max(56px,calc(env(safe-area-inset-top) + 50px));z-index:8;padding:5px 14px;border-radius:999px;border:1px solid #f0c060;
+  background:linear-gradient(180deg,rgba(60,42,12,.95),rgba(30,22,10,.95));color:#ffd77a;font:700 12px Inter,var(--ui);cursor:pointer;box-shadow:0 0 12px rgba(255,190,70,.35);animation:giftBob 2.4s ease-in-out infinite}
+#giftPill[hidden]{display:none}@keyframes giftBob{50%{box-shadow:0 0 20px rgba(255,190,70,.6)}}
+body.npcopen #giftPill{display:none}
+#weight .wgold{margin-left:8px;color:var(--exp);font-weight:700}#weight .wgold::before{content:"◉ ";font-size:.9em}
