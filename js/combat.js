@@ -265,6 +265,7 @@ function update(dt){
       else if(P.atkT<=0&&!P.casting&&!P.assist){if(P.heavy>1){tooHeavy();P.atkT=1;}else{basicAttack(t);P.atkT=S.delay;}}
     } else if(P.assist){/* following: the leader's walk brings us in range, then the queued skill fires */}
     else if(P.holdPos){P.path=[];faceTo(P,t.x-P.x,t.y-P.y);if(now>(P.reachHintT||0)){P.reachHintT=now+2;floatT(P.x,P.y-44,'Out of reach','#aab4c4',12);}}
+    else if(P.casting){/* a spell is charging: stand still and finish it (walking would cancel it); the chase goes on after */}
     else {P.repathT=(P.repathT||0)-dt;if(P.repathT<=0||!P.path.length){pathTo(t.x,t.y,true);P.repathT=.35;}}
   } else if(t&&(t.dead||t.dying)){P.target=null;}
   P.atkT-=dt;

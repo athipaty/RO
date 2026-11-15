@@ -32,7 +32,9 @@ module.exports = async t => {
       // an archer: Arrow Rain only when monsters stand together
       setup('ranger', { arrowrain: 5 }, ['arrowrain']);
       { const ms = mobs.filter(m => !m.dead).slice(0, 3); const a = ms[0]; for (const m of mobs) if (!ms.includes(m)) { m.x += 2000; } ms[1].x = a.x + 30; ms[1].y = a.y; ms[2].x = a.x + 1500;
-        P.x = a.x + 180; P.y = a.y; P.path = []; P.target = a; P.auto = true; await sleep(1500); out.rainGroup = (P.cd.arrowrain || 0) > 0;
+        P.x = a.x + 180; P.y = a.y; P.path = []; P.target = a; P.auto = true;
+        /* monsters wander: keep the pair together while auto-hunt decides */
+        for (let k = 0; k < 15 && !P.cd.arrowrain; k++) { ms[1].x = a.x + 30; ms[1].y = a.y; await sleep(100); } out.rainGroup = (P.cd.arrowrain || 0) > 0;
         P.auto = false; await sleep(200); P.cd = {}; P.sp = S.maxsp; ms[1].x = a.x + 900; P.target = a; P.auto = true; await sleep(1500); out.rainAlone = !P.cd.arrowrain; }
       P.auto = false; await sleep(200);
       // a warden: Iron Will buff and Whirlwind when monsters are close
