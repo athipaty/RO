@@ -15,7 +15,9 @@ Object.assign(ITEMS,{
 if(typeof BREWS!=='undefined')BREWS.push(['red',4,{mossherb:3},0],['blue',2,{mossherb:2,sunpetal:1},20],['grilledfish',2,{pondfish:2},10],['goldsoup',1,{goldfin:1,sunpetal:1,pondfish:2},100],['emberore',1,{ironchunk:6},300]);
 const GATHER={herb:{name:'Herb patch',item:'mossherb',rare:'sunpetal',col:'#7fd36a'},ore:{name:'Ore vein',item:'ironchunk',rare:['emberore','glintstone'],col:'#c8d0dc'},fish:{name:'Fishing spot',item:'pondfish',rare:'goldfin',col:'#9fd3ff'}};
 const GATHER_KINDS=z=>{const t=z.D.theme;return t==='meadow'||t==='woods'?['herb']:t==='cave'?['herb','ore']:['dunes','crypt','frost'].includes(t)?['ore']:[];};
-const GREST=new Map(); // spot key -> time it is ready again (performance.now ms)
+/* spot key -> time it is ready again (Date.now ms), kept on the hero and saved, so reloading the page does not reset it */
+const gRest=()=>{if(!P)return {};if(!P.gatherRest||typeof P.gatherRest!=='object')P.gatherRest={};const R=P.gatherRest,t=Date.now();for(const k in R)if(!(R[k]>t))delete R[k];return R;};
+if(typeof SAVE_EXTRA!=='undefined')SAVE_EXTRA.push('gatherRest');
 function gatherSeed(id){let h=2166136261;for(const c of id+'|g')h=Math.imul(h^c.charCodeAt(0),16777619);return ()=>{h=Math.imul(h^(h>>>15),2246822507);h=Math.imul(h^(h>>>13),3266489909);return ((h^=h>>>16)>>>0)/4294967296;};}
 function gatherPlace(z){if(!z||z.D.safe||!z.D.mobs||z._gather)return;z._gather=1;const R=gatherSeed(z.id),W=z.w,H=z.h,t=z.t,free=(x,y)=>x>2&&y>2&&x<W-3&&y<H-3&&!BLOCK[t[y*W+x]];
   const near=(x,y)=>z.objs.some(o=>o.kind==='gather'&&Math.abs(o.x-(x+.5)*TILE)<6*TILE&&Math.abs(o.y-(y+.5)*TILE)<6*TILE);
@@ -25,7 +27,7 @@ function gatherPlace(z){if(!z||z.D.safe||!z.D.mobs||z._gather)return;z._gather=1
   let n=0,tries=0;while(n<2&&tries++<3000){const x=Math.floor(R()*W),y=Math.floor(R()*H);if(!free(x,y)||near(x,y))continue;
     if([[1,0],[-1,0],[0,1],[0,-1]].some(([a,b])=>t[(y+b)*W+x+a]===3)){add('fish',x,y);n++;}}}
 {const _gzG=getZone;getZone=function(id){const z=_gzG.apply(this,arguments);try{gatherPlace(z);}catch(e){}return z;};}
-const gReady=o=>!(GREST.get(o.key)>performance.now());
+const gReady=o=>!((P&&P.gatherRest&&P.gatherRest[o.key])>Date.now());
 // drawing the spots (depth-sorted with everything else, as map objects)
 {const _doG=drawObj;drawObj=function(o){if(o.kind!=='gather')return _doG.apply(this,arguments);const p=proj(o.x,o.y),x=p.x,y=p.y,ready=gReady(o),G=GATHER[o.g];ctx.save();if(!ready)ctx.globalAlpha=.35;
   ctx.lineWidth=1.3;ctx.strokeStyle='#2a1c14';
@@ -39,8 +41,15 @@ const gReady=o=>!(GREST.get(o.key)>performance.now());
   ctx.restore();};}
 // tapping a spot: walk there, then the timing game
 const GT={goal:null,el:null,run:null};
+/* map objects (gathering spots, chests) let a tap go to the game when:
+   - a finger just touched down: the joystick waits to see if it is a drag and sends a plain tap back (ev.__joyTap) on lift
+   - a monster is nearer to the tap than the object (attacking wins) */
+function objTapSkip(ev,sc,o,lift){
+  if(!ev.__joyTap&&(typeof joyTouch==='function'?joyTouch(ev):ev.pointerType==='touch'))return true;
+  const m=typeof mobAt==='function'?mobAt(sc):null;if(!m)return false;
+  const p=proj(m.x,m.y),q=proj(o.x,o.y);return Math.hypot(p.x-sc.x,p.y-m.d.size*.9-sc.y)<Math.hypot(q.x-sc.x,q.y-lift-sc.y);}
 function gatherAt(sc){if(!Z)return null;let best=null,bd=30;for(const o of Z.objs){if(o.kind!=='gather')continue;const p=proj(o.x,o.y),d=Math.hypot(p.x-sc.x,p.y-8-sc.y);if(d<bd){bd=d;best=o;}}return best;}
-addEventListener('pointerdown',ev=>{if(ev.target!==cv||!P||P.dead||!running||GT.run)return;if(typeof npcBusy==='function'&&npcBusy())return;const sc=screenAt(ev),o=gatherAt(sc);if(!o)return;
+addEventListener('pointerdown',ev=>{if(ev.target!==cv||!P||P.dead||!running||GT.run)return;if(typeof npcBusy==='function'&&npcBusy())return;const sc=screenAt(ev),o=gatherAt(sc);if(!o||objTapSkip(ev,sc,o,8))return;
   ev.stopPropagation();ev.preventDefault();if(!gReady(o)){floatT(o.x,o.y-30,'Resting…','#c8d0dc',12);return;}
   P.target=null;P.queued=null;P.sitting=false;if(Math.hypot(P.x-o.x,P.y-o.y)<56)gatherStart(o);else{GT.goal=o;pathTo(o.x,o.y+10,true);}},true);
 setInterval(()=>{const o=GT.goal;if(!o||!P||GT.run)return;if(P.target||P.dead||!Z||!Z.objs.includes(o)){GT.goal=null;return;}if(Math.hypot(P.x-o.x,P.y-o.y)<56){GT.goal=null;P.path=[];gatherStart(o);}},150);
@@ -53,7 +62,7 @@ function gatherStart(o){const G=GATHER[o.g];let el=GT.el;
 function gatherStop(){const r=GT.run;if(!r)return;GT.run=null;const G=GATHER[r.o.g],d=Math.abs((r.pos||0)-r.gz),gold=d<=r.gw/2,good=d<=r.gw*2.2;
   let n=gold?3:good?2:1,got=[];giveItem(G.item,n);got.push(`${ITEMS[G.item].name} ×${n}`);
   if(Math.random()<(gold?.3:good?.1:.02)){const rare=Array.isArray(G.rare)?G.rare[Math.floor(Math.random()*G.rare.length)]:G.rare;giveItem(rare,1);got.push(ITEMS[rare].name);sfx('rare');}
-  GREST.set(r.o.key,performance.now()+300000);const txt=gold?'Perfect!':good?'Good!':'Too early… or too late';
+  gRest()[r.o.key]=Date.now()+300000;const txt=gold?'Perfect!':good?'Good!':'Too early… or too late';
   floatT(P.x,P.y-50,txt,gold?'#ffcf5a':good?'#9fe8b0':'#c8d0dc',15);addLog(`${txt} You gathered ${got.join(', ')}.`,'l-loot');sfx(gold?'fanfare':'pickup');
   const el=GT.el;el.querySelector('.gts').textContent=txt;setTimeout(()=>{el.hidden=true;},650);if(typeof save==='function')save();}
 // walking off or a fight closes the game

@@ -25,13 +25,16 @@ module.exports = async t => {
       // slot 3 costs gold
       P.gold = 25000; refreshPanel(); panel.querySelector('[data-act="lopen"]').click(); out.open = P.loadouts.open3 && P.gold === 5000;
       // another job clears the old setups
-      P.cls = 'bulwark'; out.cleared = lState().slots.every(s => !s);
+      // moving up the same line keeps them (Bulwark keeps every Warden skill), another job or a rebirth clears them
+      P.cls = 'bulwark'; out.kept = lState().slots.filter(Boolean).length === 2; refreshPanel(); panel.querySelector('[data-act="luse"][data-arg="0"]').click(); out.keptUse = P.skills.cleave === 10;
+      P.cls = 'arcanist'; out.cleared = lState().slots.every(s => !s);
       out.saved = SAVE_EXTRA.includes('loadouts');
       closePanel(); return out; });
     t.ok(r.section, 'the Guild Hall shows the loadouts');
     t.ok(r.a, 'switching restores the saved stats and skills with the same totals ' + r.dbg);
     t.ok(r.b, 'points earned since are kept as free points');
     t.ok(r.open, 'the third slot unlocks for 20,000 gold');
+    t.ok(r.kept && r.keptUse, 'setups survive moving up to an advanced calling of the same job and still switch');
     t.ok(r.cleared && r.saved, 'setups from another job are cleared; loadouts are saved with the character');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }

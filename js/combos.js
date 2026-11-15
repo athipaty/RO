@@ -13,7 +13,9 @@ function comboFlash(m,txt,col){const t=CMB.shown.get(m)||0;if(now-t<.35)return;C
   texts.push({x:m.x,y:m.y-(m.d?m.d.size*2:30)-16,txt,col,size:18,t0:now,dur:1.1});fx.push({k:'ring',x:m.x,y:m.y,r:(m.d?m.d.size:14)+18,col,t0:now,dur:.45});if(typeof sfx==='function')sfx('crit');}
 {const _hmC=hurtMob;hurtMob=function(m,dmg,crit,kind){const c=CMB.ctx;
   if(c&&m&&!m.dead&&dmg>0&&!c.combo){const el=c.el;
-    if(m.ail==='freeze'&&m.ailUntil>now&&(el==='fire'||el==='earth')){dmg=Math.round(dmg*1.5);m.ailUntil=now;comboFlash(m,'SHATTER!','#9fe0ff');}
+    if(m.ail==='freeze'&&m.ailUntil>now&&(el==='fire'||el==='earth')){dmg=Math.round(dmg*1.5);m.ailUntil=now;
+      /* the ice breaks for everyone: a zero-length freeze ends it on the game server (or the player hosting the region) */
+      if(typeof zoneHost==='function'&&zoneHost())sendHit(m,0,0,{st:0,sk:'freeze'});comboFlash(m,'SHATTER!','#9fe0ff');}
     else if(m.ail==='stun'&&m.ailUntil>now&&c.phys){if(!crit){crit=true;dmg=Math.round(dmg*1.5);}comboFlash(m,'EXECUTE!','#ff9a5a');}
     else if(el==='holy'&&m.frailUntil>now){dmg=Math.round(dmg*1.4);comboFlash(m,'PURGE!','#fff0a0');fx.push({k:'pillar',x:m.x,y:m.y,t0:now,dur:.5});}
     else if(el==='wind'&&m.slowUntil>now){dmg=Math.round(dmg*1.4);comboFlash(m,'STORM SURGE!','#c8f0ff');

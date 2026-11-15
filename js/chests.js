@@ -30,7 +30,7 @@ const chestOpen=o=>!!(P&&chestState().open[o.key]);
   ctx.restore();};}
 const CH={goal:null};
 function chestAt(sc){if(!Z)return null;let best=null,bd=30;for(const o of Z.objs){if(o.kind!=='chest')continue;const p=proj(o.x,o.y),d=Math.hypot(p.x-sc.x,p.y-10-sc.y);if(d<bd){bd=d;best=o;}}return best;}
-addEventListener('pointerdown',ev=>{if(ev.target!==cv||!P||P.dead||!running)return;if(typeof npcBusy==='function'&&npcBusy())return;const o=chestAt(screenAt(ev));if(!o)return;
+addEventListener('pointerdown',ev=>{if(ev.target!==cv||!P||P.dead||!running)return;if(typeof npcBusy==='function'&&npcBusy())return;const sc=screenAt(ev),o=chestAt(sc);if(!o||(typeof objTapSkip==='function'&&objTapSkip(ev,sc,o,10)))return;
   ev.stopPropagation();ev.preventDefault();if(chestOpen(o)){floatT(o.x,o.y-30,'Empty: it refills tomorrow','#c8d0dc',12);return;}
   P.target=null;P.queued=null;P.sitting=false;if(Math.hypot(P.x-o.x,P.y-o.y)<56)chestOpenNow(o);else{CH.goal=o;pathTo(o.x,o.y+12,true);}},true);
 setInterval(()=>{const o=CH.goal;if(!o||!P)return;if(P.target||P.dead||!Z||!Z.objs.includes(o)){CH.goal=null;return;}if(Math.hypot(P.x-o.x,P.y-o.y)<56){CH.goal=null;P.path=[];chestOpenNow(o);}},150);

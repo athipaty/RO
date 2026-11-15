@@ -13,8 +13,11 @@ function lSummary(s){if(!s)return 'Empty';const top=Object.entries(s.st).filter(
   const sk=Object.entries(s.skills).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k,v])=>SKILLS[k]?`${SKILLS[k].name} ${v}`:'').filter(Boolean).join(', ');
   return [top,sk].filter(Boolean).join(' · ')||'No points spent';}
 function lState(){const L=P.loadouts=P.loadouts&&Array.isArray(P.loadouts.slots)?P.loadouts:{slots:[null,null,null],cur:-1,open3:false};
-  // a saved setup from another job no longer fits
-  L.slots=L.slots.map(s=>s&&s.cls===P.cls?s:null);if(L.cur>=0&&!L.slots[L.cur])L.cur=-1;return L;}
+  /* a setup keeps working after moving up the same line (Warden -> Bulwark -> Aegislord keep every earlier skill);
+     one from another job, or from before a rebirth (back to Novice), no longer fits */
+  const now_=CLASSES[P.cls],fits=s=>{if(!s||!now_)return false;if(s.cls===P.cls)return true;const was=CLASSES[s.cls];
+    return !!was&&was.skills.every(k=>now_.skills.includes(k))&&Object.keys(s.skills).every(k=>now_.skills.includes(k));};
+  L.slots=L.slots.map(s=>fits(s)?s:null);if(L.cur>=0&&!L.slots[L.cur])L.cur=-1;return L;}
 function lApply(s){const stT=lStatTotal(),skT=lSkillTotal();const stSpent=Object.values(s.st).reduce((a,v)=>a+statSpent(v),0);
   const allowed=new Set(CLASSES[P.cls].skills),skills={};for(const [k,v] of Object.entries(s.skills))if(allowed.has(k)&&SKILLS[k])skills[k]=Math.min(v,SKILLS[k].max||10);
   const skSpent=Object.values(skills).reduce((a,v)=>a+v,0);if(stSpent>stT||skSpent>skT)return false;
