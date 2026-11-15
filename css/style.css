@@ -1209,3 +1209,5 @@ body.touchui #bossBar{width:min(380px,56vw)}body.touchui #bossBar .bbn{font-size
 #giftPill[hidden]{display:none}@keyframes giftBob{50%{box-shadow:0 0 20px rgba(255,190,70,.6)}}
 body.npcopen #giftPill{display:none}
 #weight .wgold{margin-left:8px;color:var(--exp);font-weight:700}#weight .wgold::before{content:"◉ ";font-size:.9em}
+/* auto-hunt Skills switch (js/autoskill.js): dimmed while off */
+#autoPick.ring .apSk:not(.on) .apI{opacity:.5;filter:grayscale(.8)}#autoPick.ring .apSk:not(.on)>span b{color:var(--muted)}
