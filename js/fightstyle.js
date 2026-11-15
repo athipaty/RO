@@ -160,7 +160,7 @@ const fsLite=()=>!!window.LITE;
 {const _baF=basicAttack;basicAttack=function(t){const was=FSTY.me;FSTY.me=true;
   try{return _baF.apply(this,arguments);}finally{FSTY.me=was;if(P&&P.bowT===now)FSTY.bow={t,until:now+1.2};}};}
 // melee: the plain slash gives way to the calling's own impact
-const fsSwapSlash=(t,st)=>{if(!st||!st.melee||!t)return;let found=false;for(let i=fx.length-1;i>=0&&i>=fx.length-4;i--){const f=fx[i];if(f.k==='slash'&&f.t0===now){fx.splice(i,1);found=true;break;}}
+const fsSwapSlash=(t,st)=>{if(!st||!st.melee||!t)return;let found=false;for(let i=fx.length-1;i>=0&&i>=fx.length-16;i--){const f=fx[i];if(f.k==='slash'&&f.t0===now){fx.splice(i,1);found=true;break;}}
   if(found)try{st.melee(t);}catch(e){}};
 {const _miF=meleeImpact;meleeImpact=function(force){const h=P&&P.meleeHit;FSTY.basic++;let r;try{r=_miF.apply(this,arguments);}finally{FSTY.basic--;}
   if(h&&P.meleeHit!==h&&h.t)fsSwapSlash(h.t,fsStyle(P.cls));return r;};}

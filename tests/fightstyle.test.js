@@ -8,7 +8,7 @@ module.exports = async t => {
       const jobs = ['warden', 'bulwark', 'ravager', 'runeguard', 'arcanist', 'stormcaller', 'hexweaver', 'chronomancer', 'ranger', 'sharpshooter', 'wildstalker', 'falconer', 'cleric', 'templar', 'oracle', 'ascetic'];
       out.all = jobs.every(j => fsStyle(j) && fsStyle(j).cast && fsStyle(j).fin && fsStyle(j).melee);
       out.unique = new Set(jobs.map(j => fsStyle(j).fin.n)).size === 16 && new Set(jobs.map(j => fsStyle(j).cast[0] + fsStyle(j).cast[1])).size === 16;
-      out.master = fsStyle('timeweaver') === fsStyle('chronomancer') && fsStyle('warbringer') === fsStyle('ravager') && !fsStyle('novice');
+      out.master = !!fsStyle('timeweaver') && fsStyle('timeweaver') !== fsStyle('chronomancer') && !fsStyle('novice');
       enterZone('meadow'); await sleep(300);
       for (const m of mobs) { m.d = { ...m.d, hp: 1e8, atk: 0, def: 0, flee: 0 }; m.hp = 1e8; }
       const m = mobs.find(x => !x.dead); P.lv = 40; P.jl = 30;
@@ -22,6 +22,9 @@ module.exports = async t => {
       // a Ravager's melee hit: the plain slash becomes the heavy chop (crescent + cracks)
       P.cls = 'ravager'; S = computeStats(); P.x = m.x + 20; P.y = m.y; fx.length = 0; P.meleeHit = { t: m, at: now }; meleeImpact(true);
       out.chop = !fx.some(f => f.k === 'slash') && fx.some(f => f.k === 'crescent') && fx.some(f => f.k === 'quake');
+      /* a critical hit adds more effects after the slash: it must still become the chop */
+      { const c0 = S.crit; S.crit = 1000; fx.length = 0; P.meleeHit = { t: m, at: now }; meleeImpact(true); S.crit = c0;
+        out.chop = out.chop && fx.some(f => f.k === 'critburst') && !fx.some(f => f.k === 'slash') && fx.some(f => f.k === 'quake'); }
       // damage stays the same: the styled hit calls the same dealPhys(t, 1)
       { let calls = []; const dp = dealPhys; dealPhys = (t, mult) => { calls.push(mult); }; P.meleeHit = { t: m, at: now }; meleeImpact(true); dealPhys = dp; out.same = calls.length === 1 && calls[0] === 1; }
       // another player's attack shows in their calling's style
@@ -35,7 +38,7 @@ module.exports = async t => {
         out.finRare = !texts.some(x => /Hundred Fists!/.test(x.txt)); }
       return out; });
     t.ok(r.all && r.unique, `all 16 first and advanced callings have their own cast circle, impact and finisher (all ${r.all}, unique ${r.unique})`);
-    t.ok(r.master, 'master callings use their advanced calling\'s style; a Novice keeps the plain one');
+    t.ok(r.master, 'master callings have a style of their own; a Novice keeps the plain one');
     t.ok(r.spark, 'a Stormcaller\'s basic attack flies as a spark');
     t.ok(r.draw === true, 'every style draws without errors ' + (r.draw === true ? '' : r.draw));
     t.ok(r.chop && r.same, `a Ravager's hit lands as a heavy chop with the same damage call (chop ${r.chop}, same ${r.same})`);
