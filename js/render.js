@@ -167,7 +167,9 @@ function render(){
   if(P.target&&!P.target.dead){const t=P.target;at(t.x,t.y,()=>{ctx.strokeStyle='rgba(255,90,70,.9)';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.lineDashOffset=-now*20;ctx.beginPath();ctx.ellipse(t.x,t.y+2,t.d.size+9,(t.d.size+9)*.5,0,0,7);ctx.stroke();ctx.setLineDash([]);});}
   // projectiles
   for(const s of shots)at(s.x,s.y,()=>{ctx.save();ctx.translate(s.x,s.y);
-    if(s.kind==='arrow'){ctx.rotate(s.ang||0);ctx.strokeStyle=s.col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-12,0);ctx.lineTo(6,0);ctx.stroke();ctx.fillStyle=s.col;ctx.beginPath();ctx.moveTo(9,0);ctx.lineTo(3,-3);ctx.lineTo(3,3);ctx.fill();}
+    /* a calling's own projectile (js/fightstyle.js) draws itself */
+    if(s.draw){try{s.draw(s);}catch(e){}}
+    else if(s.kind==='arrow'){ctx.rotate(s.ang||0);ctx.strokeStyle=s.col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-12,0);ctx.lineTo(6,0);ctx.stroke();ctx.fillStyle=s.col;ctx.beginPath();ctx.moveTo(9,0);ctx.lineTo(3,-3);ctx.lineTo(3,3);ctx.fill();}
     else{const g=ctx.createRadialGradient(0,0,1,0,0,10);g.addColorStop(0,'#fff');g.addColorStop(.4,s.col);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,10,0,7);ctx.fill();}
     ctx.restore();});
   drawFx();
