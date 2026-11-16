@@ -23,6 +23,8 @@ module.exports = async t => {
       openPanel('skills'); await sleep(150); panel.querySelector('[data-act="openguide"]').click(); await sleep(250);
       out.guideTab = panelKind === 'buildguide' && document.querySelector('#winTabs .wtab.on')?.dataset.wt === 'skills';
       panel.querySelector('.bgback').click(); await sleep(200); out.guideBack = panelKind === 'skills';
+      // no window is wider than the screen (it must not slide sideways)
+      out.wide = []; for (const k of ['status', 'items', 'equip', 'skills', 'quests', 'guild', 'settings']) { openPanel(k); await sleep(150); if (panel.scrollWidth > panel.clientWidth + 1) out.wide.push(k + ':' + panel.scrollWidth + '>' + panel.clientWidth); }
       // townsfolk windows (a shop) get no tabs
       openPanel('shop'); await sleep(200); out.shopNoTabs = !document.querySelector('#panel>#winTabs');
       closePanel(); return out; });
@@ -30,6 +32,7 @@ module.exports = async t => {
     t.ok(r.tapEquip, 'tapping a tab switches window without closing');
     t.ok(r.swipeNext && r.swipeBack, `swiping left goes to the next window and right goes back (next ${r.swipeNext}, back ${r.swipeBack})`);
     t.ok(r.guideTab && r.guideBack, `the Build guide keeps the Skills tab lit and ← Skills goes back (tab ${r.guideTab}, back ${r.guideBack})`);
+    t.ok(r.wide.length === 0, 'no window can be slid sideways ' + r.wide.join(' '));
     t.ok(r.shopNoTabs, 'shop and other townsfolk windows have no tabs');
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));
   } finally { await A.close(); }
