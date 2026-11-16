@@ -1,6 +1,6 @@
 "use strict";
 /* ================= phones: switch between your own windows without closing them =================
-   On a phone, Stats, Items, Equip, Skills and Quests show a row of tabs fixed along the bottom, centred. Tap a tab to jump straight to
+   On a phone, Stats, Items, Equip, Skills, Quests, Guild and Settings show tabs: a row along the bottom (upright) or a column on the left (sideways). Tap a tab to jump straight to
    that window, or swipe left / right on the window to go to the next / previous one. The ✕ still closes.
    Swipes that start on something that scrolls sideways (a tab row, a slider) are left alone. Desktop is unchanged. */
 const WIN_TABS=[
@@ -8,7 +8,9 @@ const WIN_TABS=[
   ['items','Items','<path d="M5.5 9h13l-1.2 11.5H6.7z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/>'],
   ['equip','Equip','<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>'],
   ['skills','Skills','<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>'],
-  ['quests','Quests','<path d="M7 3h10v18l-5-3-5 3z"/><path d="M10 8h4M10 11h4"/>']];
+  ['quests','Quests','<path d="M7 3h10v18l-5-3-5 3z"/><path d="M10 8h4M10 11h4"/>'],
+  ['guild','Guild','<path d="M5 21V4"/><path d="M5 4h13l-2.5 4.5L18 13H5"/>'],
+  ['settings','Settings','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>']];
 // windows opened from one of these count as that tab (the Build guide is part of Skills)
 const WIN_TAB_OF={buildguide:'skills'};
 const winTabKind=()=>WIN_TAB_OF[panelKind]||panelKind;
@@ -38,4 +40,4 @@ PANEL_ACTS.bgback=()=>{sfx('click');openPanel('skills');};
     if(sideScroll(ev.target))return;sx=t.clientX;sy=t.clientY;st=performance.now();ok=true;},{passive:true});
   panel.addEventListener('touchend',ev=>{if(!ok)return;ok=false;const t=ev.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
     if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6&&performance.now()-st<700)winTabStep(dx<0?1:-1);},{passive:true});})();
-if(typeof TH!=='undefined')Object.assign(TH,{'← Skills':'← สกิล','Your windows':'หน้าต่างของคุณ','Stats':'สถานะ','Items':'ไอเทม','Equip':'สวมใส่','Skills':'สกิล','Quests':'เควส'});
+if(typeof TH!=='undefined')Object.assign(TH,{'← Skills':'← สกิล','Your windows':'หน้าต่างของคุณ','Stats':'สถานะ','Items':'ไอเทม','Equip':'สวมใส่','Skills':'สกิล','Quests':'เควส','Guild':'กิลด์','Settings':'ตั้งค่า'});

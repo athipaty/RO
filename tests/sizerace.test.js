@@ -23,7 +23,7 @@ module.exports = async t => {
       openPanel('mob', m.d.id); const info = panel.textContent; openPanel('status'); const st = panel.textContent; closePanel(); return { tl, info, st, forge: FORGES.some(f => f[0] === 'beastbane') }; });
     t.ok(/Small|Medium|Large/.test(ui.tl), 'the target box shows size and race: ' + ui.tl);
     t.ok(/Size and race/.test(ui.info) && /deal \d+%/.test(ui.info), 'monster info explains how your weapon fares');
-    t.ok(/Vs size S\/M\/L/.test(ui.st), 'the Stats window lists your weapon against each size');
+    t.ok(/Vs small/.test(ui.st) && /Vs medium/.test(ui.st) && /Vs large/.test(ui.st), 'the Stats window lists your weapon against each size');
     t.ok(ui.forge, 'the race charms can be forged at the smithy');
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));
   } finally { await A.close(); }

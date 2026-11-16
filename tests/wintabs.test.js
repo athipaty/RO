@@ -26,7 +26,7 @@ module.exports = async t => {
       // townsfolk windows (a shop) get no tabs
       openPanel('shop'); await sleep(200); out.shopNoTabs = !document.querySelector('#panel>#winTabs');
       closePanel(); return out; });
-    t.ok(r.tabs === 'status,items,equip,skills,quests' && r.onItems, `the Items window shows tabs for your windows (${r.tabs})`);
+    t.ok(r.tabs === 'status,items,equip,skills,quests,guild,settings' && r.onItems, `the Items window shows tabs for your windows (${r.tabs})`);
     t.ok(r.tapEquip, 'tapping a tab switches window without closing');
     t.ok(r.swipeNext && r.swipeBack, `swiping left goes to the next window and right goes back (next ${r.swipeNext}, back ${r.swipeBack})`);
     t.ok(r.guideTab && r.guideBack, `the Build guide keeps the Skills tab lit and ← Skills goes back (tab ${r.guideTab}, back ${r.guideBack})`);

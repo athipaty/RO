@@ -1263,4 +1263,13 @@ body.touchui #panel.npcfull #eqCv{background:rgba(0,0,0,.18);border:1px solid rg
   body.touchui #panel.npcfull .eqslot button{min-height:28px!important;padding:3px 7px!important;font-size:11px!important}
   body.touchui #panel.npcfull .eqslot{column-gap:5px!important;padding:6px 7px!important}
 }
+/* seven window tabs: a little more compact so they fit a phone's width (upright) and height (sideways) */
+body.touchui #panel.npcfull>#winTabs{gap:4px}
+body.touchui #panel.npcfull>#winTabs .wtab{flex:1 1 0;min-width:0;max-width:74px;padding:5px 2px 4px;font-size:10px}
+body.touchui #panel.npcfull>#winTabs .wtab span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+@media (orientation:landscape) and (max-height:520px){
+  body.touchui #panel.npcfull>#winTabs{gap:4px}
+  body.touchui #panel.npcfull>#winTabs .wtab{flex:0 0 auto;width:66px;max-width:none;padding:4px 3px 3px;gap:1px}
+  body.touchui #panel.npcfull>#winTabs .wtab svg{width:16px;height:16px}
+}
 
