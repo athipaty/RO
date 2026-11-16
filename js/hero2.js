@@ -17,9 +17,12 @@ const HERO2_DRESS={
 function hero2Shade(hex,a){if(typeof mlShade==='function')return mlShade(hex,a);return hex;}
 function drawHuman2(x,y,body,hair,face,walk,opt={}){
   const L=opt.look||{style:0,eye:'#5a3a22',skin:'#f6d6b8',seed:0};hair=L.hair||hair;
-  const f=face<0?-1:1,out=HERO2_DRESS[opt.outfit]?opt.outfit:'npc',D=HERO2_DRESS[out],OL='#2a1c14',st=L.style|0,bk=!!opt.back,sd=L.seed||0;
+  /* one view only, like classic 2.5D MMOs: heroes face the camera turned left or right, never their back */
+  const f=face<0?-1:1,out=HERO2_DRESS[opt.outfit]?opt.outfit:'npc',D=HERO2_DRESS[out],OL='#2a1c14',st=L.style|0,bk=false,sd=L.seed||0;
   const wk=walk?Math.sin(walk*12):0,bob=walk?Math.abs(wk)*1.4:0,br=walk||opt.sit?0:Math.sin(now*2.2+sd),sit=opt.sit?7:0;
-  const by=y-9-bob+sit,hy=by-20+br*.5,robe=out==='arcanist'||out==='cleric',bw=BUILD_W[L.body|0]||1;
+  /* breathing: the whole body rises and settles a little (feet stay on the ground), the head follows a beat later */
+  const breath=opt.sit?Math.sin(now*2.2+sd)*.5:br*.9;
+  const by=y-9-bob+sit-breath,hy=by-20-Math.sin(now*2.2+sd-.6)*.35,robe=out==='arcanist'||out==='cleric',bw=BUILD_W[L.body|0]||1;
   const top=out==='cleric'?'#f4efe2':body,dark=hero2Shade(top,-38),lite=hero2Shade(top,30);
   shadow(x,y,12);ctx.lineJoin='round';ctx.lineCap='round';ctx.lineWidth=1.5;ctx.strokeStyle=OL;
   const fs=()=>{ctx.fill();ctx.stroke();};
@@ -141,5 +144,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
 /* preview switch: loaded right after render.js so job looks (joblooks.js) and other wrappers sit on top of it.
    ?hero2=1 / ?hero2=0 in the address is remembered on this device; only how this screen draws heroes changes. */
 const HERO2_ON=(()=>{try{const m=/[?&]hero2=([01])/.exec(location.search);if(m)localStorage.setItem('embervale.hero2',m[1]);return localStorage.getItem('embervale.hero2')==='1';}catch(e){return false;}})();
-if(HERO2_ON)drawHuman=drawHuman2;
+if(HERO2_ON){drawHuman=drawHuman2;
+  // the weapon slung on the back and other back-view details also stay in the one front view
+  const _dpb2=drawPlayerBody;drawPlayerBody=function(p,wid){const b=p.back;p.back=false;try{return _dpb2.call(this,p,wid);}finally{p.back=b;}};}
 
