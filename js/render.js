@@ -418,15 +418,20 @@ function drawPlayer(P,wid){
   // wind up (lean back), strike (step in and lean into it), recover
   if(body){if(p<.3){const k=ease3(p/.3);push=-3*k;lean=-.1*k;}else if(p<.55){const k=easeOut((p-.3)/.25);push=-3+15*k;lean=-.1+.26*k;}else{const k=ease3(Math.min(1,(p-.55)/.7));push=12*(1-k);lean=.16*(1-k);}}
   /* each job family's own attack motion (js/hitstyle.js); the bow keeps its draw, with a lean */
-  let hop=0,hp=typeof hitPose==='function'?hitPose(P,swingPhase(P),w):null;
-  if(!hp&&w&&w.wt==='bow'&&typeof bowLean==='function'&&typeof bowPhase==='function')hp=bowLean(bowPhase(P));
-  if(hp){push=hp.push||0;lean=hp.lean||0;hop=hp.hop||0;}
+  let hop=0,sx=1,hp=typeof hitPose==='function'?hitPose(P,swingPhase(P),w):null;
+  if(!hp&&w&&w.wt==='bow'&&typeof bowPose==='function'&&typeof bowPhase==='function')hp=bowPose(P,bowPhase(P));
+  if(hp){push=hp.push||0;lean=hp.lean||0;hop=hp.hop||0;sx=hp.sx===undefined?1:hp.sx;}
   const lg=!body&&!hp&&P.lungeT&&now-P.lungeT<.2?Math.sin((now-P.lungeT)/.2*Math.PI)*7:0,hr=P.hurtT&&now-P.hurtT<.2?Math.sin((now-P.hurtT)/.2*Math.PI*3)*2.5:0;
-  if(!lg&&!hr&&!push&&!lean&&!hop)return drawPlayerBody(P,wid);
+  if(!lg&&!hr&&!push&&!lean&&!hop&&sx===1)return drawPlayerBody(P,wid);
   const dX=hp?(P.face||1):(P.lgX||0),dY=hp?0:(P.lgY||0);
-  ctx.save();ctx.translate(dX*(lg+push)+hr,dY*(lg+push)-hop);
-  if(lean){ctx.translate(P.x,P.y);ctx.rotate(lean*(P.face||1));ctx.translate(-P.x,-P.y);}
-  drawPlayerBody(P,wid);ctx.restore();}
+  // one pose: step (push), hop or crouch, lean around the feet, and a horizontal turn (sx, the Ravager's spin)
+  const pose=(off,alpha)=>{ctx.save();if(alpha<1)ctx.globalAlpha*=alpha;ctx.translate(dX*(lg+push-off)+hr,dY*(lg+push)-hop);
+    if(lean){ctx.translate(P.x,P.y);ctx.rotate(lean*(P.face||1));ctx.translate(-P.x,-P.y);}
+    if(sx!==1){const k=Math.abs(sx)<.08?.08*Math.sign(sx||1):sx;ctx.translate(P.x,0);ctx.scale(k,1);ctx.translate(-P.x,0);}
+    drawPlayerBody(P,wid);ctx.restore();};
+  // master callings leave afterimages trailing behind the body while they strike
+  if(hp&&hp.ghost&&Math.abs(push)>2){pose(Math.sign(push)*12,.16);pose(Math.sign(push)*6,.28);}
+  pose(0,1);}
 // the weapon itself, grip at 0,0 and pointing up (-y); a bow ignores the turn
 function drawWeaponShape(w,ang){
   ctx.lineCap='round';
@@ -485,7 +490,7 @@ function drawPlayerBody(P,wid){
     let castUp=0;if(P.casting&&!sw){ang=.08;castUp=9;}
     if(!ranged&&p>=0){if(p<.3){const k=ease3(p/.3);ang=.6-1.6*k;lift=k;}else if(p<.55){const k=easeOut((p-.3)/.25);ang=-1+3.15*k;lift=1-k;}else{const k=ease3(Math.min(1,(p-.55)/.7));ang=2.15-1.55*k;}}
     const hp=p>=0&&W.bow<0&&typeof hitPose==='function'?hitPose(P,p,w):null;let reach=0;if(hp){ang=hp.ang;lift=hp.lift;reach=hp.reach||0;}
-    W.behind=W.bow<0&&!ranged&&p>=0&&ang<.15&&lift>.15;
+    W.behind=W.bow<0&&(!ranged||w.wt==='wand')&&p>=0&&ang<.15&&lift>.15;
     // standing or walking (not attacking, casting or seen from behind) the weapon is in the hand on the side the hero
     // faces, which is behind the body, so the weapon is too; it comes out in front when the hero attacks
     if(p<0&&W.bow<0&&!P.casting&&!P.back&&!P.sitting)W.behind=true;
