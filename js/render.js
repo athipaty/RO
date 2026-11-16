@@ -463,9 +463,11 @@ function bowPhase(p){if(p.bowT&&now-p.bowT<(p.bowDur||.4))return (now-p.bowT)/(p
 function drawBowShot(P,w,by,k){const f=P.face||1,R=BOW_RELEASE_V,ease=x=>1-(1-x)*(1-x);
   const up=k<R?ease(k/R):k<.75?1:1-ease((k-.75)/.25),pull=k<R?ease(k/R)*10:Math.max(0,10-(k-R)*140),recoil=k>R&&k<R+.12?Math.sin((k-R)/.12*Math.PI)*2.2:0;
   const x=P.x+f*(9+up*7-recoil),y=by-4-up*10;ctx.save();ctx.translate(x,y);ctx.scale(f,1);ctx.rotate(-.12*up);
-  ctx.lineCap='round';ctx.strokeStyle='#8a5a2a';ctx.lineWidth=2.6;ctx.beginPath();ctx.arc(0,0,14,-1.25,1.25);ctx.stroke();
-  ctx.strokeStyle='#6a4220';ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,14,-1.25,-1.05);ctx.stroke();ctx.beginPath();ctx.arc(0,0,14,1.05,1.25);ctx.stroke();
-  const tx=Math.cos(1.25)*14,ty=Math.sin(1.25)*14,sx=tx-pull;ctx.strokeStyle='#f2eee4';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(tx,-ty);ctx.lineTo(sx,0);ctx.lineTo(tx,ty);ctx.stroke();
+  // the bow's own look (js/weaponart.js), or the plain bow
+  let BT=null;if(typeof bowLimbsArt==='function')BT=bowLimbsArt(w,14,1.25);
+  else{ctx.lineCap='round';ctx.strokeStyle='#8a5a2a';ctx.lineWidth=2.6;ctx.beginPath();ctx.arc(0,0,14,-1.25,1.25);ctx.stroke();
+  ctx.strokeStyle='#6a4220';ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,14,-1.25,-1.05);ctx.stroke();ctx.beginPath();ctx.arc(0,0,14,1.05,1.25);ctx.stroke();}
+  const tx=BT?BT.tx:Math.cos(1.25)*14,ty=BT?BT.ty:Math.sin(1.25)*14,sx=tx-pull;ctx.strokeStyle='#f2eee4';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(tx,-ty);ctx.lineTo(sx,0);ctx.lineTo(tx,ty);ctx.stroke();
   if(k<R){ctx.strokeStyle='#e8dcb0';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(sx,0);ctx.lineTo(17,0);ctx.stroke();ctx.fillStyle='#c8ccd4';ctx.beginPath();ctx.moveTo(20,0);ctx.lineTo(16,-2.4);ctx.lineTo(16,2.4);ctx.closePath();ctx.fill();
     ctx.fillStyle='#d84a3a';ctx.fillRect(sx-1,-2,3,1.4);ctx.fillRect(sx-1,.6,3,1.4);}
   else if(k<R+.15){const a=1-(k-R)/.15;ctx.strokeStyle=`rgba(255,246,220,${a*.8})`;ctx.lineWidth=1.2;for(const d of [-4,0,4]){ctx.beginPath();ctx.moveTo(18,d*.6);ctx.lineTo(24+(1-a)*6,d);ctx.stroke();}}
