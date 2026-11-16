@@ -38,6 +38,10 @@ PANEL_ACTS.setautoloot=()=>{if(P)setAutoLoot(P.autoLoot===false,true);};
 PANEL_ACTS.setlite=()=>{SETS.lite=!SETS.lite;saveSets();applySets();refreshPanel();};
 PANEL_ACTS.sethelp=()=>openPanel('help');
 PANEL_ACTS.setswitch=()=>{if(typeof switchCharacter==='function')switchCharacter();};
+/* Exit in the Menu: saves and goes back to the start screen, where you can log in, log out or pick another character */
+(()=>{const b=document.getElementById('mExit');if(!b)return;b.addEventListener('click',ev=>{ev.stopPropagation();const d=document.getElementById('dock');if(d)d.classList.remove('open');
+  if(typeof sfx==='function')sfx('click');if(typeof addLog==='function'&&running)addLog('Saving… back to the start screen.','l-sys');if(typeof switchCharacter==='function')switchCharacter();});})();
+if(typeof TH!=='undefined')Object.assign(TH,{'Exit':'ออก','Save and go back to the start screen (log in, log out or switch character)':'บันทึกแล้วกลับไปหน้าเริ่มต้น (เข้าสู่ระบบ ออกจากระบบ หรือเปลี่ยนตัวละคร)','Saving… back to the start screen.':'กำลังบันทึก… กลับไปหน้าเริ่มต้น'});
 // volume sliders change as you drag (no window rebuild, so the slider keeps the pointer)
 panel.addEventListener('input',ev=>{const k=ev.target.dataset&&ev.target.dataset.set;if(!k)return;const v=clamp(+ev.target.value/100,0,1);
   AU[k]=v;saveAudio();applyVolumes();const val=ev.target.parentElement.querySelector('.val');if(val)val.textContent=pct(v)+'%';});
