@@ -31,7 +31,7 @@ function autoSkillHurtMate(id){if(typeof partyMatesHere!=='function')return null
   return partyMatesHere().find(o=>typeof o.hp==='number'&&o.hp>0&&o.hp<55&&Math.hypot(o.rx-P.x,o.ry-P.y)<=r)||null;}
 const autoSkillMobs=(c,r)=>{let n=0;for(const m of mobs)if(!m.dead&&!m.dying&&dist(m,c)<r+m.d.size)n++;return n;};
 function autoSkillTick(){
-  if(!P||!(P.auto||P.autoHit)||P.autoSkill===false||P.dead||!Z||Z.D.safe||P.casting||now<AUTOSK.t)return;AUTOSK.t=now+.25;
+  if(!P||!P.auto||P.autoSkill===false||P.dead||!Z||Z.D.safe||P.casting||now<AUTOSK.t)return;AUTOSK.t=now+.25;
   if(P.heavy>1||(typeof ailHeld==='function'&&ailHeld())||(typeof ailOn==='function'&&ailOn('silence')))return;
   const list=autoSkillList();if(!list.length)return;
   const t=P.target&&!P.target.dead&&!P.target.dying?P.target:null,hp=P.hp/S.maxhp;

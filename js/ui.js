@@ -364,22 +364,24 @@ function closeChat(onlyIfEmpty){const i=$('#chatIn');if(onlyIfEmpty&&i.value)ret
 $('#chatbar').addEventListener('submit',ev=>{ev.preventDefault();const i=$('#chatIn');sendChat(i.value);i.value='';closeChat();});
 $('#chatIn').addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDefault();$('#chatIn').value='';closeChat();}ev.stopPropagation();});
 
-/* ================= save / load: three character slots (per account, or per device for guests) and one shared storage ================= */
-const SLOTS=3,SLOT_KEY='embervale.slot',GUEST_ST_KEY='embervale.storage.v1';
+/* ================= save / load: six character slots (per account, or per device for guests) and one shared storage ================= */
+const SLOTS=6,SLOT_KEY='embervale.slot',GUEST_ST_KEY='embervale.storage.v1';
 // slot: the chosen slot · sum: a short summary of each slot · legacy: the server only knows one character
 // shared: this character uses the shared storage · storage/rev: the shared storage and its version on the server
 // oldSt: items from this character's own old storage that are not yet in the shared one
+// max: how many slots the account's server offers (3 on servers before v1.8.2, 6 after); guests always have SLOTS
 const CS={slot:(()=>{try{const n=+localStorage.getItem(SLOT_KEY);return n>=0&&n<SLOTS?n|0:0;}catch(e){return 0;}})(),
-  sum:[null,null,null],legacy:false,shared:false,storage:null,rev:0,busy:false,oldSt:null};
+  sum:Array(SLOTS).fill(null),max:SLOTS,legacy:false,shared:false,storage:null,rev:0,busy:false,oldSt:null};
 const slotKey=n=>n?SAVE_KEY+'.s'+n:SAVE_KEY;
-const slotOpen=n=>!(ACC.token&&CS.legacy&&n>0);
+const ALL_SLOTS=[...Array(SLOTS).keys()];
+const slotOpen=n=>!(ACC.token&&(CS.legacy?n>0:n>=CS.max));
 const slotQ=()=>ACC.token&&CS.legacy?'':'?slot='+CS.slot;
 function loadSlot(n){try{const s=JSON.parse(localStorage.getItem(slotKey(n))||'null');return s&&s.v===1?s:null;}catch(e){return null;}}
 function loadSave(){return loadSlot(CS.slot);}
 function guestStorage(){try{const a=JSON.parse(localStorage.getItem(GUEST_ST_KEY)||'null');return Array.isArray(a)?a:null;}catch(e){return null;}}
 function writeGuestStorage(a){try{localStorage.setItem(GUEST_ST_KEY,JSON.stringify(a||[]));}catch(e){}}
 const slotSum=s=>s&&s.p?{name:s.p.name,lv:s.p.lv,jl:s.p.jl,cls:s.p.cls,look:s.p.look,reborn:s.p.reborn,zone:s.p.zone}:null;
-function guestSlots(){return [0,1,2].filter(n=>loadSlot(n));}
+function guestSlots(){return ALL_SLOTS.filter(n=>loadSlot(n));}
 function setSlot(n){CS.slot=n;try{localStorage.setItem(SLOT_KEY,String(n));}catch(e){}}
 // add one entry to a storage list (stacking like items); returns a new list, or null when storage is full
 function storageWith(list,e){const out=list.map(x=>({...x}));const st=e.n!==undefined?out.find(x=>x.id===e.id&&x.n!==undefined):null;
@@ -449,21 +451,21 @@ async function storageRefresh(){
     CS.rev=r.storageRev|0;P.storage=CS.storage=r.storage;if(panelKind==='storage')refreshPanel();}catch(e){}}
 function setAccount(sess){
   ACC.token=sess?sess.token:null;ACC.username=sess?sess.username:null;ACC.cloud=null;ACC.loaded=!sess;
-  CS.legacy=false;CS.storage=null;CS.rev=0;CS.sum=[null,null,null];
+  CS.legacy=false;CS.storage=null;CS.rev=0;CS.max=SLOTS;CS.sum=Array(SLOTS).fill(null);
   try{if(sess)localStorage.setItem('embervale.account',JSON.stringify({token:sess.token,username:sess.username}));else localStorage.removeItem('embervale.account');}catch(e){}
   if(NET.room&&NET.room.relogin)NET.room.relogin();
-  if(!sess)CS.sum=[0,1,2].map(n=>slotSum(loadSlot(n)));
+  if(!sess)CS.sum=ALL_SLOTS.map(n=>slotSum(loadSlot(n)));
   refreshTitle();}
 // fill in the slot summaries (and the shared storage) for the title screen
 async function loadCloud(){
-  if(!ACC.token){CS.sum=[0,1,2].map(n=>slotSum(loadSlot(n)));refreshTitle();return;}
+  if(!ACC.token){CS.sum=ALL_SLOTS.map(n=>slotSum(loadSlot(n)));refreshTitle();return;}
   acMsg('Loading your characters…',true);
   const fail=e=>{if(e.status===401){setAccount(null);acMsg('Your login has expired. Please log in again.');}else acMsg(e.message);};
-  try{const r=await api('GET','/characters');CS.legacy=false;CS.sum=[0,1,2].map(n=>r.slots&&r.slots[n]||null);
+  try{const r=await api('GET','/characters');CS.legacy=false;CS.max=Array.isArray(r.slots)?Math.min(SLOTS,Math.max(1,r.slots.length)):SLOTS;CS.sum=ALL_SLOTS.map(n=>r.slots&&r.slots[n]||null);
     CS.storage=Array.isArray(r.storage)?r.storage:null;CS.rev=r.storageRev|0;ACC.loaded=true;acMsg('');}
   catch(e){
     if(e.status===404){ // an older server: one character per account
-      try{const r=await api('GET','/character');CS.legacy=true;CS.sum=[slotSum(r.character&&r.character.v===1?r.character:null),null,null];ACC.loaded=true;acMsg('');}
+      try{const r=await api('GET','/character');CS.legacy=true;CS.sum=ALL_SLOTS.map(n=>n?null:slotSum(r.character&&r.character.v===1?r.character:null));ACC.loaded=true;acMsg('');}
       catch(e2){fail(e2);}}
     else fail(e);}
   if(!slotOpen(CS.slot))setSlot(0);

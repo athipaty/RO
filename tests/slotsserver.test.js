@@ -13,7 +13,7 @@ module.exports = async t => {
       const p = JSON.parse(JSON.stringify(newPlayer('Elder'))); p.lv = 20; p.storage = [{ id: 'red', n: 4 }];
       await api('PUT', '/character', { character: { v: 1, p } }); await loadCloud(); }, user);
     await ready(A);
-    t.ok(await A.ev(() => /Continue as Elder \(Lv 20\)/.test(document.getElementById('contBtn').textContent) && document.querySelectorAll('.slotc').length === 3), 'an account shows three slots, the old character in the first');
+    t.ok(await A.ev(() => /Continue as Elder \(Lv 20\)/.test(document.getElementById('contBtn').textContent) && document.querySelectorAll('.slotc').length === 6), 'an account shows six slots, the old character in the first');
     await A.ev(() => document.getElementById('contBtn').click());
     await A.page.waitForFunction(() => running && CS.oldSt === null && CS.rev > 0, { timeout: 8000 });
     t.ok(await A.ev(() => P.name === 'Elder' && P.storage.some(e => e.id === 'red' && e.n === 4)), 'its own storage moved into the account storage');

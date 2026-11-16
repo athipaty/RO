@@ -15,7 +15,7 @@ module.exports = async t => {
     await g.page.reload(); await wait(900);
     const t0 = await g.ev(() => ({ cards: document.querySelectorAll('.slotc').length, first: document.querySelector('.slotc[data-slot="0"]').textContent,
       empty: [...document.querySelectorAll('.slotc.empty')].length, cont: document.getElementById('contBtn').textContent, newHidden: document.getElementById('newBtn').hidden }));
-    t.ok(t0.cards === 3 && t0.empty === 2, `the title screen shows three slots, two empty (${t0.cards} cards)`);
+    t.ok(t0.cards === 6 && t0.empty === 5, `the title screen shows six slots, five empty (${t0.cards} cards)`);
     t.ok(/Oldie/.test(t0.first) && /Lv 12/.test(t0.first) && /Continue as Oldie \(Lv 12\)/.test(t0.cont) && t0.newHidden, 'the old save sits in slot 1 and can be continued');
     await g.ev(() => document.getElementById('contBtn').click()); await wait(700);
     const m = await g.ev(() => ({ name: P.name, st: P.storage.map(e => e.id + 'x' + e.n).join(), shared: JSON.parse(localStorage.getItem('embervale.storage.v1') || '[]').map(e => e.id + 'x' + e.n).join() }));

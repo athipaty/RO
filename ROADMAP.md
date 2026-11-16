@@ -156,4 +156,4 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [-] 80. L (server) Endless Spire: dropped (decided 2026-11-14)
 - [x] 81. S Build loadouts: save two skill and stat setups and swap between them at the Guild Hall (v1.3.0, js/loadouts.js)
 - [x] 82. M Mirelight Fen: a Lv 55–70 marsh east of Frostpeak Pass, seven monsters and the Mire Matriarch (v1.7.0)
-- [x] 83. S Auto-hit button: fight the monsters around you, skills first, without wandering (v1.8.0)
+- [x] 83. S Auto-hunt Stay here: fight around one spot, skills first, without wandering (v1.8.0 Hit button, merged into the Auto card in v1.8.2)

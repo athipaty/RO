@@ -202,9 +202,14 @@ function autoHunt(){
   const f=P.hp/S.maxhp;
   if(f<.4&&(P.cd.pot_hp||0)<=now){const pot=invFind('orange')?'orange':invFind('red')?'red':null;
     if(pot)useItem(pot);} /* no pause when out of tonics (user request): auto-hunt keeps going until HP runs out */
-  if((!P.target||P.target.dead)&&!P.path.length&&!P.lootGoal){let bl=null,bd=320;for(const l of loot)if(now>l.t0+.4&&!l.tooHeavy&&(P.autoLoot!==false||lootMatters(l))){const d=dist(l,P);if(d<bd){bd=d;bl=l;}}if(bl){goLoot(bl);return;}}
-  if((!P.target||P.target.dead)&&!P.path.length){let best=null,bd=650;for(const m of mobs)if(!m.dead&&!m.dying){const d=dist(m,P);if(d<bd){bd=d;best=m;}}if(best){P.target=best;P.queued=null;P.sitting=false;P.holdPos=false;}}
+  /* "Stay here" (P.autoStay, switch on the Auto card): only monsters and loot near the spot where auto-hunt started,
+     and walk back there when idle. The spot is set in js/autostay.js. */
+  const st=P.autoStay&&typeof AUTOSTAY!=='undefined'&&AUTOSTAY.z===zoneId?AUTOSTAY.at:null,inR=(o,r)=>!st||dist(o,st)<r;
+  if((!P.target||P.target.dead)&&!P.path.length&&!P.lootGoal){let bl=null,bd=320;for(const l of loot)if(now>l.t0+.4&&!l.tooHeavy&&(P.autoLoot!==false||lootMatters(l))&&inR(l,AUTOSTAY_R)){const d=dist(l,P);if(d<bd){bd=d;bl=l;}}if(bl){goLoot(bl);return;}}
+  if((!P.target||P.target.dead)&&!P.path.length){let best=null,bd=650;for(const m of mobs)if(!m.dead&&!m.dying&&inR(m,AUTOSTAY_R+m.d.size)){const d=dist(m,P);if(d<bd){bd=d;best=m;}}if(best){P.target=best;P.queued=null;P.sitting=false;P.holdPos=false;}
+    else if(st&&!P.lootGoal&&dist(P,st)>48)pathTo(st.x,st.y,true);}
 }
+const AUTOSTAY_R=260;
 
 /* ================= zones & entities ================= */
 function spawnMob(type,m,lead){

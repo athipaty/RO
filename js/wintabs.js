@@ -1,6 +1,6 @@
 "use strict";
 /* ================= phones: switch between your own windows without closing them =================
-   On a phone, Stats, Items, Equip, Skills and Quests show a row of tabs at the top. Tap a tab to jump straight to
+   On a phone, Stats, Items, Equip, Skills and Quests show a row of tabs fixed along the bottom, centred. Tap a tab to jump straight to
    that window, or swipe left / right on the window to go to the next / previous one. The ✕ still closes.
    Swipes that start on something that scrolls sideways (a tab row, a slider) are left alone. Desktop is unchanged. */
 const WIN_TABS=[
@@ -14,6 +14,7 @@ function winTabGo(kind,dir){if(!kind||kind===panelKind||!P)return;sfx('click');o
   if(dir){panel.classList.remove('wtL','wtR');void panel.offsetWidth;panel.classList.add(dir>0?'wtR':'wtL');setTimeout(()=>panel.classList.remove('wtL','wtR'),260);}}
 function winTabStep(d){const i=WIN_TABS.findIndex(w=>w[0]===panelKind);if(i<0)return;const n=WIN_TABS[(i+d+WIN_TABS.length)%WIN_TABS.length][0];winTabGo(n,d);}
 function winTabsDraw(){const old=panel.querySelector(':scope>#winTabs');
+  panel.classList.toggle('wtPad',winTabOn());
   if(!winTabOn()){if(old)old.remove();return;}
   let nav=old;if(!nav){nav=document.createElement('nav');nav.id='winTabs';nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Your windows');
     nav.innerHTML=WIN_TABS.map(([k,t,p])=>`<button type="button" role="tab" class="wtab" data-wt="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg><span>${t}</span></button>`).join('');

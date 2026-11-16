@@ -718,7 +718,7 @@ body.touchui #actions>#rideBtn.none{opacity:.5}
   body.touchui #actions>.act:not(#atkBtn){position:fixed;top:max(8px,env(safe-area-inset-top));width:38px!important;height:38px!important;transform:translateX(-50%)}
   body.touchui #actions>.act:not(#atkBtn) .aic{width:19px;height:19px}
   body.touchui #actions>#menuBtn{left:calc(42% - 69px)}body.touchui #actions>#autoBtn{left:calc(42% - 23px)}
-  body.touchui #actions>#rideBtn{left:calc(42% + 23px)}body.touchui #actions>#sitBtn{left:calc(42% + 69px)}body.touchui #actions>#ahitBtn{left:calc(42% + 115px)}
+  body.touchui #actions>#rideBtn{left:calc(42% + 23px)}body.touchui #actions>#sitBtn{left:calc(42% + 69px)}
   body.touchui #actions>.act:not(#atkBtn):active{transform:translateX(-50%) scale(.94)}
   body.touchui #autoPick{top:56px!important}
 }
@@ -740,8 +740,6 @@ body.touchui #buffs.side{margin-top:50px}
   /* Auto sits on the right, just above the skill and potion shortcuts */
   body.touchui #actions>#autoBtn{left:auto!important;right:calc(max(10px,env(safe-area-inset-right)) + 86px)!important;top:118px!important;transform:none!important}
   body.touchui #actions>#autoBtn:active{transform:scale(.94)}
-  body.touchui #actions>#ahitBtn{left:auto!important;right:calc(max(10px,env(safe-area-inset-right)) + 182px)!important;top:118px!important;transform:none!important}
-  body.touchui #actions>#ahitBtn:active{transform:scale(.94)}
   body.touchui #actions>#menuBtn{left:calc(42% - 46px)}body.touchui #actions>#rideBtn{left:42%}body.touchui #actions>#sitBtn{left:calc(42% + 46px)}
 }
 /* ===== phones: a bigger attack cluster (Attack 88px; skill and potion slots and their arc scaled up ~20%) ===== */
@@ -1215,9 +1213,6 @@ body.npcopen #giftPill{display:none}
 #weight .wgold{margin-left:8px;color:var(--exp);font-weight:700}#weight .wgold::before{content:"◉ ";font-size:.9em}
 /* auto-hunt Skills switch (js/autoskill.js): dimmed while off */
 #autoPick.ring .apSk:not(.on) .apI{opacity:.5;filter:grayscale(.8)}#autoPick.ring .apSk:not(.on)>span b{color:var(--muted)}
-/* Auto-hit (js/autohit.js): lit while on */
-#ahitBtn.on{box-shadow:0 0 0 2px #ffcf5a,0 0 14px rgba(255,190,80,.7)!important;color:#ffe6a0}
-body:not(.touchui) #ahitBtn .aic{display:none}
 /* ===== phones: game-style windows (royal blue with a gold frame) and tabs between your own windows (js/wintabs.js) ===== */
 body.touchui #panel.npcfull{background:
     radial-gradient(ellipse at 50% -8%,rgba(255,207,90,.16),transparent 50%),
@@ -1229,8 +1224,12 @@ body.touchui #panel.npcfull h2{color:#ffe6a0;text-shadow:0 2px 0 #3a2a0a,0 0 12p
 body.touchui #panel.npcfull h3{color:#f0cf7a;border-bottom:1px solid rgba(201,162,74,.35);padding-bottom:3px}
 body.touchui #panel.npcfull .x{background:radial-gradient(circle at 35% 30%,#3a4a72,#141d36 70%)!important;border:2px solid #c9a24a!important;color:#ffe6a0!important;box-shadow:0 0 0 1px #000,0 4px 10px rgba(0,0,0,.5)}
 #winTabs{display:none}
-body.touchui #panel.npcfull>#winTabs{display:flex;gap:6px;position:sticky;top:calc(-1 * (max(12px,env(safe-area-inset-top)) + 6px));z-index:1;margin:-2px auto 12px;padding:6px 60px 8px 0;
-  background:linear-gradient(180deg,#1f2e54 70%,rgba(31,46,84,0));overflow-x:auto;scrollbar-width:none}
+/* the tabs sit fixed along the bottom, centred, where the thumb is; the window leaves room for them */
+body.touchui #panel.npcfull>#winTabs{display:flex;justify-content:center;gap:6px;position:fixed;left:0;right:0;bottom:0;z-index:3;margin:0!important;max-width:none!important;
+  padding:10px max(12px,env(safe-area-inset-right)) calc(max(8px,env(safe-area-inset-bottom)) + 4px) max(12px,env(safe-area-inset-left));
+  background:linear-gradient(0deg,#0f1a33 60%,rgba(15,26,51,0));overflow-x:auto;scrollbar-width:none}
+body.touchui #panel.npcfull>#winTabs .wtab{flex:0 1 74px;min-width:56px}
+body.touchui #panel.npcfull.wtPad{padding-bottom:calc(max(16px,env(safe-area-inset-bottom)) + 84px)!important}
 #winTabs::-webkit-scrollbar{display:none}
 #winTabs .wtab{flex:1 0 auto;min-width:58px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px 5px;border-radius:10px;cursor:pointer;
   font:600 11px Inter,var(--ui);color:#cfd6e8;background:linear-gradient(180deg,#2a3b66,#18244a);border:1.5px solid #4a5a86;box-shadow:0 2px 0 #0a1020}

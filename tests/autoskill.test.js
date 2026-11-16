@@ -24,7 +24,9 @@ module.exports = async t => {
       P.auto = false; await sleep(200);
       // the cleric at full HP heals a hurt party member standing nearby, but not one who is fine or too far away
       { const pm = partyMatesHere, mate = { id: 'ally1', n: 'Ally', rx: P.x + 60, ry: P.y, hp: 30 }; partyMatesHere = () => [mate]; const sp0 = SOC.party; SOC.party = { id: 'p1', leader: 'me', mode: 'each', loot: 'each', members: [{ peer: 'ally1', name: 'Ally' }] };
-        P.casting = null; P.cd = {}; P.hp = S.maxhp; P.sp = S.maxsp; NET.sp = []; P.auto = true; await sleep(1500);
+        P.casting = null; P.cd = {}; P.hp = S.maxhp; P.sp = S.maxsp; NET.sp = []; P.target = null; P.path = []; P.auto = true;
+        /* under load the first casts can be slow: wait up to 3 s for Mend to go out */
+        for (let k = 0; k < 30 && !(P.cd.mend > 0 && NET.sp.some(e => e.to === 'ally1' && e.k === 'mend')); k++) await sleep(100);
         out.partyHeal = (P.cd.mend || 0) > 0 && NET.sp.some(e => e.to === 'ally1' && e.k === 'mend');
         P.auto = false; await sleep(200); P.casting = null; P.cd = {}; NET.sp = []; mate.hp = 90; P.auto = true; await sleep(1200); const fine = !P.cd.mend;
         P.auto = false; await sleep(200); P.casting = null; P.cd = {}; mate.hp = 30; mate.rx = P.x + 900; P.auto = true; await sleep(1200); out.partyOnlyNeeded = fine && !P.cd.mend;
