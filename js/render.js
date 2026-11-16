@@ -411,9 +411,14 @@ function drawPlayer(P,wid){
   let push=0,lean=0;
   // wind up (lean back), strike (step in and lean into it), recover
   if(body){if(p<.3){const k=ease3(p/.3);push=-3*k;lean=-.1*k;}else if(p<.55){const k=easeOut((p-.3)/.25);push=-3+15*k;lean=-.1+.26*k;}else{const k=ease3(Math.min(1,(p-.55)/.7));push=12*(1-k);lean=.16*(1-k);}}
-  const lg=!body&&P.lungeT&&now-P.lungeT<.2?Math.sin((now-P.lungeT)/.2*Math.PI)*7:0,hr=P.hurtT&&now-P.hurtT<.2?Math.sin((now-P.hurtT)/.2*Math.PI*3)*2.5:0;
-  if(!lg&&!hr&&!push&&!lean)return drawPlayerBody(P,wid);
-  ctx.save();ctx.translate((P.lgX||0)*(lg+push)+hr,(P.lgY||0)*(lg+push));
+  /* each job family's own attack motion (js/hitstyle.js); the bow keeps its draw, with a lean */
+  let hop=0,hp=typeof hitPose==='function'?hitPose(P,swingPhase(P),w):null;
+  if(!hp&&w&&w.wt==='bow'&&typeof bowLean==='function'&&typeof bowPhase==='function')hp=bowLean(bowPhase(P));
+  if(hp){push=hp.push||0;lean=hp.lean||0;hop=hp.hop||0;}
+  const lg=!body&&!hp&&P.lungeT&&now-P.lungeT<.2?Math.sin((now-P.lungeT)/.2*Math.PI)*7:0,hr=P.hurtT&&now-P.hurtT<.2?Math.sin((now-P.hurtT)/.2*Math.PI*3)*2.5:0;
+  if(!lg&&!hr&&!push&&!lean&&!hop)return drawPlayerBody(P,wid);
+  const dX=hp?(P.face||1):(P.lgX||0),dY=hp?0:(P.lgY||0);
+  ctx.save();ctx.translate(dX*(lg+push)+hr,dY*(lg+push)-hop);
   if(lean){ctx.translate(P.x,P.y);ctx.rotate(lean*(P.face||1));ctx.translate(-P.x,-P.y);}
   drawPlayerBody(P,wid);ctx.restore();}
 // the weapon itself, grip at 0,0 and pointing up (-y); a bow ignores the turn
@@ -423,6 +428,16 @@ function drawWeaponShape(w,ang){
   else if(w.wt==='wand'){ctx.strokeStyle='#6b4a2a';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,4);ctx.lineTo(0,-18);ctx.stroke();ctx.fillStyle=`hsl(${260+Math.sin(now*4)*20},80%,70%)`;ctx.beginPath();ctx.arc(0,-20,4,0,7);ctx.fill();}
   else if(w.wt==='sword'||w.wt==='axe'){ctx.strokeStyle='#5a3d24';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,4);ctx.lineTo(0,-2);ctx.stroke();ctx.fillStyle='#d0d6de';
     if(w.wt==='sword'){ctx.fillRect(-2,-22,4,20);ctx.fillStyle='#b8924f';ctx.fillRect(-6,-3,12,3);}else{ctx.strokeStyle='#5a3d24';ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(0,-22);ctx.stroke();ctx.beginPath();ctx.moveTo(0,-20);ctx.quadraticCurveTo(12,-16,0,-8);ctx.fill();}}
+  else if(w.wt==='club'||!w.wt){ // a proper cudgel: leather-wrapped grip, a tapered wooden head with an iron band and studs
+    const OL='#2a1c14';ctx.lineJoin='round';ctx.lineWidth=1.3;ctx.strokeStyle=OL;
+    ctx.fillStyle='#5a3a22';ctx.beginPath();ctx.arc(0,5.5,2.4,0,7);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#6b4a2e';ctx.beginPath();ctx.roundRect(-1.8,-5,3.6,10,1.2);ctx.fill();ctx.stroke();
+    ctx.strokeStyle='#c8a070';ctx.lineWidth=.8;for(const yy of [-3,-.5,2]){ctx.beginPath();ctx.moveTo(-1.8,yy+1);ctx.lineTo(1.8,yy-.6);ctx.stroke();}
+    ctx.strokeStyle=OL;ctx.lineWidth=1.3;ctx.fillStyle='#9a6a3a';ctx.beginPath();ctx.moveTo(-2.4,-5);ctx.lineTo(-4.6,-17);ctx.quadraticCurveTo(-4.8,-23,0,-23.5);ctx.quadraticCurveTo(4.8,-23,4.6,-17);ctx.lineTo(2.4,-5);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.strokeStyle='rgba(60,35,15,.45)';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(-1,-7);ctx.quadraticCurveTo(-2.2,-14,-1.4,-21);ctx.moveTo(1.4,-8);ctx.quadraticCurveTo(2.4,-15,1.8,-20);ctx.stroke();
+    ctx.strokeStyle='rgba(255,230,190,.45)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-3,-9);ctx.lineTo(-3.8,-18);ctx.stroke();
+    ctx.fillStyle='#8a909c';ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(-4.9,-17.5,9.8,3,1);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#d8dde6';for(const xx of [-2.6,0,2.6]){ctx.beginPath();ctx.arc(xx,-16,.8,0,7);ctx.fill();}}
   else{ctx.strokeStyle=w.wt==='mace'?'#8a8f99':'#7a5530';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(0,4);ctx.lineTo(0,-16);ctx.stroke();ctx.fillStyle=w.wt==='mace'?'#c8ccd4':'#8a6038';ctx.beginPath();ctx.arc(0,-17,4.5,0,7);ctx.fill();}
 }
 // the archer's shot: raise and draw (string back, arrow nocked), release with a snap and a little recoil, lower
@@ -452,25 +467,32 @@ function drawPlayerBody(P,wid){
   const sheath=!!w&&!P.held&&!P.dead&&!P.casting&&!swNow&&swingPhase(P)<0&&(P.sitting||!!P.riding||!!(Z&&Z.D&&Z.D.safe));
   if(sheath&&!P.back)drawSlung(P,w);
   const hat=P.hat!==undefined?P.hat:(P.eq&&P.eq.head?P.eq.head.id:null),fc=P.fc!==undefined?P.fc:(P.eq&&P.eq.face?P.eq.face.id:null),mo=P.mo!==undefined?P.mo:(P.eq&&P.eq.mouth?P.eq.mouth.id:null);
+  /* the weapon's pose is worked out before the body: while it is raised behind the head (the wind-up) it is drawn
+     first so it passes behind the face instead of over it */
+  const W={behind:false,bow:-1};let drawHeld=()=>{};
+  if(w&&!sheath){const sd=P.swingDur||.2,sw=P.swingT&&now-P.swingT<sd?(now-P.swingT)/sd:0,ranged=w.wt==='bow'||w.wt==='wand',p=swingPhase(P);
+    if(w.wt==='bow')W.bow=bowPhase(P);
+    // held low at the side, tilted forward. Ranged: a small lift. Melee: raised over the shoulder, a fast arc down, then back.
+    let ang=sw?(sw<.3?.6-sw/.3*.7:-.1+(sw-.3)/.7*1.9):.6,lift=0;
+    let castUp=0;if(P.casting&&!sw){ang=.08;castUp=9;}
+    if(!ranged&&p>=0){if(p<.3){const k=ease3(p/.3);ang=.6-1.6*k;lift=k;}else if(p<.55){const k=easeOut((p-.3)/.25);ang=-1+3.15*k;lift=1-k;}else{const k=ease3(Math.min(1,(p-.55)/.7));ang=2.15-1.55*k;}}
+    const hp=p>=0&&W.bow<0&&typeof hitPose==='function'?hitPose(P,p,w):null;let reach=0;if(hp){ang=hp.ang;lift=hp.lift;reach=hp.reach||0;}
+    W.behind=W.bow<0&&!ranged&&p>=0&&ang<.15&&lift>.15;
+    drawHeld=by=>{ctx.save();ctx.translate(P.x+P.face*(11-lift*15+reach),by-3-lift*9-castUp);ctx.scale(P.face,1);
+      // the smear the blade leaves behind as it comes down
+      if(!ranged&&p>=.3&&p<.8&&ang>.1){const al=p<.55?1:1-(p-.55)/.25,a1=ang-Math.PI/2,a0=Math.max(-.15,ang-2.2)-Math.PI/2,R=w.wt==='sword'||w.wt==='axe'?27:22;
+        ctx.fillStyle=`rgba(255,246,220,${.5*al})`;ctx.beginPath();ctx.arc(0,0,R,a0,a1);ctx.arc(0,0,R*.45,a1,a0,true);ctx.closePath();ctx.fill();
+        ctx.fillStyle=`rgba(255,255,255,${.75*al})`;ctx.beginPath();ctx.arc(0,0,R+1,Math.max(a0,a1-.7),a1);ctx.arc(0,0,R*.8,a1,Math.max(a0,a1-.7),true);ctx.closePath();ctx.fill();}
+      ctx.rotate(ang);drawWeaponShape(w,ang);ctx.restore();};
+    if(W.behind)drawHeld(P.y-(typeof HERO2_ON!=='undefined'&&HERO2_ON?9:7)+(P.sitting?6:0));}
   const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?P.walkT:0,{sit:P.sitting,cast:!!P.casting||(w&&w.wt==='bow'&&bowPhase(P)>=0&&bowPhase(P)<.8),hat,fc,mo,look:lookOf(P.name,P.look),outfit:baseOf(P.cls),back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
   drawJobMantle(c,P.x,P.y+(P.sitting?6:0),P.face,!!P.back);
   if(baseOf(P.cls)==='warden'){ctx.fillStyle='#9aa0aa';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(P.x-P.face*13-5,by-14,10,14,3);ctx.fill();ctx.stroke();ctx.fillStyle='#e8c25a';ctx.beginPath();ctx.arc(P.x-P.face*13,by-7,2,0,7);ctx.fill();}
   if(sheath&&P.back)drawSlung(P,w);
   if(!w||sheath)return;
-  const sd=P.swingDur||.2,sw=P.swingT&&now-P.swingT<sd?(now-P.swingT)/sd:0,ranged=w.wt==='bow'||w.wt==='wand',p=swingPhase(P);
-  if(w.wt==='bow'){const bk=bowPhase(P);if(bk>=0){drawBowShot(P,w,by,bk);return;}}
-  // held low at the side, tilted forward. Ranged: a small lift. Melee: raised over the shoulder, a fast arc down, then back.
-  let ang=sw?(sw<.3?.6-sw/.3*.7:-.1+(sw-.3)/.7*1.9):.6,lift=0;
-  let castUp=0;if(P.casting&&!sw){ang=.08;castUp=9;}
-  if(!ranged&&p>=0){if(p<.3){const k=ease3(p/.3);ang=.6-1.6*k;lift=k;}else if(p<.55){const k=easeOut((p-.3)/.25);ang=-1+3.15*k;lift=1-k;}else{const k=ease3(Math.min(1,(p-.55)/.7));ang=2.15-1.55*k;}}
-  ctx.save();ctx.translate(P.x+P.face*(11-lift*15),by-3-lift*9-castUp);ctx.scale(P.face,1);
-  // the smear the blade leaves behind as it comes down
-  if(!ranged&&p>=.3&&p<.8&&ang>.1){const al=p<.55?1:1-(p-.55)/.25,a1=ang-Math.PI/2,a0=Math.max(-.15,ang-2.2)-Math.PI/2,R=w.wt==='sword'||w.wt==='axe'?27:22;
-    ctx.fillStyle=`rgba(255,246,220,${.5*al})`;ctx.beginPath();ctx.arc(0,0,R,a0,a1);ctx.arc(0,0,R*.45,a1,a0,true);ctx.closePath();ctx.fill();
-    ctx.fillStyle=`rgba(255,255,255,${.75*al})`;ctx.beginPath();ctx.arc(0,0,R+1,Math.max(a0,a1-.7),a1);ctx.arc(0,0,R*.8,a1,Math.max(a0,a1-.7),true);ctx.closePath();ctx.fill();}
-  ctx.rotate(ang);
-  drawWeaponShape(w,ang);
-  ctx.restore();
+  if(W.behind)return;
+  if(W.bow>=0){drawBowShot(P,w,by,W.bow);return;}
+  drawHeld(by);
 }
 function drawNpc(n){const by=npcBody(n);
   const mk=typeof npcMark==='function'?npcMark(n):'svc';if(!mk)return;
