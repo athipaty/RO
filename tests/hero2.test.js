@@ -21,6 +21,10 @@ module.exports = async t => {
     // the start screen preview faces you and never turns around
     const pv = await A.ev(async () => { const calls = []; const dh = drawHuman; drawHuman = function (x, y, b, h, f, w, o) { calls.push([f, !!(o && o.back)]); return dh.apply(this, arguments); };
       for (const tt of [0.2, 1.8, 3.4, 5.0]) { now = tt; drawLookPreview(); } drawHuman = dh; return calls; });
+    const stBad = await A.ev(() => { const bad = [], c = document.createElement('canvas'), main = ctx; ctx = c.getContext('2d');
+      try { for (const cls of Object.keys(CLASSES)) for (const tt of [0, 1.1]) { now = tt; try { drawStance(cls, { ...lookFor('X'), style: 1 }, 30, 50, 1); } catch (e) { bad.push(cls + ': ' + e.message); } } } finally { ctx = main; }
+      return bad; });
+    t.ok(stBad.length === 0, 'every calling has a start-screen stance that draws without errors ' + stBad.slice(0, 3).join(' | '));
     t.ok(pv.length >= 4 && pv.every(([f, b]) => f === 1 && !b), 'the start screen hero faces you and does not turn around ' + JSON.stringify(pv));
     t.ok(r.on, 'the preview switch turns the new art on for this device');
     t.ok(r.breath > .5 && r.breath < 3, `standing heroes breathe (the body moves ${r.breath.toFixed(2)} px)`);

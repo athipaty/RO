@@ -319,8 +319,8 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
   if(!bk)backLayer();
   // legs and boots
   const boot=out==='warden'?'#5a5f6a':out==='ranger'?'#5a3a22':'#3a2a20';
-  if(!opt.sit){const l=walk?Math.sin(walk*12)*3.5:0;ctx.strokeStyle=OL;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(x-3.5,by);ctx.lineTo(x-3.5+l,y-2);ctx.moveTo(x+3.5,by);ctx.lineTo(x+3.5-l,y-2);ctx.stroke();
-    ctx.lineWidth=1.5;ctx.fillStyle=boot;for(const[k,d]of[[-3.5,l],[3.5,-l]]){ctx.beginPath();ctx.ellipse(x+k+d+f*1,y-1.5,3.5,2.5,0,0,7);fs();}}
+  if(!opt.sit){const l=walk?Math.sin(walk*12)*3.5:0,sp=opt.stance||0;ctx.strokeStyle=OL;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(x-3.5,by);ctx.lineTo(x-3.5-sp+l,y-2);ctx.moveTo(x+3.5,by);ctx.lineTo(x+3.5+sp-l,y-2);ctx.stroke();
+    ctx.lineWidth=1.5;ctx.fillStyle=boot;for(const[k,d]of[[-3.5-sp,l],[3.5+sp,-l]]){ctx.beginPath();ctx.ellipse(x+k+d+f*1,y-1.5,3.5,2.5,0,0,7);fs();}}
   else{const pant=robe?body:'#4a3a2e';ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=pant;
     for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*7,y-2.5,6.5,3.6,k*.18,0,7);fs();}
     ctx.fillStyle=boot;for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*2.5,y,3.4,2.4,0,0,7);fs();}}
@@ -342,7 +342,7 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
   ctx.restore();
   // hands
   ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=L.skin;
-  for(const k of [-f,f]){ctx.beginPath();if(opt.sit)ctx.arc(x+k*10*bw,y-4,2.6,0,7);else if(opt.cast)ctx.arc(x+k*11*bw,by-15+Math.sin(now*9+k)*1.2,2.6,0,7);else ctx.arc(x+k*9*bw,by-4+(k===f?-1:0),bw<1?2.3:2.6,0,7);fs();}
+  for(const k of [-f,f]){ctx.beginPath();if(opt.hands){const h=opt.hands[k===f?0:1];ctx.arc(x+f*h[0],by+h[1],2.6,0,7);}else if(opt.sit)ctx.arc(x+k*10*bw,y-4,2.6,0,7);else if(opt.cast)ctx.arc(x+k*11*bw,by-15+Math.sin(now*9+k)*1.2,2.6,0,7);else ctx.arc(x+k*9*bw,by-4+(k===f?-1:0),bw<1?2.3:2.6,0,7);fs();}
   // head: from behind it is all hair
   if(bk){backLayer();ctx.fillStyle=hair;ctx.strokeStyle=OL;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(x,hy,12.8,12.3,0,0,7);fs();
     ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1.2;for(const k of [-7,-2.5,2.5,7]){ctx.beginPath();ctx.moveTo(x+k*.5,hy-10);ctx.quadraticCurveTo(x+k*1.15,hy,x+k,hy+10);ctx.stroke();}

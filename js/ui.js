@@ -598,9 +598,10 @@ function drawLookPreview(){if(!newLook)return;const sv=typeof CS!=='undefined'&&
   /* the hero faces you and breathes (no turning around): a soft rise and settle from the feet, like an idle sprite;
      the new hero art (hero2.js) breathes by itself, so the stretch is only added to the classic art */
   const main=ctx;ctx=c;const face=1,back=false;
-  if(typeof drawHuman2!=='function'||drawHuman!==drawHuman2){const k=1+Math.sin(now*2.2)*.022;c.translate(30,50);c.scale(1,k);c.translate(-30,-50);}
-  try{if(sv){const lk={...lookFor(sv.name),...(sv.look||{})},cl=CLASSES[sv.cls]||CLASSES.novice;drawHuman(30,50,cl.col,lk.hair,face,0,{look:lk,outfit:typeof baseOf==='function'?baseOf(sv.cls):'novice',back});}
-    else drawHuman(30,50,CLASSES.novice.col,newLook.hair,face,0,{look:{...lookFor($('#nameIn').value.trim()||'Wanderer'),...newLook},outfit:'novice',back});}finally{ctx=main;}}
+  if(typeof drawHuman2!=='function'||drawHuman!==drawHuman2){const k=1+Math.sin(now*2.2)*.011;c.translate(30,50);c.scale(1,k);c.translate(-30,-50);}
+  /* each job family stands its own way with its weapon (js/stance.js) */
+  try{if(sv){const lk={...lookFor(sv.name),...(sv.look||{})};if(typeof drawStance==='function')drawStance(CLASSES[sv.cls]?sv.cls:'novice',lk,30,50,face);else drawHuman(30,50,(CLASSES[sv.cls]||CLASSES.novice).col,lk.hair,face,0,{look:lk,outfit:typeof baseOf==='function'?baseOf(sv.cls):'novice',back});}
+    else{const lk={...lookFor($('#nameIn').value.trim()||'Wanderer'),...newLook};if(typeof drawStance==='function')drawStance('novice',lk,30,50,face);else drawHuman(30,50,CLASSES.novice.col,newLook.hair,face,0,{look:lk,outfit:'novice',back});}}finally{ctx=main;}}
 function initCreator(){
   setNewLook(lookFor('Wanderer'));
   $('#nameIn').addEventListener('input',()=>{if(!lookTouched)setNewLook(lookFor($('#nameIn').value.trim()||'Wanderer'));});
