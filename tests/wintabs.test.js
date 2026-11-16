@@ -19,12 +19,17 @@ module.exports = async t => {
         panel.dispatchEvent(new TouchEvent('touchend', { touches: [], changedTouches: [mk(x1)], bubbles: true })); };
       swipe(300, 120); await sleep(200); out.swipeNext = panelKind === 'skills';
       swipe(100, 300); await sleep(200); out.swipeBack = panelKind === 'equip';
+      // the Build guide (opened from Skills) keeps the Skills tab lit and has a way back
+      openPanel('skills'); await sleep(150); panel.querySelector('[data-act="openguide"]').click(); await sleep(250);
+      out.guideTab = panelKind === 'buildguide' && document.querySelector('#winTabs .wtab.on')?.dataset.wt === 'skills';
+      panel.querySelector('.bgback').click(); await sleep(200); out.guideBack = panelKind === 'skills';
       // townsfolk windows (a shop) get no tabs
       openPanel('shop'); await sleep(200); out.shopNoTabs = !document.querySelector('#panel>#winTabs');
       closePanel(); return out; });
     t.ok(r.tabs === 'status,items,equip,skills,quests' && r.onItems, `the Items window shows tabs for your windows (${r.tabs})`);
     t.ok(r.tapEquip, 'tapping a tab switches window without closing');
     t.ok(r.swipeNext && r.swipeBack, `swiping left goes to the next window and right goes back (next ${r.swipeNext}, back ${r.swipeBack})`);
+    t.ok(r.guideTab && r.guideBack, `the Build guide keeps the Skills tab lit and ← Skills goes back (tab ${r.guideTab}, back ${r.guideBack})`);
     t.ok(r.shopNoTabs, 'shop and other townsfolk windows have no tabs');
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));
   } finally { await A.close(); }

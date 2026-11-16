@@ -9,10 +9,13 @@ const WIN_TABS=[
   ['equip','Equip','<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>'],
   ['skills','Skills','<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>'],
   ['quests','Quests','<path d="M7 3h10v18l-5-3-5 3z"/><path d="M10 8h4M10 11h4"/>']];
-const winTabOn=()=>document.body.classList.contains('touchui')&&!!panelKind&&!panel.hidden&&WIN_TABS.some(w=>w[0]===panelKind);
+// windows opened from one of these count as that tab (the Build guide is part of Skills)
+const WIN_TAB_OF={buildguide:'skills'};
+const winTabKind=()=>WIN_TAB_OF[panelKind]||panelKind;
+const winTabOn=()=>document.body.classList.contains('touchui')&&!!panelKind&&!panel.hidden&&WIN_TABS.some(w=>w[0]===winTabKind());
 function winTabGo(kind,dir){if(!kind||kind===panelKind||!P)return;sfx('click');openPanel(kind);
   if(dir){panel.classList.remove('wtL','wtR');void panel.offsetWidth;panel.classList.add(dir>0?'wtR':'wtL');setTimeout(()=>panel.classList.remove('wtL','wtR'),260);}}
-function winTabStep(d){const i=WIN_TABS.findIndex(w=>w[0]===panelKind);if(i<0)return;const n=WIN_TABS[(i+d+WIN_TABS.length)%WIN_TABS.length][0];winTabGo(n,d);}
+function winTabStep(d){const i=WIN_TABS.findIndex(w=>w[0]===winTabKind());if(i<0)return;const n=WIN_TABS[(i+d+WIN_TABS.length)%WIN_TABS.length][0];winTabGo(n,d);}
 function winTabsDraw(){const old=panel.querySelector(':scope>#winTabs');
   panel.classList.toggle('wtPad',winTabOn());
   if(!winTabOn()){if(old)old.remove();return;}
@@ -21,8 +24,12 @@ function winTabsDraw(){const old=panel.querySelector(':scope>#winTabs');
     nav.addEventListener('click',ev=>{const b=ev.target.closest('.wtab');if(!b)return;ev.stopPropagation();winTabGo(b.dataset.wt,0);});}
   // first thing in the window, after the close button
   const x=panel.querySelector(':scope>.x');if(x){if(x.nextSibling!==nav)x.insertAdjacentElement('afterend',nav);}else if(panel.firstChild!==nav)panel.prepend(nav);
-  for(const b of nav.querySelectorAll('.wtab')){const on=b.dataset.wt===panelKind;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on));}}
-{const _rpWt=refreshPanel;refreshPanel=function(){const r=_rpWt.apply(this,arguments);try{winTabsDraw();}catch(e){}return r;};}
+  for(const b of nav.querySelectorAll('.wtab')){const on=b.dataset.wt===winTabKind();b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on));}}
+/* the Build guide gets a way back to the Skills window it was opened from (phones and computers) */
+function bgBackDraw(){if(panelKind!=='buildguide'||panel.querySelector('.bgback'))return;const b=document.createElement('button');b.type='button';b.className='btn small bgback';b.dataset.act='bgback';b.textContent='← Skills';
+  const x=panel.querySelector(':scope>.x');if(x)x.after(b);else panel.prepend(b);}
+PANEL_ACTS.bgback=()=>{sfx('click');openPanel('skills');};
+{const _rpWt=refreshPanel;refreshPanel=function(){const r=_rpWt.apply(this,arguments);try{winTabsDraw();bgBackDraw();}catch(e){}return r;};}
 // swipe left / right on the window
 (()=>{let sx=0,sy=0,st=0,ok=false;
   const sideScroll=el=>{for(let e=el;e&&e!==panel;e=e.parentElement){if(e.matches&&e.matches('input,textarea,select,[type=range]'))return true;
@@ -31,4 +38,4 @@ function winTabsDraw(){const old=panel.querySelector(':scope>#winTabs');
     if(sideScroll(ev.target))return;sx=t.clientX;sy=t.clientY;st=performance.now();ok=true;},{passive:true});
   panel.addEventListener('touchend',ev=>{if(!ok)return;ok=false;const t=ev.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
     if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6&&performance.now()-st<700)winTabStep(dx<0?1:-1);},{passive:true});})();
-if(typeof TH!=='undefined')Object.assign(TH,{'Your windows':'หน้าต่างของคุณ','Stats':'สถานะ','Items':'ไอเทม','Equip':'สวมใส่','Skills':'สกิล','Quests':'เควส'});
+if(typeof TH!=='undefined')Object.assign(TH,{'← Skills':'← สกิล','Your windows':'หน้าต่างของคุณ','Stats':'สถานะ','Items':'ไอเทม','Equip':'สวมใส่','Skills':'สกิล','Quests':'เควส'});
