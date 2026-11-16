@@ -26,12 +26,14 @@ module.exports = async t => {
       return bad; });
     t.ok(stBad.length === 0, 'every calling has a start-screen stance that draws without errors ' + stBad.slice(0, 3).join(' | '));
     // job head gear (joblooks.js) sits where the head was really drawn, so it breathes with the body
+    const JL_HEAD_ON = await A.ev(() => JL_HEAD);
     const hg = await A.ev(() => { const out = [], c = document.createElement('canvas'), main = ctx; ctx = c.getContext('2d');
       const cls = Object.keys(JOB_LOOK).find(k => JOB_LOOK[k].h); const key = JOB_LOOK[cls].h[0], orig = JHEAD[key];
       JHEAD[key] = function (x, hy) { out.push([+hy.toFixed(2), +LAST_HY.toFixed(2)]); return orig.apply(this, arguments); };
       try { HERO2_HI = true; for (const tt of [0, .7, 1.4]) { now = tt; drawStance(cls, { ...lookFor('X'), style: 1 }, 30, 50, 1); } } finally { HERO2_HI = false; JHEAD[key] = orig; ctx = main; }
       return out; });
-    t.ok(hg.length === 3 && hg.every(([a, b]) => a === b) && new Set(hg.map(h => h[0])).size > 1, 'job head gear follows the head as the body breathes ' + JSON.stringify(hg));
+    // since v1.14.2 jobs wear nothing on their heads (JL_HEAD false); if it is turned back on, the gear must follow the head
+    t.ok(JL_HEAD_ON ? hg.length === 3 && hg.every(([a, b]) => a === b) && new Set(hg.map(h => h[0])).size > 1 : hg.length === 0, (JL_HEAD_ON ? 'job head gear follows the head as the body breathes ' : 'jobs wear nothing on their heads ') + JSON.stringify(hg));
     t.ok(pv.length >= 4 && pv.every(([f, b]) => f === 1 && !b), 'the start screen hero faces you and does not turn around ' + JSON.stringify(pv));
     t.ok(r.on, 'the preview switch turns the new art on for this device');
     t.ok(r.breath > .5 && r.breath < 3, `standing heroes breathe (the body moves ${r.breath.toFixed(2)} px)`);

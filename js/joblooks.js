@@ -104,6 +104,8 @@ function jobAura(x,y,col){const p=(now*.7)%1;ctx.save();ctx.globalAlpha=.32;ctx.
   for(let i=0;i<4;i++){const q=(now*.5+i*.25)%1;ctx.globalAlpha=.8*(1-q);ctx.fillStyle=col;ctx.fillRect(x-14+i*9+Math.sin(now*2+i)*2,y-q*42,2,2);}ctx.restore();}
 // hooks: drawPlayerBody tells drawHuman whose job it is drawing
 const JL={cur:null};
+// job head pieces (helmets, hats, hoods, circlets, halos, stars): off since v1.14.2, only the outfit shows
+const JL_HEAD=false;
 {const _dpbJ=drawPlayerBody;drawPlayerBody=function(p){const c=p&&CLASSES[p.cls];JL.cur=c&&JOB_LOOK[p.cls]?{look:JOB_LOOK[p.cls]}:null;try{return _dpbJ.apply(this,arguments);}finally{JL.cur=null;}};}
 {const _dhJ=drawHuman;drawHuman=function(x,y,body,hair,face,walk,opt){const cur=JL.cur;if(!cur||cur.busy)return _dhJ.apply(this,arguments);cur.busy=true;
   opt=opt||{};const f=face<0?-1:1,bob=walk?Math.abs(Math.sin(walk*12))*1.5:0,sit=opt.sit?6:0,by=y-7-bob+sit,hy=by-19,back=!!opt.back,L=cur.look;
@@ -113,6 +115,8 @@ const JL={cur:null};
     /* head gear and side pieces follow where the body was really drawn (breathing, the new hero art) */
     const hy2=typeof LAST_HY==='number'&&LAST_HY?LAST_HY:hy,by2=typeof r==='number'?r:by;
     if(back)for(const [k,o] of L.b||[])try{ctx.save();JBACK[k](x,y,by,f,o);ctx.restore();}catch(e){}
-    if(L.h&&!opt.hat)try{ctx.save();ctx.translate(x,hy2);ctx.scale(1.35,1.35);ctx.translate(-x,-hy2);JHEAD[L.h[0]](x,hy2,f,L.h[1]);ctx.restore();}catch(e){}
-    for(const [k,o] of L.s||[])try{ctx.save();JSIDE[k](x,y,by2,f,o,back);ctx.restore();}catch(e){}
+    /* nothing on or above the head (user request): no job helmets, hats, hoods, circlets, halos or stars; the outfit,
+       capes, wings, shields and auras stay. Hats you equip from items still show (they are drawn by drawHuman). */
+    if(JL_HEAD&&L.h&&!opt.hat)try{ctx.save();ctx.translate(x,hy2);ctx.scale(1.35,1.35);ctx.translate(-x,-hy2);JHEAD[L.h[0]](x,hy2,f,L.h[1]);ctx.restore();}catch(e){}
+    for(const [k,o] of L.s||[]){if(!JL_HEAD&&(k==='halo'||k==='stars'))continue;try{ctx.save();JSIDE[k](x,y,by2,f,o,back);ctx.restore();}catch(e){}}
     return r;}finally{cur.busy=false;}};}
