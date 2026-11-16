@@ -110,7 +110,9 @@ const JL={cur:null};
   try{if(L.aura)jobAura(x,y,L.aura);
     if(!back)for(const [k,o] of L.b||[])try{ctx.save();JBACK[k](x,y,by,f,o);ctx.restore();}catch(e){}
     const r=_dhJ.apply(this,arguments);
+    /* head gear and side pieces follow where the body was really drawn (breathing, the new hero art) */
+    const hy2=typeof LAST_HY==='number'&&LAST_HY?LAST_HY:hy,by2=typeof r==='number'?r:by;
     if(back)for(const [k,o] of L.b||[])try{ctx.save();JBACK[k](x,y,by,f,o);ctx.restore();}catch(e){}
-    if(L.h&&!opt.hat)try{ctx.save();ctx.translate(x,hy);ctx.scale(1.35,1.35);ctx.translate(-x,-hy);JHEAD[L.h[0]](x,hy,f,L.h[1]);ctx.restore();}catch(e){}
-    for(const [k,o] of L.s||[])try{ctx.save();JSIDE[k](x,y,by,f,o,back);ctx.restore();}catch(e){}
+    if(L.h&&!opt.hat)try{ctx.save();ctx.translate(x,hy2);ctx.scale(1.35,1.35);ctx.translate(-x,-hy2);JHEAD[L.h[0]](x,hy2,f,L.h[1]);ctx.restore();}catch(e){}
+    for(const [k,o] of L.s||[])try{ctx.save();JSIDE[k](x,y,by2,f,o,back);ctx.restore();}catch(e){}
     return r;}finally{cur.busy=false;}};}

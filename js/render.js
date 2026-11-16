@@ -300,11 +300,13 @@ function drawArmor(x,by,f,bk,id,OL){const it=ITEMS[id];if(!it||it.type!=='armor'
     pauldrons(5.5,'#d8794a');ctx.fillStyle='rgba(255,220,160,.6)';for(const k of [-1,1]){ctx.beginPath();ctx.arc(x+k*9-1,by-11.5,1.4,0,7);ctx.fill();}return;}
   // any other armour: a chest piece in its colour
   ctx.fillStyle=c;ctx.beginPath();ctx.roundRect(x-6.5,by-11.5,13,11,4);fs();}
+// where the last hero's head was drawn (centre y), so head gear added by wrappers (joblooks.js) follows it
+let LAST_HY=0;
 function drawHuman(x,y,body,hair,face,walk,opt={}){
   const L=opt.look||{style:0,eye:'#5a3a22',skin:'#f6d6b8',seed:0};hair=L.hair||hair;
   const f=face<0?-1:1,out=opt.outfit||'npc',OL='#2a1c14',st=L.style;
   const bob=walk?Math.abs(Math.sin(walk*12))*1.5:0,sit=opt.sit?6:0;
-  const by=y-7-bob+sit,hy=by-19,robe=out==='arcanist'||out==='cleric';
+  const by=y-7-bob+sit,hy=by-19,robe=out==='arcanist'||out==='cleric';LAST_HY=hy;
   shadow(x,y,12);ctx.lineJoin='round';ctx.lineCap='round';ctx.lineWidth=1.5;ctx.strokeStyle=OL;
   const fs=()=>{ctx.fill();ctx.stroke();};
   const bk=!!opt.back;

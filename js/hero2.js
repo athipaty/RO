@@ -23,7 +23,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   const wk=walk?Math.sin(walk*12):0,bob=walk?Math.abs(wk)*1.4:0,br=walk||opt.sit?0:Math.sin(now*2.2+sd),sit=opt.sit?7:0;
   /* breathing: the whole body rises and settles a little (feet stay on the ground), the head follows a beat later */
   const breath=opt.sit?Math.sin(now*2.2+sd)*.3:br*.5;
-  const by=y-9-bob+sit-breath,hy=by-20-Math.sin(now*2.2+sd-.6)*.2,robe=out==='arcanist'||out==='cleric',bw=BUILD_W[L.body|0]||1;
+  const by=y-9-bob+sit-breath,hy=by-20-Math.sin(now*2.2+sd-.6)*.2,robe=out==='arcanist'||out==='cleric',bw=BUILD_W[L.body|0]||1;LAST_HY=hy;
   const top=out==='cleric'?'#f4efe2':body,dark=hero2Shade(top,-38),lite=hero2Shade(top,30);
   if(!HERO2_HI)shadow(x,y,12);ctx.lineJoin='round';ctx.lineCap='round';ctx.lineWidth=1.5;ctx.strokeStyle=OL;
   const fs=()=>{ctx.fill();ctx.stroke();};
