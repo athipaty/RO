@@ -35,16 +35,11 @@ PANEL_ACTS.opencart=()=>openPanel('cart');
 if(typeof chatCommand==='function'){const _ccCart=chatCommand;chatCommand=function(k,arg){if(k==='cart'){openPanel('cart');return true;}return _ccCart.apply(this,arguments);};}
 
 // drawn behind the hero: a little wooden cart whose wheels turn as you walk
-/* the cart follows behind the hero in 8 directions: it trails opposite the way the hero walks (on screen), turns
-   side-on, end-on or at an angle, the handle reaches the hero's hand, and when the hero walks up the screen the
-   cart is nearer the camera, so it is drawn in front of the hero */
+/* the cart follows behind the hero in the hero's 4 directions (down-right, down-left, up-right, up-left, from the
+   hero's facing and back view): it trails diagonally behind, turned at an angle, the handle reaches the hero's hand,
+   and when the hero walks up the screen the cart is nearer the camera, so it is drawn in front of the hero */
 const CART8=new Map();
-function cartHeading(p){const key=p===P?'me':(p.name||'?');let h=CART8.get(key);
-  if(!h)h={sx:p.face<0?-1:1,sy:0,lx:p.x,ly:p.y,d:p.face<0?4:0};
-  const dx=p.x-h.lx,dy=p.y-h.ly;h.lx=p.x;h.ly=p.y;
-  if(Math.hypot(dx,dy)>.3&&Math.hypot(dx,dy)<60){const sx=(dx-dy)*ISO,sy=(dx+dy)*ISO/2,n=Math.hypot(sx,sy)||1;h.sx+=(sx/n-h.sx)*.25;h.sy+=(sy/n-h.sy)*.25;}
-  const a=Math.atan2(h.sy,h.sx),want=((Math.round(a/(Math.PI/4))%8)+8)%8,ca=h.d*Math.PI/4;
-  if(Math.abs(Math.atan2(Math.sin(a-ca),Math.cos(a-ca)))>Math.PI/8+.12)h.d=want;CART8.set(key,h);return h.d;}
+function cartHeading(p){const d=typeof heroDir4==='function'?heroDir4(p):(p.back?(p.face<0?5:7):(p.face<0?3:1));CART8.set(p===P?'me':(p.name||'?'),{d});return d;}
 function drawCart(p,d){if(d===undefined)d=cartHeading(p);
   const a=d*Math.PI/4,ux=Math.cos(a),uy=Math.sin(a),dist=24,x=p.x-ux*dist,y=p.y+3-uy*dist*(uy>.5?1.05:.8),spin=(p.moving?now*9:0);
   const side=d===0||d===4,end=d===2||d===6,f=ux<-.1?-1:1;
@@ -74,5 +69,5 @@ function drawCart(p,d){if(d===undefined)d=cartHeading(p);
   ctx.restore();}
 // behind the hero, or in front when the hero walks up the screen (the cart is then nearer the camera)
 {const _dpCart=drawPlayer;drawPlayer=function(p,wid){let show=false,d=0;try{show=(p===P?cartPresence():!!p.ct)&&!p.dead&&!p.sitting;if(show)d=cartHeading(p);}catch(e){show=false;}
-  const front=show&&(d===5||d===6||d===7);if(show&&!front)try{drawCart(p,d);}catch(e){}
+  const front=show&&(d===5||d===7);if(show&&!front)try{drawCart(p,d);}catch(e){}
   const r=_dpCart.apply(this,arguments);if(front)try{drawCart(p,d);}catch(e){}return r;};}

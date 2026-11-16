@@ -1,5 +1,5 @@
-// Mounts and the cart follow the hero in 8 directions (front and back views for mounts; the cart behind, or in front
-// when walking up)
+// Mounts and the cart use the hero's 4 directions (down-right, down-left, up-left, up-right from face and back);
+// the cart is behind the hero, or in front when walking up
 const { player, newRoom } = require('./helpers');
 module.exports = async t => {
   const A = await player('Eight', newRoom(), { server: 'http://127.0.0.1:9' });
@@ -21,9 +21,9 @@ module.exports = async t => {
           try { drawPlayer(p, null); } finally { drawCart = dc; drawHuman = dh; }
           out.cart.push(CART8.get('c' + i).d + ':' + order.join('')); }); }
       finally { ctx = main; }
-      return out; });
-    t.ok(r.mount.hopper.join() === '0,1,2,3,4,5,6,7' && r.mount.greylupe.join() === '0,1,2,3,4,5,6,7', `both mounts face all 8 directions (hopper ${r.mount.hopper}, lupe ${r.mount.greylupe})`);
-    t.ok(r.cart.map(s => s.split(':')[0]).join() === '0,1,2,3,4,5,6,7', 'the cart trails in all 8 directions ' + r.cart.join(' '));
+      out.want = dirs.map(([sx, sy]) => (sy < 0 ? (sx < 0 ? 5 : 7) : (sx < 0 ? 3 : 1))).join(); return out; });
+    t.ok(r.mount.hopper.join() === r.want && r.mount.greylupe.join() === r.want, `both mounts face the hero's 4 directions (hopper ${r.mount.hopper}, lupe ${r.mount.greylupe})`);
+    t.ok(r.cart.map(s => s.split(':')[0]).join() === r.want, "the cart trails in the hero's 4 directions " + r.cart.join(' '));
     t.ok(r.cart.every(s => { const [d, o] = s.split(':'); return +d >= 5 ? o.startsWith('h') : o.startsWith('c'); }), 'the cart is behind the hero, and in front when walking up the screen');
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));
   } finally { await A.close(); }
