@@ -3,7 +3,7 @@
    Monsters used to share a few body shapes (blob, beast, bug, mushroom, ghost, golem) and differ only in colour.
    Each monster listed here is drawn its own way instead: a cave bat is a bat, a stone crab a crab, a webspinner a
    spider. At most two monsters share a design, and then only a regular monster and its own leader
-   (Hopper and Hopper Chieftain, Grey Lupe and Greymane Alpha, Dune Scarab and Scarab Queen, Gloomcap and
+   (Hopper and Hopper Chieftain, Grey Lupe and Greymane Alpha, Dune Scarab and Scarab Queen, Bog Mantis and Mire Matriarch, Gloomcap and
    Gloomcap King), and the leader still wears something extra. Ember Imp and Ice Imp share the imp body.
    Called from drawMob (render.js) with o = {x, y (ground), s (size), f (facing ±1), t (time), col, dark, lite, mv}.
    Up on screen is minus y. Monster pictures in the codex, quests and bestiary use the same drawing. */
@@ -298,3 +298,73 @@ MOB_LOOKS.rimeheart=(m,o)=>{const {x,y,s,t,f,col,dark,lite}=o;shadow(x,y,s*1.15)
   ctx.beginPath();ctx.moveTo(x,y-s*1.05+br);ctx.bezierCurveTo(x-s*.55,y-s*1.4+br,x-s*.3,y-s*1.85+br,x,y-s*1.55+br);ctx.bezierCurveTo(x+s*.3,y-s*1.85+br,x+s*.55,y-s*1.4+br,x,y-s*1.05+br);ctx.fill();ctx.shadowBlur=0;
   ctx.fillStyle=col;mlPoly([[x-s*.45,y-s*2.35+br],[x-s*.35,y-s*2.95+br],[x+s*.4,y-s*3.0+br],[x+s*.5,y-s*2.4+br]]);ctx.fill();
   for(const k of [-1,1])mlEye(x+k*s*.17+f*s*.06,y-s*2.65+br,s*.07,'#e8fbff','#7ae0ff');};
+
+/* ---------- v1.7.0 Mirelight Fen ---------- */
+// Bogling: a heap of wet mud with a lily pad on top, drips running down, two glinting eyes
+MOB_LOOKS.bogling=(m,o)=>{const {x,y,s,t,f,col,dark,lite,mv}=o;const q=Math.sin(t*(mv?10:2.5))*s*.07;shadow(x,y,s*1.1);
+  ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x-s*1.1,y);ctx.quadraticCurveTo(x-s*1.15,y-s*1.2+q,x-s*.3,y-s*1.55+q);ctx.quadraticCurveTo(x+s*.4,y-s*1.75+q,x+s*.9,y-s*1.2+q);ctx.quadraticCurveTo(x+s*1.25,y-s*.5,x+s*1.1,y);ctx.closePath();ctx.fill();
+  ctx.strokeStyle=dark;ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle=dark;for(const [a,b] of [[-.6,-.9],[.5,-.7],[-.1,-.35]]){ctx.beginPath();ctx.arc(x+a*s,y+b*s,s*.12,0,7);ctx.fill();}
+  for(const k of [-.75,.1,.8]){const d=((t*.6+k+1)%1);ctx.fillStyle=lite;ctx.beginPath();ctx.ellipse(x+k*s,y-s*(1.05-d*.9),s*.07,s*.13,0,0,7);ctx.fill();}
+  ctx.fillStyle='#5fa048';ctx.beginPath();ctx.ellipse(x-s*.1,y-s*1.62+q,s*.62,s*.2,-.15,.35,Math.PI*2-.05);ctx.lineTo(x-s*.1,y-s*1.62+q);ctx.fill();
+  ctx.fillStyle='#f0d0e8';ctx.beginPath();ctx.arc(x+s*.25,y-s*1.72+q,s*.12,0,7);ctx.fill();
+  for(const k of [-1,1])mlEye(x+k*s*.3+f*s*.2,y-s*1.0+q,s*.13,'#e8e070');};
+// Fen Lurker: a low swamp reptile, long snout and tail, a ridge of spines along its back
+MOB_LOOKS.fenlurker=(m,o)=>{const {x,y,s,t,f,col,dark,lite,mv}=o;shadow(x,y,s*1.4);mlLegs(o,x,s*.45,.7,s*.2);
+  const by=y-s*.65-(mv?Math.abs(Math.sin(t*12))*s*.05:0),sw=Math.sin(t*(mv?8:2))*s*.18;
+  ctx.fillStyle=dark;ctx.beginPath();ctx.moveTo(x-f*s*.6,by-s*.2);ctx.quadraticCurveTo(x-f*s*1.4,by+sw*.5,x-f*s*2.0,by+s*.25+sw);ctx.lineTo(x-f*s*.6,by+s*.25);ctx.fill();
+  ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(x,by,s*1.0,s*.42,0,0,7);ctx.fill();
+  ctx.fillStyle=lite;ctx.beginPath();ctx.ellipse(x,by+s*.18,s*.8,s*.16,0,0,7);ctx.fill();
+  ctx.fillStyle=dark;for(let k=-3;k<=2;k++){const sx=x+k*s*.28;mlPoly([[sx-s*.1,by-s*.36],[sx+f*s*.04,by-s*.62],[sx+s*.1,by-s*.36]]);ctx.fill();}
+  const hx=x+f*s*.95,hy=by-s*.12,jaw=Math.max(0,Math.sin(t*3))*s*.12;ctx.fillStyle=col;
+  mlPoly([[hx-f*s*.15,hy-s*.32],[hx+f*s*1.0,hy-s*.08],[hx+f*s*1.0,hy+s*.04],[hx-f*s*.15,hy+s*.12]]);ctx.fill();
+  ctx.fillStyle=dark;mlPoly([[hx-f*s*.1,hy+s*.12],[hx+f*s*.95,hy+s*.06+jaw],[hx+f*s*.9,hy+s*.2+jaw],[hx-f*s*.1,hy+s*.28]]);ctx.fill();
+  ctx.fillStyle='#f0ead8';for(let k=1;k<=4;k++){mlPoly([[hx+f*s*k*.2,hy+s*.04],[hx+f*s*(k*.2+.05),hy+s*.13],[hx+f*s*(k*.2+.1),hy+s*.04]]);ctx.fill();}
+  ctx.fillStyle=col;ctx.beginPath();ctx.arc(hx+f*s*.1,hy-s*.33,s*.16,0,7);ctx.fill();mlEye(hx+f*s*.12,hy-s*.36,s*.08,'#f0c030','#e0a020');};
+// Marsh Wisp: a floating marsh light, a green flame around a bright core, a ring of light and trailing sparks
+MOB_LOOKS.marshwisp=(m,o)=>{const {x,s,t,f,col,lite}=o;const fl=Math.sin(t*2.2)*4,y=o.y-14-fl;shadow(x,o.y,s*.6);
+  for(let k=0;k<5;k++){const a=(t*.8+k/5)%1;ctx.fillStyle=`rgba(190,255,150,${.55*(1-a)})`;ctx.beginPath();ctx.arc(x-f*s*(.3+a*1.2)+Math.sin(t*3+k)*3,y-s*.9+a*s*.6,Math.max(.5,s*(.12-a*.08)),0,7);ctx.fill();}
+  ctx.globalAlpha*=.35;ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y-s*1.0,s*1.15,0,7);ctx.fill();ctx.globalAlpha/=.35;
+  const tip=y-s*2.3+Math.sin(t*6)*s*.12;ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,tip);ctx.quadraticCurveTo(x+s*.85,y-s*1.3,x+s*.55,y-s*.55);ctx.quadraticCurveTo(x,y-s*.15,x-s*.55,y-s*.55);ctx.quadraticCurveTo(x-s*.85,y-s*1.3,x,tip);ctx.fill();
+  ctx.fillStyle='#f4ffe8';ctx.shadowColor='#b8ff8a';ctx.shadowBlur=14;ctx.beginPath();ctx.arc(x,y-s*.95,s*.32,0,7);ctx.fill();ctx.shadowBlur=0;
+  for(const k of [-1,1]){ctx.fillStyle='#2a4a20';ctx.beginPath();ctx.arc(x+k*s*.13+f*s*.06,y-s*1.0,s*.06,0,7);ctx.fill();}
+  ctx.strokeStyle=lite;ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(x,y-s*.95,s*.75,s*.22,Math.sin(t)*.3,0,7);ctx.stroke();};
+// Rotcap: a drooping, sagging mushroom with sickly spots, dripping poison from the edge of its cap
+MOB_LOOKS.rotcap=(m,o)=>{const {x,y,s,t,f,col,dark,mv}=o;const sw=Math.sin(t*(mv?8:2))*s*.06;shadow(x,y,s*1.05);
+  ctx.fillStyle='#d8cfa8';ctx.beginPath();ctx.moveTo(x-s*.4,y);ctx.quadraticCurveTo(x-s*.5,y-s*.8,x-s*.3+sw,y-s*1.25);ctx.lineTo(x+s*.3+sw,y-s*1.25);ctx.quadraticCurveTo(x+s*.5,y-s*.8,x+s*.4,y);ctx.fill();
+  ctx.strokeStyle='rgba(90,80,40,.6)';ctx.lineWidth=1;for(const k of [-.15,.15]){ctx.beginPath();ctx.moveTo(x+k*s,y-s*.1);ctx.lineTo(x+k*s+sw,y-s*1.1);ctx.stroke();}
+  for(const k of [-1,1])mlEye(x+k*s*.17+f*s*.1+sw,y-s*.8,s*.08,'#3a2a10');
+  ctx.strokeStyle='#3a2a10';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(x+f*s*.1+sw,y-s*.5,s*.12,Math.PI*1.15,Math.PI*1.85);ctx.stroke();
+  const cy=y-s*1.25;ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x-s*1.25+sw,cy+s*.35);ctx.quadraticCurveTo(x-s*1.1+sw,cy-s*1.05,x+sw,cy-s*1.1);ctx.quadraticCurveTo(x+s*1.1+sw,cy-s*1.05,x+s*1.25+sw,cy+s*.35);
+  ctx.quadraticCurveTo(x+s*.6+sw,cy+s*.05,x+sw,cy+s*.15);ctx.quadraticCurveTo(x-s*.6+sw,cy+s*.05,x-s*1.25+sw,cy+s*.35);ctx.fill();ctx.strokeStyle=dark;ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle='#6a8a2a';for(const [a,b,r] of [[-.55,-.45,.16],[.2,-.7,.2],[.65,-.3,.13],[-.15,-.25,.1]]){ctx.beginPath();ctx.arc(x+a*s+sw,cy+b*s,r*s,0,7);ctx.fill();}
+  for(const k of [-1.1,-.3,.5,1.1]){const d=((t*.7+k*.37+2)%1);ctx.fillStyle=`rgba(150,200,60,${.9*(1-d)})`;ctx.beginPath();ctx.ellipse(x+k*s+sw,cy+s*.3+d*s*1.1,s*.06,s*.1,0,0,7);ctx.fill();}};
+// Mire Golem: a hulk of packed peat and stone, moss hanging off its arms, reeds growing from its shoulders, a green glow inside
+MOB_LOOKS.miregolem=(m,o)=>{const {x,y,s,t,f,col,dark,lite,mv}=o;shadow(x,y,s*1.2);const br=Math.sin(t*2)*1.5,st=mv?Math.sin(t*8)*s*.08:0;
+  ctx.fillStyle=dark;ctx.beginPath();ctx.roundRect(x-s*.75,y-s*.65+st,s*.5,s*.65-st,5);ctx.roundRect(x+s*.25,y-s*.65-st,s*.5,s*.65+st,5);ctx.fill();
+  ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x-s*1.05,y-s*.55+br);ctx.quadraticCurveTo(x-s*1.25,y-s*1.8+br,x-s*.45,y-s*2.2+br);ctx.lineTo(x+s*.45,y-s*2.2+br);ctx.quadraticCurveTo(x+s*1.25,y-s*1.8+br,x+s*1.05,y-s*.55+br);ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(150,255,110,.85)';ctx.shadowColor='#8aff5a';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(x,y-s*1.35+br,s*.22,0,7);ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle=lite;for(const [a,b,r] of [[-.6,-1.1,.18],[.55,-.9,.15],[.1,-1.8,.14]]){ctx.beginPath();ctx.arc(x+a*s,y+b*s+br,r*s,0,7);ctx.fill();}
+  for(const k of [-1,1]){const ax=x+k*s*1.25,sw=Math.sin(t*2+k)*s*.05;ctx.fillStyle=col;ctx.beginPath();ctx.roundRect(ax-s*.28,y-s*1.95+br,s*.56,s*1.25,8);ctx.fill();
+    ctx.fillStyle='#5f8a3a';for(let j=0;j<3;j++){ctx.beginPath();ctx.moveTo(ax-s*.25+j*s*.22,y-s*.8+br);ctx.quadraticCurveTo(ax-s*.2+j*s*.22+sw,y-s*.45+br,ax-s*.22+j*s*.22+sw*2,y-s*(.25+j*.08)+br);ctx.lineTo(ax-s*.1+j*s*.22,y-s*.8+br);ctx.fill();}
+    ctx.strokeStyle='#8a9a4a';ctx.lineWidth=1.6;for(let j=0;j<3;j++){ctx.beginPath();ctx.moveTo(x+k*s*(.55+j*.12),y-s*2.05+br);ctx.lineTo(x+k*s*(.6+j*.18)+Math.sin(t*1.5+j)*2,y-s*(2.75+j*.15)+br);ctx.stroke();}
+    ctx.fillStyle='#6a4a2a';ctx.beginPath();ctx.ellipse(x+k*s*.96+Math.sin(t*1.5+2)*2,y-s*3.0+br,s*.06,s*.16,0,0,7);ctx.fill();}
+  ctx.fillStyle=col;ctx.beginPath();ctx.roundRect(x-s*.5,y-s*2.85+br,s*1.0,s*.75,7);ctx.fill();
+  for(const k of [-1,1])mlEye(x+k*s*.2+f*s*.08,y-s*2.5+br,s*.08,'#c8ff8a','#8aff5a');};
+// Bog Mantis, and its leader the Mire Matriarch: bigger, crowned, with glowing wings
+function mlMantis(o,lead){const {x,y,s,t,f,col,dark,lite,mv}=o;shadow(x,y,s*1.2);const b=mv?Math.sin(t*14)*s*.05:0;
+  ctx.strokeStyle=dark;ctx.lineWidth=Math.max(1.5,s*.09);ctx.lineCap='round';
+  for(let k=0;k<2;k++)for(const sd of [-1,1]){const lx=x-f*s*(.1+k*.45),ph=Math.sin(t*(mv?14:2)+k*2+sd)*s*.12;ctx.beginPath();ctx.moveTo(lx,y-s*.85);ctx.lineTo(lx+sd*s*.45,y-s*1.1+ph);ctx.lineTo(lx+sd*s*.6,y);ctx.stroke();}
+  if(lead){ctx.globalAlpha*=.55;ctx.fillStyle='#d8ffb0';for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x-f*s*.5,y-s*1.5,s*1.1,s*.35,k*.5+Math.sin(t*20)*.08,0,7);ctx.fill();}ctx.globalAlpha/=.55;}
+  ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(x-f*s*.65,y-s*.95+b,s*.85,s*.32,f*.25,0,7);ctx.fill();
+  ctx.strokeStyle=dark;ctx.lineWidth=1;for(let k=1;k<4;k++){ctx.beginPath();ctx.moveTo(x-f*s*(.2+k*.3),y-s*1.2+b);ctx.lineTo(x-f*s*(.1+k*.3),y-s*.68+b);ctx.stroke();}
+  ctx.strokeStyle=col;ctx.lineWidth=s*.28;ctx.beginPath();ctx.moveTo(x-f*s*.05,y-s*1.0+b);ctx.lineTo(x+f*s*.3,y-s*2.0+b);ctx.stroke();
+  const strike=Math.max(0,Math.sin(t*3))*.6;
+  for(const k of [0,1]){const sx=x+f*s*(.3+k*.08),sy=y-s*(1.75-k*.12)+b;ctx.strokeStyle=k?dark:col;ctx.lineWidth=s*.14;
+    ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx+f*s*(.55+strike*.3),sy-s*.4);ctx.stroke();
+    ctx.fillStyle=lite;mlPoly([[sx+f*s*(.55+strike*.3),sy-s*.45],[sx+f*s*(.35+strike*.3),sy+s*.35],[sx+f*s*(.5+strike*.3),sy+s*.05]]);ctx.fill();}
+  const hx=x+f*s*.42,hy=y-s*2.25+b;ctx.fillStyle=col;mlPoly([[hx-s*.3,hy-s*.15],[hx+s*.3,hy-s*.15],[hx+f*s*.08,hy+s*.32]]);ctx.fill();
+  for(const k of [-1,1]){mlEye(hx+k*s*.2,hy-s*.12,s*.12,'#1a3a10');ctx.strokeStyle=dark;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(hx+k*s*.08,hy-s*.22);ctx.quadraticCurveTo(hx+k*s*.3,hy-s*.8,hx+k*s*.55+Math.sin(t*3+k)*2,hy-s*.95);ctx.stroke();}
+  if(lead)mlCrown(hx,hy-s*.3,s*.28);}
+MOB_LOOKS.bogmantis=(m,o)=>mlMantis(o,false);
+MOB_LOOKS.mirematriarch=(m,o)=>mlMantis(o,true);

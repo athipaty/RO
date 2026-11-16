@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='1.6.2';
+const VERSION='1.7.0';
 // chance that a normal monster drops its sigil (card); bosses set their own sigChance
 const SIG_CHANCE=.01;
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
@@ -74,6 +74,11 @@ const ITEMS={
   emberore:{name:'Ember Ore',type:'etc',price:150,col:'#e07a3a',g:'◆',desc:'The smith uses one to refine a weapon.'},
   glintstone:{name:'Glintstone',type:'etc',price:120,col:'#9fd6ff',g:'◆',desc:'The smith uses one to refine armour, a hat or an accessory.'},
   fang:{name:'Rime Fang',type:'etc',price:260,col:'#cfe3f0',g:'•'}, shard:{name:'Frost Shard',type:'etc',price:280,col:'#9fd6ff',g:'•'}, fur:{name:'Snowhulk Fur',type:'etc',price:310,col:'#f0f4f8',g:'•'},
+  // v1.7.0 Mirelight Fen materials and the Mire Matriarch's lantern
+  bogmoss:{name:'Bog Moss',type:'etc',price:330,col:'#7a8a3a',g:'•'}, lurkerscale:{name:'Lurker Scale',type:'etc',price:350,col:'#4f6a4a',g:'•'},
+  wispglow:{name:'Wisp Glow',type:'etc',price:370,col:'#c8f8a8',g:'•'}, rotspore:{name:'Rot Spore',type:'etc',price:380,col:'#a89a4a',g:'•'},
+  mirestone:{name:'Mire Stone',type:'etc',price:400,col:'#5a6a4a',g:'•'}, mantisblade:{name:'Mantis Blade',type:'etc',price:420,col:'#8ac860',g:'•'},
+  fenlantern:{name:'Fenlight Lantern',type:'accessory',b:{agi:4,crit:6,flee:12},price:42000,lv:60,slots:1,col:'#c8f8a8',g:'O',desc:'Dropped by the Mire Matriarch. AGI +4 · CRIT +6 · FLEE +12.'},
   ring:{name:'Brass Ring',type:'accessory',b:{str:2},price:300,lv:1,slots:1,col:'#d9b45a',g:'O'},
   clip:{name:'Silver Clip',type:'accessory',b:{maxsp:30},price:900,lv:10,slots:1,col:'#cfd6de',g:'O'},
   charm:{name:'Clover Charm',type:'accessory',b:{luk:4,crit:3},price:900,lv:10,slots:1,col:'#7fd38a',g:'O'},
@@ -153,10 +158,19 @@ const MOBS={
   rimeheart:{name:'Rimeheart Colossus',lv:55,hp:600000,atk:400,def:110,flee:40,exp:220000,jexp:150000,spd:45,aggro:true,boss:true,world:'frost',shape:'golem',col:'#8fc8e8',size:36,sigChance:.2,
     drops:[['orange',1],['shard',1],['fur',1],['frostcap',.15]],mvp:[['rimehalo',1],['emberore',3],['glintstone',3]],sig:{kind:'accessory',b:{int:5,matk:60},txt:'+5 INT, +60 MATK'}},
   warlord:{name:'Ashen Warlord',lv:45,hp:20000,atk:300,def:80,flee:40,exp:30000,jexp:20000,spd:70,aggro:true,boss:true,shape:'golem',col:'#7a2e1f',size:30,respawn:180,sigChance:.25,drops:[['crest',1],['orange',1],['blue',.6],['crown',.3]],sig:{kind:'armor',b:{str:5,vit:5,hppct:15},txt:'+5 STR, +5 VIT, +15% Max HP'}},
+  // v1.7.0 Mirelight Fen (Lv 55-70): a misty marsh east of Frostpeak Pass; the Mire Matriarch leads a Bog Mantis escort
+  bogling:{name:'Bogling',lv:54,hp:4200,atk:250,def:50,flee:40,exp:2900,jexp:1950,spd:48,shape:'blob',col:'#6b7a3a',size:14,el:'water',drops:[['bogmoss',.45],['orange',.1]],sig:{kind:'armor',b:{maxhp:350,vit:2},txt:'+350 Max HP, +2 VIT'}},
+  fenlurker:{name:'Fen Lurker',lv:57,hp:5000,atk:285,def:70,flee:45,exp:3400,jexp:2300,spd:105,aggro:true,shape:'beast',col:'#3f5a3a',size:16,el:'water',drops:[['lurkerscale',.4],['orange',.1]],sig:{kind:'accessory',b:{str:3,crit:4},txt:'+3 STR, +4 CRIT'}},
+  marshwisp:{name:'Marsh Wisp',lv:59,hp:3900,atk:300,def:35,flee:95,exp:3600,jexp:2450,spd:90,aggro:true,range:170,shape:'ghost',col:'#b8f0a0',size:13,el:'wind',ail:['blind',.12,5],drops:[['wispglow',.4],['blue',.1]],sig:{kind:'weapon',b:{matk:60,int:3},txt:'+60 MATK, +3 INT'}},
+  rotcap:{name:'Rotcap',lv:61,hp:5600,atk:310,def:45,flee:30,exp:3900,jexp:2650,spd:45,shape:'mushroom',col:'#9a8a3a',size:15,el:'earth',ail:['poison',.18,6],drops:[['rotspore',.45],['remedy',.08]],sig:{kind:'head',b:{int:3,maxsp:60},txt:'+3 INT, +60 Max SP'}},
+  miregolem:{name:'Mire Golem',lv:64,hp:8200,atk:340,def:110,flee:20,exp:4600,jexp:3100,spd:40,aggro:true,shape:'golem',col:'#4a5a3a',size:19,el:'earth',drops:[['mirestone',.4],['emberore',.06]],sig:{kind:'armor',b:{def:10,maxhp:300},txt:'+10 DEF, +300 Max HP'}},
+  bogmantis:{name:'Bog Mantis',lv:67,hp:6200,atk:380,def:60,flee:75,exp:5000,jexp:3400,spd:115,aggro:true,shape:'bug',col:'#6aa04a',size:15,el:'wind',drops:[['mantisblade',.4],['orange',.12]],sig:{kind:'weapon',b:{atk:28,agi:2},txt:'+28 ATK, +2 AGI'}},
+  mirematriarch:{name:'Mire Matriarch',lv:70,hp:60000,atk:420,def:100,flee:60,exp:55000,jexp:36000,spd:60,aggro:true,boss:true,mini:true,calls:true,shape:'bug',col:'#3a6a2a',size:25,respawn:150,sigChance:.15,
+    drops:[['fenlantern',.2],['mantisblade',1],['orange',1],['glintstone',.4],['emberore',.4]],sig:{kind:'accessory',b:{agi:4,crit:6},txt:'+4 AGI, +6 CRIT'}},
 };
 // #15 monster skills run by the server (heal / blink / bolt) and #16 pack monsters that call their kind
-const MOB_SKILL={mushcap:'heal',gloomcap:'heal',shriekcap:'heal',miragewisp:'blink',deepshade:'blink',emberimp:'blink',iceimp:'bolt',frostwisp:'bolt',wraith:'bolt'};
-const MOB_PACK=['greylupe','hopper','dunejackal','gravehound','rimestalker'];
+const MOB_SKILL={mushcap:'heal',gloomcap:'heal',shriekcap:'heal',miragewisp:'blink',deepshade:'blink',emberimp:'blink',iceimp:'bolt',frostwisp:'bolt',wraith:'bolt',marshwisp:'blink',rotcap:'heal'};
+const MOB_PACK=['greylupe','hopper','dunejackal','gravehound','rimestalker','fenlurker'];
 for(const id in MOB_SKILL)MOBS[id].skill=MOB_SKILL[id];for(const id of MOB_PACK)MOBS[id].pack=true;
 for(const id in MOBS){const m=MOBS[id];m.id=id;m.hit=m.lv*2+12;
   ITEMS[id+'_sig']={name:m.name+' Sigil',type:'sigil',kind:m.sig.kind,b:m.sig.b,price:m.boss?20000:600,col:'#ffcf5a',g:'✦',desc:`Socket into ${/^[aeiou]/.test(m.sig.kind)?'an':'a'} ${m.sig.kind}: ${m.sig.txt}.`};}
@@ -175,16 +189,19 @@ const ZONES={
   // Stage 6 guild war: the Ember Crystal sits in a ring at the centre (js/guildwar.js); reached from the Keep Herald in Hearthvale
   keep:{name:'Emberkeep',w:44,h:34,theme:'keep',music:'crypt',safe:true,lvl:'Guild war',links:{}},
   arena:{name:'Ember Arena',w:48,h:34,theme:'arena',music:'boss',safe:true,lvl:'Ranked PvP',links:{}},
-  frost:{name:'Frostpeak Pass',w:64,h:44,theme:'frost',seed:67,density:.08,ponds:3,lvl:'Lv 42+',mobs:[['rimestalker',12],['frostwisp',11],['snowhulk',9],['frostmatron',1],['rimestalker',3,'frostmatron'],['iceimp',4],['glacierbeetle',3]],links:{west:'crypt'}},
+  frost:{name:'Frostpeak Pass',w:64,h:44,theme:'frost',seed:67,density:.08,ponds:3,lvl:'Lv 42–55',mobs:[['rimestalker',12],['frostwisp',11],['snowhulk',9],['frostmatron',1],['rimestalker',3,'frostmatron'],['iceimp',4],['glacierbeetle',3]],links:{west:'crypt',east:'fen'}},
+  // v1.7.0 Mirelight Fen: many ponds, willow-dark trees and green fireflies
+  fen:{name:'Mirelight Fen',w:66,h:46,theme:'fen',seed:131,density:.08,ponds:13,lvl:'Lv 55–70',mobs:[['bogling',12],['fenlurker',9],['marshwisp',7],['rotcap',6],['miregolem',4],['mirematriarch',1],['bogmantis',3,'mirematriarch'],['bogmantis',4]],links:{west:'frost'}},
 };
 const KEEP_C=[22,17],KEEP_R=4; // the crystal (tile) and its capture ring (tiles); the server uses the same numbers
 const ARENA_PITS=[[12,9],[35,9],[12,26],[35,26]];
-const ZONE_ORDER=['town','meadow','woods','dunes','crypt','frost'];
+const ZONE_ORDER=['town','meadow','woods','dunes','crypt','frost','fen'];
 const THEMES={
   town:{g:['#6aa553','#6ea957','#66a050'],path:'#c9b07a',canopy:['#3f7d34','#4e9440'],water:'#4a8fc8',cob:'#a59f93'},
   meadow:{g:['#5e9b4a','#62a04d','#5a9446'],path:'#c9b07a',canopy:['#3f7d34','#4e9440'],water:'#3f7fb8'},
   woods:{g:['#3d6b35','#406f38','#3a6532'],path:'#8a7552',canopy:['#24502a','#2f6334'],water:'#2f5f80'},
   dunes:{g:['#d9bf85','#dcc38a','#d4b97e'],path:'#c2a46c',rock:['#9c7b55','#7d6043'],water:'#3ea0b0'},
+  fen:{g:['#4f6a45','#53704a','#4b6541'],path:'#7a6a4a',canopy:['#2f4a2a','#3d5a32'],water:'#3f5f4a'},
   frost:{g:['#e6edf2','#edf2f6','#e1e9ef'],path:'#b7c6d2',canopy:['#9fb8c8','#f5f9fc'],water:'#8fc0dc'},
   cave:{g:['#3b3530','#3f3833','#37312c'],path:'#55493e',rock:['#2c2622','#4d443b'],water:'#2a5f6a',dark:true},
   keep:{g:['#5d5a62','#615e66','#59565e'],path:'#c9a24a',cob:'#7a7480',rock:['#3e3a44','#5a5560'],water:'#d4521f',lava:true},

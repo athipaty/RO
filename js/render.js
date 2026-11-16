@@ -209,7 +209,7 @@ const GLOW_DOTS=new Map();
 function glowDot(col){let c=GLOW_DOTS.get(col);if(c)return c;c=document.createElement('canvas');c.width=c.height=32;const g=c.getContext('2d');
   const gr=g.createRadialGradient(16,16,0,16,16,16);gr.addColorStop(0,col);gr.addColorStop(.2,col);gr.addColorStop(.32,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,32,32);
   g.globalAlpha=.55;g.shadowColor=col;g.shadowBlur=12;g.fillStyle=col;g.beginPath();g.arc(16,16,3.2,0,7);g.fill();GLOW_DOTS.set(col,c);return c;}
-const AMB={meadow:{n:18,col:'#fff6a8'},woods:{n:26,col:'#d8ff7a'},dunes:{n:40,col:'rgba(230,200,140,.7)'},crypt:{n:34,col:'#ff9a4a'},frost:{n:70,col:'#ffffff'},town:{n:10,col:'#ffd8e8'}};
+const AMB={meadow:{n:18,col:'#fff6a8'},woods:{n:26,col:'#d8ff7a'},dunes:{n:40,col:'rgba(230,200,140,.7)'},crypt:{n:34,col:'#ff9a4a'},frost:{n:70,col:'#ffffff'},fen:{n:34,col:'#b8ff8a'},town:{n:10,col:'#ffd8e8'}};
 const REDUCED_MOTION=matchMedia('(prefers-reduced-motion: reduce)');
 function drawAmbient(){
   const dt=Math.min(.05,now-ambLast);ambLast=now;const cfg=AMB[zoneId];if(!cfg||REDUCED_MOTION.matches)return;

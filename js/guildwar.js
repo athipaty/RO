@@ -39,6 +39,14 @@ function gwBar(){let el=document.getElementById('gwBar');const W=GW.war;
   if(!W){if(el)el.hidden=true;return;}
   if(!el){el=document.createElement('div');el.id='gwBar';el.setAttribute('role','status');document.body.appendChild(el);el.addEventListener('click',()=>openPanel('keep'));}
   el.hidden=false;const mine=n=>GD.g&&GD.g.name===n;
+  /* outside Emberkeep only a small timer chip (user: the full banner blocked the screen); tap it for the war window */
+  const mini=typeof zoneId!=='undefined'&&zoneId!=='keep';el.classList.toggle('gwMini',mini);
+  if(mini){el.innerHTML=`<span class="t">⚔ Guild war · ${mmss(warLeft())}</span>`;
+    /* computer: the chip shares the top centre with the daily gift pill, so it sits just under it while that shows */
+    if(!document.body.classList.contains('touchui')){const g=document.getElementById('giftPill'),gb=g&&!g.hidden&&getComputedStyle(g).display!=="none"?g.getBoundingClientRect():null;
+      el.style.top=gb&&gb.height?Math.round(gb.bottom+6)+'px':'';}
+    return;}
+  if(!document.body.classList.contains('touchui'))el.style.top='';
   const hold=W.holder?`<b class="${mine(W.holder.name)?'me':''}">${esc(W.holder.name)}</b> holds the crystal`:'Nobody holds the crystal';
   const cap=W.contested?'<span class="hot">Contested!</span>':W.capture?`${esc(W.capture.name)} capturing <i style="--p:${W.capture.pct}%"></i>`:'';
   el.innerHTML=`<span class="t">⚔ Guild war · ${mmss(warLeft())}</span><span>${hold}</span>${cap?`<span>${cap}</span>`:''}`+(W.top.length?`<span class="top">${W.top.slice(0,3).map(x=>`${esc(x.name)} ${x.pts}`).join(' · ')}</span>`:'');}

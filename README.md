@@ -59,7 +59,8 @@ Play online: https://ro-six-bay.vercel.app/ (add `?room=yourname` to the link fo
 - **World announcements**: everyone online hears about level milestones, class changes, rare sigils, finished contracts and boss kills
 - **Hunting contracts** from Guildmaster Corvin, matched to your level, for bonus EXP and gold
 - **Hats**: 8 cosmetic headgear items with small stat bonuses. Two are sold in town and the rest are rare drops (the Ember Crown comes from the boss). Other players see your hat.
-- **Frostpeak Pass**: a sixth region (Lv 42+) with snowy pines, three new monsters and its own theme music
+- **Frostpeak Pass**: a sixth region (Lv 42–55) with snowy pines, three new monsters and its own theme music
+- **Mirelight Fen**: a misty marsh east of Frostpeak Pass (Lv 55–70) with green fireflies and many ponds: Boglings, Fen Lurker packs, blinding Marsh Wisps, poisonous self-healing Rotcaps, Mire Golems and Bog Mantises, and the Mire Matriarch mini-boss with her mantis escort (drops the Fenlight Lantern). It has its own sigil album page and herb spots.
 - **Ambient weather**: fireflies, drifting sand, rising embers, snowfall and petals, different in each region
 - **Auto-hunt**: fights the nearest monster and drinks tonics when HP runs low, which helps on phones
 - **Phone-friendly**: tap to walk, attack and talk, plus big round Attack / Sit / Chat / sound buttons
@@ -85,4 +86,4 @@ Play online: https://ro-six-bay.vercel.app/ (add `?room=yourname` to the link fo
 | Click dropped loot | Walk over and pick it up |
 
 ## Regions
-Hearthvale (town) → Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45, boss) → Frostpeak Pass (42+)
+Hearthvale (town) → Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45, boss) → Frostpeak Pass (42–55) → Mirelight Fen (55–70, mini-boss)

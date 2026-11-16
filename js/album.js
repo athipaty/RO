@@ -1,7 +1,7 @@
 "use strict";
 /* ================= Stage 8 #79: the sigil album =================
    Every monster sigil you have ever held (bag, storage, cart, socketed; a Radiant one counts for its monster) is
-   recorded in P.album. Completing a region's page gives a small permanent bonus; all six pages add +1 to every
+   recorded in P.album. Completing a region's page gives a small permanent bonus; all seven pages add +1 to every
    stat. Open from Librarian Oren's Codex (Sigil album button) or /album. */
 const ALBUM=[
   {id:'meadow',name:'Greenmoss Meadow',zones:['meadow'],b:{maxhp:60}},
@@ -9,7 +9,8 @@ const ALBUM=[
   {id:'deep',name:'Mossdeep Caverns',zones:['deep1','deep2','deep3'],b:{sppct:3,spregen:1}},
   {id:'dunes',name:'Ashen Dunes',zones:['dunes'],b:{aspd:2}},
   {id:'crypt',name:'Cinder Crypt',zones:['crypt'],b:{critdmg:5}},
-  {id:'frost',name:'Frostpeak Pass',zones:['frost'],b:{dmgred:2}}];
+  {id:'frost',name:'Frostpeak Pass',zones:['frost'],b:{dmgred:2}},
+  {id:'fen',name:'Mirelight Fen',zones:['fen'],b:{critdmg:4,hppct:3}}];
 const ALBUM_ALL={str:1,agi:1,vit:1,int:1,dex:1,luk:1};
 const albumMobs=pg=>[...new Set(pg.zones.flatMap(z=>(ZONES[z]&&ZONES[z].mobs||[]).map(m=>m[0])))].filter(id=>MOBS[id]&&MOBS[id].sig&&ITEMS[id+'_sig']);
 const sigBase=id=>{const it=ITEMS[id];if(!it||it.type!=='sigil')return null;return (it.base||id).replace(/_sig$/,'');};

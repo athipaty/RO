@@ -1002,6 +1002,8 @@ body.touchui #panel.npcfull[data-kind="equip"]>*:not(.x){max-width:none;width:10
 /* sideways: the guild war banner sits compact in the top row (js/quickleft.js places it) */
 body.touchui #gwBar.gwTop{transform:none!important;font-size:10.5px;padding:4px 10px;gap:6px 8px;line-height:1.25;justify-content:flex-start}
 body.touchui #gwBar.gwTop i{width:40px}
+#gwBar.gwMini{padding:3px 10px;font-size:11px;border-radius:999px;gap:0;max-width:none;background:rgba(40,14,10,.72)}
+body.touchui #gwBar.gwMini{font-size:10.5px;padding:3px 9px}
 
 /* Gemcutter Sela: awakening and sigil fusion (js/awaken.js) */
 .awbox{border:1px solid rgba(255,215,106,.35);border-radius:12px;padding:12px;margin:8px 0;background:rgba(255,215,106,.06)}

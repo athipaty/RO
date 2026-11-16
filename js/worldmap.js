@@ -19,7 +19,7 @@ function miniLabels(){if(!miniBig||!Z)return;mctx.font='bold 9px system-ui,sans-
     const tx=clamp(p.x-tw/2,2,mctx.canvas.width-tw-2),ty=clamp(p.y-9,6,mctx.canvas.height-6);mctx.fillStyle='rgba(0,0,0,.6)';mctx.fillRect(tx-2,ty-6,tw+4,12);mctx.fillStyle='#8ff0ff';mctx.fillText(nm,tx,ty);}}
 
 // ---- world map window (M) ----
-const WORLD_ROAD=['town','meadow','woods','dunes','crypt','frost'],WORLD_BRANCH={woods:['deep1','deep2','deep3']};
+const WORLD_ROAD=['town','meadow','woods','dunes','crypt','frost','fen'],WORLD_BRANCH={woods:['deep1','deep2','deep3']};
 function zonePeople(id){const out=[];for(const [peer,o] of NET.others)if(o.z===id&&!o.dead)out.push({n:o.n,party:inParty(peer)});return out;}
 function worldNode(id,sub){const D=ZONES[id],here=zoneId===id,seen=P.visited.includes(id)||here,th=THEMES[D.theme]||THEMES.meadow;
   const ppl=zonePeople(id),pals=ppl.filter(p=>p.party),boss=NET.wb&&NET.wb.z===id&&NET.wb.until>Date.now()?MOBS[NET.wb.b]:null;
