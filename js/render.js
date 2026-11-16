@@ -496,6 +496,11 @@ function drawPlayerBody(P,wid){
         ctx.fillStyle=`rgba(255,246,220,${.5*al})`;ctx.beginPath();ctx.arc(0,0,R,a0,a1);ctx.arc(0,0,R*.45,a1,a0,true);ctx.closePath();ctx.fill();
         ctx.fillStyle=`rgba(255,255,255,${.75*al})`;ctx.beginPath();ctx.arc(0,0,R+1,Math.max(a0,a1-.7),a1);ctx.arc(0,0,R*.8,a1,Math.max(a0,a1-.7),true);ctx.closePath();ctx.fill();}
       ctx.rotate(ang);drawWeaponShape(w,ang);ctx.restore();};
+    // a Novice walking or standing seen from behind (heading up) rests the club on the shoulder of the side it
+    // faces: up-right on the right shoulder, up-left on the left; the hand holds the grip
+    if(p<0&&P.back&&!P.casting&&!P.sitting&&!ranged&&baseOf(P.cls)==='novice'){W.behind=false;
+      drawHeld=by=>{const sw=P.moving?Math.sin((P.walkT||0)*12)*.06:0;ctx.save();ctx.translate(P.x+P.face*9,by-3);ctx.scale(P.face,1);ctx.rotate(-.06+sw);
+        drawWeaponShape(w,-.06);ctx.fillStyle=(lookOf(P.name,P.look)||{}).skin||'#f6d6b8';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,-1,2.6,0,7);ctx.fill();ctx.stroke();ctx.restore();};}
     if(W.behind)drawHeld(P.y-(typeof HERO2_ON!=='undefined'&&HERO2_ON?9:7)+(P.sitting?6:0));}
   const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?P.walkT:0,{sit:P.sitting,cast:!!P.casting||(w&&w.wt==='bow'&&bowPhase(P)>=0&&bowPhase(P)<.8),hat,fc,mo,look:lookOf(P.name,P.look),outfit:baseOf(P.cls),back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
   drawJobMantle(c,P.x,P.y+(P.sitting?6:0),P.face,!!P.back);
