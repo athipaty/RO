@@ -344,7 +344,9 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
   ctx.restore();
   // hands
   ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=L.skin;
-  for(const k of [-f,f]){ctx.beginPath();if(opt.hands){const h=opt.hands[k===f?0:1];ctx.arc(x+f*h[0],by+h[1],2.6,0,7);}else if(opt.sit)ctx.arc(x+k*10*bw,y-4,2.6,0,7);else if(opt.cast)ctx.arc(x+k*11*bw,by-15+Math.sin(now*9+k)*1.2,2.6,0,7);else ctx.arc(x+k*9*bw,by-4+(k===f?-1:0),bw<1?2.3:2.6,0,7);fs();}
+  /* walking: each hand swings opposite to the leg on its side (the legs move -k*l, so the hands move +k*l) */
+  const aw=walk&&!opt.sit&&!opt.cast&&!opt.hands?Math.sin(walk*12)*2.6:0;
+  for(const k of [-f,f]){ctx.beginPath();if(opt.hands){const h=opt.hands[k===f?0:1];ctx.arc(x+f*h[0],by+h[1],2.6,0,7);}else if(opt.sit)ctx.arc(x+k*10*bw,y-4,2.6,0,7);else if(opt.cast)ctx.arc(x+k*11*bw,by-15+Math.sin(now*9+k)*1.2,2.6,0,7);else ctx.arc(x+k*9*bw+k*aw,by-4+(k===f?-1:0)-Math.abs(aw)*.25,bw<1?2.3:2.6,0,7);fs();}
   // head: from behind it is all hair
   if(bk){backLayer();ctx.fillStyle=hair;ctx.strokeStyle=OL;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(x,hy,12.8,12.3,0,0,7);fs();
     ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1.2;for(const k of [-7,-2.5,2.5,7]){ctx.beginPath();ctx.moveTo(x+k*.5,hy-10);ctx.quadraticCurveTo(x+k*1.15,hy,x+k,hy+10);ctx.stroke();}
@@ -478,7 +480,10 @@ function drawPlayerBody(P,wid){
     if(!ranged&&p>=0){if(p<.3){const k=ease3(p/.3);ang=.6-1.6*k;lift=k;}else if(p<.55){const k=easeOut((p-.3)/.25);ang=-1+3.15*k;lift=1-k;}else{const k=ease3(Math.min(1,(p-.55)/.7));ang=2.15-1.55*k;}}
     const hp=p>=0&&W.bow<0&&typeof hitPose==='function'?hitPose(P,p,w):null;let reach=0;if(hp){ang=hp.ang;lift=hp.lift;reach=hp.reach||0;}
     W.behind=W.bow<0&&!ranged&&p>=0&&ang<.15&&lift>.15;
-    drawHeld=by=>{ctx.save();ctx.translate(P.x+P.face*(11-lift*15+reach),by-3-lift*9-castUp);ctx.scale(P.face,1);
+    // while walking (not attacking or casting) the weapon follows the front hand's swing; the classic art moves the
+    // front hand +face*sin, the new art (hero2.js) -face*sin
+    const ws=P.moving&&p<0&&!P.casting&&!P.sitting?Math.sin((P.walkT||0)*12)*2.6*(typeof HERO2_ON!=='undefined'&&HERO2_ON?-1:1):0;
+    drawHeld=by=>{ctx.save();ctx.translate(P.x+P.face*(11-lift*15+reach+ws),by-3-lift*9-castUp);ctx.scale(P.face,1);
       // the smear the blade leaves behind as it comes down
       if(!ranged&&p>=.3&&p<.8&&ang>.1){const al=p<.55?1:1-(p-.55)/.25,a1=ang-Math.PI/2,a0=Math.max(-.15,ang-2.2)-Math.PI/2,R=w.wt==='sword'||w.wt==='axe'?27:22;
         ctx.fillStyle=`rgba(255,246,220,${.5*al})`;ctx.beginPath();ctx.arc(0,0,R,a0,a1);ctx.arc(0,0,R*.45,a1,a0,true);ctx.closePath();ctx.fill();
