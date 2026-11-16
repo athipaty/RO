@@ -20,6 +20,11 @@ module.exports = async t => {
       // each family walks its own way (callings like their family); the Novice keeps the plain walk
       const gs = ['novice', 'warden', 'arcanist', 'ranger', 'cleric'].map(f => JSON.stringify(walkGait(f)));
       out.gaits = new Set(gs).size === 5 && JSON.stringify(walkGait('ravager')) === gs[1] && walkGait('arcanist').lift > 0 && walkGait('warden').roll > 0 && walkGait('ranger').rate > 1;
+      // every first job and advanced calling sits its own way; a master sits like its advanced calling, glowing
+      const sitters = ['novice', 'warden', 'arcanist', 'ranger', 'cleric', 'bulwark', 'ravager', 'runeguard', 'stormcaller', 'hexweaver', 'chronomancer', 'sharpshooter', 'wildstalker', 'falconer', 'templar', 'oracle', 'ascetic'];
+      const sk = c => { const q = sitPoseOf(c); return JSON.stringify([q.legs, q.hands, q.lean || 0, q.lift || 0, q.fx || '', q.hip ?? 6]); };
+      out.sits = new Set(sitters.map(sk)).size === sitters.length;
+      const ms = Object.keys(JOB3).find(k => JOB3[k].from === 'ascetic'); out.sitMaster = !!ms && sk(ms) === sk('ascetic') && sitPoseOf(ms).master === true;
       // one impact effect per swing
       const n0 = fx.length, p = { cls: 'warden', face: 1, x: 100, y: 100, swingT: 5 }; hitPose(p, .7, ITEMS.axe || null); hitPose(p, .8, ITEMS.axe || null); out.fxOnce = fx.length - n0 === 1;
       // during the wind-up the weapon is drawn before the body (behind the face)
@@ -38,6 +43,8 @@ module.exports = async t => {
     t.ok(r.masterGhost, 'a master calling attacks like its advanced calling, with afterimages');
     t.ok(r.bows, 'Sharpshooter, Wildstalker and Falconer each draw the bow their own way');
     t.ok(r.gaits, 'each family walks its own way: Warden stomps, Arcanist glides, Ranger steps quick, Cleric walks calm');
+    t.ok(r.sits, 'all 17 first jobs and advanced callings sit their own way');
+    t.ok(r.sitMaster, 'a master calling sits like its advanced calling, with its glow');
     t.ok(r.fxOnce, 'the impact effect appears once per swing');
     t.ok(r.windupOrder === 'wb' && r.strikeOrder === 'bw', `the raised weapon passes behind the face, then strikes in front (wind-up ${r.windupOrder}, strike ${r.strikeOrder})`);
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));

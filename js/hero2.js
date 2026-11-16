@@ -23,7 +23,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   const G=opt.gait||{leg:1,bob:1,arm:1},wk=walk?Math.sin(walk*12):0,bob=walk?Math.abs(wk)*1.4*G.bob:0,br=walk||opt.sit?0:Math.sin(now*2.2+sd),sit=opt.sit?7:0;
   /* breathing: the whole body rises and settles a little (feet stay on the ground), the head follows a beat later */
   const breath=opt.sit?Math.sin(now*2.2+sd)*.3:br*.5;
-  const by=y-9-bob+sit-breath,hy=by-20-Math.sin(now*2.2+sd-.6)*.2,robe=out==='arcanist'||out==='cleric',bw=BUILD_W[L.body|0]||1;LAST_HY=hy;
+  const by=y-9-bob+(opt.sit&&opt.sitPose&&opt.sitPose.hip!==undefined?opt.sitPose.hip+1:sit)-breath,hy=by-20-Math.sin(now*2.2+sd-.6)*.2,robe=out==='arcanist'||out==='cleric',bw=BUILD_W[L.body|0]||1;LAST_HY=hy;
   const top=out==='cleric'?'#f4efe2':body,dark=hero2Shade(top,-38),lite=hero2Shade(top,30);
   if(!HERO2_HI)shadow(x,y,12);ctx.lineJoin='round';ctx.lineCap='round';ctx.lineWidth=1.5;ctx.strokeStyle=OL;
   const fs=()=>{ctx.fill();ctx.stroke();};
@@ -52,6 +52,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
       ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=D.boot;ctx.beginPath();ctx.roundRect(fx-3,fy-5,6,5,2);fs();
       ctx.beginPath();ctx.ellipse(fx+f*1.3,fy-.6,3.9,2.4,0,0,7);fs();
       ctx.fillStyle='rgba(255,255,255,.18)';ctx.fillRect(fx-2.6,fy-4.6,5.2,1.3);}}
+  else if(opt.sitPose&&typeof drawSitLegs==='function')drawSitLegs(x,y,f,opt.sitPose,robe?top:D.pant,D.boot);
   else{ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=robe?top:D.pant;
     for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*7,y-2.5,6.5,3.6,k*.18,0,7);fs();}
     ctx.fillStyle=D.boot;for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*2.5,y,3.4,2.4,0,0,7);fs();}}

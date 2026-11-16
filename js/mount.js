@@ -38,7 +38,7 @@ function drawMount(p,k){const m=mountBody(p===P?'me':p.name,k),M=MOUNTS[k];m.x=p
 const _drawPlayerRide=drawPlayer;
 drawPlayer=function(p,wid){const k=p===P?(riding()?P.riding:null):p.riding;
   if(!k||!MOUNTS[k]||p.dead)return _drawPlayerRide(p,wid);
-  const lift=drawMount(p,k);ctx.save();ctx.translate(0,-lift+6);try{_drawPlayerRide({...p,sitting:true,moving:false,eq:p.eq,riding:null},wid);}finally{ctx.restore();}};
+  const lift=drawMount(p,k);ctx.save();ctx.translate(0,-lift+6);try{_drawPlayerRide({...p,sitting:true,_rider:true,moving:false,eq:p.eq,riding:null},wid);}finally{ctx.restore();}};
 // others: what they ride (presence field rd)
 const _drawOtherRide=drawOther;
 drawOther=function(o){if(!o.rd)return _drawOtherRide(o);const atk=o.atkFaceT&&now-o.atkFaceT<.4;

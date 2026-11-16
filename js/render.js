@@ -305,7 +305,7 @@ let LAST_HY=0;
 function drawHuman(x,y,body,hair,face,walk,opt={}){
   const L=opt.look||{style:0,eye:'#5a3a22',skin:'#f6d6b8',seed:0};hair=L.hair||hair;
   const f=face<0?-1:1,out=opt.outfit||'npc',OL='#2a1c14',st=L.style;
-  const G=opt.gait||{leg:1,bob:1,arm:1},bob=walk?Math.abs(Math.sin(walk*12))*1.5*G.bob:0,sit=opt.sit?6:0;
+  const G=opt.gait||{leg:1,bob:1,arm:1},bob=walk?Math.abs(Math.sin(walk*12))*1.5*G.bob:0,sit=opt.sit?(opt.sitPose&&opt.sitPose.hip!==undefined?opt.sitPose.hip:6):0;
   const by=y-7-bob+sit,hy=by-19,robe=out==='arcanist'||out==='cleric';LAST_HY=hy;
   shadow(x,y,12);ctx.lineJoin='round';ctx.lineCap='round';ctx.lineWidth=1.5;ctx.strokeStyle=OL;
   const fs=()=>{ctx.fill();ctx.stroke();};
@@ -323,6 +323,7 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
   const boot=out==='warden'?'#5a5f6a':out==='ranger'?'#5a3a22':'#3a2a20';
   if(!opt.sit){const l=walk?Math.sin(walk*12)*3.5*G.leg:0,sp=opt.stance||0;ctx.strokeStyle=OL;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(x-3.5,by);ctx.lineTo(x-3.5-sp+l,y-2);ctx.moveTo(x+3.5,by);ctx.lineTo(x+3.5+sp-l,y-2);ctx.stroke();
     ctx.lineWidth=1.5;ctx.fillStyle=boot;for(const[k,d]of[[-3.5-sp,l],[3.5+sp,-l]]){ctx.beginPath();ctx.ellipse(x+k+d+f*1,y-1.5,3.5,2.5,0,0,7);fs();}}
+  else if(opt.sitPose&&typeof drawSitLegs==='function')drawSitLegs(x,y,f,opt.sitPose,robe?body:'#4a3a2e',boot); // each calling's own sitting legs (js/sitpose.js)
   else{const pant=robe?body:'#4a3a2e';ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=pant;
     for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*7,y-2.5,6.5,3.6,k*.18,0,7);fs();}
     ctx.fillStyle=boot;for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*2.5,y,3.4,2.4,0,0,7);fs();}}
@@ -424,6 +425,11 @@ function drawPlayer(P,wid){
   if(!hp&&w&&w.wt==='bow'&&typeof bowPose==='function'&&typeof bowPhase==='function')hp=bowPose(P,bowPhase(P));
   if(hp){push=hp.push||0;lean=hp.lean||0;hop=hp.hop||0;sx=hp.sx===undefined?1:hp.sx;}
   // walking without an attack: the family's gait leans, rolls side to side or floats the body
+  // sitting: each calling's pose leans back or forward, or floats a little
+  else if(P.sitting&&!P._rider&&!P.dead&&typeof sitPoseOf==='function'){const SP=sitPoseOf(P.cls);lean=(SP.lean||0);hop=SP.lift?SP.lift+Math.sin(now*1.6)*.6:0;
+    if(lean||hop){const r=(()=>{ctx.save();ctx.translate(0,-hop);if(lean){ctx.translate(P.x,P.y);ctx.rotate(lean*(P.face||1));ctx.translate(-P.x,-P.y);}try{drawPlayerBody(P,wid);}finally{ctx.restore();}})();}
+    else drawPlayerBody(P,wid);
+    if(typeof drawSitFx==='function')drawSitFx(P,SP,hop);return;}
   else if(P.moving&&!P.sitting&&!P.dead&&typeof walkGait==='function'){const G=walkGait(P.cls);if(G.roll||G.lean||G.lift){const ph=gaitWalk(P)*12;
     lean=G.lean+G.roll*Math.sin(ph)*(P.face||1);hop=G.lift+(G.lift?Math.sin(ph*.5)*.4:0);}}
   const lg=!body&&!hp&&P.lungeT&&now-P.lungeT<.2?Math.sin((now-P.lungeT)/.2*Math.PI)*7:0,hr=P.hurtT&&now-P.hurtT<.2?Math.sin((now-P.hurtT)/.2*Math.PI*3)*2.5:0;
@@ -518,7 +524,8 @@ function drawPlayerBody(P,wid){
       drawHeld=by=>{const st=P.moving?Math.sin(gaitWalk(P)*12):0;ctx.save();ctx.translate(P.x+P.face*(9+ws),by-4-Math.abs(ws)*.25);ctx.scale(P.face,1);const isBow=w.wt==='bow',a=isBow?.22+st*.1:.55+st*.28;ctx.rotate(a);
         drawWeaponShape(w,isBow?0:a); /* the bow undoes the turn it is given, so it gets 0 to keep the lean */ctx.fillStyle=(lookOf(P.name,P.look)||{}).skin||'#f6d6b8';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,2.6,0,7);ctx.fill();ctx.stroke();ctx.restore();};}
     if(W.behind)drawHeld(P.y-(typeof HERO2_ON!=='undefined'&&HERO2_ON?9:7)+(P.sitting?6:0));}
-  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?gaitWalk(P):0,{gait:typeof walkGait==='function'?walkGait(P.cls):null,sit:P.sitting,cast:!!P.casting||(w&&w.wt==='bow'&&bowPhase(P)>=0&&bowPhase(P)<.8),hat,fc,mo,look:lookOf(P.name,P.look),outfit:baseOf(P.cls),back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
+  const SP=P.sitting&&!P._rider&&typeof sitPoseOf==='function'?sitPoseOf(P.cls):null;
+  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?gaitWalk(P):0,{gait:typeof walkGait==='function'?walkGait(P.cls):null,...(SP?{sitPose:SP,hands:SP.hands}:{}),sit:P.sitting,cast:!!P.casting||(w&&w.wt==='bow'&&bowPhase(P)>=0&&bowPhase(P)<.8),hat,fc,mo,look:lookOf(P.name,P.look),outfit:baseOf(P.cls),back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
   drawJobMantle(c,P.x,P.y+(P.sitting?6:0),P.face,!!P.back);
   if(baseOf(P.cls)==='warden'){ctx.fillStyle='#9aa0aa';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(P.x-P.face*13-5,by-14,10,14,3);ctx.fill();ctx.stroke();ctx.fillStyle='#e8c25a';ctx.beginPath();ctx.arc(P.x-P.face*13,by-7,2,0,7);ctx.fill();}
   if(sheath&&P.back)drawSlung(P,w);
