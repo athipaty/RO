@@ -6,6 +6,8 @@
    New: a torso with shoulders, sleeved arms that swing when walking, longer legs with trousers and boots, a real
    outfit for every first job (and townsfolk), a breathing bob when standing, hair and capes that sway, and two new
    hairstyles (6 Braid, 7 Short). */
+/* HERO2_HI: set while a big portrait is drawn (portrait.js): extra detail that only shows at large size */
+let HERO2_HI=false;
 const HERO2_STYLE_NAMES=['Spiky','Long','Ponytail','Twin tails','Bob','Curly','Braid','Short'];
 const HERO2_DRESS={
   npc:{pant:'#4a3a2e',boot:'#3a2a20',trim:'#e8d8b0',belt:'#6b4423'},
@@ -23,7 +25,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   const breath=opt.sit?Math.sin(now*2.2+sd)*.3:br*.5;
   const by=y-9-bob+sit-breath,hy=by-20-Math.sin(now*2.2+sd-.6)*.2,robe=out==='arcanist'||out==='cleric',bw=BUILD_W[L.body|0]||1;
   const top=out==='cleric'?'#f4efe2':body,dark=hero2Shade(top,-38),lite=hero2Shade(top,30);
-  shadow(x,y,12);ctx.lineJoin='round';ctx.lineCap='round';ctx.lineWidth=1.5;ctx.strokeStyle=OL;
+  if(!HERO2_HI)shadow(x,y,12);ctx.lineJoin='round';ctx.lineCap='round';ctx.lineWidth=1.5;ctx.strokeStyle=OL;
   const fs=()=>{ctx.fill();ctx.stroke();};
   const sway=Math.sin(now*3+sd)*1.2+wk*1.5;
   // ---- back layer: long hair, tails, braid, cape, hood, quiver ----
@@ -75,6 +77,9 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   // soft shading: the side away from the light is a little darker, a highlight on the chest
   ctx.fillStyle='rgba(0,0,0,.12)';ctx.beginPath();ctx.moveTo(x+f*4,by-15);ctx.quadraticCurveTo(x+f*9.6,by-14,x+f*9.2,by-11);ctx.lineTo(x+f*7.2,robe?y-3:hip);ctx.lineTo(x+f*4.8,robe?y-2:hip);ctx.closePath();ctx.fill();
   if(!bk){ctx.fillStyle='rgba(255,255,255,.16)';ctx.beginPath();ctx.ellipse(x-f*3.5,by-11,2.6,3.6,0,0,7);ctx.fill();}
+  if(HERO2_HI){ctx.strokeStyle='rgba(0,0,0,.16)';ctx.lineWidth=.5;for(const [a,b,c2,d] of [[-5,-9,-3.5,-4],[5,-8,3.8,-3.5],[-2,-6,-1,-2.5]]){ctx.beginPath();ctx.moveTo(x+a,by+b);ctx.quadraticCurveTo(x+(a+c2)/2+1,by+(b+d)/2,x+c2,by+d);ctx.stroke();}
+    if(robe){for(const k of [-6,-2,2,6]){ctx.beginPath();ctx.moveTo(x+k*.8,by);ctx.quadraticCurveTo(x+k*1.2,y-6,x+k*1.5,y-3);ctx.stroke();}}
+    ctx.lineWidth=1.5;ctx.strokeStyle=OL;}
   // ---- outfit details ----
   const belt=(col,yy)=>{ctx.fillStyle=col;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.roundRect(x-7.6,yy-1.6,15.2,3.2,1);fs();
     if(!bk){ctx.fillStyle='#e8c25a';ctx.beginPath();ctx.roundRect(x-1.8,yy-2,3.6,4,.8);fs();}};
@@ -119,6 +124,8 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
       ctx.fillStyle='#14100c';ctx.beginPath();ctx.ellipse(cx+f*.5,ey+1,w*.5,1.9,0,0,7);ctx.fill();
       ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx-.6,ey-1.2,1.1,0,7);ctx.fill();ctx.beginPath();ctx.arc(cx+1,ey+2,.5,0,7);ctx.fill();
       ctx.strokeStyle=OL;ctx.lineWidth=(L.body|0)===1?2.3:1.6;ctx.beginPath();ctx.moveTo(cx-w-.8,ey-3.4);ctx.quadraticCurveTo(cx,ey-4.8,cx+w+.8,ey-3.4);ctx.stroke();
+      if(HERO2_HI){ctx.strokeStyle=OL;ctx.lineWidth=.7;const o=k===f?1:-1;ctx.beginPath();ctx.moveTo(cx+o*(w+.5),ey-3.1);ctx.lineTo(cx+o*(w+1.7),ey-4.3);ctx.moveTo(cx+o*(w+.2),ey-2);ctx.lineTo(cx+o*(w+1.4),ey-2.6);ctx.stroke();
+        ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.ellipse(cx+f*.6,ey+2.1,w*.55,.55,0,0,7);ctx.fill();}
       if((L.body|0)===2){const o=k===f?1:-1;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(cx+o*(w+.4),ey-2.6);ctx.lineTo(cx+o*(w+2),ey-4);ctx.moveTo(cx+o*(w+.6),ey-1.4);ctx.lineTo(cx+o*(w+2.3),ey-2.2);ctx.stroke();}}
     ctx.fillStyle='rgba(240,120,120,.35)';for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(ex+k*6.5,hy+6.5,2.2,1.2,0,0,7);ctx.fill();}
     ctx.strokeStyle='#7a3a2a';ctx.lineWidth=1.1;ctx.beginPath();ctx.arc(ex,hy+7,1.4,.2,Math.PI-.2);ctx.stroke();
@@ -135,7 +142,11 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
     ctx.fillStyle='#e04a6a';ctx.beginPath();ctx.arc(bx+f*2.4,hy+20,1.8,0,7);fs();ctx.fillStyle=hair;}
   if(st===7&&!bk){ctx.beginPath();ctx.moveTo(x+f*12.5,hy-3);ctx.quadraticCurveTo(x+f*13.4,hy+2,x+f*11.6,hy+4);ctx.lineTo(x+f*10.8,hy-1);ctx.closePath();fs();}
   if(st===2||st===3){ctx.fillStyle='#e04a6a';for(const k of st===3?[-1,1]:[bk?0:-f]){ctx.beginPath();ctx.arc(x+k*12,hy+(bk&&st===2?2:-5),2.2,0,7);fs();}}
-  ctx.fillStyle='rgba(255,255,255,.22)';ctx.beginPath();ctx.ellipse(x-f*4,hy-9,4,1.5,-f*.3,0,7);ctx.fill();
+  if(HERO2_HI){ctx.save();ctx.beginPath();ctx.ellipse(x,hy-1,13.2,13,0,Math.PI,0);ctx.clip();
+    ctx.strokeStyle='rgba(0,0,0,.22)';ctx.lineWidth=.55;for(let i=-4;i<=4;i++){ctx.beginPath();ctx.moveTo(x+i*2.6,hy-13.5);ctx.quadraticCurveTo(x+i*3.2+f*1.5,hy-8,x+i*3.1+f*.8,hy-3);ctx.stroke();}
+    ctx.strokeStyle='rgba(255,255,255,.42)';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(x-f*1.5,hy+3,12.2,Math.PI*1.18,Math.PI*1.52);ctx.stroke();
+    ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=.8;ctx.beginPath();ctx.arc(x-f*1.5,hy+3,10.4,Math.PI*1.22,Math.PI*1.45);ctx.stroke();ctx.restore();}
+  else{ctx.fillStyle='rgba(255,255,255,.22)';ctx.beginPath();ctx.ellipse(x-f*4,hy-9,4,1.5,-f*.3,0,7);ctx.fill();}
   if(!bk&&(opt.fc||opt.mo)&&typeof drawFaceGear==='function')drawFaceGear(opt.fc,opt.mo,x,hy,f);
   if(opt.hat){ctx.save();ctx.translate(x,hy);ctx.scale(1.35,1.35);ctx.translate(-x,-hy);drawHat(opt.hat,x,hy,f);ctx.restore();}
   return by;
@@ -143,5 +154,8 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
 /* preview switch: loaded right after render.js so job looks (joblooks.js) and other wrappers sit on top of it.
    ?hero2=1 / ?hero2=0 in the address is remembered on this device; only how this screen draws heroes changes. */
 const HERO2_ON=(()=>{try{const m=/[?&]hero2=([01])/.exec(location.search);if(m)localStorage.setItem('embervale.hero2',m[1]);return localStorage.getItem('embervale.hero2')==='1';}catch(e){return false;}})();
-if(HERO2_ON)drawHuman=drawHuman2;
+/* drawHuman becomes a switch between the classic and the new art, so wrappers loaded later (job looks) apply to
+   both: the new art is used when the preview is on, or while a big portrait is drawn (HERO2_HI) */
+const drawHumanClassic=drawHuman;
+drawHuman=function(){return (HERO2_ON||HERO2_HI?drawHuman2:drawHumanClassic).apply(this,arguments);};
 

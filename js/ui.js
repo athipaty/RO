@@ -594,11 +594,14 @@ function refreshCreator(){
     [...el.children].forEach((b,i)=>b.classList.toggle('on',list[i]===newLook[key]));};
   fill('#swHair',HAIRS,'hair','Hair color');fill('#swEye',EYES,'eye','Eye color');fill('#swSkin',SKINS,'skin','Skin tone');}
 const lookCtx=$('#lookCv').getContext('2d');
-function drawLookPreview(){if(!newLook)return;const sv=typeof CS!=='undefined'&&CS.sum[CS.slot];const c=lookCtx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,240,240);c.setTransform(4,0,0,4,0,0);
+function drawLookPreview(){if(!newLook)return;const sv=typeof CS!=='undefined'&&CS.sum[CS.slot];const c=lookCtx;
+  /* portrait quality (js/portrait.js): new body, job stance, light and a small stage */
+  if(typeof drawPortrait==='function'&&typeof drawStance==='function'){const lk=sv?{...lookFor(sv.name),...(sv.look||{})}:{...lookFor($('#nameIn').value.trim()||'Wanderer'),...newLook};
+    try{drawPortrait(c,sv&&CLASSES[sv.cls]?sv.cls:'novice',lk,1);return;}catch(e){c.canvas.width=c.canvas.height=240;}}c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,c.canvas.width,c.canvas.height);c.setTransform(c.canvas.width/60,0,0,c.canvas.width/60,0,0);
   /* the hero faces you and breathes (no turning around): a soft rise and settle from the feet, like an idle sprite;
      the new hero art (hero2.js) breathes by itself, so the stretch is only added to the classic art */
   const main=ctx;ctx=c;const face=1,back=false;
-  if(typeof drawHuman2!=='function'||drawHuman!==drawHuman2){const k=1+Math.sin(now*2.2)*.011;c.translate(30,50);c.scale(1,k);c.translate(-30,-50);}
+  if(typeof HERO2_ON==='undefined'||!HERO2_ON){const k=1+Math.sin(now*2.2)*.011;c.translate(30,50);c.scale(1,k);c.translate(-30,-50);}
   /* each job family stands its own way with its weapon (js/stance.js) */
   try{if(sv){const lk={...lookFor(sv.name),...(sv.look||{})};if(typeof drawStance==='function')drawStance(CLASSES[sv.cls]?sv.cls:'novice',lk,30,50,face);else drawHuman(30,50,(CLASSES[sv.cls]||CLASSES.novice).col,lk.hair,face,0,{look:lk,outfit:typeof baseOf==='function'?baseOf(sv.cls):'novice',back});}
     else{const lk={...lookFor($('#nameIn').value.trim()||'Wanderer'),...newLook};if(typeof drawStance==='function')drawStance('novice',lk,30,50,face);else drawHuman(30,50,CLASSES.novice.col,newLook.hair,face,0,{look:lk,outfit:'novice',back});}}finally{ctx=main;}}

@@ -4,7 +4,7 @@ const { player, newRoom, wait } = require('./helpers');
 module.exports = async t => {
   const A = await player('Breather', newRoom(), { server: 'http://127.0.0.1:9' });
   try {
-    t.ok(await A.ev(() => typeof drawHuman2 === 'function' && drawHuman !== drawHuman2), 'the new art is off by default');
+    t.ok(await A.ev(() => typeof drawHuman2 === 'function' && HERO2_ON === false), 'the new art is off by default');
     await A.ev(() => localStorage.setItem('embervale.hero2', '1')); await A.page.reload(); await wait(1500);
     await A.ev(() => { if (!P) { document.getElementById('nameIn').value = 'Breather'; document.getElementById('newBtn').click(); } }); await wait(2000);
     const r = await A.ev(() => { const out = { bad: [] }; out.on = HERO2_ON === true;
