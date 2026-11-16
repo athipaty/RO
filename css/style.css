@@ -1244,4 +1244,23 @@ body.touchui #panel.npcfull .eqslot{background:rgba(255,255,255,.05);border:1px 
 body.touchui #panel.npcfull #eqCv{background:rgba(0,0,0,.18);border:1px solid rgba(201,162,74,.35);border-radius:12px}
 /* Build guide: back to the Skills window */
 #panel .bgback{display:inline-flex;align-items:center;gap:4px;margin:0 0 8px;font-weight:700;color:#ffe6a0;border-color:rgba(201,162,74,.55)}
+/* Stats window on sideways phones: stat rows on the left, Combat on the right */
+@media (orientation:landscape) and (max-height:520px){
+  body.touchui #panel .stgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:0 22px;align-items:start}
+  body.touchui #panel .stgrid .cbcol>h3:first-child{margin-top:2px}
+  body.touchui #panel .stgrid .dv{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* sideways phones: the window tabs stand in a column down the left edge (enough height for all five);
+   the window keeps its normal bottom padding and leaves room on the left instead */
+@media (orientation:landscape) and (max-height:520px){
+  body.touchui #panel.npcfull>#winTabs{top:0;bottom:0;right:auto;width:auto;flex-direction:column;justify-content:center;gap:6px;
+    padding:max(10px,env(safe-area-inset-top)) 8px max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+    background:linear-gradient(90deg,#0f1a33 70%,rgba(15,26,51,0));overflow-y:auto;overflow-x:hidden}
+  body.touchui #panel.npcfull>#winTabs .wtab{flex:0 0 auto;width:66px;min-width:0;padding:5px 4px 4px}
+  body.touchui #panel.npcfull.wtPad{padding-bottom:calc(max(16px,env(safe-area-inset-bottom)) + 12px)!important;padding-left:calc(max(10px,env(safe-area-inset-left)) + 92px)!important}
+  /* narrower equipment slots: names wrap between words only, a slimmer Remove button */
+  body.touchui #panel.npcfull .eqslot .nm{overflow-wrap:normal;word-break:normal}
+  body.touchui #panel.npcfull .eqslot button{min-height:28px!important;padding:3px 7px!important;font-size:11px!important}
+  body.touchui #panel.npcfull .eqslot{column-gap:5px!important;padding:6px 7px!important}
+}
 
