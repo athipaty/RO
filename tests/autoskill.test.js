@@ -42,6 +42,13 @@ module.exports = async t => {
       { const m = nearest(); P.x = m.x + 30; P.y = m.y; P.path = []; P.target = m; P.auto = true; await sleep(2000);
         out.iron = !!(P.buffs.ironwill && P.buffs.ironwill.until > now); out.whirl = (P.cd.whirl || 0) > 0; }
       P.auto = false; await sleep(200);
+      // First Aid: cast once the missing HP is at least what it heals (8+7*level), not before
+      setup('warden', { firstaid: 5 }, ['firstaid']); P.inv = P.inv.filter(e => !['red', 'orange'].includes(e.id));
+      { const m = nearest(); P.x = m.x + 200; P.y = m.y; P.path = []; P.target = m; const amt = autoSkillHealAmt('firstaid');
+        P.hp = S.maxhp - amt + 1; P.auto = true; await sleep(1200); out.aidEarly = !P.cd.firstaid;
+        P.auto = false; await sleep(200); P.casting = null; P.cd = {}; P.hp = S.maxhp - amt - 3; const hp0 = P.hp; P.auto = true; await sleep(1500);
+        out.aidAt = (P.cd.firstaid || 0) > 0 && P.hp > hp0; out.aidAmt = amt; }
+      P.auto = false; await sleep(200);
       // the switch sits on the Auto card and does not close it
       enterZone('meadow'); await sleep(200); P.auto = false; $('#autoBtn').click(); await sleep(500);
       const card = document.getElementById('autoPick'), sw = card.querySelector('.apSk');
@@ -55,6 +62,7 @@ module.exports = async t => {
     t.ok(r.partyHeal && r.partyOnlyNeeded, `Mend also goes out for a hurt party member nearby, not for a healthy or faraway one (heal ${r.partyHeal}, only when needed ${r.partyOnlyNeeded})`);
     t.ok(r.rainGroup && r.rainAlone, `area skills are used on groups, not on a lone monster (group ${r.rainGroup}, alone ${r.rainAlone})`);
     t.ok(r.iron && r.whirl, `a warden keeps Iron Will up and spins Whirlwind next to monsters (iron ${r.iron}, whirl ${r.whirl})`);
+    t.ok(r.aidEarly && r.aidAt, `First Aid is cast once the missing HP reaches what it heals (${r.aidAmt} HP): not one HP earlier ${r.aidEarly}, at it ${r.aidAt}`);
     t.ok(r.card && r.toggle && r.saved, `the Skills switch is on the Auto card and toggles without closing it (card ${r.card}, toggle ${r.toggle})`);
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }

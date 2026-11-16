@@ -2,7 +2,7 @@
 /* ================= auto-hunt uses your skills =================
    While auto-hunt is on (and the Skills switch on the Auto card is on, the default), the hero casts the skills on the
    hotbar rows by themselves, in hotbar order (nothing on the bar: every learned skill):
-     - heals (First Aid, Mend, Resurgence, Second Wind) when HP drops below 55%, Renew below 80%: before any tonic;
+     - First Aid as soon as the HP you are missing is at least what it heals; Mend, Resurgence, Second Wind below 55% HP, Renew below 80%: before any tonic;
        Mend and Sanctuary also when a party member within their reach drops below 55%
      - buffs (Iron Will, Blessing, Mana Shield, ...) when they have run out, only while fighting
      - target skills on the current target when it is in range
@@ -14,7 +14,11 @@ const AUTOSK={t:0,
   // skills that hit everything around you, with how close a monster must be (px)
   nova:{whirl:95,frostnova:115,earthshatter:120,soulsiphon:115,judgment:115,rampage:110,frostrune:110,runeburst:110,timestop:150,chiburst:110,
     titanslam:120,dawnbreaker:130,retribution:110,tempest:120},
-  reserve:.3};
+  reserve:.3,
+  /* heals cast as soon as the HP you are missing is at least what they heal (nothing wasted): First Aid heals 8+7*level,
+     raised by your Healing bonus. Example: 250 max HP and a 50 HP First Aid -> cast once HP is 200 or less. */
+  fill:{firstaid:l=>8+l*7}};
+const autoSkillHealAmt=id=>{const f=AUTOSK.fill[id];return f?Math.max(1,Math.round(f(castLv(id))*(1+((S&&S.heal)||0)/100))):0;};
 function autoSkillList(){const ids=[],add=e=>{if(e&&typeof e.s==='string'&&!ids.includes(e.s))ids.push(e.s);};
   (Array.isArray(P.bar)?P.bar:[]).forEach(add);if(Array.isArray(P.bars))for(const r of P.bars)if(Array.isArray(r))r.forEach(add);
   if(!ids.length)for(const id in P.skills)if(P.skills[id]>0)ids.push(id);
@@ -37,7 +41,7 @@ function autoSkillTick(){
   const go=id=>{useSkill(id);return !!P.casting||(P.cd[id]||0)>now;};
   // 1. heals first (they may use the kept SP): yourself, or a party member nearby (Mend, Sanctuary reach them)
   for(const id of list){const ph=autoSkillPartyHeal(id);if(!AUTOSK.heal[id]&&!ph)continue;
-    const self=id==='renew'?hp<.8&&!(P.buffs.renew&&P.buffs.renew.until>now):hp<.55,mate=!self&&ph&&now>=AUTOSK.mateT&&autoSkillHurtMate(id);
+    const self=AUTOSK.fill[id]?S.maxhp-P.hp>=autoSkillHealAmt(id):id==='renew'?hp<.8&&!(P.buffs.renew&&P.buffs.renew.until>now):hp<.55,mate=!self&&ph&&now>=AUTOSK.mateT&&autoSkillHurtMate(id);
     if((self||mate)&&ok(id,false)&&go(id)){if(mate)AUTOSK.mateT=now+1.6;return;}}
   if(!fight)return;
   // 2. buffs that have run out
