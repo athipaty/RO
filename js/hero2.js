@@ -20,7 +20,7 @@ function hero2Shade(hex,a){if(typeof mlShade==='function')return mlShade(hex,a);
 function drawHuman2(x,y,body,hair,face,walk,opt={}){
   const L=opt.look||{style:0,eye:'#5a3a22',skin:'#f6d6b8',seed:0};hair=L.hair||hair;
   const f=face<0?-1:1,out=HERO2_DRESS[opt.outfit]?opt.outfit:'npc',D=HERO2_DRESS[out],OL='#2a1c14',st=L.style|0,bk=!!opt.back,sd=L.seed||0;
-  const wk=walk?Math.sin(walk*12):0,bob=walk?Math.abs(wk)*1.4:0,br=walk||opt.sit?0:Math.sin(now*2.2+sd),sit=opt.sit?7:0;
+  const G=opt.gait||{leg:1,bob:1,arm:1},wk=walk?Math.sin(walk*12):0,bob=walk?Math.abs(wk)*1.4*G.bob:0,br=walk||opt.sit?0:Math.sin(now*2.2+sd),sit=opt.sit?7:0;
   /* breathing: the whole body rises and settles a little (feet stay on the ground), the head follows a beat later */
   const breath=opt.sit?Math.sin(now*2.2+sd)*.3:br*.5;
   const by=y-9-bob+sit-breath,hy=by-20-Math.sin(now*2.2+sd-.6)*.2,robe=out==='arcanist'||out==='cleric',bw=BUILD_W[L.body|0]||1;LAST_HY=hy;
@@ -46,7 +46,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   if(!bk)backLayer();
   // ---- legs: trousers and boots; a stride while walking (robes show only the boots under the hem) ----
   const hip=by+1;
-  if(!opt.sit){for(const k of [-1,1]){const s=k*wk*3.4+k*(opt.stance||0),lift=walk?Math.max(0,-k*wk)*1.6:0,fx=x+k*3.6+s,fy=y-1.5-lift;
+  if(!opt.sit){for(const k of [-1,1]){const s=k*wk*3.4*G.leg+k*(opt.stance||0),lift=walk?Math.max(0,-k*wk)*1.6:0,fx=x+k*3.6+s,fy=y-1.5-lift;
       if(!robe){ctx.strokeStyle=OL;ctx.lineWidth=6.2;ctx.beginPath();ctx.moveTo(x+k*3.6,hip-2);ctx.lineTo(fx,fy-2.5);ctx.stroke();
         ctx.strokeStyle=D.pant;ctx.lineWidth=3.6;ctx.beginPath();ctx.moveTo(x+k*3.6,hip-2);ctx.lineTo(fx,fy-2.5);ctx.stroke();}
       ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=D.boot;ctx.beginPath();ctx.roundRect(fx-3,fy-5,6,5,2);fs();
@@ -57,7 +57,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
     ctx.fillStyle=D.boot;for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*2.5,y,3.4,2.4,0,0,7);fs();}}
   // ---- arms: shoulder to hand, swinging against the legs; up while casting; on the knees when sitting ----
   const hand=k=>{if(opt.hands){const h=opt.hands[k===f?0:1];return [x+f*h[0],by+h[1]];}if(opt.sit)return [x+k*10*bw,y-4];if(opt.cast)return [x+k*11.5*bw,by-17+Math.sin(now*9+k)*1.2];
-    return [x+k*9.6*bw-k*wk*f*0+(walk?-k*wk*2.6:0),by-3+(walk?Math.abs(wk)*-.6:0)+br*.3];};
+    return [x+k*9.6*bw-k*wk*f*0+(walk?-k*wk*2.6*G.arm:0),by-3+(walk?Math.abs(wk)*-.6:0)+br*.3];};
   const sleeve=out==='warden'?'#c9d0da':out==='cleric'?'#f4efe2':top;
   const arm=k=>{const sx=x+k*8*bw,sy=by-12,[hx,hy2]=hand(k);
     ctx.strokeStyle=OL;ctx.lineWidth=6.4;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(hx,hy2-1.5);ctx.stroke();

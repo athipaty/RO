@@ -17,6 +17,9 @@ module.exports = async t => {
       out.spin = pose('ravager', .46, 'axe').sx < -.5;
       const m = Object.keys(JOB3).find(k => JOB3[k].from === 'templar'); out.masterGhost = !!(m && pose(m, .4, 'mace').ghost) && sig(m, 'mace') === sig('templar', 'mace');
       out.bows = ['sharpshooter', 'wildstalker', 'falconer'].map(c => JSON.stringify(bowPose({ cls: c }, .3))).filter((v, i, a) => a.indexOf(v) === i).length === 3;
+      // each family walks its own way (callings like their family); the Novice keeps the plain walk
+      const gs = ['novice', 'warden', 'arcanist', 'ranger', 'cleric'].map(f => JSON.stringify(walkGait(f)));
+      out.gaits = new Set(gs).size === 5 && JSON.stringify(walkGait('ravager')) === gs[1] && walkGait('arcanist').lift > 0 && walkGait('warden').roll > 0 && walkGait('ranger').rate > 1;
       // one impact effect per swing
       const n0 = fx.length, p = { cls: 'warden', face: 1, x: 100, y: 100, swingT: 5 }; hitPose(p, .7, ITEMS.axe || null); hitPose(p, .8, ITEMS.axe || null); out.fxOnce = fx.length - n0 === 1;
       // during the wind-up the weapon is drawn before the body (behind the face)
@@ -34,6 +37,7 @@ module.exports = async t => {
     t.ok(r.spin, 'the Ravager spins all the way round');
     t.ok(r.masterGhost, 'a master calling attacks like its advanced calling, with afterimages');
     t.ok(r.bows, 'Sharpshooter, Wildstalker and Falconer each draw the bow their own way');
+    t.ok(r.gaits, 'each family walks its own way: Warden stomps, Arcanist glides, Ranger steps quick, Cleric walks calm');
     t.ok(r.fxOnce, 'the impact effect appears once per swing');
     t.ok(r.windupOrder === 'wb' && r.strikeOrder === 'bw', `the raised weapon passes behind the face, then strikes in front (wind-up ${r.windupOrder}, strike ${r.strikeOrder})`);
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));

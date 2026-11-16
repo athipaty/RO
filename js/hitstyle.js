@@ -67,3 +67,14 @@ function bowPose(p,k){if(k<0)return null;const R=typeof BOW_RELEASE_V!=='undefin
   else o=k<R?{push:-1.5*d,lean:-.07*d}:{push:-1.5-1.5*snap,lean:-.07*(1-Math.min(1,(k-R)/.4))};  // Ranger: lean back, step back on release
   if(g&&k>=R&&k<R+.3)o.ghost=true;o.sx=1;return o;}
 function bowLean(k){return bowPose(typeof P!=='undefined'?P:null,k);}
+/* ================= each family walks its own way =================
+   rate: step speed (scales the walk phase, so arms and the held weapon stay in step)   leg / bob / arm: size of the
+   stride, the bounce and the arm swing   roll: side-to-side sway   lean: forward tilt   lift: floats a little (px).
+   Advanced and master callings walk like their family; the Novice keeps the plain walk. */
+const WALK_GAIT={
+  warden:{rate:.8,leg:1.25,bob:1.7,arm:1.1,roll:.05,lean:.02,lift:0},   // a heavy stomp
+  arcanist:{rate:.85,leg:.45,bob:.3,arm:.5,roll:0,lean:0,lift:1.2},     // a light glide
+  ranger:{rate:1.25,leg:.9,bob:.9,arm:1.1,roll:0,lean:.07,lift:0},      // quick, light steps
+  cleric:{rate:.9,leg:.75,bob:.6,arm:.6,roll:0,lean:0,lift:0}};         // calm and upright
+const GAIT_PLAIN={rate:1,leg:1,bob:1,arm:1,roll:0,lean:0,lift:0};
+function walkGait(cls){const fam=typeof baseOf==='function'?baseOf(cls):null;return WALK_GAIT[fam]||GAIT_PLAIN;}
