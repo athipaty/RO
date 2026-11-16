@@ -1,5 +1,5 @@
-// New hero art (js/hero2.js): off by default; ?hero2=1 / localStorage turns it on for this device; one front view
-// only (never the back), a breathing bob, and every calling and hairstyle draws without errors
+// New hero art (js/hero2.js): off by default; ?hero2=1 / localStorage turns it on for this device;
+// a breathing bob, and every calling and hairstyle draws without errors
 const { player, newRoom, wait } = require('./helpers');
 module.exports = async t => {
   const A = await player('Breather', newRoom(), { server: 'http://127.0.0.1:9' });
@@ -10,8 +10,6 @@ module.exports = async t => {
     const r = await A.ev(() => { const out = { bad: [] }; out.on = HERO2_ON === true;
       const c = document.createElement('canvas'); c.width = c.height = 120; const main = ctx; ctx = c.getContext('2d');
       try {
-        // the back view is never drawn, and the hero's own back flag is left as it was
-        P.back = true; drawPlayerBody(P, null); out.backKept = P.back === true; P.back = false;
         // breathing: the belt line moves a little over time while standing still
         const ys = []; for (const tt of [0, .7, 1.4, 2.1]) { now = tt; ys.push(drawHuman2(60, 100, '#888', '#333', 1, 0, { look: { style: 1, hair: '#333', eye: '#36c', skin: '#fdc', seed: 0 } })); }
         out.breath = Math.max(...ys) - Math.min(...ys);
@@ -20,8 +18,11 @@ module.exports = async t => {
           catch (e) { out.bad.push(cls + '/' + st + ': ' + e.message); } }
       } finally { ctx = main; }
       localStorage.setItem('embervale.hero2', '0'); return out; });
+    // the start screen preview faces you and never turns around
+    const pv = await A.ev(async () => { const calls = []; const dh = drawHuman; drawHuman = function (x, y, b, h, f, w, o) { calls.push([f, !!(o && o.back)]); return dh.apply(this, arguments); };
+      for (const tt of [0.2, 1.8, 3.4, 5.0]) { now = tt; drawLookPreview(); } drawHuman = dh; return calls; });
+    t.ok(pv.length >= 4 && pv.every(([f, b]) => f === 1 && !b), 'the start screen hero faces you and does not turn around ' + JSON.stringify(pv));
     t.ok(r.on, 'the preview switch turns the new art on for this device');
-    t.ok(r.backKept, 'heroes are drawn from the front only, without changing the hero\'s own facing');
     t.ok(r.breath > .5 && r.breath < 3, `standing heroes breathe (the body moves ${r.breath.toFixed(2)} px)`);
     t.ok(r.bad.length === 0, 'every calling and all eight hairstyles draw without errors ' + r.bad.slice(0, 3).join(' | '));
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));

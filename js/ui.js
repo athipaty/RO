@@ -595,7 +595,10 @@ function refreshCreator(){
   fill('#swHair',HAIRS,'hair','Hair color');fill('#swEye',EYES,'eye','Eye color');fill('#swSkin',SKINS,'skin','Skin tone');}
 const lookCtx=$('#lookCv').getContext('2d');
 function drawLookPreview(){if(!newLook)return;const sv=typeof CS!=='undefined'&&CS.sum[CS.slot];const c=lookCtx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,240,240);c.setTransform(4,0,0,4,0,0);
-  const main=ctx;ctx=c;const ph=Math.floor(now/1.6)%4,face=ph===1||ph===2?-1:1,back=ph>=2;
+  /* the hero faces you and breathes (no turning around): a soft rise and settle from the feet, like an idle sprite;
+     the new hero art (hero2.js) breathes by itself, so the stretch is only added to the classic art */
+  const main=ctx;ctx=c;const face=1,back=false;
+  if(typeof drawHuman2!=='function'||drawHuman!==drawHuman2){const k=1+Math.sin(now*2.2)*.022;c.translate(30,50);c.scale(1,k);c.translate(-30,-50);}
   try{if(sv){const lk={...lookFor(sv.name),...(sv.look||{})},cl=CLASSES[sv.cls]||CLASSES.novice;drawHuman(30,50,cl.col,lk.hair,face,0,{look:lk,outfit:typeof baseOf==='function'?baseOf(sv.cls):'novice',back});}
     else drawHuman(30,50,CLASSES.novice.col,newLook.hair,face,0,{look:{...lookFor($('#nameIn').value.trim()||'Wanderer'),...newLook},outfit:'novice',back});}finally{ctx=main;}}
 function initCreator(){
