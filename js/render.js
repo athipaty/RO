@@ -326,6 +326,13 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
   else{const pant=robe?body:'#4a3a2e';ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=pant;
     for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*7,y-2.5,6.5,3.6,k*.18,0,7);fs();}
     ctx.fillStyle=boot;for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*2.5,y,3.4,2.4,0,0,7);fs();}}
+  /* hands: walking, each swings opposite to the leg on its side (the legs move -k*l, so the hands move +k*l).
+     Seen from the front, the hand on the side the hero faces (the leading side) is behind the body and the other in
+     front, like a body turned that way; casting, sitting, start-screen stances and the back view keep both in front */
+  const aw=walk&&!opt.sit&&!opt.cast&&!opt.hands?Math.sin(walk*12)*2.6:0,hbw=BUILD_W[L.body|0]||1;
+  const handAt=k=>{ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=L.skin;ctx.beginPath();if(opt.hands){const h=opt.hands[k===f?0:1];ctx.arc(x+f*h[0],by+h[1],2.6,0,7);}else if(opt.sit)ctx.arc(x+k*10*hbw,y-4,2.6,0,7);else if(opt.cast)ctx.arc(x+k*11*hbw,by-15+Math.sin(now*9+k)*1.2,2.6,0,7);else ctx.arc(x+k*9*hbw+k*aw,by-4+(k===f?-1:0)-Math.abs(aw)*.25,hbw<1?2.3:2.6,0,7);fs();};
+  const leadBehind=!opt.sit&&!opt.cast&&!opt.hands&&!bk;
+  if(leadBehind)handAt(f);
   // torso / robe (wider or narrower by build)
   const bw=BUILD_W[L.body|0]||1;ctx.save();if(bw!==1){ctx.translate(x,0);ctx.scale(bw,1);ctx.translate(-x,0);}
   ctx.lineWidth=1.5;ctx.strokeStyle=OL;
@@ -342,11 +349,8 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
   if(opt.armor)drawArmor(x,by,f,bk,opt.armor,OL);
   if((L.body|0)===2&&!bk&&!robe){ctx.fillStyle='rgba(0,0,0,.13)';for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(x+k*8,by-6);ctx.quadraticCurveTo(x+k*5.5,by-3,x+k*8,by);ctx.closePath();ctx.fill();}}
   ctx.restore();
-  // hands
-  ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=L.skin;
-  /* walking: each hand swings opposite to the leg on its side (the legs move -k*l, so the hands move +k*l) */
-  const aw=walk&&!opt.sit&&!opt.cast&&!opt.hands?Math.sin(walk*12)*2.6:0;
-  for(const k of [-f,f]){ctx.beginPath();if(opt.hands){const h=opt.hands[k===f?0:1];ctx.arc(x+f*h[0],by+h[1],2.6,0,7);}else if(opt.sit)ctx.arc(x+k*10*bw,y-4,2.6,0,7);else if(opt.cast)ctx.arc(x+k*11*bw,by-15+Math.sin(now*9+k)*1.2,2.6,0,7);else ctx.arc(x+k*9*bw+k*aw,by-4+(k===f?-1:0)-Math.abs(aw)*.25,bw<1?2.3:2.6,0,7);fs();}
+  // hands (the one on the side the hero faces was drawn behind the body, above)
+  for(const k of leadBehind?[-f]:[-f,f])handAt(k);
   // head: from behind it is all hair
   if(bk){backLayer();ctx.fillStyle=hair;ctx.strokeStyle=OL;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(x,hy,12.8,12.3,0,0,7);fs();
     ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1.2;for(const k of [-7,-2.5,2.5,7]){ctx.beginPath();ctx.moveTo(x+k*.5,hy-10);ctx.quadraticCurveTo(x+k*1.15,hy,x+k,hy+10);ctx.stroke();}
@@ -480,6 +484,9 @@ function drawPlayerBody(P,wid){
     if(!ranged&&p>=0){if(p<.3){const k=ease3(p/.3);ang=.6-1.6*k;lift=k;}else if(p<.55){const k=easeOut((p-.3)/.25);ang=-1+3.15*k;lift=1-k;}else{const k=ease3(Math.min(1,(p-.55)/.7));ang=2.15-1.55*k;}}
     const hp=p>=0&&W.bow<0&&typeof hitPose==='function'?hitPose(P,p,w):null;let reach=0;if(hp){ang=hp.ang;lift=hp.lift;reach=hp.reach||0;}
     W.behind=W.bow<0&&!ranged&&p>=0&&ang<.15&&lift>.15;
+    // standing or walking (not attacking, casting or seen from behind) the weapon is in the hand on the side the hero
+    // faces, which is behind the body, so the weapon is too; it comes out in front when the hero attacks
+    if(p<0&&W.bow<0&&!P.casting&&!P.back&&!P.sitting)W.behind=true;
     // while walking (not attacking or casting) the weapon follows the front hand's swing; the classic art moves the
     // front hand +face*sin, the new art (hero2.js) -face*sin
     const ws=P.moving&&p<0&&!P.casting&&!P.sitting?Math.sin((P.walkT||0)*12)*2.6*(typeof HERO2_ON!=='undefined'&&HERO2_ON?-1:1):0;

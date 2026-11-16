@@ -66,7 +66,10 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
       ctx.strokeStyle=D.trim;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(hx-4,hy2-1);ctx.lineTo(hx+4,hy2-1);ctx.stroke();}
     else{ctx.fillStyle=out==='warden'?'#8a909c':D.trim;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(hx,hy2-2.2,2.8,1.6,0,0,7);fs();}
     ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=L.skin;ctx.beginPath();ctx.arc(hx,hy2,2.7,0,7);fs();};
-  arm(-f);
+  /* the arm on the side the hero faces is behind the body, the other in front (casting, sitting, start-screen stances
+     and the back view keep the old order) */
+  const leadBehind=!opt.sit&&!opt.cast&&!opt.hands&&!bk,backArm=leadBehind?f:-f;
+  arm(backArm);
   // ---- torso: shoulders, waist and hips (robes flare down to the boots) ----
   ctx.save();if(bw!==1){ctx.translate(x,0);ctx.scale(bw,1);ctx.translate(-x,0);}
   ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=top;
@@ -109,7 +112,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
     belt(D.belt,by-1.5);ctx.fillStyle='#8a5a2b';ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.roundRect(x+f*4.2-2.2,by-.5,4.4,4,1.2);fs();}
   if(opt.armor)drawArmor(x,by-1,f,bk,opt.armor,OL);
   ctx.restore();
-  arm(f);
+  arm(-backArm);
   // ---- head (same size and place as before so hats and face gear still fit) ----
   ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=L.skin;ctx.beginPath();ctx.roundRect(x-2.6,by-18.5,5.2,4,1.5);fs();
   if(bk){backLayer();ctx.fillStyle=hair;ctx.strokeStyle=OL;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(x,hy,12.8,12.3,0,0,7);fs();
