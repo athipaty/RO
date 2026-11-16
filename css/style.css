@@ -1218,3 +1218,26 @@ body.npcopen #giftPill{display:none}
 /* Auto-hit (js/autohit.js): lit while on */
 #ahitBtn.on{box-shadow:0 0 0 2px #ffcf5a,0 0 14px rgba(255,190,80,.7)!important;color:#ffe6a0}
 body:not(.touchui) #ahitBtn .aic{display:none}
+/* ===== phones: game-style windows (royal blue with a gold frame) and tabs between your own windows (js/wintabs.js) ===== */
+body.touchui #panel.npcfull{background:
+    radial-gradient(ellipse at 50% -8%,rgba(255,207,90,.16),transparent 50%),
+    repeating-linear-gradient(45deg,rgba(255,255,255,.018) 0 2px,transparent 2px 14px),
+    repeating-linear-gradient(-45deg,rgba(255,255,255,.018) 0 2px,transparent 2px 14px),
+    linear-gradient(180deg,#22325a 0%,#172546 40%,#0f1a33 100%)!important;
+  box-shadow:inset 0 0 0 2px #0a1020,inset 0 0 0 4px #c9a24a,inset 0 0 0 5px #6a5020,inset 0 0 40px rgba(0,0,0,.45)!important}
+body.touchui #panel.npcfull h2{color:#ffe6a0;text-shadow:0 2px 0 #3a2a0a,0 0 12px rgba(255,200,90,.35);letter-spacing:.3px}
+body.touchui #panel.npcfull h3{color:#f0cf7a;border-bottom:1px solid rgba(201,162,74,.35);padding-bottom:3px}
+body.touchui #panel.npcfull .x{background:radial-gradient(circle at 35% 30%,#3a4a72,#141d36 70%)!important;border:2px solid #c9a24a!important;color:#ffe6a0!important;box-shadow:0 0 0 1px #000,0 4px 10px rgba(0,0,0,.5)}
+#winTabs{display:none}
+body.touchui #panel.npcfull>#winTabs{display:flex;gap:6px;position:sticky;top:calc(-1 * (max(12px,env(safe-area-inset-top)) + 6px));z-index:1;margin:-2px auto 12px;padding:6px 60px 8px 0;
+  background:linear-gradient(180deg,#1f2e54 70%,rgba(31,46,84,0));overflow-x:auto;scrollbar-width:none}
+#winTabs::-webkit-scrollbar{display:none}
+#winTabs .wtab{flex:1 0 auto;min-width:58px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px 5px;border-radius:10px;cursor:pointer;
+  font:600 11px Inter,var(--ui);color:#cfd6e8;background:linear-gradient(180deg,#2a3b66,#18244a);border:1.5px solid #4a5a86;box-shadow:0 2px 0 #0a1020}
+#winTabs .wtab svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#winTabs .wtab.on{color:#2a1a04;background:linear-gradient(180deg,#ffe08a,#e0a83a);border-color:#fff0b8;box-shadow:0 2px 0 #6a4a10,0 0 12px rgba(255,200,90,.45)}
+#winTabs .wtab:active{transform:translateY(1px)}
+#panel.wtR>*:not(.x):not(#winTabs){animation:wtInR .22s ease-out}#panel.wtL>*:not(.x):not(#winTabs){animation:wtInL .22s ease-out}
+@keyframes wtInR{from{opacity:.2;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes wtInL{from{opacity:.2;transform:translateX(-28px)}to{opacity:1;transform:none}}
+
