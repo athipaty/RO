@@ -464,8 +464,9 @@ const BOW_RELEASE_V=.42;
 function drawSlung(P,w){const f=P.face||1,by=P.y-7+(P.sitting?7:0);ctx.save();
   if(w.wt==='bow'){ctx.translate(P.x+f*(P.back?0:6),by-13);ctx.scale(f,1);ctx.rotate(-.5);drawWeaponShape(w,0);}
   else if(!P.back){ctx.translate(P.x+f*11,by-14);ctx.scale(f,1);ctx.rotate(Math.PI+.6);ctx.translate(0,8);drawWeaponShape(w,0);}
-  // seen from behind (walking up): over the shoulder of the side the hero faces (up-right: right shoulder)
-  else{ctx.translate(P.x+f*8,by-21);ctx.scale(-f,1);ctx.rotate(Math.PI+.55);ctx.translate(0,-4);drawWeaponShape(w,0);}
+  // seen from behind (walking up): the handle over the shoulder away from the way the hero faces (up-right: his left
+  // shoulder, up-left: his right), the weapon lying diagonally across the back toward the other hip
+  else{ctx.translate(P.x-f*8,by-21);ctx.scale(f,1);ctx.rotate(Math.PI-.55);ctx.translate(0,-4);drawWeaponShape(w,0);}
   ctx.restore();}
 function drawPlayerBody(P,wid){
   const c=CLASSES[P.cls],w=wid?ITEMS[wid]:null;
