@@ -1274,3 +1274,12 @@ body.touchui #panel.npcfull>#winTabs .wtab span{white-space:nowrap;overflow:hidd
 }
 /* no window ever slides sideways on a phone */
 body.touchui #panel.npcfull{overflow-x:hidden}
+/* skill tree as branches (js/skillpad.js skillBranchLayout): skills placed on a grid of columns and rows */
+.skpleft{overflow-x:auto;overflow-y:visible;scrollbar-width:thin}
+.skpgrid{--cw:80px;--rh:112px;position:relative;width:calc(var(--cols)*var(--cw));height:calc(var(--rows)*var(--rh) - 22px);margin:4px auto 6px;min-width:0}
+.skpgrid .skpic{position:absolute;left:calc(var(--c)*var(--cw) + (var(--cw) - 72px)/2);top:calc(var(--r)*var(--rh))}
+.skpic.dim{opacity:.32}.skpic.dim.has{opacity:.45}
+@media (max-width:440px){.skpgrid{--cw:68px;--rh:104px}.skpgrid .skpic{left:calc(var(--c)*var(--cw) + (var(--cw) - 62px)/2)}}
+/* upright phones: the chosen skill's card sits under the tree instead of covering it */
+@media (orientation:portrait){.skpright{position:static!important;max-height:none!important;box-shadow:none!important;margin:6px 0 0!important;border-radius:12px;border:1px solid rgba(240,181,74,.35)!important}}
+
