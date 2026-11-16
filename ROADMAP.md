@@ -151,8 +151,9 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 75. M Smooth big fights: shared monster pictures, cached damage digits, no layout work every frame (v1.0.1)
 - [x] 76. S Build guide with next-skill and next-stat hints (v1.0.2)
 - [x] 77. M Pushcart (v1.0.3)
-- [ ] 78. M Smooth crowds of players: other heroes drawn from cached pictures in busy towns and boss fights
+- [x] 78. M Smooth crowds of players: other heroes drawn from cached pictures in busy towns and boss fights (v1.1.x, js/perfplayers.js)
 - [x] 79. M Sigil album: collecting every sigil of a region gives a small permanent bonus (v1.0.4, /album)
-- [ ] 80. L (server) Endless Spire: an endgame tower for level 99 heroes, harder every floor, build-gear rewards
-- [ ] 81. S Build loadouts: save two skill and stat setups and swap between them at the Guild Hall
-
+- [-] 80. L (server) Endless Spire: dropped (decided 2026-11-14)
+- [x] 81. S Build loadouts: save two skill and stat setups and swap between them at the Guild Hall (v1.3.0, js/loadouts.js)
+- [x] 82. M Mirelight Fen: a Lv 55–70 marsh east of Frostpeak Pass, seven monsters and the Mire Matriarch (v1.7.0)
+- [x] 83. S Auto-hit button: fight the monsters around you, skills first, without wandering (v1.8.0)

@@ -718,7 +718,7 @@ body.touchui #actions>#rideBtn.none{opacity:.5}
   body.touchui #actions>.act:not(#atkBtn){position:fixed;top:max(8px,env(safe-area-inset-top));width:38px!important;height:38px!important;transform:translateX(-50%)}
   body.touchui #actions>.act:not(#atkBtn) .aic{width:19px;height:19px}
   body.touchui #actions>#menuBtn{left:calc(42% - 69px)}body.touchui #actions>#autoBtn{left:calc(42% - 23px)}
-  body.touchui #actions>#rideBtn{left:calc(42% + 23px)}body.touchui #actions>#sitBtn{left:calc(42% + 69px)}
+  body.touchui #actions>#rideBtn{left:calc(42% + 23px)}body.touchui #actions>#sitBtn{left:calc(42% + 69px)}body.touchui #actions>#ahitBtn{left:calc(42% + 115px)}
   body.touchui #actions>.act:not(#atkBtn):active{transform:translateX(-50%) scale(.94)}
   body.touchui #autoPick{top:56px!important}
 }
@@ -740,6 +740,8 @@ body.touchui #buffs.side{margin-top:50px}
   /* Auto sits on the right, just above the skill and potion shortcuts */
   body.touchui #actions>#autoBtn{left:auto!important;right:calc(max(10px,env(safe-area-inset-right)) + 86px)!important;top:118px!important;transform:none!important}
   body.touchui #actions>#autoBtn:active{transform:scale(.94)}
+  body.touchui #actions>#ahitBtn{left:auto!important;right:calc(max(10px,env(safe-area-inset-right)) + 182px)!important;top:118px!important;transform:none!important}
+  body.touchui #actions>#ahitBtn:active{transform:scale(.94)}
   body.touchui #actions>#menuBtn{left:calc(42% - 46px)}body.touchui #actions>#rideBtn{left:42%}body.touchui #actions>#sitBtn{left:calc(42% + 46px)}
 }
 /* ===== phones: a bigger attack cluster (Attack 88px; skill and potion slots and their arc scaled up ~20%) ===== */
@@ -1213,3 +1215,6 @@ body.npcopen #giftPill{display:none}
 #weight .wgold{margin-left:8px;color:var(--exp);font-weight:700}#weight .wgold::before{content:"◉ ";font-size:.9em}
 /* auto-hunt Skills switch (js/autoskill.js): dimmed while off */
 #autoPick.ring .apSk:not(.on) .apI{opacity:.5;filter:grayscale(.8)}#autoPick.ring .apSk:not(.on)>span b{color:var(--muted)}
+/* Auto-hit (js/autohit.js): lit while on */
+#ahitBtn.on{box-shadow:0 0 0 2px #ffcf5a,0 0 14px rgba(255,190,80,.7)!important;color:#ffe6a0}
+body:not(.touchui) #ahitBtn .aic{display:none}
