@@ -498,10 +498,11 @@ function drawPlayerBody(P,wid){
         ctx.fillStyle=`rgba(255,246,220,${.5*al})`;ctx.beginPath();ctx.arc(0,0,R,a0,a1);ctx.arc(0,0,R*.45,a1,a0,true);ctx.closePath();ctx.fill();
         ctx.fillStyle=`rgba(255,255,255,${.75*al})`;ctx.beginPath();ctx.arc(0,0,R+1,Math.max(a0,a1-.7),a1);ctx.arc(0,0,R*.8,a1,Math.max(a0,a1-.7),true);ctx.closePath();ctx.fill();}
       ctx.rotate(ang);drawWeaponShape(w,ang);ctx.restore();};
-    // a Novice seen from behind (heading up), standing or walking and not attacking, holds the club in the hand on
+    // a Novice, Warden or Cleric (and their callings) seen from behind (heading up), standing or walking and not
+    // attacking, holds the weapon (club, axe, mace) in the hand on
     // the side it faces, pointing toward where it walks (up-right leans right, up-left leans left); while walking
     // it moves with that hand's swing (ws) and rocks with the step
-    if(p<0&&P.back&&!P.casting&&!P.sitting&&!ranged&&baseOf(P.cls)==='novice'){W.behind=false;
+    if(p<0&&P.back&&!P.casting&&!P.sitting&&!ranged&&['novice','warden','cleric'].includes(baseOf(P.cls))){W.behind=false;
       drawHeld=by=>{const st=P.moving?Math.sin((P.walkT||0)*12):0;ctx.save();ctx.translate(P.x+P.face*(9+ws),by-4-Math.abs(ws)*.25);ctx.scale(P.face,1);const a=.55+st*.28;ctx.rotate(a);
         drawWeaponShape(w,a);ctx.fillStyle=(lookOf(P.name,P.look)||{}).skin||'#f6d6b8';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,2.6,0,7);ctx.fill();ctx.stroke();ctx.restore();};}
     if(W.behind)drawHeld(P.y-(typeof HERO2_ON!=='undefined'&&HERO2_ON?9:7)+(P.sitting?6:0));}
