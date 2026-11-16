@@ -178,7 +178,7 @@ function castTick(){const c=P.casting;if(!c)return;
 function interruptCast(){if(P.casting){P.casting=null;floatT(P.x,P.y-44,'Interrupted!','#ff9a6a',13);}}
 let heavyMsgT=0;function tooHeavy(){if(now<heavyMsgT)return;heavyMsgT=now+4;floatT(P.x,P.y-40,'Too heavy!','#ff9a6a',13);addLog('You are carrying over 90% of your weight limit and cannot fight. Sell or drop something.','l-bad');}
 function castNow(id,l,cost,fn){P.sp-=cost;P.cd[id]=now+SKILLS[id].cd;P.queued=null;P.sitting=false;P.atkT=Math.max(P.atkT,.25);
-  floatT(P.x,P.y-44,SKILLS[id].name+(l>1?' '+l:''),'#f0e0a0',12);sfx('skill');fn();}
+  /* no skill-name popup when a cast finishes (user request): the effect itself shows the skill */sfx('skill');fn();}
 
 /* ================= party, contracts, auto-hunt ================= */
 function partyCount(){return P?partyMatesHere().length:0;}
@@ -201,9 +201,9 @@ function autoHunt(){
   if(!P.auto||P.dead||Z.D.safe)return;
   const f=P.hp/S.maxhp;
   if(f<.4&&(P.cd.pot_hp||0)<=now){const pot=invFind('orange')?'orange':invFind('red')?'red':null;
-    if(pot)useItem(pot);else if(f<.3){P.auto=false;$('#autoBtn').classList.remove('on');addLog('Auto-hunt paused: you are out of tonics. Rest with Sit or buy more in town.','l-bad');return;}}
+    if(pot)useItem(pot);} /* no pause when out of tonics (user request): auto-hunt keeps going until HP runs out */
   if((!P.target||P.target.dead)&&!P.path.length&&!P.lootGoal){let bl=null,bd=320;for(const l of loot)if(now>l.t0+.4&&!l.tooHeavy&&(P.autoLoot!==false||lootMatters(l))){const d=dist(l,P);if(d<bd){bd=d;bl=l;}}if(bl){goLoot(bl);return;}}
-  if((!P.target||P.target.dead)&&!P.path.length&&f>=.3){let best=null,bd=650;for(const m of mobs)if(!m.dead&&!m.dying){const d=dist(m,P);if(d<bd){bd=d;best=m;}}if(best){P.target=best;P.queued=null;P.sitting=false;P.holdPos=false;}}
+  if((!P.target||P.target.dead)&&!P.path.length){let best=null,bd=650;for(const m of mobs)if(!m.dead&&!m.dying){const d=dist(m,P);if(d<bd){bd=d;best=m;}}if(best){P.target=best;P.queued=null;P.sitting=false;P.holdPos=false;}}
 }
 
 /* ================= zones & entities ================= */
