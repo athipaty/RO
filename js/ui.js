@@ -128,9 +128,9 @@ function refreshPanel(){
       h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name} <span class="muted">×${have}</span></div><div class="ds">${it.desc}</div></div><span class="gold">${it.price}</span><button class="btn small" data-act="buy" data-arg="${id}" ${P.gold<it.price?'disabled':''}>Buy</button></div>`;}
     if(typeof FORGES!=='undefined')h+=`<div class="tbtns" style="justify-content:flex-start;margin:6px 0"><button class="btn small" data-act="openforge">⚒ Forge gear from monster materials</button></div>`;
     h+=`<h3>Refine</h3><div class="sub">${fmt(P.gold)} gold</div>`;
-    const gear=[...['weapon','armor','head','accessory'].filter(s=>P.eq[s]).map(s=>({e:P.eq[s],key:'eq:'+s,where:'equipped'})),
-      ...P.inv.filter(e=>e.uid&&['weapon','armor','head','accessory'].includes(ITEMS[e.id].type)).map(e=>({e,key:'inv:'+e.uid,where:'in bag'}))];
-    if(!gear.length)h+=`<p class="muted">You have no gear to refine.</p>`;
+    // only the gear you are wearing can be refined (bag items are left out: equip a piece to refine it)
+    const gear=['weapon','armor','head','accessory'].filter(s=>P.eq[s]).map(s=>({e:P.eq[s],key:'eq:'+s,where:'equipped'}));
+    if(!gear.length)h+=`<p class="muted">You have no gear equipped. Put a piece on to refine it.</p>`;
     for(const {e,key,where} of gear){const r=e.r||0,next=r+1,mat=refineMat(e.id),has=!!invFind(mat),fee=refineFee(next);
       const armed=refineArm===key,risk=REFINE_CHANCE[next]<1;
       h+=`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)} <span class="muted">${where}</span></div>`+

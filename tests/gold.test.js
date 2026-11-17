@@ -21,11 +21,11 @@ module.exports = async t => {
       const g0 = P.gold; b().click(); const asked = /Confirm/.test(b().textContent) && P.st.str === 15 && P.gold === g0;
       b().click(); const stats = { str: P.st.str, vit: P.st.vit, pts: P.statPts, paid: g0 - P.gold };
       const s = () => panel.querySelector('[data-act="respec"][data-arg="skills"]'); const g1 = P.gold; s().click(); s().click();
-      const skills = { pts: P.skillPts, none: !Object.keys(P.skills).length, paid: g1 - P.gold }; const gone = !panel.querySelector('[data-act="respec"]'); closePanel();
+      const skills = { pts: P.skillPts, none: Object.keys(P.skills).join() === 'firstaid' && P.skills.firstaid === 1, paid: g1 - P.gold }; const gone = !panel.querySelector('[data-act="respec"]'); closePanel();
       return { has, asked, want, stats, skills, gone, free: FREE_RESETS, sc: FREE_RESETS ? 0 : 500 + 20 * 100, kc: FREE_RESETS ? 0 : 300 + 12 * 50 }; });
     t.ok(rs.has && rs.asked, 'the Guild Hall offers resets, and asks for a second click first');
     t.ok(rs.stats.str === 1 && rs.stats.vit === 1 && rs.stats.pts === rs.want && rs.stats.paid === rs.sc, `a stat reset gives back every point (${rs.stats.pts}) for ${rs.sc} gold`);
-    t.ok(rs.skills.none && rs.skills.pts === 6 && rs.skills.paid === rs.kc, `a skill reset gives back every skill point (6) for ${rs.kc} gold`);
+    t.ok(rs.skills.none && rs.skills.pts === 5 && rs.skills.paid === rs.kc, `a skill reset keeps First Aid and gives back the other skill points (5) for ${rs.kc} gold`);
     t.ok(rs.gone, 'with nothing left to reset, the offers disappear');
     const poor = await g.ev(() => { P.gold = 10; openPanel('warp'); const d = panel.querySelector('[data-act="inn"]').disabled; closePanel(); return d; });
     t.ok(poor, 'you cannot rest without enough gold');

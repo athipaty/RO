@@ -21,7 +21,7 @@ PANEL_ACTS.inn=()=>{const c=innCost();if(P.gold<c)return;P.gold-=c;S=computeStat
   addLog(`You rest at the Waystation for ${fmt(c)} gold. Well rested: +${REST_BONUS*100}% EXP for ${REST_MS/60000} minutes.`,'l-good');refreshPanel();save();};
 
 function respecHtml(){
-  const spentStats=Object.values(P.st).reduce((a,v)=>a+statSpent(v),0),spentSkills=Object.values(P.skills).reduce((a,v)=>a+v,0);
+  const spentStats=Object.values(P.st).reduce((a,v)=>a+statSpent(v),0),spentSkills=Object.entries(P.skills).reduce((a,[s,v])=>s==='firstaid'?a:a+v,0);
   if(!spentStats&&!spentSkills)return '';
   let h=`<h3>Retraining</h3><div class="ds" style="margin-bottom:4px">${FREE_RESETS?'Corvin undoes your training for free while Embervale is being tested, so try every build you like.':'Corvin can undo your training for a fee.'} You get every point back to spend again.</div>`;
   const row=(k,name,pts,cost)=>{if(!pts)return '';const ask=resetAsk===k;
@@ -35,7 +35,9 @@ PANEL_ACTS.respec=k=>{
   resetAsk=null;P.gold-=cost;sfx('coin');
   if(k==='stats'){let n=0;for(const s in P.st){n+=statSpent(P.st[s]);P.st[s]=1;}P.statPts+=n;S=computeStats();P.hp=Math.min(P.hp,S.maxhp);P.sp=Math.min(P.sp,S.maxsp);
     addLog(`Your stats are reset. ${n} stat points to spend again (C).`,'l-good');}
-  else{let n=0;for(const s in P.skills)n+=P.skills[s];P.skills={};P.useLv={};P.skillPts+=n;rebuildHotbar();
+  // First Aid is kept as it is (level and chosen cast level): only the other skills give their points back
+  else{let n=0;const fa=P.skills.firstaid,fu=P.useLv&&P.useLv.firstaid;for(const s in P.skills)if(s!=='firstaid')n+=P.skills[s];
+    P.skills=fa?{firstaid:fa}:{};P.useLv=fu?{firstaid:fu}:{};P.skillPts+=n;rebuildHotbar();
     addLog(`Your skills are reset. ${n} skill points to spend again (K).`,'l-good');}
   refreshPanel();save();};
 PANEL_CLOSE.job=()=>{resetAsk=null;};

@@ -172,7 +172,7 @@ Object.assign(TH,{
   'You have:':'คุณมี:','Refine gear with Brannoc the Smith in Hearthvale.':'ตีบวกอุปกรณ์ได้ที่ช่างตีเหล็กแบรนน็อคใน Hearthvale','head':'หัว','face':'หน้า','mouth':'ปาก','weapon':'อาวุธ','armor':'ชุดเกราะ','accessory':'เครื่องประดับ','Empty':'ว่าง','Sigil slots':'ช่องซิกิล','Use':'ใช้','Etc':'อื่นๆ',
   // smithy
   '⚒ Forge gear from monster materials':'⚒ ตีอุปกรณ์จากวัตถุดิบมอนสเตอร์','Refine':'ตีบวก','Sure?':'แน่ใจ?','Fully refined.':'ตีบวกเต็มแล้ว','breaks on failure':'พังถ้าล้มเหลว',
-  'You have no gear to refine.':'คุณไม่มีอุปกรณ์ให้ตีบวก','equipped':'สวมอยู่','in bag':'ในกระเป๋า',
+  'You have no gear to refine.':'คุณไม่มีอุปกรณ์ให้ตีบวก','You have no gear equipped. Put a piece on to refine it.':'คุณยังไม่ได้สวมอุปกรณ์ สวมใส่ก่อนแล้วค่อยตีบวก','equipped':'สวมอยู่','in bag':'ในกระเป๋า',
   // warehouse and pushcart
   'Nothing stored yet.':'ยังไม่มีของในคลัง','Take':'เอาออก','Empty.':'ว่าง',
   // waystation: bunks and stable
