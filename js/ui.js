@@ -217,8 +217,8 @@ function refreshPanel(){
     h+=`<h2>Guild Hall</h2>`;
     if(P.cls!=='novice')h+=jobHallHtml(c);
     else if(P.jl<10)h+=`<div class="say">“Every calling starts in the meadow. Reach Job Level 10 and come see me. You're at ${P.jl} now.” — Corvin</div>`;
-    else{h+=`<div class="say">“You've earned it. Choose your calling. The choice is for life, so choose with care.” — Corvin</div><div class="choice">`;
-      for(const id of ['warden','arcanist','ranger','cleric']){const k=CLASSES[id];h+=`<button data-act="job" data-arg="${id}"><b style="color:${k.col}">${k.name}</b><small>${k.desc}</small><small>Starts with: ${ITEMS[k.gift].name}</small></button>`;}
+    else{h+=`<div class="say">“You've earned it. Every calling has its own story, and you have to live it before the guild gives you the name. Talk to me again and pick the one to begin. You can change your mind before the end.” — Corvin</div><div class="choice">`;
+      for(const id of JOB_FIRST){const k=CLASSES[id];h+=`<div class="jcard"><b style="color:${k.col}">${k.name}</b><small>${k.desc}</small><small>Starts with: ${ITEMS[k.gift].name}</small></div>`;}
       h+=`</div>`;}
     h+=respecHtml();
     h+=`<h3>Hunting contracts</h3>`;
@@ -264,6 +264,11 @@ function drawEquipDoll(){const c=document.getElementById('eqCv');if(!c)return;co
   g.setTransform(3,0,0,3,0,0);const main=ctx;ctx=g;
   try{drawPlayer({name:P.name,look:P.look,cls:P.cls,eq:P.eq,x:40,y:82,face:1,back:false,moving:false,sitting:false,held:true},P.eq.weapon&&P.eq.weapon.id);}finally{ctx=main;}}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+// a Novice becomes a first job: since v1.16.0 only when its story is finished (js/jobstory.js calls this)
+function becomeJob(arg){if(!P||P.cls!=='novice'||P.jl<10||!CLASSES[arg]||CLASSES[arg].tier)return false;const k=CLASSES[arg];P.cls=arg;P.jl=1;P.jexp=0;P.skillPts=0;giveItem(k.gift,1);
+    const idx=P.inv.findIndex(e=>e.id===k.gift);if(idx>=0)useInv(idx);
+    fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:2,txt:k.name.toUpperCase(),col:k.col});sfx('fanfare');announce('job',arg);addLog(`You are now a ${k.name}! Your ${ITEMS[k.gift].name} is equipped. Earn job levels to learn new skills.`,'l-rare');rebuildHotbar();S=computeStats();
+    if(typeof refreshPanel==='function')refreshPanel();if(typeof save==='function')save(true);return true;}
 panel.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act,arg=b.dataset.arg;
   if(a==='close')return closePanel();
@@ -285,9 +290,6 @@ panel.addEventListener('click',ev=>{
   if(a==='sellstack'){const e=P.inv[+arg];if(e&&e.n>0){const g=sellValue(e.id)*e.n;P.gold+=g;P.inv.splice(+arg,1);sfx('coin');addLog(`Sold ${e.n} ${ITEMS[e.id].name} for ${fmt(g)} gold.`,'l-loot');}}
   if(a==='sell'){const e=P.inv[+arg];if(e){sfx('coin');P.gold+=(typeof sellValueOf==='function'?sellValueOf(e):sellValue(e.id));if(e.n!==undefined)takeItem(e.id);else P.inv.splice(+arg,1);}}
   if(a==='sellall'){let g=0;P.inv=P.inv.filter(e=>{if(ITEMS[e.id].type==='etc'&&!ITEMS[e.id].keep){g+=sellValue(e.id)*e.n;return false;}return true;});P.gold+=g;sfx('coin');addLog(`Sold your loot for ${fmt(g)} gold.`,'l-loot');}
-  if(a==='job'&&P.cls==='novice'&&P.jl>=10){const k=CLASSES[arg];P.cls=arg;P.jl=1;P.jexp=0;P.skillPts=0;giveItem(k.gift,1);
-    const idx=P.inv.findIndex(e=>e.id===k.gift);if(idx>=0)useInv(idx);
-    fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:2,txt:k.name.toUpperCase(),col:k.col});sfx('fanfare');announce('job',arg);addLog(`You are now a ${k.name}! Your ${ITEMS[k.gift].name} is equipped. Earn job levels to learn new skills.`,'l-rare');rebuildHotbar();S=computeStats();}
   if(a==='heal'){P.hp=S.maxhp;P.sp=S.maxsp;fx.push({k:'heal',x:P.x,y:P.y,t0:now,dur:.8});addLog('You feel refreshed.','l-good');}
   if(a==='warp'){const i=ZONE_ORDER.indexOf(arg),cost=i*60;if(P.gold>=cost){P.gold-=cost;closePanel();enterZone(arg);save();return;}}
   if(a==='newgame'){$('#confirm').hidden=false;return;}

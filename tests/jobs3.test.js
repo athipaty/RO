@@ -4,6 +4,7 @@ module.exports = async t => {
   const A = await player('Ascender', newRoom(), { server: 'http://127.0.0.1:9' });
   try {
     const r = await A.ev(async () => {
+      JOB3_SEALED = false; // master callings are sealed in the game for now (v1.16.0); this tests the trial itself
       P.cls = 'bulwark'; P.jl = 50; P.lv = 30; P.reborn = 1; P.skills = { cleave: 5, shieldbash: 5 }; S = computeStats();
       openPanel('rebirth'); const early = document.getElementById('panel').textContent.includes('Reach base level 50');
       P.lv = 50; refreshPanel(); const canStart = !!document.querySelector('#panel [data-act="trial3"]');

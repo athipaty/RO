@@ -62,6 +62,7 @@ const FS_HIT={
   holy:t=>{fsSwing(t,'#ffe7a0');fxF({k:'rune',x:t.x,y:t.y,col:'#ffe7a0',g:'✚',r:14,dur:.45});},
   sun:t=>{fsSwing(t,'#fff6c0',{w:11});fxF({k:'flare',x:t.x,y:t.y,col:'#ffd860',r:34,dur:.25,h:fsH(t)});},
   star:t=>{fsSwing(t,'#d8c0ff');fxF({k:'motes',x:t.x,y:t.y,col:'#f0e8ff',col2:'#b8a0ff',shape:'star',n:6,r:16,dur:.5});},
+  fang:t=>{fsSwing(t,'#c8b8ff',{w:6});fxF({k:'crescent',x:t.x,y:t.y,ang:-2.4,r:20,col:'#e0d8ff',dur:.16,h:fsH(t),t0:now+.07});},
   palm:t=>{for(let i=0;i<3;i++)fxF({k:'flare',x:t.x+(i-1)*7,y:t.y+(i%2?-4:3),col:'#ffcf8a',r:16,dur:.16,t0:now+i*.06,h:fsH(t)*.8});
     fxF({k:'motes',x:t.x,y:t.y,col:'#ffe0b0',n:5,r:12,dur:.35,t0:now+.12});}};
 
@@ -89,6 +90,8 @@ const FS_FIN={
     for(let i=0;i<3;i++)fxF({k:'claws',x:t.x,y:t.y,ang:[.5,-2.6,2][i],r:46,col:'#c8ff80',dur:.35,h:fsH(t),t0:now+.08+i*.1});
     fxF({k:'stampede',x:t.x,y:t.y,r:70,col:'#c8b080',dur:.7,t0:now+.1});}},
   falconer:{n:'Falcon Dive',f:t=>{fxF({k:'meteor',x:t.x,y:t.y,col:'#e8c08a',size:12,r:60,dur:.6});fxF({k:'motes',x:t.x,y:t.y,col:'#a07a4a',col2:'#f0e8d8',shape:'leaf',n:14,r:34,dur:.9,t0:now+.33});}},
+  shade:{n:'Shadow Flurry',f:t=>{for(let i=0;i<4;i++)fxF({k:'crescent',x:t.x+(i%2?6:-6),y:t.y,ang:[.7,-2.4,2.2,-.9][i],r:30,col:i%2?'#c8b8ff':'#8f7ad8',dur:.2,h:fsH(t),t0:now+i*.07});
+    fxF({k:'motes',x:t.x,y:t.y,col:'#6a5a9a',col2:'#c8b8ff',n:14,r:30,dur:.7,t0:now+.25});}},
   cleric:{n:'Light of Judgment',f:t=>{fxF({k:'beam',x:t.x,y:t.y,col:'#fff0a0',w:24,dur:.5});fxF({k:'rune',x:t.x,y:t.y,col:'#ffe27a',g:'✚',r:28,dur:.7});}},
   templar:{n:'Sunburst',f:t=>{fxF({k:'beam',x:t.x,y:t.y,col:'#ffd860',w:30,sun:true,dur:.6});fxF({k:'flare',x:t.x,y:t.y,col:'#ffd860',r:70,dur:.35,t0:now+.25,h:10});sfx('slam');}},
   oracle:{n:'Starfall',f:t=>{for(let i=0;i<3;i++)fxF({k:'meteor',x:t.x+(i-1)*30,y:t.y+(i%2)*10,col:'#d8c0ff',size:8,r:44,dur:.65,t0:now+i*.12});fxF({k:'motes',x:t.x,y:t.y,col:'#ffffff',col2:'#d8c0ff',shape:'star',n:14,r:36,dur:.9,t0:now+.36});}},
@@ -134,6 +137,7 @@ const FS_STYLES={
   sharpshooter:{cast:['reticle','#ffe08a'],shot:FS_SHOT.tracer,spd:980,hit:FS_HIT.tracer,fin:FS_FIN.sharpshooter},
   wildstalker:{cast:['paws','#a8e070'],shot:FS_SHOT.arrow('#d8c8a0','#7ac850'),hit:FS_HIT.claw,fin:FS_FIN.wildstalker},
   falconer:{cast:['feathers','#d8b888'],shot:FS_SHOT.falcon,spd:520,hit:FS_HIT.feather,fin:FS_FIN.falconer},
+  shade:{cast:['eyes','#b8a8e8'],melee:FS_HIT.fang,fin:FS_FIN.shade},
   cleric:{cast:['cross','#ffe7a0'],melee:FS_HIT.holy,fin:FS_FIN.cleric},
   templar:{cast:['sun','#ffd860'],melee:FS_HIT.sun,fin:FS_FIN.templar},
   oracle:{cast:['stars','#d8c0ff'],melee:FS_HIT.star,fin:FS_FIN.oracle},
@@ -184,6 +188,6 @@ function fsFinisher(m){const st=fsStyle(P&&P.cls);if(!st||!st.fin)return;FSTY.fi
   for(let k=0;k<4;k++){const ph=(now*.9+k*.25)%1,a=k*1.7+now;ctx.globalAlpha=(1-ph)*.8;ctx.beginPath();ctx.arc(p.x+Math.cos(a)*r,p.y-ph*34,1.6,0,7);ctx.fill();}
   ctx.globalAlpha=.85;try{if(st.cast[0]!=='runes')fsCastDeco(p,st.cast[0],col);}catch(e){}ctx.restore();};}
 
-if(typeof TH!=='undefined'){for(const [n,th] of [['Shield Slam','ทุบโล่'],['Iron Wall','กำแพงเหล็ก'],['Cleaver','ฟันสะบั้น'],['Rune Break','อักขระแตก'],['Arcane Burst','ระเบิดเวท'],['Thunderclap','ฟ้าผ่า'],
+if(typeof TH!=='undefined'){for(const [n,th] of [['Shield Slam','ทุบโล่'],['Shadow Flurry','พายุเงา'],['Iron Wall','กำแพงเหล็ก'],['Cleaver','ฟันสะบั้น'],['Rune Break','อักขระแตก'],['Arcane Burst','ระเบิดเวท'],['Thunderclap','ฟ้าผ่า'],
   ['Soul Rend','ฉีกวิญญาณ'],['Freeze Frame','หยุดกาลเวลา'],['Triple Shot','ยิงสามดอก'],['Headshot','ยิงกลางหัว'],['Pounce','ตะครุบ'],['Falcon Dive','เหยี่ยวโฉบ'],['Light of Judgment','แสงพิพากษา'],
   ['Sunburst','สุริยะระเบิด'],['Starfall','ดาวตก'],['Hundred Fists','ร้อยหมัด']])TH[n+'!']=th+'!';}

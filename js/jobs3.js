@@ -124,3 +124,24 @@ PANEL_ACTS.ascend=arg=>{if(!trial3Done()||!JOB3[arg]||JOB3[arg].from!==P.cls)ret
   _dm.call(this,{...c,tier:2},x,y,face,back);const by=y-7;ctx.lineWidth=1.2;ctx.strokeStyle='#2a1c14';
   ctx.fillStyle='#ffd76a';for(const k of [-1,1]){ctx.beginPath();ctx.arc(x+k*10,by-10.5,1.7,0,7);ctx.fill();ctx.stroke();}
   if(!back){ctx.fillStyle=c.acc;ctx.beginPath();ctx.moveTo(x,by-12);ctx.lineTo(x+2.6,by-9);ctx.lineTo(x,by-6);ctx.lineTo(x-2.6,by-9);ctx.closePath();ctx.fill();ctx.stroke();}};}
+
+/* ================= master callings are sealed for now (v1.16.0) =================
+   Nobody can ascend while the first-job stories are being written (js/jobstory.js). A hero who already holds a master
+   calling goes back to the advanced calling it came from, at that calling's top job level: the master skills are
+   unlearned and their points given back, and they leave the hotbar. The master callings stay defined so old saves,
+   other players' presence and the code that draws them keep working, and they can come back later. */
+var JOB3_SEALED=true; // var so tests (and a later unsealing) can switch it
+{const _j3w=job3Why;job3Why=function(){if(JOB3_SEALED)return 'Master callings are sealed for now.';return _j3w.apply(this,arguments);};}
+{const _asc=ascensionHtml;ascensionHtml=function(){if(!JOB3_SEALED)return _asc.apply(this,arguments);
+  return `<h3>Trial of Ascension</h3><div class="sub muted">The stars are quiet. Master callings are sealed for now.</div>`;};}
+function job3Unseal(){const c=P&&CLASSES[P.cls];if(!JOB3_SEALED||!c||c.tier!==3||!CLASSES[c.parent])return false;
+  const par=CLASSES[c.parent],keep=new Set(par.skills),gone=[];let pts=0;
+  for(const id in P.skills)if(!keep.has(id)){pts+=P.skills[id]||0;delete P.skills[id];if(P.useLv)delete P.useLv[id];gone.push(id);}
+  const drop=e=>e&&typeof e.s==='string'&&gone.includes(e.s)?null:e;
+  if(Array.isArray(P.bar))P.bar=P.bar.map(drop);if(Array.isArray(P.bars))P.bars=P.bars.map(r=>Array.isArray(r)?r.map(drop):r);if(Array.isArray(P.hot))P.hot=P.hot.map(x=>gone.includes(x)?null:x);
+  const was=c.name;P.cls=c.parent;P.jl=Math.max(P.jl,jobMax(P.cls));P.jexp=0;P.skillPts=(P.skillPts||0)+pts;P.trial3=null;
+  addLog(`Master callings are sealed for now. You are a ${par.name} again, at Job Level ${P.jl}; the ${pts} skill points from your ${was} skills are yours to spend again (K).`,'l-rare');
+  return true;}
+{const _swJ3=startWith;startWith=function(data){const r=_swJ3.apply(this,arguments);try{if(job3Unseal()){S=computeStats();P.hp=Math.min(P.hp,S.maxhp);P.sp=Math.min(P.sp,S.maxsp);rebuildHotbar();if(typeof save==='function')save(true);}}catch(e){}return r;};}
+if(typeof TH!=='undefined')Object.assign(TH,{'Master callings are sealed for now.':'อาชีพระดับปรมาจารย์ถูกผนึกไว้ชั่วคราว','The stars are quiet. Master callings are sealed for now.':'ดวงดาวเงียบงัน อาชีพระดับปรมาจารย์ถูกผนึกไว้ชั่วคราว'});
+if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^Master callings are sealed for now\. You are a (.+?) again, at Job Level (\d+); the (\d+) skill points from your (.+?) skills are yours to spend again \(K\)\.$/,(m,a,b,c,d)=>`อาชีพระดับปรมาจารย์ถูกผนึกไว้ชั่วคราว คุณกลับเป็น ${a} ที่ Job Level ${b} แต้มสกิล ${c} แต้มจากสกิล ${d} คืนให้ใช้ใหม่ได้ (K)`]);

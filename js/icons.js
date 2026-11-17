@@ -32,6 +32,8 @@ function drawItemIcon(g,id){const it=ITEMS[id];if(!it)return;it.id=id;const c=it
   if(T==='weapon'){const wt=it.wt,steel=it.atk>60?'#e8ecf2':'#c8ccd4';g.save();g.translate(16,16);g.rotate(-Math.PI/4);
     if(wt==='sword'){g.beginPath();g.moveTo(-2.4,-13);g.lineTo(0,-16);g.lineTo(2.4,-13);g.lineTo(2.4,5);g.lineTo(-2.4,5);g.closePath();P_(steel);
       g.beginPath();g.roundRect(-7,5,14,3,1);P_('#b8924f');g.beginPath();g.roundRect(-1.8,8,3.6,6,1);P_('#5a3d24');g.beginPath();g.arc(0,15,2,0,7);P_('#e8c25a');}
+    else if(wt==='dagger'){g.beginPath();g.moveTo(-2,-4);g.quadraticCurveTo(-2.4,-11,0,-13);g.quadraticCurveTo(2.6,-10,2,-4);g.lineTo(2,5);g.lineTo(-2,5);g.closePath();P_(it.atk>60?'#d8d0f8':steel);
+      g.beginPath();g.roundRect(-5,5,10,2.4,1);P_('#7a7090');g.beginPath();g.roundRect(-1.6,7.4,3.2,6,1);P_('#2e2a38');g.beginPath();g.arc(0,14.4,1.8,0,7);P_('#9a8ad8');}
     else if(wt==='axe'){g.beginPath();g.roundRect(-1.6,-12,3.2,27,1);P_('#6b4a2a');g.beginPath();g.moveTo(1,-12);g.quadraticCurveTo(13,-10,11,1);g.quadraticCurveTo(6,-3,1,-2);g.closePath();P_(steel);
       g.beginPath();g.moveTo(-1,-12);g.quadraticCurveTo(-8,-8,-7,-2);g.lineTo(-1,-4);g.closePath();P_(steel);}
     else if(wt==='wand'){g.beginPath();g.roundRect(-1.6,-6,3.2,21,1.5);P_('#7a5530');g.beginPath();g.arc(0,-10,5.5,0,7);P_(c);

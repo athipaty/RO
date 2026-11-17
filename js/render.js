@@ -520,7 +520,7 @@ function drawPlayerBody(P,wid){
     // holds the weapon (club, axe, mace, wand; the bow upright, leaning a little) in the hand on
     // the side it faces, pointing toward where it walks (up-right leans right, up-left leans left); while walking
     // it moves with that hand's swing (ws) and rocks with the step
-    if(p<0&&W.bow<0&&P.back&&!P.casting&&!P.sitting&&['novice','warden','cleric','arcanist','ranger'].includes(baseOf(P.cls))){W.behind=false;
+    if(p<0&&W.bow<0&&P.back&&!P.casting&&!P.sitting&&['novice','warden','cleric','arcanist','ranger','shade'].includes(baseOf(P.cls))){W.behind=false;
       drawHeld=by=>{const st=P.moving?Math.sin(gaitWalk(P)*12):0;ctx.save();ctx.translate(P.x+P.face*(9+ws),by-4-Math.abs(ws)*.25);ctx.scale(P.face,1);const isBow=w.wt==='bow',a=isBow?.22+st*.1:.55+st*.28;ctx.rotate(a);
         drawWeaponShape(w,isBow?0:a); /* the bow undoes the turn it is given, so it gets 0 to keep the lean */ctx.fillStyle=(lookOf(P.name,P.look)||{}).skin||'#f6d6b8';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,2.6,0,7);ctx.fill();ctx.stroke();ctx.restore();};}
     if(W.behind)drawHeld(P.y-(typeof HERO2_ON!=='undefined'&&HERO2_ON?9:7)+(P.sitting?6:0));}

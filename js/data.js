@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='1.15.0';
+const VERSION='1.16.0';
 // chance that a normal monster drops its sigil (card); bosses set their own sigChance
 const SIG_CHANCE=.01;
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
@@ -250,5 +250,7 @@ function seeded(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>
 const expNeed=lv=>Math.floor(20*Math.pow(lv,1.9)+20);
 const jexpNeed=jl=>Math.floor(15*Math.pow(jl,1.8)+15);
 const jobMax=c=>c==='novice'?10:50;
+// the first jobs a Novice can choose (the Shade is added in js/shade.js)
+const JOB_FIRST=['warden','arcanist','ranger','cleric','shade'];
 const statCost=v=>Math.floor((v-1)/10)+2;
 

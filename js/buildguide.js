@@ -44,6 +44,15 @@ const BUILDS=[
     desc:'Shoots fast and never stands still; Rapid Fire grows with AGI, Stampede tramples packs.',
     skills:[['twinshot',10],['fleetstep',10],['owleye',5],['doublenock',5],['thornsnare',3],['predator',10],['rapidfire',10],['swiftstep',10],['venomarrow',5],['snareshot',3],['alphainstinct',10],['stampede',10],['packhowl',5],['savagevolley',5]],
     gear:['windscarf','quickgrip','needlebow'],sigils:['hopper','greylupe','dunejackal','lupealpha','hopperchief'],awaken:['aspd','dbl']},
+  // ---- Shade (no advanced calling yet)
+  {id:'duskblade',job:'shade',name:'Duskblade',th:'ดาบสนธยา',tag:'AGI/LUK crit',route:['shade'],stats:{agi:4,luk:3,str:2},
+    desc:'Strikes faster than anyone; Twin Fang and Nimble Hands pile up critical hits.',
+    skills:[['twinfang',10],['shadowsense',10],['nimblehands',10],['smokestep',5],['backstab',5]],
+    gear:['nightfang'],sigils:['hopper','greylupe','lupealpha'],awaken:['aspd','dbl']},
+  {id:'venomist',job:'shade',name:'Venomist',th:'นักพิษ',tag:'AGI/DEX poison',route:['shade'],stats:{agi:4,dex:3,str:2},
+    desc:'Cuts once and lets the poison work; Venom Edge and Backstab never miss.',
+    skills:[['twinfang',3],['venomedge',10],['backstab',10],['shadowsense',10],['smokestep',5],['nimblehands',5]],
+    gear:['nightfang'],sigils:['hopper','greylupe'],awaken:['atkpct','aspd']},
   // ---- Cleric
   {id:'priest',job:'cleric',name:'Battle Priest',th:'นักบวชนักรบ',tag:'STR/INT mace',route:['cleric','templar','dawnknight'],stats:{str:4,int:3,vit:2},
     desc:'Fights up front with a mace; Holy Strike and Solar Judgment grow with INT and burn Shadow monsters.',
@@ -108,7 +117,7 @@ PANELS.buildguide=()=>{const mine=P&&P.cls!=='novice'?baseJob(P.cls):null;if(min
   if(P.build&&!buildAllowed(buildById(P.build)))P.build=null; // a build from another route stops being followed
   let h=`<h2>Build guide</h2><div class="sub">Three ways to play each job, from first job to master calling. Follow one and the Skills and Stats windows show your next step.</div>`;
   if(!mine)h+=`<div class="arbox">Novices can look at every job to choose a calling. Following a build starts once you take one with Guildmaster Corvin.</div>`;
-  if(!mine)h+=`<div class="tabs itabs" role="tablist">`+['warden','arcanist','ranger','cleric'].map(j=>`<button class="btn small ${GUIDE.job===j?'on':''}" role="tab" aria-selected="${GUIDE.job===j}" data-act="guidejob" data-arg="${j}">${CLASSES[j].name}${mine===j?' ★':''}</button>`).join('')+`</div>`;
+  if(!mine)h+=`<div class="tabs itabs" role="tablist">`+JOB_FIRST.map(j=>`<button class="btn small ${GUIDE.job===j?'on':''}" role="tab" aria-selected="${GUIDE.job===j}" data-act="guidejob" data-arg="${j}">${CLASSES[j].name}${mine===j?' ★':''}</button>`).join('')+`</div>`;
   for(const b of buildsVisible().filter(x=>x.job===GUIDE.job)){const on=P.build===b.id,cur=on||mine===b.job;
     const nx=on?buildNextSkill(b):null,ns=on?buildNextStat(b):null,tot=Object.values(b.stats).reduce((a,v)=>a+v,0);
     h+=`<div class="bgcard${on?' on':''}"><div class="bghead"><div class="grow"><div class="nm">${esc(bName(b))} <span class="muted">· ${esc(b.tag)}</span></div><div class="ds">${esc(b.desc)}</div></div>`+

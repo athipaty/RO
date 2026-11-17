@@ -80,6 +80,10 @@ FXK.stampede=(f,a)=>{const rnd2=seeded(f.seed||5);for(let i=0;i<fxN(8);i++){cons
 /* ---- which effects each skill fires (added in front of the skill's own work) ---- */
 const fxSz=t=>t&&t.d?t.d.size:14,fxF=o=>fx.push({t0:now,seed:(Math.random()*1e6)|0,...o});
 const SKILL_FX={
+  twinfang:(l,t)=>{fxF({k:'crescent',x:t.x,y:t.y,ang:.7,r:24,col:'#c8b8ff',dur:.18,h:fxSz(t)});fxF({k:'crescent',x:t.x,y:t.y,ang:-2.4,r:24,col:'#e0d8ff',dur:.18,h:fxSz(t),t0:now+.14});},
+  backstab:(l,t)=>{fxF({k:'streak',x0:P.x,y0:P.y,x:t.x,y:t.y,col:'#9a8ad8',w:8,dur:.18});fxF({k:'crescent',x:t.x,y:t.y,ang:1.57,r:32,col:'#b8a8e8',dur:.25,h:fxSz(t),t0:now+.1});fxF({k:'motes',x:t.x,y:t.y,col:'#6a5a9a',n:8,r:18,dur:.5,t0:now+.12});},
+  smokestep:l=>{fxF({k:'motes',x:P.x,y:P.y,o:P,col:'#a8a0b8',col2:'#5a5468',n:18,r:30,dur:1.1});fxF({k:'ring',x:P.x,y:P.y,r:34,col:'#a8a0b8',dur:.45});},
+  venomedge:(l,t)=>{fxF({k:'crescent',x:t.x,y:t.y,ang:.7,r:28,col:'#8fd36a',dur:.22,h:fxSz(t)});fxF({k:'motes',x:t.x,y:t.y,col:'#8fd36a',col2:'#3a8a2a',n:12,r:18,dur:1,t0:now+.15});},
   lethaledge:(l,t)=>{fxF({k:'crescent',x:t.x,y:t.y,ang:.7,r:30,col:'#ffd27a',dur:.3,h:fxSz(t)});fxF({k:'crescent',x:t.x,y:t.y,ang:-2.4,r:30,col:'#ffd27a',dur:.3,h:fxSz(t),t0:now+.08});fxF({k:'motes',x:t.x,y:t.y,col:'#ffe9a0',n:10,r:20,dur:.5});},
   sunder:(l,t)=>{fxF({k:'crescent',x:t.x,y:t.y,ang:1.57,r:36,w:14,col:'#ff9a4a',dur:.25,h:fxSz(t)+10});fxF({k:'quake',x:t.x,y:t.y,r:75,col:'#5a3a1a',dur:.7,t0:now+.12});},
   secondwind:l=>{fxF({k:'motes',x:P.x,y:P.y,o:P,col:'#8fe0a8',col2:'#d8ffe0',shape:'leaf',n:18,r:34,dur:1.3});fxF({k:'rune',x:P.x,y:P.y,o:P,col:'#8fe0a8',r:30,dur:1});},

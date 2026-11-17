@@ -44,7 +44,7 @@ function callTick(){if(!P||!running)return;const q=callingNow(),id=q&&q.id;P.cal
     if(typeof levelCard==='function')levelCard(['New quest!',q.name,callStep(q).text],[['quests','Quest log']]);if(typeof sfx==='function')sfx('fanfare');
     addLog(`New quest: ${q.name}. ${callStep(q).text}.`,'l-rare');if(typeof save==='function')save();}
   // finished: the quest went away because the job changed (not because of a level drop, which cannot happen)
-  if(callLast&&callLast!==id&&!P.callDone[callLast]&&(callLast!=='call3'||P.reborn)){const done=callLast;P.callDone[done]=1;const gift=CALL_GIFT[done]||[];
+  if(callLast&&callLast!==id&&!P.callDone[callLast]&&(callLast!=='call3'||P.reborn)&&(callLast!=='call1'||P.cls!=='novice')){const done=callLast;P.callDone[done]=1;const gift=CALL_GIFT[done]||[];
     for(const [i,n] of gift)if(ITEMS[i])giveItem(i,n);addLog(`Quest complete: ${{call1:'Your Calling',call2:'Trial',call3:'Rite of Rebirth',call4:'Trial of Ascension'}[done]}!${gift.length?' '+gift.map(([i,n])=>`${ITEMS[i].name} ×${n}`).join(', '):''}`,'l-rare');
     if(P.track==='calling'&&!id)P.track=null;}
   callLast=id;}

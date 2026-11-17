@@ -2,6 +2,12 @@
 // Skill descriptions are made from numbers that change with the skill level, so each Thai line is a template:
 // {0}, {1}… are the numbers of the English line, in the order they appear there.
 const SKILL_TH={
+  twinfang:['เขี้ยวคู่','แทงเร็วสองครั้ง ครั้งละ {0}% ATK โอกาสคริติคอลเพิ่ม {1}%'],
+  backstab:['แทงข้างหลัง','ลอบไปด้านหลังเป้าหมายแล้วแทง {0}% ATK บวก {1}% ต่อ AGI ไม่มีวันพลาด'],
+  smokestep:['ก้าวควัน','หายไปในควัน: {0} วินาที FLEE +{1} และ CRIT +{2}'],
+  venomedge:['คมพิษ','ฟันอาบยาพิษ {0}% ATK (ธาตุดิน) จากนั้นพิษทำความเสียหาย {1}% ATK อีกสามครั้ง ทุกวินาที'],
+  shadowsense:['สัมผัสเงา','CRIT +{0} และ FLEE +{1}'],
+  nimblehands:['มือไว','ถือมีดสั้น: ความเร็วโจมตี +{0}% และโอกาสโจมตีสองครั้ง {1}%'],
   runestrike:['ฟันอักขระเพลิง','ฟันด้วยอักขระเพลิง {0}% ATK เป็นธาตุไฟ บวก {1}% MATK'],
   frostrune:['อักขระน้ำแข็ง','กระแทกอักขระน้ำแข็งลงพื้น {0}% ATK ธาตุน้ำต่อศัตรูทุกตัวในระยะ {1}px ทำให้ช้าลง {2} วินาที'],
   runeward:['อักขระพิทักษ์','{0} วินาที: DEF +{1} และ MATK +{2}%'],

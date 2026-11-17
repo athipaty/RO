@@ -9,7 +9,7 @@ const RACES={beast:{name:'Beast',col:'#c89a6a'},insect:{name:'Insect',col:'#9fc0
   spirit:{name:'Spirit',col:'#a8c8f0'},undead:{name:'Undead',col:'#c8b8a0'},fiend:{name:'Fiend',col:'#e0605a'},construct:{name:'Construct',col:'#a0a4b0'}};
 const SHAPE_RACE={beast:'beast',bug:'insect',blob:'plant',mushroom:'plant',ghost:'spirit',skeleton:'undead',imp:'fiend',golem:'construct'};
 // % physical damage by weapon type against Small / Medium / Large
-const WSIZE={none:[100,100,100],club:[100,100,90],sword:[100,100,85],axe:[75,100,115],mace:[85,110,100],bow:[110,100,80],wand:[100,100,100]};
+const WSIZE={none:[100,100,100],club:[100,100,90],sword:[100,100,85],axe:[75,100,115],mace:[85,110,100],bow:[110,100,80],wand:[100,100,100],dagger:[100,80,65]};
 // a few monsters whose shape alone would give the wrong race
 const RACE_FIX={snowhulk:'construct',cactoid:'plant',frostmatron:'beast'};
 function mobSize(d){return d.sz||(d.size<=12?'s':d.size>=20?'l':'m');}

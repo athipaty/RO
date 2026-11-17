@@ -152,7 +152,7 @@ PANELS.quests=()=>{const s=QS(),act=Object.keys(s.active);let h=`<h2>Quest log</
   for(const id of act){const q=QUESTS[id];h+=`<div class="row qrow"><div class="grow"><div class="nm">${q.name}${qReady(id)?' <span class="gold">· ready</span>':''}</div>`+
     `<div class="ds qobjs">${q.obj.map(o=>objLineHTML(id,o,true)).join('')}${qReady(id)?npcLine(q.to,'Return to'):`<span class="qwait">${esc(q.wait)}</span>${q.to!==q.from||!q.obj.length?npcLine(q.to,'Then talk to'):''}`}</div></div>`+
     `<div class="qbtns"><button class="btn small${P.track===id?' on':''}" data-act="qtrack" data-arg="${id}">${P.track===id?'Pinned':'Pin'}</button><button class="btn small" data-act="qabandon" data-arg="${id}">Abandon</button></div></div>`;}
-  const story=Object.keys(QUESTS).filter(id=>!QUESTS[id].daily),done=story.filter(id=>s.done.includes(id)).length;
+  const story=Object.keys(QUESTS).filter(id=>!QUESTS[id].daily&&!QUESTS[id].job),done=story.filter(id=>s.done.includes(id)).length;
   h+=`<h3>Story: The Ember Below</h3><div class="ds">${done}/${story.length} chapters complete${done===story.length?'. Hearthvale is safe, for now.':''}</div>`;
   return h;};
 function nextHint(){const id=Object.keys(QUESTS).find(id=>!QUESTS[id].daily&&qAvailable(id));if(id)return `${npcName(QUESTS[id].from)} has something for you.`;

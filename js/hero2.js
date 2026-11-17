@@ -42,7 +42,9 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
       ctx.fillStyle='#e8e0d0';for(const k of [-2,0,2]){ctx.beginPath();ctx.moveTo(k,-13);ctx.lineTo(k-1.6,-18);ctx.lineTo(k+1.6,-18);ctx.closePath();ctx.fill();}
       ctx.fillStyle='#c84a3a';for(const k of [-2,0,2])ctx.fillRect(k-1,-14.5,2,1.6);ctx.restore();
       ctx.fillStyle='#3f7a46';ctx.beginPath();ctx.ellipse(x-f*3,by-15,8,4.5,0,0,7);fs();}
-    if(out==='arcanist'){ctx.fillStyle=dark;ctx.beginPath();ctx.ellipse(x-f*2,by-15.5,8.5,4,0,0,7);fs();}};
+    if(out==='arcanist'){ctx.fillStyle=dark;ctx.beginPath();ctx.ellipse(x-f*2,by-15.5,8.5,4,0,0,7);fs();}
+    if(out==='shade'){ctx.fillStyle='#2e2a3c';ctx.beginPath();ctx.moveTo(x-f*2,by-15);ctx.lineTo(x-f*9,by-14);ctx.quadraticCurveTo(x-f*13+sway*.6,by-4,x-f*11+sway,by+5);
+      ctx.lineTo(x-f*8+sway,by+2);ctx.lineTo(x-f*6+sway,by+6);ctx.lineTo(x-f*3,by-2);ctx.closePath();fs();}};
   if(!bk)backLayer();
   // ---- legs: trousers and boots; a stride while walking (robes show only the boots under the hem) ----
   const hip=by+1;
@@ -107,6 +109,15 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
     ctx.strokeStyle='#e8d0a0';ctx.lineWidth=.8;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(x-1.8,by-12+i*3);ctx.lineTo(x+1.8,by-10.5+i*3);ctx.stroke();}
     ctx.strokeStyle='#5a3a22';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(x-f*7,by-14);ctx.lineTo(x+f*6,by-1);ctx.stroke();
     belt(D.belt,by-1);ctx.fillStyle='#8a909c';ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(x+f*5-1,by-.5,2,6,.8);fs();}
+  else if(out==='shade'){ctx.strokeStyle='#2a2436';ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(x-6.5,by-14);ctx.lineTo(x+6,by-3);ctx.moveTo(x+6.5,by-14);ctx.lineTo(x-6,by-3);ctx.stroke();
+    ctx.strokeStyle=D.trim;ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(x-6.5,by-14);ctx.lineTo(x+6,by-3);ctx.stroke();
+    belt(D.belt,by-1);
+    // the second dagger in its sheath on the hip
+    ctx.save();ctx.translate(x-f*6.5,by+1);ctx.rotate(-f*.5);ctx.fillStyle='#2e2a38';ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-1.6,0,3.2,9,1.2);fs();
+    ctx.fillStyle='#9a8ad8';ctx.beginPath();ctx.roundRect(-2.6,-1.4,5.2,1.6,.6);fs();ctx.fillStyle='#2e2a38';ctx.beginPath();ctx.roundRect(-1,-5,2,3.8,.8);fs();ctx.restore();
+    // scarf round the neck, its tail streaming behind
+    ctx.fillStyle='#6a5a9a';ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.roundRect(x-6.5,by-17,13,4.2,2);fs();
+    if(!bk){ctx.beginPath();ctx.moveTo(x-f*4,by-15);ctx.quadraticCurveTo(x-f*10,by-14+sway*.4,x-f*14+sway,by-9);ctx.lineTo(x-f*12+sway,by-7);ctx.quadraticCurveTo(x-f*8,by-11,x-f*2,by-13);ctx.closePath();fs();}}
   else{ // novice and townsfolk: tunic with a collar, belt and a pouch
     ctx.fillStyle='rgba(255,255,255,.5)';ctx.beginPath();ctx.moveTo(x-4,by-15.5);ctx.lineTo(x,by-11.5);ctx.lineTo(x+4,by-15.5);ctx.closePath();ctx.fill();
     ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(x,by-11.5);ctx.lineTo(x,by-4);ctx.stroke();

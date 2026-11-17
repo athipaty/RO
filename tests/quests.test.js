@@ -58,7 +58,7 @@ module.exports = async t => {
     const sv = await g.ev(() => { const s = snapshot(); return { done: s.p.qs.done, has: 'track' in s.p }; });
     t.ok(sv.done.includes('letter') && sv.done.includes('sprouts') && sv.has, 'quest progress is saved');
     t.ok(await g.ev(() => { window.dispatchEvent(new KeyboardEvent('keydown', { key: 'j' })); const k = panelKind; closePanel(); return k === 'quests'; }), 'J opens the quest log');
-    t.ok(await g.ev(() => Object.values(QUESTS).every(q => q.offer.length && q.done.length && q.wait && npcName(q.from) && npcName(q.to) && q.obj.every(o => o.kill ? MOBS[o.kill] : o.item ? ITEMS[o.item] : ZONES[o.visit]) && (q.reward.items || []).every(([i]) => ITEMS[i]))), 'every quest has dialogue, real NPCs, real monsters and items');
+    t.ok(await g.ev(() => Object.values(QUESTS).every(q => q.offer.length && q.done.length && q.wait && npcName(q.from) && npcName(q.to) && q.obj.every(o => o.kill ? MOBS[o.kill] : o.item ? ITEMS[o.item] : o.talk ? npcName(o.talk) !== o.talk : o.spot || o.duel ? ZONES[o.zone] && o.text : ZONES[o.visit]) && (q.reward.items || []).every(([i]) => ITEMS[i]))), 'every quest has dialogue, real NPCs, real monsters and items');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };

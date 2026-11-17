@@ -4,7 +4,7 @@
      presence field cs = the skill being cast).
    - Hurt: a quick recoil and red flash when you are hit (others see it when your health drops).
    - Defeated: the hero topples over and lies there with a faint wisp, instead of vanishing. */
-const CAST_COL={arcanist:'#b8a0ff',cleric:'#ffe7a0',ranger:'#9fe0a0',warden:'#ffb070',novice:'#cfe3ff'};
+const CAST_COL={arcanist:'#b8a0ff',cleric:'#ffe7a0',ranger:'#9fe0a0',warden:'#ffb070',shade:'#b8a8e8',novice:'#cfe3ff'};
 const castCol=cls=>CAST_COL[typeof baseOf==='function'?baseOf(cls):cls]||'#cfe3ff';
 
 function castCircle(p){const col=castCol(p.cls),t=now*1.6,r=18+Math.sin(now*6)*1.2;
