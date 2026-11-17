@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='1.17.1';
+const VERSION='1.17.2';
 // chance that a normal monster drops its sigil (card); bosses set their own sigChance
 const SIG_CHANCE=.01;
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
@@ -294,7 +294,7 @@ Object.assign(MOBS,{
   mudpuddle:{name:'Mudpuddle',lv:11,hp:260,atk:26,def:8,flee:6,exp:92,jexp:68,spd:36,shape:'blob',col:'#7a5a3a',size:13,el:'water',drops:[['mudclump',.5],['orange',.04]],sig:{kind:'armor',b:{vit:2,maxhp:60},txt:'+2 VIT, +60 Max HP'}},
   cropweevil:{name:'Crop Weevil',lv:13,hp:340,atk:36,def:18,flee:20,exp:125,jexp:92,spd:62,aggro:true,shape:'bug',col:'#a8803a',size:12,drops:[['weevilhusk',.45],['red',.1]],sig:{kind:'accessory',b:{dex:2},txt:'+2 DEX'}},
   reedsnapper:{name:'Reed Snapper',lv:15,hp:450,atk:44,def:20,flee:16,exp:170,jexp:125,spd:58,aggro:true,shape:'beast',col:'#4a7a5a',size:14,el:'water',drops:[['riverreed',.45],['orange',.06]],sig:{kind:'weapon',b:{atk:12,dex:1},txt:'+12 ATK, +1 DEX'}},
-  grandscarecrow:{name:'Grand Scarecrow',lv:18,hp:6000,atk:115,def:28,flee:30,exp:5000,jexp:3400,spd:55,aggro:true,boss:true,mini:true,calls:true,shape:'golem',col:'#d8b860',size:22,respawn:120,sigChance:.12,
+  grandscarecrow:{name:'Grand Scarecrow',night:true,lv:18,hp:6000,atk:115,def:28,flee:30,exp:5000,jexp:3400,spd:55,aggro:true,boss:true,mini:true,calls:true,shape:'golem',col:'#d8b860',size:22,respawn:120,sigChance:.12,
     drops:[['scarecrowhat',.2],['weevilhusk',1],['orange',.6],['emberore',.2]],sig:{kind:'weapon',b:{atk:15,luk:2},txt:'+15 ATK, +2 LUK'}}});
 // the same setup every other monster had above: id, hit, its sigil; the Gust Wisp blinks and Ridge Rams call their herd
 MOBS.gustwisp.skill='blink';MOBS.ridgeram.pack=true;
