@@ -8,8 +8,8 @@ module.exports = async t => {
     await wait(400);
     const r = await g.ev(async () => {
       const w = ms => new Promise(r => setTimeout(r, ms)), out = {};
-      const npc = name => { const z = getZone('town'); return z.npcs.find(n => n.name === name); };
-      const talkTo = (key, act, arg) => { enterZoneIf('town'); openNpc(npc(npcName(key))); if (act) PANEL_ACTS[act](arg); };
+      const npc = name => { const k = NPC_KEY[name], z = getZone(QNPC[k] ? QNPC[k].zone : 'town'); return z.npcs.find(n => n.name === name); };
+      const talkTo = (key, act, arg) => { enterZoneIf(QNPC[key] ? QNPC[key].zone : 'town'); openNpc(npc(npcName(key))); if (act) PANEL_ACTS[act](arg); };
       const enterZoneIf = z => { if (zoneId !== z) enterZone(z); };
       const finish = id => { const key = QUESTS[id].to; talkTo(key); PANEL_ACTS.topen('done:' + id); PANEL_ACTS.qfinish(id); closePanel(); };
       const accept = id => { talkTo(QUESTS[id].from); PANEL_ACTS.qaccept(id); closePanel(); };
@@ -27,24 +27,24 @@ module.exports = async t => {
       // ---- Warden, start to end
       accept('ws1'); out.oneAtATime = !qAvailable('as1') && !qAvailable('ss1');
       finish('ws1'); accept('ws2');
-      for (let k = 0; k < 6; k++) questKill('hopper');
-      await doPlaces('ws2', 'meadow'); out.fences = qReady('ws2');
+      talkTo('tamsin', 'tjask', 'ws2|talk:tamsin'); closePanel(); for (let k = 0; k < 6; k++) questKill('turnipsprite');
+      await doPlaces('ws2', 'farms'); out.fences = qReady('ws2');
       finish('ws2'); accept('ws3'); out.duel = await duel('ws3', 'town'); out.duelDone = qReady('ws3');
       finish('ws3'); out.warden = P.cls === 'warden' && P.eq.weapon && P.eq.weapon.id === 'sword';
 
       // ---- Arcanist stones: wrong order resets, right order works (on a fresh novice)
       P.cls = 'novice'; P.jl = 10; QS().done = []; QS().active = {};
-      accept('as1'); finish('as1'); accept('as2'); enterZoneIf('meadow'); await w(100); jsSync();
+      accept('as1'); finish('as1'); accept('as2'); talkTo('alda', 'tjask', 'as2|talk:alda'); closePanel(); enterZoneIf('heights'); await w(100); jsSync();
       const stone = k => Z.objs.find(o => o.kind === 'qspot' && o.qo.spot === k);
-      jsDo(stone('rEmber')); jsDo(stone('rStorm')); out.reset = !jsDone('as2', QUESTS.as2.obj[0]);
+      jsDo(stone('rEmber')); jsDo(stone('rStorm')); out.reset = !jsDone('as2', QUESTS.as2.obj.find(o => o.spot === 'rEmber'));
       jsDo(stone('rEmber')); jsDo(stone('rFrost')); jsSync(); jsDo(stone('rStorm')); out.stones = qReady('as2');
 
       // ---- Shade: switch story (abandon), asking around, the camp, the duel, then Nyx
       PANEL_ACTS.qabandon('as2'); out.switch = qAvailable('ss1');
       accept('ss1'); finish('ss1'); accept('ss2');
-      for (const k of ['brannoc', 'wenna', 'tobin']) { talkTo(k); out['mark_' + k] = npcMark(npc(npcName(k))) === 'ready' || true; PANEL_ACTS.tjask('ss2|talk:' + k); closePanel(); }
+      for (const k of ['brannoc', 'wenna', 'odo']) { talkTo(k); out['mark_' + k] = npcMark(npc(npcName(k))) === 'ready' || true; PANEL_ACTS.tjask('ss2|talk:' + k); closePanel(); }
       await doPlaces('ss2', 'town'); out.clues = qReady('ss2');
-      finish('ss2'); accept('ss3'); await doPlaces('ss3', 'meadow'); out.vesk = await duel('ss3', 'meadow'); out.toNyx = qReady('ss3');
+      finish('ss2'); accept('ss3'); await doPlaces('ss3', 'farms'); out.vesk = await duel('ss3', 'farms'); out.toNyx = qReady('ss3');
       finish('ss3'); out.shade = P.cls === 'shade' && P.eq.weapon && P.eq.weapon.id === 'dagger';
       out.goalAfter = !qAvailable('ws1');
 
@@ -63,13 +63,13 @@ module.exports = async t => {
     t.ok(r.offers === 5, `Corvin offers five calling stories at Job Level 10 (${r.offers})`);
     t.ok(r.cards === 5 && r.noBtn, 'the Guild Hall window shows the five callings, without instant job buttons');
     t.ok(r.oneAtATime, 'only one story can be under way at a time');
-    t.ok(r.fences, 'Warden: driving back the Hoppers and mending both fence posts readies the chapter');
+    t.ok(r.fences, 'Warden: Tamsin, the Turnip Sprites and both fence posts at Willowmere Farms ready the chapter');
     t.ok(r.duel && r.duelDone, 'Warden: the training duel is won with three hits');
     t.ok(r.warden, 'finishing the Warden story makes you a Warden with a sword');
     t.ok(r.reset, 'Arcanist: waking the stones out of order makes them all go dark');
     t.ok(r.stones, 'Arcanist: Ember, Frost, Storm in order wakes all three');
     t.ok(r.switch, 'abandoning a story lets you choose another');
-    t.ok(r.clues, 'Shade: asking Brannoc, Wenna and Tobin and finding the prints readies the chapter');
+    t.ok(r.clues, 'Shade: asking Brannoc, Wenna and Odo and finding the prints readies the chapter');
     t.ok(r.vesk && r.toNyx, 'Shade: the hidden camp and the duel with Vesk lead to Nyx');
     t.ok(r.shade, 'finishing the Shade story makes you a Shade with a dagger');
     t.ok(r.goalAfter, 'calling stories are closed once you have a job');

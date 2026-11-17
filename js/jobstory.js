@@ -9,7 +9,8 @@
      {duel:'id', zone, ...}    a timing duel at a marked place: stop the marker in the zone 3 times before 3 misses
    Places are given as an offset in tiles from the region's arrival point, from a person (near:'npc') or from a gate
    (near:'gate:meadow'), and land on the nearest open ground. Progress is saved on the quest (QS().active[id].s).
-   Only one story can be in progress at a time; abandoning it lets you pick another. Finishing the last chapter makes
+   Since v1.17.0 they take place on Windwhistle Heights (north gate) and Willowmere Farms (south gate), with Shepherd
+   Alda, Farmer Tamsin and Odo the Ferryman. Only one story can be in progress at a time; abandoning it lets you pick another. Finishing the last chapter makes
    you that job (becomeJob in js/ui.js). Loaded after js/callings.js. */
 const TH_ON=typeof LANG!=='undefined'&&LANG==='th';
 const JS_L=(en,th)=>TH_ON&&th?th:en;
@@ -18,14 +19,21 @@ const JS_L=(en,th)=>TH_ON&&th?th:en;
 Object.assign(QNPC,{
   brega:{name:'Captain Brega',zone:'town',tx:34.5,ty:17.5,col:'#8a3a2a',hair:'#c8b8a0'},
   ondine:{name:'Magister Ondine',zone:'town',tx:6.5,ty:17.5,col:'#4a5ab0',hair:'#e8e0f0'},
-  nyx:{name:'Nyx of the Veil',zone:'town',tx:3.5,ty:11.5,col:'#3a3450',hair:'#1e1a28'}});
-for(const k of ['brega','ondine','nyx'])NPC_KEY[QNPC[k].name]=k;
-if(typeof NPC_TH!=='undefined'){Object.assign(NPC_TH,{'Captain Brega':'กัปตันเบรกา','Magister Ondine':'จอมเวทออนดีน','Nyx of the Veil':'นิกซ์แห่งม่านเงา'});
-  if(typeof TH!=='undefined')Object.assign(TH,{'Captain Brega':'กัปตันเบรกา','Magister Ondine':'จอมเวทออนดีน','Nyx of the Veil':'นิกซ์แห่งม่านเงา'});}
+  nyx:{name:'Nyx of the Veil',zone:'town',tx:3.5,ty:11.5,col:'#3a3450',hair:'#1e1a28'},
+  // v1.17.0 the regions by the north and south gates
+  alda:{name:'Shepherd Alda',zone:'heights',dx:4,dy:-3,col:'#8a7a5a',hair:'#d8d0c0'},
+  tamsin:{name:'Farmer Tamsin',zone:'farms',dx:-4,dy:3,col:'#6a8a3a',hair:'#c8783a'},
+  odo:{name:'Odo the Ferryman',zone:'farms',dx:-2,dy:16,col:'#4a6a8a',hair:'#5a4a3a'}});
+for(const k of ['brega','ondine','nyx','alda','tamsin','odo'])NPC_KEY[QNPC[k].name]=k;
+if(typeof NPC_TH!=='undefined'){Object.assign(NPC_TH,{'Captain Brega':'กัปตันเบรกา','Magister Ondine':'จอมเวทออนดีน','Nyx of the Veil':'นิกซ์แห่งม่านเงา','Shepherd Alda':'คนเลี้ยงแกะอัลดา','Farmer Tamsin':'ชาวไร่แทมซิน','Odo the Ferryman':'โอโด คนแจวเรือ'});
+  if(typeof TH!=='undefined')Object.assign(TH,{'Captain Brega':'กัปตันเบรกา','Magister Ondine':'จอมเวทออนดีน','Nyx of the Veil':'นิกซ์แห่งม่านเงา','Shepherd Alda':'คนเลี้ยงแกะอัลดา','Farmer Tamsin':'ชาวไร่แทมซิน','Odo the Ferryman':'โอโด คนแจวเรือ'});}
 if(typeof NPC_SHORT_TH!=='undefined')NPC_SHORT_TH.unshift(['Captain Brega','กัปตันเบรกา'],['Magister Ondine','จอมเวทออนดีน'],['Nyx of the Veil','นิกซ์แห่งม่านเงา'],
-  ['Brega','เบรกา'],['Ondine','ออนดีน'],['Nyx','นิกซ์'],['Vesk','เวสก์'],['Bram','แบรม']);
+  ['Shepherd Alda','คนเลี้ยงแกะอัลดา'],['Farmer Tamsin','ชาวไร่แทมซิน'],['Odo the Ferryman','โอโด คนแจวเรือ'],['Alda','อัลดา'],['Tamsin','แทมซิน'],['Odo','โอโด'],['Brega','เบรกา'],['Ondine','ออนดีน'],['Nyx','นิกซ์'],['Vesk','เวสก์'],['Bram','แบรม']);
 {const _gr=greeting;greeting=function(k){const g={brega:JS_L('Feet apart, shield up. Always.','ยืนให้มั่น ยกโล่ขึ้น เสมอ'),ondine:JS_L('Mind the books. Some of them bite.','ระวังหนังสือด้วย บางเล่มกัดได้'),
-  nyx:JS_L('You didn\'t see me. Nobody does.','เจ้าไม่เห็นข้าหรอก ไม่มีใครเห็น')}[k];return g||_gr.apply(this,arguments);};}
+  nyx:JS_L('You didn\'t see me. Nobody does.','เจ้าไม่เห็นข้าหรอก ไม่มีใครเห็น'),
+  alda:JS_L('Mind the rams. They don\'t mean harm, but they don\'t look where they\'re going.','ระวังพวกแกะเขาด้วย มันไม่ได้คิดร้าย แต่มันไม่ดูทางเลย'),
+  tamsin:JS_L('Turnips this big, and they get up and walk off. Farming used to be easier.','หัวผักกาดใหญ่ขนาดนี้ แล้วมันก็ลุกเดินหนีไปเอง ทำไร่สมัยก่อนง่ายกว่านี้'),
+  odo:JS_L('Across the river? Not today, the reeds are snapping.','ข้ามแม่น้ำงั้นรึ? วันนี้ไม่ไหว พวกในดงกกกำลังงับ')}[k];return g||_gr.apply(this,arguments);};}
 
 /* ---- the stories ---- */
 const R1={exp:200,jexp:0,gold:100},R2={exp:500,jexp:0,gold:200,items:[['red',5]]},R3={exp:800,jexp:0,gold:300,items:[['orange',3]]};
@@ -38,14 +46,15 @@ const JOB_STORY={
     done:['Corvin sent you? Hm. You\'re smaller than I hoped.','But size isn\'t what makes a Warden. Let\'s see what you\'re made of.'],
     doneTh:['คอร์วินส่งเจ้ามางั้นรึ? หืม ตัวเล็กกว่าที่คิดไว้','แต่ขนาดตัวไม่ได้ทำให้ใครเป็นผู้พิทักษ์ มาดูกันว่าเจ้าทำจากอะไร']},
   ws2:{job:'warden',name:'The Broken Fence',th:'รั้วที่พังทลาย',from:'brega',to:'brega',lv:1,after:'ws1',reward:R2,
-    obj:[{kill:'hopper',n:6},
-      {spot:'fenceA',zone:'meadow',dx:6,dy:-4,art:'fence',text:'Mend the north fence post',th:'ซ่อมเสารั้วด้านเหนือ',say:'You drive the post back into the ground. It holds.',sayTh:'คุณตอกเสากลับลงดิน มันตั้งมั่นแล้ว'},
-      {spot:'fenceB',zone:'meadow',dx:9,dy:3,art:'fence',text:'Mend the south fence post',th:'ซ่อมเสารั้วด้านใต้',say:'You lash the rail back in place. The fence is whole again.',sayTh:'คุณมัดราวรั้วกลับเข้าที่ รั้วกลับมาสมบูรณ์อีกครั้ง'}],
-    offer:['The farms in Greenmoss Meadow have a fence to keep the Hoppers out. Last night they smashed right through it.','Drive the Hoppers back, then mend the two broken posts. A Warden protects first and fights second.'],
-    offerTh:['ไร่ในทุ่งกรีนมอสมีรั้วกันพวกฮอปเปอร์ เมื่อคืนพวกมันพังทะลุเข้ามา','ไล่ฮอปเปอร์ออกไป แล้วซ่อมเสารั้วที่พังทั้งสองต้น ผู้พิทักษ์ต้องปกป้องก่อน แล้วค่อยสู้'],
-    wait:'Drive back 6 Hoppers and mend both fence posts in Greenmoss Meadow.',waitTh:'ไล่ฮอปเปอร์ 6 ตัว และซ่อมเสารั้วทั้งสองต้นในทุ่งกรีนมอส',
-    done:['The farmers came running to tell me. Not one Hopper got through after you.','Good. There\'s one thing left.'],
-    doneTh:['ชาวไร่วิ่งมาบอกข้า หลังจากเจ้าไป ไม่มีฮอปเปอร์ตัวไหนผ่านเข้ามาได้เลย','ดีมาก เหลืออีกอย่างเดียว']},
+    obj:[{talk:'tamsin',text:'Ask Farmer Tamsin where the fence broke',th:'ถามชาวไร่แทมซินว่ารั้วพังตรงไหน',line:'Two posts, down by my turnip rows. And the turnips… well, you\'ll see. They walk now.',lineTh:'เสาสองต้น ข้างแปลงหัวผักกาดของข้า แล้วพวกหัวผักกาด… เดี๋ยวก็เห็น ตอนนี้มันเดินได้แล้ว'},
+      {kill:'turnipsprite',n:6},
+      {spot:'fenceA',zone:'farms',dx:-7,dy:5,art:'fence',text:'Mend the north fence post',th:'ซ่อมเสารั้วด้านเหนือ',say:'You drive the post back into the ground. It holds.',sayTh:'คุณตอกเสากลับลงดิน มันตั้งมั่นแล้ว'},
+      {spot:'fenceB',zone:'farms',dx:-10,dy:9,art:'fence',text:'Mend the south fence post',th:'ซ่อมเสารั้วด้านใต้',say:'You lash the rail back in place. The fence is whole again.',sayTh:'คุณมัดราวรั้วกลับเข้าที่ รั้วกลับมาสมบูรณ์อีกครั้ง'}],
+    offer:['Farmer Tamsin\'s fence at Willowmere Farms, out the south gate, keeps the field monsters off her crops. Last night they smashed right through it.','Talk to Tamsin, drive the Turnip Sprites back, then mend the two broken posts. A Warden protects first and fights second.'],
+    offerTh:['รั้วของชาวไร่แทมซินที่ไร่วิลโลว์เมียร์ ออกประตูใต้ไป ใช้กันมอนสเตอร์ไม่ให้เข้าไร่ เมื่อคืนพวกมันพังทะลุเข้ามา','คุยกับแทมซิน ไล่เทอร์นิปสไปรต์ออกไป แล้วซ่อมเสารั้วที่พังทั้งสองต้น ผู้พิทักษ์ต้องปกป้องก่อน แล้วค่อยสู้'],
+    wait:'Talk to Tamsin, drive back 6 Turnip Sprites and mend both fence posts at Willowmere Farms (south gate).',waitTh:'คุยกับแทมซิน ไล่เทอร์นิปสไปรต์ 6 ตัว และซ่อมเสารั้วทั้งสองต้นที่ไร่วิลโลว์เมียร์ (ประตูใต้)',
+    done:['Tamsin came running to tell me. Not one turnip got through after you.','Good. There\'s one thing left.'],
+    doneTh:['แทมซินวิ่งมาบอกข้า หลังจากเจ้าไป ไม่มีหัวผักกาดตัวไหนผ่านเข้ามาได้เลย','ดีมาก เหลืออีกอย่างเดียว']},
   ws3:{job:'warden',name:'Hold the Line',th:'ยืนหยัดไม่ถอย',from:'brega',to:'brega',lv:1,after:'ws2',reward:R3,grant:'warden',
     obj:[{duel:'bregaduel',zone:'town',near:'brega',dx:1,dy:1,art:'dummy',hits:3,text:'Block Brega\'s strikes at the training post',th:'รับดาบของเบรกาที่หลักฝึก',
       name:'Hold the shield',nameTh:'ยกโล่รับไว้',win:'Brega lowers her sword and nods.',winTh:'เบรกาลดดาบลงแล้วพยักหน้า'}],
@@ -62,12 +71,13 @@ const JOB_STORY={
     done:['A spark, Corvin says? Let me see.','Mm. Faint, but there. Sparks grow when they\'re fed.'],
     doneTh:['คอร์วินบอกว่ามีประกายงั้นรึ? ขอดูหน่อย','อืม จาง ๆ แต่มีอยู่ ประกายจะโตขึ้นเมื่อได้รับการหล่อเลี้ยง']},
   as2:{job:'arcanist',name:'The Three Stones',th:'ศิลาทั้งสาม',from:'ondine',to:'ondine',lv:1,after:'as1',reward:R2,
-    obj:[{spot:'rEmber',zone:'meadow',dx:5,dy:-6,art:'rune',rune:'#ff8a4a',glyph:'ᚲ',act:'rune',seq:1,text:'Wake the Ember stone',th:'ปลุกศิลาเพลิง',say:'The Ember stone glows warm.',sayTh:'ศิลาเพลิงเรืองแสงอุ่น ๆ'},
-      {spot:'rFrost',zone:'meadow',dx:12,dy:2,art:'rune',rune:'#8fd0f0',glyph:'ᛁ',act:'rune',seq:2,text:'Wake the Frost stone',th:'ปลุกศิลาน้ำแข็ง',say:'The Frost stone hums, cold and blue.',sayTh:'ศิลาน้ำแข็งส่งเสียงหึ่ง เย็นเฉียบสีฟ้า'},
-      {spot:'rStorm',zone:'meadow',dx:4,dy:8,art:'rune',rune:'#ffe066',glyph:'ᛊ',act:'rune',seq:3,text:'Wake the Storm stone',th:'ปลุกศิลาพายุ',say:'The Storm stone crackles. All three are awake.',sayTh:'ศิลาพายุเกิดประกายไฟ ทั้งสามตื่นแล้ว'}],
-    offer:['Three rune stones stand in Greenmoss Meadow. They have slept for a hundred years.','Wake them in the right order: Ember first, then Frost, then Storm. Get it wrong and they all go dark again.'],
-    offerTh:['ศิลาอักขระสามก้อนตั้งอยู่ในทุ่งกรีนมอส พวกมันหลับมาร้อยปีแล้ว','ปลุกพวกมันให้ถูกลำดับ: เพลิงก่อน แล้วน้ำแข็ง แล้วพายุ ถ้าผิดลำดับ พวกมันจะดับลงทั้งหมด'],
-    wait:'Wake the Ember, Frost and Storm stones in Greenmoss Meadow, in that order.',waitTh:'ปลุกศิลาเพลิง น้ำแข็ง และพายุในทุ่งกรีนมอส ตามลำดับ',
+    obj:[{talk:'alda',text:'Ask Shepherd Alda about the old stones',th:'ถามคนเลี้ยงแกะอัลดาเรื่องศิลาโบราณ',line:'Ember, Frost and Storm, my gran called them. Ember sits by the path; the others are further up the hill.',lineTh:'เพลิง น้ำแข็ง และพายุ ยายข้าเรียกแบบนั้น ศิลาเพลิงอยู่ข้างทาง อีกสองก้อนอยู่สูงขึ้นไปบนเนิน'},
+      {spot:'rEmber',zone:'heights',dx:-6,dy:-6,art:'rune',rune:'#ff8a4a',glyph:'ᚲ',act:'rune',seq:1,text:'Wake the Ember stone',th:'ปลุกศิลาเพลิง',say:'The Ember stone glows warm.',sayTh:'ศิลาเพลิงเรืองแสงอุ่น ๆ'},
+      {spot:'rFrost',zone:'heights',dx:7,dy:-12,art:'rune',rune:'#8fd0f0',glyph:'ᛁ',act:'rune',seq:2,text:'Wake the Frost stone',th:'ปลุกศิลาน้ำแข็ง',say:'The Frost stone hums, cold and blue.',sayTh:'ศิลาน้ำแข็งส่งเสียงหึ่ง เย็นเฉียบสีฟ้า'},
+      {spot:'rStorm',zone:'heights',dx:-3,dy:-19,art:'rune',rune:'#ffe066',glyph:'ᛊ',act:'rune',seq:3,text:'Wake the Storm stone',th:'ปลุกศิลาพายุ',say:'The Storm stone crackles. All three are awake.',sayTh:'ศิลาพายุเกิดประกายไฟ ทั้งสามตื่นแล้ว'}],
+    offer:['Three rune stones stand on Windwhistle Heights, out the north gate. They have slept for a hundred years. Shepherd Alda knows where.','Wake them in the right order: Ember first, then Frost, then Storm. Get it wrong and they all go dark again.'],
+    offerTh:['ศิลาอักขระสามก้อนตั้งอยู่บนเนินวินด์วิสเซิล ออกประตูเหนือไป พวกมันหลับมาร้อยปีแล้ว คนเลี้ยงแกะอัลดารู้ว่าอยู่ตรงไหน','ปลุกพวกมันให้ถูกลำดับ: เพลิงก่อน แล้วน้ำแข็ง แล้วพายุ ถ้าผิดลำดับ พวกมันจะดับลงทั้งหมด'],
+    wait:'Ask Shepherd Alda, then wake the Ember, Frost and Storm stones on Windwhistle Heights (north gate), in that order.',waitTh:'ถามคนเลี้ยงแกะอัลดา แล้วปลุกศิลาเพลิง น้ำแข็ง และพายุบนเนินวินด์วิสเซิล (ประตูเหนือ) ตามลำดับ',
     done:['I felt them wake from here. All three, in order.','Your spark answered theirs. Now let\'s make it a flame.'],
     doneTh:['ข้ารู้สึกได้ตั้งแต่ตรงนี้ว่ามันตื่น ทั้งสามก้อน ตามลำดับ','ประกายของเจ้าตอบรับพวกมันแล้ว ทีนี้มาทำให้มันเป็นเปลวไฟกัน']},
   as3:{job:'arcanist',name:'Kindle the Flame',th:'จุดเปลวไฟ',from:'ondine',to:'ondine',lv:1,after:'as2',reward:R3,grant:'arcanist',
@@ -86,21 +96,21 @@ const JOB_STORY={
     done:['Corvin\'s pick? You walked in loud. We\'ll work on that.','But your timing is good. And I need someone right now, actually.'],
     doneTh:['คนที่คอร์วินเลือกงั้นรึ? เดินเข้ามาเสียงดังเชียว เดี๋ยวค่อยฝึกกัน','แต่จังหวะของเจ้าดี และตอนนี้ข้าต้องการคนช่วยพอดี']},
   rs2:{job:'ranger',name:'The Lost Hunter',th:'นักล่าที่หายไป',from:'ysolde',to:'ysolde',lv:1,after:'rs1',reward:R2,
-    obj:[{spot:'tr1',zone:'woods',dx:5,dy:1,art:'tracks',act:'track',seq:1,text:'Follow the footprints',th:'ตามรอยเท้า',say:'Boot prints, heading deeper into the trees.',sayTh:'รอยรองเท้า มุ่งลึกเข้าไปในป่า'},
-      {spot:'tr2',zone:'woods',dx:9,dy:-3,art:'arrow',act:'track',seq:2,text:'Look at what he dropped',th:'ดูสิ่งที่เขาทำตกไว้',say:'A broken arrow with Bram\'s green fletching.',sayTh:'ลูกธนูหัก ขนหางสีเขียวของแบรม'},
-      {spot:'tr3',zone:'woods',dx:13,dy:1,art:'cloth',act:'track',seq:3,text:'Check the thorn bush',th:'ตรวจดูพุ่มหนาม',say:'A strip of green cloak caught on a thorn. He went this way in a hurry.',sayTh:'เศษผ้าคลุมสีเขียวติดอยู่บนหนาม เขารีบไปทางนี้'},
-      {spot:'bram',zone:'woods',dx:16,dy:-2,art:'person',col:'#3f7a4c',hair:'#6b4a2a',act:'track',seq:4,text:'Find Bram',th:'ตามหาแบรม',say:'Bram! Hurt, but alive. "The Lupes chased me up a tree. Tell Ysolde I\'m fine… mostly."',sayTh:'แบรม! บาดเจ็บแต่ยังมีชีวิต "พวกลูปไล่ข้าขึ้นต้นไม้ บอกอิโซลด์ว่าข้าสบายดี… ก็ประมาณนั้น"'}],
-    offer:['My partner Bram went after a pack of Grey Lupes two days ago. He hasn\'t come back.','Find his trail. Footprints first, then whatever he left behind. Follow it to him.'],
-    offerTh:['แบรม คู่หูของข้า ตามฝูงเกรย์ลูปไปเมื่อสองวันก่อน แล้วไม่กลับมาอีกเลย','หารอยของเขา รอยเท้าก่อน แล้วก็ของที่เขาทิ้งไว้ ตามไปจนเจอตัว'],
-    wait:'Follow Bram\'s trail into the Whispering Woods.',waitTh:'ตามรอยแบรมเข้าไปในป่ากระซิบ',
+    obj:[{spot:'tr1',zone:'heights',dx:2,dy:-6,art:'tracks',act:'track',seq:1,text:'Follow the footprints',th:'ตามรอยเท้า',say:'Boot prints, heading deeper into the trees.',sayTh:'รอยรองเท้า มุ่งลึกเข้าไปในป่า'},
+      {spot:'tr2',zone:'heights',dx:8,dy:-11,art:'arrow',act:'track',seq:2,text:'Look at what he dropped',th:'ดูสิ่งที่เขาทำตกไว้',say:'A broken arrow with Bram\'s green fletching.',sayTh:'ลูกธนูหัก ขนหางสีเขียวของแบรม'},
+      {spot:'tr3',zone:'heights',dx:3,dy:-16,art:'cloth',act:'track',seq:3,text:'Check the thorn bush',th:'ตรวจดูพุ่มหนาม',say:'A strip of green cloak caught on a thorn. He went this way in a hurry.',sayTh:'เศษผ้าคลุมสีเขียวติดอยู่บนหนาม เขารีบไปทางนี้'},
+      {spot:'bram',zone:'heights',dx:10,dy:-21,art:'person',col:'#3f7a4c',hair:'#6b4a2a',act:'track',seq:4,text:'Find Bram',th:'ตามหาแบรม',say:'Bram! Hurt, but alive. "The rams chased me up a rock. Tell Ysolde I\'m fine… mostly."',sayTh:'แบรม! บาดเจ็บแต่ยังมีชีวิต "พวกแกะเขาไล่ข้าขึ้นไปบนหิน บอกอิโซลด์ว่าข้าสบายดี… ก็ประมาณนั้น"'}],
+    offer:['My partner Bram went hunting up on Windwhistle Heights two days ago. He hasn\'t come back.','Go out the north gate and find his trail. Footprints first, then whatever he left behind. Follow it to him.'],
+    offerTh:['แบรม คู่หูของข้า ขึ้นไปล่าบนเนินวินด์วิสเซิลเมื่อสองวันก่อน แล้วไม่กลับมาอีกเลย','ออกประตูเหนือไปหารอยของเขา รอยเท้าก่อน แล้วก็ของที่เขาทิ้งไว้ ตามไปจนเจอตัว'],
+    wait:'Follow Bram\'s trail up Windwhistle Heights (north gate).',waitTh:'ตามรอยแบรมขึ้นไปบนเนินวินด์วิสเซิล (ประตูเหนือ)',
     done:['You found him? Alive? Thank the forest.','You read that trail like you\'d been doing it for years.'],
     doneTh:['เจ้าเจอเขา? ยังมีชีวิต? ขอบคุณผืนป่า','เจ้าอ่านรอยนั่นได้ราวกับทำมาหลายปี']},
   rs3:{job:'ranger',name:'Thin the Pack',th:'ลดจำนวนฝูง',from:'ysolde',to:'ysolde',lv:1,after:'rs2',reward:R3,grant:'ranger',
-    obj:[{kill:'greylupe',n:5},
-      {duel:'stump',zone:'woods',near:'ysolde',dx:2,dy:1,art:'stump',hits:3,text:'Hit the target stump',th:'ยิงตอไม้เป้า',name:'Aim true',nameTh:'เล็งให้แม่น',win:'Three shots, three hits. Ysolde whistles.',winTh:'สามดอก โดนสามดอก อิโซลด์ผิวปาก'}],
-    offer:['The Lupes are still circling Bram\'s camp. Thin the pack so he can walk home.','Then show me your aim on the target stump.'],
-    offerTh:['พวกลูปยังวนอยู่รอบแคมป์ของแบรม ลดจำนวนฝูงลงหน่อย เขาจะได้เดินกลับบ้านได้','แล้วโชว์ฝีมือการเล็งให้ข้าดูที่ตอไม้เป้า'],
-    wait:'Defeat 5 Grey Lupes, then hit the target stump next to Ysolde.',waitTh:'ปราบเกรย์ลูป 5 ตัว แล้วยิงตอไม้เป้าข้างอิโซลด์',
+    obj:[{kill:'ridgeram',n:5},
+      {duel:'stump',zone:'heights',near:'alda',dx:2,dy:1,art:'stump',hits:3,text:'Hit the target stump',th:'ยิงตอไม้เป้า',name:'Aim true',nameTh:'เล็งให้แม่น',win:'Three shots, three hits. Ysolde whistles.',winTh:'สามดอก โดนสามดอก อิโซลด์ผิวปาก'}],
+    offer:['The Ridge Rams are still circling Bram on the heights. Thin the herd so he can walk home.','Then show me your aim: Alda keeps a target stump by her camp.'],
+    offerTh:['พวกแกะเขายังวนอยู่รอบแบรมบนเนิน ลดจำนวนฝูงลงหน่อย เขาจะได้เดินกลับบ้านได้','แล้วโชว์ฝีมือการเล็งให้ข้าดู อัลดามีตอไม้เป้าอยู่ข้างแคมป์'],
+    wait:'Defeat 5 Ridge Rams, then hit the target stump at Alda\'s camp on Windwhistle Heights.',waitTh:'ปราบริดจ์แรม 5 ตัว แล้วยิงตอไม้เป้าที่แคมป์ของอัลดาบนเนินวินด์วิสเซิล',
     done:['Bram\'s home, and you can shoot. That\'s all I ask of a Ranger.','The woods are yours to walk now. Quietly.'],
     doneTh:['แบรมกลับบ้านแล้ว และเจ้าก็ยิงเป็น นั่นคือทั้งหมดที่ข้าขอจากเรนเจอร์','ป่าเป็นของเจ้าแล้ว เดินให้เงียบล่ะ']},
   // ---------------- Cleric ----------------
@@ -110,21 +120,21 @@ const JOB_STORY={
     wait:'Sister Maren is at the chapel in Hearthvale.',waitTh:'ซิสเตอร์มาเรนอยู่ที่โบสถ์ในเฮิร์ธเวล',
     done:['Corvin is always sending me the stubborn ones.','Bless you for coming. We have work today.'],
     doneTh:['คอร์วินส่งแต่คนดื้อมาให้ข้าเสมอ','ขอพรให้เจ้าที่มา วันนี้เรามีงานต้องทำ']},
-  cs2:{job:'cleric',name:'Wounded in the Meadow',th:'ผู้บาดเจ็บในทุ่ง',from:'maren',to:'maren',lv:1,after:'cs1',reward:R2,
-    obj:[{spot:'farm1',zone:'meadow',dx:4,dy:-2,art:'hurt',col:'#a0703a',hair:'#3b2b20',act:'heal',text:'Tend the farmer by the path',th:'ดูแลชาวไร่ข้างทาง',say:'You bind the cut. "Thank you… it already hurts less."',sayTh:'คุณพันแผลให้ "ขอบคุณ… เจ็บน้อยลงแล้ว"'},
-      {spot:'farm2',zone:'meadow',dx:10,dy:-6,art:'hurt',col:'#6a8a4a',hair:'#c8783a',act:'heal',text:'Tend the farmer by the trees',th:'ดูแลชาวไร่ข้างต้นไม้',say:'You set the sprained ankle. She can stand again.',sayTh:'คุณจัดข้อเท้าที่แพลงให้ นางยืนได้อีกครั้ง'},
-      {spot:'farm3',zone:'meadow',dx:8,dy:6,art:'hurt',col:'#8a6a9a',hair:'#e8e4dc',act:'heal',text:'Tend the old farmer',th:'ดูแลชาวไร่ชรา',say:'You calm his breathing. "Bless you, child."',sayTh:'คุณช่วยให้เขาหายใจสงบลง "ขอพรให้เจ้า ลูกเอ๋ย"'}],
-    offer:['A Hopper stampede tore through the farms this morning. Three farmers are hurt in Greenmoss Meadow.','Go to them. You don\'t need a prayer yet, just a steady hand and a little of your strength.'],
-    offerTh:['ฮอปเปอร์แตกฝูงพังไร่เมื่อเช้า ชาวไร่สามคนบาดเจ็บในทุ่งกรีนมอส','ไปหาพวกเขา ยังไม่ต้องสวดหรอก แค่มือที่มั่นคงกับพลังของเจ้าสักหน่อย'],
-    wait:'Tend the three wounded farmers in Greenmoss Meadow (8 SP each).',waitTh:'ดูแลชาวไร่บาดเจ็บสามคนในทุ่งกรีนมอส (คนละ 8 SP)',
+  cs2:{job:'cleric',name:'Wounded in the Fields',th:'ผู้บาดเจ็บในไร่',from:'maren',to:'maren',lv:1,after:'cs1',reward:R2,
+    obj:[{spot:'farm1',zone:'farms',dx:6,dy:6,art:'hurt',col:'#a0703a',hair:'#3b2b20',act:'heal',text:'Tend the farmer by the path',th:'ดูแลชาวไร่ข้างทาง',say:'You bind the cut. "Thank you… it already hurts less."',sayTh:'คุณพันแผลให้ "ขอบคุณ… เจ็บน้อยลงแล้ว"'},
+      {spot:'farm2',zone:'farms',dx:11,dy:10,art:'hurt',col:'#6a8a4a',hair:'#c8783a',act:'heal',text:'Tend the farmer by the trees',th:'ดูแลชาวไร่ข้างต้นไม้',say:'You set the sprained ankle. She can stand again.',sayTh:'คุณจัดข้อเท้าที่แพลงให้ นางยืนได้อีกครั้ง'},
+      {spot:'farm3',zone:'farms',dx:3,dy:12,art:'hurt',col:'#8a6a9a',hair:'#e8e4dc',act:'heal',text:'Tend the old farmer',th:'ดูแลชาวไร่ชรา',say:'You calm his breathing. "Bless you, child."',sayTh:'คุณช่วยให้เขาหายใจสงบลง "ขอพรให้เจ้า ลูกเอ๋ย"'}],
+    offer:['Field monsters tore through Willowmere Farms this morning, out the south gate. Three farmers are hurt.','Go to them. You don\'t need a prayer yet, just a steady hand and a little of your strength.'],
+    offerTh:['เมื่อเช้ามอนสเตอร์บุกพังไร่วิลโลว์เมียร์ ออกประตูใต้ไป ชาวไร่บาดเจ็บสามคน','ไปหาพวกเขา ยังไม่ต้องสวดหรอก แค่มือที่มั่นคงกับพลังของเจ้าสักหน่อย'],
+    wait:'Tend the three wounded farmers at Willowmere Farms, south gate (8 SP each).',waitTh:'ดูแลชาวไร่บาดเจ็บสามคนที่ไร่วิลโลว์เมียร์ ประตูใต้ (คนละ 8 SP)',
     done:['All three are home and resting. They asked your name.','Kindness is the first prayer. Now the second.'],
     doneTh:['ทั้งสามกลับบ้านไปพักแล้ว พวกเขาถามชื่อเจ้าด้วย','ความเมตตาคือคำภาวนาแรก ทีนี้คำภาวนาที่สอง']},
   cs3:{job:'cleric',name:'The Weeping Spirit',th:'วิญญาณผู้ร่ำไห้',from:'maren',to:'maren',lv:1,after:'cs2',reward:R3,grant:'cleric',
-    obj:[{duel:'spirit',zone:'meadow',dx:-2,dy:9,art:'spirit',hits:3,text:'Pray with the weeping spirit',th:'ภาวนากับวิญญาณผู้ร่ำไห้',name:'Steady prayer',nameTh:'ภาวนาอย่างมั่นคง',
+    obj:[{duel:'spirit',zone:'farms',near:'odo',dx:3,dy:2,art:'spirit',hits:3,text:'Pray with the weeping spirit',th:'ภาวนากับวิญญาณผู้ร่ำไห้',name:'Steady prayer',nameTh:'ภาวนาอย่างมั่นคง',
       win:'The spirit stops weeping, smiles, and fades into soft light.',winTh:'วิญญาณหยุดร้องไห้ ยิ้ม แล้วจางหายเป็นแสงนวล'}],
-    offer:['In Greenmoss Meadow a spirit weeps every night. It isn\'t evil, only lost.','Pray with it. Keep your prayer steady and it will find its way.'],
-    offerTh:['ในทุ่งกรีนมอสมีวิญญาณร้องไห้ทุกคืน มันไม่ได้ชั่วร้าย แค่หลงทาง','ภาวนาไปพร้อมกับมัน ภาวนาให้มั่นคงแล้วมันจะหาทางไปเจอ'],
-    wait:'Pray with the weeping spirit in Greenmoss Meadow.',waitTh:'ภาวนากับวิญญาณผู้ร่ำไห้ในทุ่งกรีนมอส',
+    offer:['Down by the river at Willowmere, near Odo\'s ferry, a spirit weeps every night. It isn\'t evil, only lost.','Pray with it. Keep your prayer steady and it will find its way.'],
+    offerTh:['ริมแม่น้ำที่วิลโลว์เมียร์ ใกล้ท่าเรือของโอโด มีวิญญาณร้องไห้ทุกคืน มันไม่ได้ชั่วร้าย แค่หลงทาง','ภาวนาไปพร้อมกับมัน ภาวนาให้มั่นคงแล้วมันจะหาทางไปเจอ'],
+    wait:'Pray with the weeping spirit by Odo\'s ferry at Willowmere Farms.',waitTh:'ภาวนากับวิญญาณผู้ร่ำไห้ข้างท่าเรือของโอโดที่ไร่วิลโลว์เมียร์',
     done:['I felt it pass. It\'s at peace, thanks to you.','Rise, Cleric of Hearthvale. May your light never go out.'],
     doneTh:['ข้ารู้สึกได้ว่ามันจากไปแล้ว มันสงบแล้ว เพราะเจ้า','จงลุกขึ้น นักบวชแห่งเฮิร์ธเวล ขอให้แสงของเจ้าไม่มีวันดับ']},
   // ---------------- Shade ----------------
@@ -136,22 +146,22 @@ const JOB_STORY={
     doneTh:['สามคืน ของหายสามอย่าง! แหวนเงิน ถุงเหรียญ แล้วก็ยาทั้งลัง!','ไม่มีใครเห็นอะไรเลย ช่วยถามไถ่ให้หน่อยได้ไหม?']},
   ss2:{job:'shade',name:'Asking Around',th:'สืบถาม',from:'ilsa',to:'ilsa',lv:1,after:'ss1',reward:R2,
     obj:[{talk:'brannoc',text:'Ask Brannoc the Smith',th:'ถามแบรนน็อค ช่างตีเหล็ก',line:'A shadow went over the smithy roof last night. Fast. A grey scarf, I think.',lineTh:'เมื่อคืนมีเงาวิ่งผ่านหลังคาโรงตีเหล็ก เร็วมาก ผ้าพันคอสีเทา ข้าว่านะ'},
-      {talk:'wenna',text:'Ask Wenna the Keeper',th:'ถามเวนนา ผู้ดูแลคลัง',line:'Someone tried my back door, love. Left muddy prints going east.',lineTh:'มีคนพยายามงัดประตูหลังของข้า ทิ้งรอยเท้าเปื้อนโคลนไว้ ไปทางตะวันออก'},
-      {talk:'tobin',text:'Ask Tobin the Wayfarer',th:'ถามโทบิน นักเดินทาง',line:'I saw a campfire in the meadow, past the farms. Nobody camps out there.',lineTh:'ข้าเห็นกองไฟในทุ่ง เลยไร่ออกไป ไม่มีใครตั้งแคมป์ตรงนั้นหรอก'},
-      {spot:'prints',zone:'town',near:'gate:meadow',dx:-2,dy:1,art:'tracks',text:'Look at the muddy prints by the east gate',th:'ดูรอยเท้าเปื้อนโคลนข้างประตูตะวันออก',say:'Small, light steps. Whoever it is barely touches the ground.',sayTh:'ก้าวเล็ก ๆ เบา ๆ ใครก็ตามแทบไม่แตะพื้นเลย'}],
-    offer:['Ask Brannoc, Wenna and Tobin. They keep late hours.','And look around the east gate. Somebody must have left something behind.'],
-    offerTh:['ไปถามแบรนน็อค เวนนา กับโทบิน พวกเขานอนดึก','แล้วดูรอบ ๆ ประตูตะวันออกด้วย ต้องมีใครทิ้งร่องรอยไว้บ้าง'],
-    wait:'Ask Brannoc, Wenna and Tobin, and look by the east gate.',waitTh:'ถามแบรนน็อค เวนนา และโทบิน แล้วดูแถวประตูตะวันออก',
-    done:['A grey scarf, light feet, a camp in the meadow… You did better than the town guard has all week.','Be careful out there.'],
-    doneTh:['ผ้าพันคอสีเทา ฝีเท้าเบา แคมป์ในทุ่ง… เจ้าทำได้ดีกว่ายามทั้งสัปดาห์อีก','ระวังตัวด้วยนะ']},
+      {talk:'wenna',text:'Ask Wenna the Keeper',th:'ถามเวนนา ผู้ดูแลคลัง',line:'Someone tried my back door, love. Left muddy prints going to the south gate.',lineTh:'มีคนพยายามงัดประตูหลังของข้า ทิ้งรอยเท้าเปื้อนโคลนไว้ ไปทางประตูใต้'},
+      {talk:'odo',text:'Ask Odo the Ferryman',th:'ถามโอโด คนแจวเรือ',line:'I rowed someone across last night. Grey scarf, paid in silver… a silver ring, come to think of it.',lineTh:'เมื่อคืนข้าพายเรือส่งคนข้ามไป ผ้าพันคอสีเทา จ่ายเป็นเงิน… เป็นแหวนเงินด้วยสิ ถ้าคิดดูดี ๆ'},
+      {spot:'prints',zone:'town',near:'gate:farms',dx:2,dy:-2,art:'tracks',text:'Look at the muddy prints by the south gate',th:'ดูรอยเท้าเปื้อนโคลนข้างประตูใต้',say:'Small, light steps. Whoever it is barely touches the ground.',sayTh:'ก้าวเล็ก ๆ เบา ๆ ใครก็ตามแทบไม่แตะพื้นเลย'}],
+    offer:['Ask Brannoc and Wenna, they keep late hours. And Odo the Ferryman at Willowmere Farms sees everyone who crosses the river.','Look around the south gate too. Somebody must have left something behind.'],
+    offerTh:['ไปถามแบรนน็อคกับเวนนา พวกเขานอนดึก แล้วโอโด คนแจวเรือที่ไร่วิลโลว์เมียร์ เห็นทุกคนที่ข้ามแม่น้ำ','ดูรอบ ๆ ประตูใต้ด้วย ต้องมีใครทิ้งร่องรอยไว้บ้าง'],
+    wait:'Ask Brannoc, Wenna and Odo the Ferryman (Willowmere Farms), and look by the south gate.',waitTh:'ถามแบรนน็อค เวนนา และโอโด คนแจวเรือ (ไร่วิลโลว์เมียร์) แล้วดูแถวประตูใต้',
+    done:['A grey scarf, light feet, a boat across the river… You did better than the town guard has all week.','Be careful out there.'],
+    doneTh:['ผ้าพันคอสีเทา ฝีเท้าเบา เรือข้ามแม่น้ำ… เจ้าทำได้ดีกว่ายามทั้งสัปดาห์อีก','ระวังตัวด้วยนะ']},
   ss3:{job:'shade',name:'The Quickhand',th:'มือไวแห่งเงา',from:'ilsa',to:'nyx',lv:1,after:'ss2',reward:R3,grant:'shade',
-    obj:[{spot:'camp',zone:'meadow',dx:14,dy:-8,art:'camp',seq:1,act:'track',text:'Find the hidden camp in the meadow',th:'หาแคมป์ลับในทุ่ง',
+    obj:[{spot:'camp',zone:'farms',dx:12,dy:24,art:'camp',seq:1,act:'track',text:'Find the hidden camp across the river',th:'หาแคมป์ลับฝั่งตรงข้ามแม่น้ำ',
         say:'A cold camp under the trees. The stolen goods are here, and so is someone in a grey scarf.',sayTh:'แคมป์ไร้ไฟใต้ต้นไม้ ของที่ถูกขโมยอยู่ที่นี่ และมีใครบางคนพันผ้าพันคอสีเทาอยู่ด้วย'},
-      {duel:'vesk',zone:'meadow',dx:15,dy:-6,art:'thief',seq:2,hits:3,text:'Outfight Vesk the Quickhand',th:'เอาชนะเวสก์ จอมมือไว',name:'Duel: Vesk the Quickhand',nameTh:'ดวล: เวสก์ จอมมือไว',
+      {duel:'vesk',zone:'farms',dx:14,dy:26,art:'thief',seq:2,hits:3,text:'Outfight Vesk the Quickhand',th:'เอาชนะเวสก์ จอมมือไว',name:'Duel: Vesk the Quickhand',nameTh:'ดวล: เวสก์ จอมมือไว',
         win:'Vesk drops his blade and laughs. "Faster than me. Go and see Nyx in town. Tell her Vesk lost."',winTh:'เวสก์ทิ้งมีดแล้วหัวเราะ "เร็วกว่าข้าอีก ไปหานิกซ์ในเมืองซะ บอกนางว่าเวสก์แพ้"'}],
-    offer:['If the thief is camping in Greenmoss Meadow, that\'s where my things are.','Bring them back… and if you can, find out who they are.'],
-    offerTh:['ถ้าโจรตั้งแคมป์อยู่ในทุ่งกรีนมอส ของของข้าก็อยู่ที่นั่น','เอาของคืนมา… แล้วถ้าทำได้ ก็หาให้รู้ว่าเป็นใคร'],
-    wait:'Find the thief\'s camp in Greenmoss Meadow, then speak to Nyx of the Veil in Hearthvale.',waitTh:'หาแคมป์ของโจรในทุ่งกรีนมอส แล้วไปคุยกับนิกซ์แห่งม่านเงาในเฮิร์ธเวล',
+    offer:['If the thief crossed the river at Willowmere, that\'s where my things are.','Bring them back… and if you can, find out who they are.'],
+    offerTh:['ถ้าโจรข้ามแม่น้ำที่วิลโลว์เมียร์ ของของข้าก็อยู่ที่นั่น','เอาของคืนมา… แล้วถ้าทำได้ ก็หาให้รู้ว่าเป็นใคร'],
+    wait:'Find the thief\'s camp across the river at Willowmere Farms, then speak to Nyx of the Veil in Hearthvale.',waitTh:'หาแคมป์ของโจรฝั่งตรงข้ามแม่น้ำที่ไร่วิลโลว์เมียร์ แล้วไปคุยกับนิกซ์แห่งม่านเงาในเฮิร์ธเวล',
     done:['So Vesk lost. To a Novice. He\'ll never live that down.','He was testing the town, and you passed a test he didn\'t know he was giving.','The Veiled Guild walks where the light doesn\'t. Welcome, Shade.'],
     doneTh:['เวสก์แพ้งั้นรึ ให้โนวิส เขาคงไม่มีวันลืมเรื่องนี้','เขากำลังทดสอบเมืองนี้ และเจ้าก็ผ่านบททดสอบที่เขาไม่รู้ตัวว่ากำลังให้','สมาคมม่านเงาเดินในที่ที่แสงส่องไม่ถึง ยินดีต้อนรับ เชด']}};
 // into the quest list (in Thai the lines and names are swapped now; the objective texts are picked when shown)

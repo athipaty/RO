@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='1.16.0';
+const VERSION='1.17.0';
 // chance that a normal monster drops its sigil (card); bosses set their own sigChance
 const SIG_CHANCE=.01;
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
@@ -254,3 +254,49 @@ const jobMax=c=>c==='novice'?10:50;
 const JOB_FIRST=['warden','arcanist','ranger','cleric','shade'];
 const statCost=v=>Math.floor((v-1)/10)+2;
 
+
+/* ================= two more regions next to Hearthvale (v1.17.0) =================
+   North gate: Windwhistle Heights (Lv 5-15), windy rocky hills, old standing stones and a shepherd's camp.
+   South gate: Willowmere Farms (Lv 8-18), fields, a river, scarecrows and a ferry.
+   They sit between Greenmoss Meadow (1-10) and the Whispering Woods (10-20), and the first-job stories
+   (js/jobstory.js) take place there. Kept in data.js so tools/export-world.js hands them to the game server. */
+Object.assign(ZONES,{
+  heights:{name:'Windwhistle Heights',w:60,h:44,theme:'heights',seed:149,density:.07,ponds:1,music:'meadow',lvl:'Lv 5–15',
+    mobs:[['pebblet',12],['gustwisp',9],['ridgeram',9],['screebeetle',7],['hornback',1],['ridgeram',4,'hornback']],links:{south:'town'}},
+  farms:{name:'Willowmere Farms',w:64,h:44,theme:'farms',seed:163,density:.035,ponds:5,music:'meadow',lvl:'Lv 8–18',
+    mobs:[['turnipsprite',12],['mudpuddle',9],['cropweevil',8],['reedsnapper',6],['grandscarecrow',1],['turnipsprite',4,'grandscarecrow']],links:{north:'town'}}});
+ZONES.town.links.north='heights';ZONES.town.links.south='farms';
+ZONE_ORDER.splice(ZONE_ORDER.indexOf('meadow')+1,0,'heights','farms');
+Object.assign(THEMES,{
+  heights:{g:['#7f9a5e','#83a062','#7a955a'],path:'#b8a37a',canopy:['#3f6a3a','#4e7d44'],rock:['#a49c8e','#7e776b'],water:'#5f8fb0'},
+  farms:{g:['#78b052','#7cb556','#73aa4e'],path:'#c9a66a',canopy:['#4a8a38','#5a9e44'],water:'#4a8fc8'}});
+Object.assign(ITEMS,{
+  pebble:{name:'Smooth Pebble',type:'etc',price:14,col:'#a49c8e',g:'•'},
+  wispbreath:{name:'Wisp Breath',type:'etc',price:22,col:'#d8eef0',g:'•'},
+  ramhorn:{name:'Ram Horn',type:'etc',price:34,col:'#e8e0d0',g:'•'},
+  screeshell:{name:'Scree Shell',type:'etc',price:42,col:'#7a7468',g:'•'},
+  turnip:{name:'Plump Turnip',type:'etc',price:20,col:'#e8e0f0',g:'•'},
+  mudclump:{name:'Clump of Mud',type:'etc',price:26,col:'#7a5a3a',g:'•'},
+  weevilhusk:{name:'Weevil Husk',type:'etc',price:40,col:'#a8803a',g:'•'},
+  riverreed:{name:'River Reed',type:'etc',price:48,col:'#4a7a5a',g:'•'},
+  hornbackcrest:{name:'Hornback Crest',type:'accessory',b:{vit:3,str:2,maxhp:150},price:5200,lv:12,slots:1,col:'#cfc4b0',g:'O',desc:'Dropped by Old Hornback. VIT +3 · STR +2 · Max HP +150.'},
+  scarecrowhat:{name:'Scarecrow Hat',type:'head',b:{luk:3,flee:8},price:6400,lv:15,slots:0,col:'#d8b860',g:'^',desc:'Dropped by the Grand Scarecrow. LUK +3 · FLEE +8.'}});
+Object.assign(MOBS,{
+  // Windwhistle Heights
+  pebblet:{name:'Pebblet',lv:6,hp:110,atk:13,def:10,flee:4,exp:34,jexp:26,spd:36,shape:'golem',col:'#a49c8e',size:11,el:'earth',drops:[['pebble',.5],['red',.08]],sig:{kind:'armor',b:{def:3,maxhp:40},txt:'+3 DEF, +40 Max HP'}},
+  gustwisp:{name:'Gust Wisp',lv:8,hp:130,atk:17,def:4,flee:22,exp:46,jexp:35,spd:70,shape:'ghost',col:'#d8eef0',size:11,el:'wind',drops:[['wispbreath',.45],['blue',.03]],sig:{kind:'accessory',b:{agi:1,flee:5},txt:'+1 AGI, +5 FLEE'}},
+  ridgeram:{name:'Ridge Ram',lv:10,hp:230,atk:26,def:12,flee:12,exp:80,jexp:60,spd:70,shape:'beast',col:'#e8e0d0',size:14,drops:[['ramhorn',.45],['red',.1]],sig:{kind:'weapon',b:{atk:10},txt:'+10 ATK'}},
+  screebeetle:{name:'Scree Beetle',lv:12,hp:320,atk:32,def:24,flee:8,exp:115,jexp:85,spd:44,shape:'bug',col:'#7a7468',size:13,el:'earth',drops:[['screeshell',.45],['orange',.05]],sig:{kind:'armor',b:{def:6},txt:'+6 DEF'}},
+  hornback:{name:'Old Hornback',lv:15,hp:4200,atk:92,def:22,flee:22,exp:3000,jexp:2000,spd:62,boss:true,mini:true,calls:true,shape:'beast',col:'#cfc4b0',size:21,respawn:120,sigChance:.15,
+    drops:[['hornbackcrest',.2],['ramhorn',1],['orange',.5],['emberore',.15]],sig:{kind:'accessory',b:{vit:3,str:2},txt:'+3 VIT, +2 STR'}},
+  // Willowmere Farms
+  turnipsprite:{name:'Turnip Sprite',lv:9,hp:160,atk:20,def:6,flee:10,exp:55,jexp:42,spd:50,shape:'leaf',col:'#e8e0f0',size:11,el:'earth',drops:[['turnip',.5],['red',.08]],sig:{kind:'head',b:{maxhp:60},txt:'+60 Max HP'}},
+  mudpuddle:{name:'Mudpuddle',lv:11,hp:260,atk:26,def:8,flee:6,exp:92,jexp:68,spd:36,shape:'blob',col:'#7a5a3a',size:13,el:'water',drops:[['mudclump',.5],['orange',.04]],sig:{kind:'armor',b:{vit:2,maxhp:60},txt:'+2 VIT, +60 Max HP'}},
+  cropweevil:{name:'Crop Weevil',lv:13,hp:340,atk:36,def:18,flee:20,exp:125,jexp:92,spd:62,aggro:true,shape:'bug',col:'#a8803a',size:12,drops:[['weevilhusk',.45],['red',.1]],sig:{kind:'accessory',b:{dex:2},txt:'+2 DEX'}},
+  reedsnapper:{name:'Reed Snapper',lv:15,hp:450,atk:44,def:20,flee:16,exp:170,jexp:125,spd:58,aggro:true,shape:'beast',col:'#4a7a5a',size:14,el:'water',drops:[['riverreed',.45],['orange',.06]],sig:{kind:'weapon',b:{atk:12,dex:1},txt:'+12 ATK, +1 DEX'}},
+  grandscarecrow:{name:'Grand Scarecrow',lv:18,hp:6000,atk:115,def:28,flee:30,exp:5000,jexp:3400,spd:55,aggro:true,boss:true,mini:true,calls:true,shape:'golem',col:'#d8b860',size:22,respawn:120,sigChance:.12,
+    drops:[['scarecrowhat',.2],['weevilhusk',1],['orange',.6],['emberore',.2]],sig:{kind:'weapon',b:{atk:15,luk:2},txt:'+15 ATK, +2 LUK'}}});
+// the same setup every other monster had above: id, hit, its sigil; the Gust Wisp blinks and Ridge Rams call their herd
+MOBS.gustwisp.skill='blink';MOBS.ridgeram.pack=true;
+for(const id of ['pebblet','gustwisp','ridgeram','screebeetle','hornback','turnipsprite','mudpuddle','cropweevil','reedsnapper','grandscarecrow']){const m=MOBS[id];m.id=id;m.hit=m.lv*2+12;
+  ITEMS[id+'_sig']={name:m.name+' Sigil',type:'sigil',kind:m.sig.kind,b:m.sig.b,price:m.boss?20000:600,col:'#ffcf5a',g:'✦',desc:`Socket into ${/^[aeiou]/.test(m.sig.kind)?'an':'a'} ${m.sig.kind}: ${m.sig.txt}.`};}

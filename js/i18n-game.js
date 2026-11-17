@@ -171,7 +171,7 @@ const thStats=s=>Object.entries(typeof TH_BONUS!=='undefined'?TH_BONUS:{}).reduc
 function thItemDesc(id,en){if(typeof en!=='string')return en;if(ITEM_TH[id])return ITEM_TH[id];let m;
   if(m=en.match(/^Restores (\d+) (HP|SP)\.$/))return `ฟื้นฟู ${m[1]} ${m[2]}`;
   if(m=en.match(/^Socket into an? (\w+): (.+)$/))return `ใส่ในช่องของ${SLOT_TH[m[1]]||m[1]}: ${thStats(m[2])}`;
-  if(m=en.match(/^Dropped by the (.+?)\. (.+)$/))return `ดรอปจาก ${m[1]} · ${thStats(m[2])}`;
+  if(m=en.match(/^Dropped by (?:the )?(.+?)\. (.+)$/))return `ดรอปจาก ${m[1]} · ${thStats(m[2])}`;
   if(m=en.match(/^MVP prize from the (.+?)\. (.+)$/))return `รางวัล MVP จาก ${m[1]} · ${thStats(m[2])}`;
   if(m=en.match(/^For (\d+) minutes: (.+)$/))return `${m[1]} นาที: ${thStats(m[2])}`;
   if(m=en.match(/^\+(\d+)% damage to (.+?) · (.+)$/))return `ความเสียหายต่อ${RACE_TH[m[2]]||m[2]} +${m[1]}% · ${thStats(m[3])}`;

@@ -229,7 +229,7 @@ function enterZone(id,from){
   mobs.forEach((m,i)=>m.idx=i);NET.srv=null;NET.zt=Date.now();NET.evs=[];NET.hits=[];NET.evSeen.clear();NET.wasClient=false;NET.lastSent='';NET.sendT=0;
   {const b=mobs.find(m=>m.d.boss);if(b)addLog(b.d.id==='warlord'?'The ground smoulders. The Ashen Warlord stirs somewhere in this crypt.':b.d.mini?`The ${b.d.name} and its pack roam this region.`:`Something stirs on this floor. The ${b.d.name} is here.`,'l-rare');}
   let pos=Z.spawn;
-  if(from){const pt=Z.portals.find(p=>p.to===from);if(pt)pos=pt.side==='down'?{x:pt.x,y:pt.y-2.4*TILE}:{x:pt.x+(pt.side==='west'?2.6:-2.6)*TILE,y:pt.y};}
+  if(from){const pt=Z.portals.find(p=>p.to===from);if(pt)pos=pt.side==='down'?{x:pt.x,y:pt.y-2.4*TILE}:pt.side==='north'?{x:pt.x,y:pt.y+2.6*TILE}:pt.side==='south'?{x:pt.x,y:pt.y-2.6*TILE}:{x:pt.x+(pt.side==='west'?2.6:-2.6)*TILE,y:pt.y};}
   P.casting=null;P.meleeHit=null;P.x=pos.x;P.y=pos.y;P.path=[];P.target=null;P.queued=null;P.npcGoal=null;P.portalLock=now+.6;
   if(!P.visited.includes(id))P.visited.push(id);
   if(from)sfx('portal');musicPlay(Z.D.music||id);

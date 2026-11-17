@@ -21,7 +21,7 @@ function getZone(id){
   const D=ZONES[id], W=D.w, H=D.h, r=seeded(D.seed||7), t=new Uint8Array(W*H);
   const set=(x,y,v)=>{if(x>=0&&y>=0&&x<W&&y<H)t[y*W+x]=v;};
   const get=(x,y)=>(x<0||y<0||x>=W||y>=H)?2:t[y*W+x];
-  const obst=(D.theme==='dunes'||D.theme==='crypt'||D.theme==='cave'||D.theme==='arena'||D.theme==='keep')?4:2;
+  const obst=(D.theme==='dunes'||D.theme==='crypt'||D.theme==='cave'||D.theme==='arena'||D.theme==='keep'||D.theme==='heights')?4:2;
   const zone={id,D,w:W,h:H,t,portals:[],npcs:[],buildings:[],spawn:null};
   for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(x===0||y===0||x===W-1||y===H-1)set(x,y,obst);
   if(D.theme==='town'&&id==='capital'){
@@ -64,6 +64,11 @@ function getZone(id){
     // #32 the west gate leads to the capital, Aurelmark
     for(let y=13;y<=16;y++)for(let x=0;x<5;x++)set(x,y,1);
     zone.portals.push({x:1.5*TILE,y:15*TILE,to:'capital',side:'west'});
+    // v1.17.0 the north gate leads to Windwhistle Heights, the south gate to Willowmere Farms
+    for(let y=0;y<=11;y++)for(let x=21;x<=23;x++)set(x,y,1);
+    zone.portals.push({x:22.5*TILE,y:1.5*TILE,to:'heights',side:'north'});
+    for(let y=17;y<H;y++)for(let x=21;x<=23;x++)set(x,y,1);
+    zone.portals.push({x:22.5*TILE,y:(H-1.5)*TILE,to:'farms',side:'south'});
     // Stage 6: the Arena Master by the fountain sends players to the Ember Arena
     zone.npcs.push({name:'Arena Master Vexa',role:'arena',col:'#a8323a',hair:'#1c1c1c',x:24.5*TILE,y:14.5*TILE});
     zone.npcs.push({name:'Lune the Stylist',role:'stylist',col:'#d86a9a',hair:'#7a4fb0',x:13.5*TILE,y:13.5*TILE});
@@ -107,6 +112,11 @@ function getZone(id){
     if(D.links.east)zone.portals.push({x:(W-1.5)*TILE,y:(ys[W-1]+.5)*TILE,to:D.links.east,side:'east'});
     else for(let k=-1;k<=1;k++)set(W-1,ys[W-1]+k,obst);
     zone.spawn={x:4.5*TILE,y:(ys[4]+.5)*TILE};
+    // v1.17.0 a gate in the south or north edge (the regions next to Hearthvale), joined to the main road
+    for(const side of ['south','north'])if(D.links[side]){const gx=W>>1,road=ys[gx],ey=side==='south'?H-1:0;
+      for(let yy=Math.min(road,ey);yy<=Math.max(road,ey);yy++)for(let k=-1;k<=1;k++)set(gx+k,yy,1);
+      const py=side==='south'?H-1.5:1.5;zone.portals.push({x:(gx+.5)*TILE,y:py*TILE,to:D.links[side],side});
+      if(!D.links.west)zone.spawn={x:(gx+.5)*TILE,y:(py+(side==='south'?-3:3))*TILE};}
     // #34 stairs down to a dungeon: a clearing south of the road, joined to it by a path
     if(D.stairs){const sx=Math.floor(W*.62),road=ys[sx],sy=clamp(road+9,road+4,H-5);
       for(let yy=road;yy<=sy;yy++)for(let k=-1;k<=1;k++)set(sx+k,yy,1);
@@ -152,7 +162,7 @@ function renderZone(z, r){
   // upright objects (drawn per frame in the isometric view, depth-sorted with characters)
   z.objs=[];
   for(const [px,py,kind] of tops){const th2=z.D.theme;let k;
-    if(kind==='rock')k=th2==='crypt'||th2==='arena'||th2==='keep'?'pillar':th2==='cave'?'rock':(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':'tree';
+    if(kind==='rock')k=th2==='crypt'||th2==='arena'||th2==='keep'?'pillar':th2==='cave'?'rock':th2==='heights'?(R()<.35?'crag':'rock'):(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':th2==='farms'&&R()<.3?'hay':'tree';
     z.objs.push({x:px+16,y:py+16,kind:k,v:Math.floor(R()*3),sc:.85+R()*.3});}
   for(const b of z.buildings){mg.fillStyle=b.roof;mg.fillRect(b.x,b.y,b.w,b.h);}
   if(z.D.theme==='town')z.objs.push(z.id==='capital'?{x:28*TILE,y:16*TILE,kind:'fountain',v:0,sc:1.5}:{x:20*TILE,y:14*TILE,kind:'fountain',v:0,sc:1});

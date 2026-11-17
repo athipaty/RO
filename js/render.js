@@ -26,6 +26,16 @@ function sprite(theme,kind,v){const key=theme+kind+v;if(SPR[key])return SPR[key]
     for(let k=0;k<4;k++){const w=26-k*5,ty=ay-14-k*15;g.fillStyle=k%2?'#2a5244':'#2f5a4a';g.beginPath();g.moveTo(ax-w,ty);g.lineTo(ax,ty-24);g.lineTo(ax+w,ty);g.fill();
       g.fillStyle='#f5f9fc';g.beginPath();g.moveTo(ax-w*.6,ty-10);g.lineTo(ax,ty-24);g.lineTo(ax+w*.6,ty-10);g.lineTo(ax+w*.2,ty-12);g.lineTo(ax-w*.2,ty-9);g.fill();}}
   else if(kind==='rock'){g.fillStyle=th.rock[1];g.beginPath();g.ellipse(ax+2,ay-12,22,15,0,0,7);g.fill();g.fillStyle=th.rock[0];g.beginPath();g.ellipse(ax-3,ay-17,17,12,-.2,0,7);g.fill();g.fillStyle='rgba(255,255,255,.15)';g.beginPath();g.ellipse(ax-8,ay-23,6,3,-.3,0,7);g.fill();}
+  else if(kind==='crag'){ // the heights: a tall weathered rock with moss and a tuft of grass
+    g.fillStyle=th.rock[1];g.beginPath();g.moveTo(ax-20,ay-4);g.lineTo(ax-16,ay-40);g.lineTo(ax-4,ay-58);g.lineTo(ax+10,ay-50);g.lineTo(ax+20,ay-22);g.lineTo(ax+18,ay-2);g.closePath();g.fill();
+    g.fillStyle=th.rock[0];g.beginPath();g.moveTo(ax-16,ay-40);g.lineTo(ax-4,ay-58);g.lineTo(ax+2,ay-30);g.lineTo(ax-8,ay-6);g.lineTo(ax-20,ay-4);g.closePath();g.fill();
+    g.strokeStyle='rgba(0,0,0,.25)';g.lineWidth=1.5;g.beginPath();g.moveTo(ax+6,ay-46);g.lineTo(ax+2,ay-30);g.lineTo(ax+8,ay-16);g.stroke();
+    g.fillStyle='#6a8a4a';g.beginPath();g.ellipse(ax-6,ay-55,7,3,-.4,0,7);g.fill();g.fillStyle='#7aa052';for(let k=0;k<5;k++)g.fillRect(ax+10+k*2,ay-8-(k%2)*3,1.6,7);}
+  else if(kind==='hay'){ // the farms: a round haystack, tied with a band
+    g.fillStyle='#c8a046';g.beginPath();g.ellipse(ax,ay-14,22,15,0,0,7);g.fill();g.beginPath();g.ellipse(ax,ay-28,17,15,0,0,7);g.fill();
+    g.fillStyle='#e0bc5a';g.beginPath();g.ellipse(ax-5,ay-32,10,8,0,0,7);g.fill();
+    g.strokeStyle='rgba(120,80,20,.45)';g.lineWidth=1;for(let k=0;k<9;k++){const sx=ax-18+k*4.5;g.beginPath();g.moveTo(sx,ay-4);g.lineTo(sx+(k%2?2:-2),ay-20);g.stroke();}
+    g.fillStyle='#8a5a2a';g.fillRect(ax-20,ay-19,40,3);}
   else if(kind==='cactus'){g.fillStyle='#4f8a46';g.beginPath();g.roundRect(ax-6,ay-52,12,52,6);g.fill();g.beginPath();g.roundRect(ax-20,ay-38,8,20,4);g.roundRect(ax-20,ay-22,16,7,3);g.roundRect(ax+12,ay-44,8,22,4);g.roundRect(ax+5,ay-27,15,7,3);g.fill();
     g.fillStyle='rgba(255,255,255,.18)';g.fillRect(ax-3,ay-48,2,44);if(v===2){g.fillStyle='#f07ca0';g.beginPath();g.arc(ax,ay-54,4,0,7);g.fill();}}
   else if(kind==='pillar'){g.fillStyle=th.rock[0];g.fillRect(ax-15,ay-10,30,10);g.fillStyle=th.rock[1];g.fillRect(ax-11,ay-74,22,66);g.fillStyle=th.rock[0];g.fillRect(ax-11,ay-74,8,66);

@@ -88,3 +88,5 @@ Play online: https://ro-six-bay.vercel.app/ (add `?room=yourname` to the link fo
 
 ## Regions
 Hearthvale (town) → Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45, boss) → Frostpeak Pass (42–55) → Mirelight Fen (55–70, mini-boss)
+
+Hearthvale's north gate leads to Windwhistle Heights (Lv 5–15, mini-boss Old Hornback) and its south gate to Willowmere Farms (Lv 8–18, mini-boss the Grand Scarecrow). The first-job stories take place there.
