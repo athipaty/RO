@@ -56,7 +56,6 @@ PANEL_ACTS.bclaim=arg=>{const b=bState(),x=arg==='w'?b.w:b.d[+arg];if(!x||x.clai
 PANEL_ACTS.bchest=()=>{const b=bState();if(!b||b.chest||(b.pts||0)<10)return;b.chest=1;
   const sigs=Object.values(MOBS).filter(m=>!m.boss&&Math.abs(m.lv-P.lv)<=8&&ITEMS[m.id+'_sig']),R=Math.random;
   const got=[];if(sigs.length&&R()<.6){const m=sigs[Math.floor(R()*sigs.length)];giveItem(m.id+'_sig',1);got.push(ITEMS[m.id+'_sig'].name);}else{giveItem('glintstone',2);giveItem('emberore',2);got.push('Glintstone ×2','Ember Ore ×2');}
-  if(ITEMS.rustykey){giveItem('rustykey',1);got.push('Rusty Key');}
   const gold=P.lv*400;P.gold+=gold;sfx('fanfare');fx.push({k:'lvpillar',x:P.x,y:P.y,t0:now,dur:1.6});addLog(`Weekly chest: ${got.join(', ')} and ${fmt(gold)} gold!`,'l-rare');refreshPanel();save();};
 // in the Guild Hall window, under the hunting contracts
 {const _rpBo=refreshPanel;refreshPanel=function(){const r=_rpBo.apply(this,arguments);try{if(panelKind==='job'&&P&&!panel.querySelector('.bpts'))panel.insertAdjacentHTML('beforeend',bountyHtml());}catch(e){}return r;};}
