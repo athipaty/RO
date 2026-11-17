@@ -69,21 +69,39 @@ const BUILDS=[
   // ---- the newer advanced callings
   {id:'rune',job:'warden',name:'Runeblade',th:'ดาบอักขระ',tag:'STR/INT rune knight',route:['warden','runeguard','runelord'],stats:{str:4,int:3,vit:2},
     desc:'Every blow carries an element; Stormbrand and World Rune grow with INT, so a warrior that studies hits harder.',
-    skills:[['cleave',5],['bladecraft',5],['ironwill',5],['runestrike',10],['runiclore',10],['stormbrand',10],['frostrune',5],['runeward',5],['runemastery',10],['runeburst',10],['worldrune',10],['elementalavatar',5]],
+    skills:[['cleave',5],['bladecraft',5],['ironwill',5],['runestrike',10],['runiclore',10],['stormbrand',10],['frostrune',5],['runeward',5],['runemastery',10],['runeburst',10],['worldrune',10],['elementalavatar',5],['bladecraft',10],['ironwill',10],['stoneblood',5],['whirl',5]],
     gear:['fangblade','arcanecirclet','sageloop'],sigils:['emberimp','frostwisp','cactoid'],awaken:['atkpct','matkpct']},
   {id:'time',job:'arcanist',name:'Timekeeper',th:'ผู้รักษากาลเวลา',tag:'INT/DEX tempo',route:['arcanist','chronomancer','timeweaver'],stats:{int:5,dex:4},
     desc:'Fast casting and double bolts; Haste and Stasis control the fight, Paradox ends it.',
-    skills:[['emberbolt',5],['manaflow',5],['swiftcast',5],['timebolt',10],['temporalflow',10],['echobolt',10],['haste',10],['stasis',5],['eternity',10],['paradox',10],['moments',10],['timestop',5]],
+    skills:[['emberbolt',5],['manaflow',5],['swiftcast',5],['timebolt',10],['temporalflow',10],['echobolt',10],['haste',10],['stasis',5],['eternity',10],['paradox',10],['moments',10],['timestop',5],['swiftcast',10],['emberbolt',10],['mindspike',5],['frostnova',5]],
     gear:['sageloop','arcanecirclet','manaheart'],sigils:['dewdrop','glowworm','iceimp','gloomking'],awaken:['cast','matkpct']},
   {id:'falcon',job:'ranger',name:'Falcon Hunter',th:'นักล่าคู่เหยี่ยว',tag:'DEX/AGI falconer',route:['ranger','falconer','skywarden'],stats:{dex:4,agi:4,luk:1},
     desc:'Your falcon joins your arrows and dives on packs; Falcon Strike and Skyfall grow with AGI.',
-    skills:[['twinshot',5],['owleye',5],['falconstrike',10],['keentalon',10],['raptorstorm',10],['falcondive',10],['eaglecall',5],['apexhunter',10],['skyfall',10],['talonstorm',10],['skydominion',5]],
+    skills:[['twinshot',5],['owleye',5],['falconstrike',10],['keentalon',10],['raptorstorm',10],['falcondive',10],['eaglecall',5],['apexhunter',10],['skyfall',10],['talonstorm',10],['skydominion',5],['fleetstep',10],['owleye',10],['doublenock',5]],
     gear:['galebow','quickgrip','windscarf'],sigils:['hopper','greylupe','cavebat','rimestalker'],awaken:['aspd','critdmg']},
   {id:'monk',job:'cleric',name:'Iron Fist',th:'หมัดเหล็ก',tag:'STR/AGI monk',route:['cleric','ascetic','lotussage'],stats:{str:4,agi:3,vit:2},
     desc:'Fists and chi up close: Palm Strike grows with STR, Flurry with AGI, and Lotus Bloom keeps you standing.',
-    skills:[['mend',3],['macemastery',5],['palmstrike',10],['innercalm',10],['flurry',10],['chiburst',10],['ironbody',5],['stillmind',10],['hundredpalms',10],['heavenfist',10],['lotusbloom',5]],
+    skills:[['mend',3],['macemastery',5],['palmstrike',10],['innercalm',10],['flurry',10],['chiburst',10],['ironbody',5],['stillmind',10],['hundredpalms',10],['heavenfist',10],['lotusbloom',5],['macemastery',10],['holystrike',5],['faith',5],['divineguard',5],['mend',5],['blessing',3]],
     gear:['dawnmace','quickgrip','stonewall'],sigils:['cactoid','cavetroll','hopper','dunetyrant'],awaken:['aspd','atkpct']},
 ];
+/* v1.18.0: an advanced calling's starting skills need first-job skills (CROSS_REQ, js/jobpaths.js). A build learns
+   the ones it does not already take in time, placed as late as they still fit in the first job's skill points, so
+   the build keeps its own flavour early on and the hero can learn the new calling's skills right after the change. */
+const FIRST_JOB_PTS=(typeof JOB2_LV!=='undefined'?JOB2_LV:40)-1;
+function buildLearnTo(map,s,l,first){if(!first.has(s)||(map[s]||0)>=l)return;const r=SKILL_REQ[s]||{};for(const k in r)buildLearnTo(map,k,r[k],first);map[s]=l;}
+const buildPts=map=>Object.values(map).reduce((a,b)=>a+b,0);
+// the first-job skill levels a build has after spending its first n entries (requirements learned on the way)
+function buildFirstLevels(list,n,first){const map={};for(let i=0;i<n;i++)buildLearnTo(map,list[i][0],list[i][1],first);return map;}
+// how far down its list a first job gets with its points
+function buildFirstReach(list,first){let n=0;while(n<list.length){const m=buildFirstLevels(list,n+1,first);if(buildPts(m)>FIRST_JOB_PTS)break;n++;}return n;}
+function pathPlanBuild(b){const base=b.route[0],adv=b.route[1];if(!adv||typeof jobNeeds!=='function'||!CLASSES[base])return;
+  const first=new Set(CLASSES[base].skills),needs=jobNeeds(adv).map(([r,l])=>[r,l]);
+  const meets=map=>needs.every(([r,l])=>(map[r]||0)>=l);
+  if(meets(buildFirstLevels(b.skills,buildFirstReach(b.skills,first),first)))return;
+  for(let i=b.skills.length;i>=0;i--){const map=buildFirstLevels(b.skills,i,first),miss=needs.filter(([r,l])=>(map[r]||0)<l);
+    for(const [r,l] of miss)buildLearnTo(map,r,l,first);
+    if(buildPts(map)<=FIRST_JOB_PTS||i===0){b.skills.splice(i,0,...miss);b.pathAdded=miss.map(([r,l])=>r+' '+l);return;}}}
+BUILDS.forEach(pathPlanBuild);
 const buildById=id=>BUILDS.find(b=>b.id===id);
 const GUIDE={job:null,open:null};
 // your hero dressed as a job (that job's outfit, mantle and a weapon it uses), drawn once per job and look
@@ -120,7 +138,7 @@ PANELS.buildguide=()=>{const mine=P&&P.cls!=='novice'?baseJob(P.cls):null;if(min
   if(!mine)h+=`<div class="tabs itabs" role="tablist">`+JOB_FIRST.map(j=>`<button class="btn small ${GUIDE.job===j?'on':''}" role="tab" aria-selected="${GUIDE.job===j}" data-act="guidejob" data-arg="${j}">${CLASSES[j].name}${mine===j?' ★':''}</button>`).join('')+`</div>`;
   for(const b of buildsVisible().filter(x=>x.job===GUIDE.job)){const on=P.build===b.id,cur=on||mine===b.job;
     const nx=on?buildNextSkill(b):null,ns=on?buildNextStat(b):null,tot=Object.values(b.stats).reduce((a,v)=>a+v,0);
-    h+=`<div class="bgcard${on?' on':''}"><div class="bghead"><div class="grow"><div class="nm">${esc(bName(b))} <span class="muted">· ${esc(b.tag)}</span></div><div class="ds">${esc(b.desc)}</div></div>`+
+    h+=`<div class="bgcard${on?' on':''}"><div class="bghead"><div class="grow"><div class="nm">${esc(bName(b))} <span class="muted">· ${esc(b.tag)}</span></div>${b.route[1]&&typeof jobPaths==='function'?`<div class="jprow">${jobPaths(b.route[1]).map(jpTag).join('<span class="jpplus">+</span>')}</div>`:''}<div class="ds">${esc(b.desc)}</div></div>`+
       (on?`<button class="btn small ghost" data-act="buildpick" data-arg="">Stop following</button>`:buildAllowed(b)?`<button class="btn small" data-act="buildpick" data-arg="${b.id}">Follow this build</button>`:'')+`</div>`;
     const at=b.route.indexOf(P.cls),nextJob=P.cls==='novice'?b.route[0]:at>=0?b.route[at+1]:null,openJob=GUIDE.open&&GUIDE.open[0]===b.id?GUIDE.open[1]:null;
     h+=`<div class="bgroute">`+b.route.map(c=>`<button class="bgjob${P.cls===c?' here':''}${c===nextJob?' next':''}${c===openJob?' open':''}" data-act="guideroute" data-arg="${b.id}:${c}" aria-expanded="${c===openJob}" title="${esc(CLASSES[c].name)}">`+

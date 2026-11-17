@@ -29,6 +29,11 @@ module.exports = async t => {
     const max = Math.max(...Object.values(d.cost));
     t.ok(max <= 20, `opening any advanced calling costs at most 20 of the 39 first-job skill points (most: ${max}; ${Object.entries(d.cost).map(([j, c]) => j + ' ' + c).join(', ')})`);
 
+    const bg = await g.ev(() => BUILDS.filter(b => b.route[1]).map(b => { const first = new Set(CLASSES[b.route[0]].skills);
+      const map = buildFirstLevels(b.skills, buildFirstReach(b.skills, first), first);
+      return { id: b.id, pts: buildPts(map), ok: jobNeeds(b.route[1]).every(([r, l]) => (map[r] || 0) >= l) }; }));
+    t.ok(bg.every(b => b.ok), 'every build guide learns, as a first job and within its points, what its advanced calling needs' + bg.filter(b => !b.ok).map(b => ': ' + b.id).join(''));
+    t.ok(bg.every(b => b.pts >= 30), 'every build guide has a plan for at least 30 of the 39 first-job points' + bg.filter(b => b.pts < 30).map(b => `: ${b.id} ${b.pts}`).join(''));
     const learn = await g.ev(() => {
       P.cls = 'bulwark'; P.skillPts = 20; P.skills = { cleave: 2, ironwill: 1 }; S = computeStats();
       PANEL_ACTS.sksel('shieldbash'); const miss = skillMissing('shieldbash').join(); runAct('learn', 'shieldbash'); const blocked = !P.skills.shieldbash;
