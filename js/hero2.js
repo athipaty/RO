@@ -1,5 +1,5 @@
 "use strict";
-/* ================= hero art v2 (preview: ?hero2=1 turns it on for this device, ?hero2=0 off) =================
+/* ================= hero art v2 (the default since v1.15.0; ?hero2=0 brings back the classic art on this device, ?hero2=1 the new) =================
    Same drawing contract as drawHuman (render.js): (x, y ground, body colour, hair, facing, walk phase, opt) and it
    returns `by`, the belt line that armour, mantles and weapons are placed from. The head keeps the old size and
    place (hy = by-20, radius 12.5) so hats, face and mouth gear and job looks still fit.
@@ -156,8 +156,8 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   return by;
 }
 /* preview switch: loaded right after render.js so job looks (joblooks.js) and other wrappers sit on top of it.
-   ?hero2=1 / ?hero2=0 in the address is remembered on this device; only how this screen draws heroes changes. */
-const HERO2_ON=(()=>{try{const m=/[?&]hero2=([01])/.exec(location.search);if(m)localStorage.setItem('embervale.hero2',m[1]);return localStorage.getItem('embervale.hero2')==='1';}catch(e){return false;}})();
+   On by default (v1.15.0). ?hero2=0 / ?hero2=1 in the address is remembered on this device; only how this screen draws heroes changes. */
+const HERO2_ON=(()=>{try{const m=/[?&]hero2=([01])/.exec(location.search);if(m)localStorage.setItem('embervale.hero2',m[1]);return localStorage.getItem('embervale.hero2')!=='0';}catch(e){return true;}})();
 /* drawHuman becomes a switch between the classic and the new art, so wrappers loaded later (job looks) apply to
    both: the new art is used when the preview is on, or while a big portrait is drawn (HERO2_HI) */
 const drawHumanClassic=drawHuman;

@@ -1,10 +1,10 @@
-// New hero art (js/hero2.js): off by default; ?hero2=1 / localStorage turns it on for this device;
+// New hero art (js/hero2.js): on by default since v1.15.0; ?hero2=0 / localStorage turns it off for this device;
 // a breathing bob, and every calling and hairstyle draws without errors
 const { player, newRoom, wait } = require('./helpers');
 module.exports = async t => {
   const A = await player('Breather', newRoom(), { server: 'http://127.0.0.1:9' });
   try {
-    t.ok(await A.ev(() => typeof drawHuman2 === 'function' && HERO2_ON === false), 'the new art is off by default');
+    t.ok(await A.ev(() => typeof drawHuman2 === 'function' && HERO2_ON === true), 'the new art is on by default');
     await A.ev(() => localStorage.setItem('embervale.hero2', '1')); await A.page.reload(); await wait(1500);
     await A.ev(() => { if (!P) { document.getElementById('nameIn').value = 'Breather'; document.getElementById('newBtn').click(); } }); await wait(2000);
     const r = await A.ev(() => { const out = { bad: [] }; out.on = HERO2_ON === true;
@@ -35,9 +35,12 @@ module.exports = async t => {
     // since v1.14.2 jobs wear nothing on their heads (JL_HEAD false); if it is turned back on, the gear must follow the head
     t.ok(JL_HEAD_ON ? hg.length === 3 && hg.every(([a, b]) => a === b) && new Set(hg.map(h => h[0])).size > 1 : hg.length === 0, (JL_HEAD_ON ? 'job head gear follows the head as the body breathes ' : 'jobs wear nothing on their heads ') + JSON.stringify(hg));
     t.ok(pv.length >= 4 && pv.every(([f, b]) => f === 1 && !b), 'the start screen hero faces you and does not turn around ' + JSON.stringify(pv));
-    t.ok(r.on, 'the preview switch turns the new art on for this device');
+    t.ok(r.on, 'the switch keeps the new art on for this device');
     t.ok(r.breath > .5 && r.breath < 3, `standing heroes breathe (the body moves ${r.breath.toFixed(2)} px)`);
     t.ok(r.bad.length === 0, 'every calling and all eight hairstyles draw without errors ' + r.bad.slice(0, 3).join(' | '));
+    // ?hero2=0 brings back the classic art on this device
+    await A.ev(() => localStorage.setItem('embervale.hero2', '0')); await A.page.reload(); await wait(1200);
+    t.ok(await A.ev(() => HERO2_ON === false && drawHuman !== drawHuman2), '?hero2=0 turns the classic art back on for this device');
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));
   } finally { await A.close(); }
 };

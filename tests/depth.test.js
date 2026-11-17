@@ -47,10 +47,10 @@ module.exports = async t => {
       const needs = /Needs Ember Bolt 3/.test(locked.textContent) && locked.querySelector('button').disabled;
       panel.querySelector('[data-act="learn"][data-arg="frostnova"]').click(); const blocked = !P.skills.frostnova;
       P.skills.emberbolt = 3; refreshPanel(); PANEL_ACTS.sksel('frostnova'); panel.querySelector('[data-act="learn"][data-arg="frostnova"]').click();
-      const tiers = panel.querySelectorAll('.skprow').length; closePanel(); return { needs, blocked, learned: P.skills.frostnova === 1, tiers }; });
+      const L = skillBranchLayout(['emberbolt', 'frostnova', 'arcstorm']), tiers = ['emberbolt', 'frostnova', 'arcstorm'].every((id, i) => L.pos.get(id).row === i) ? L.rows : 0; closePanel(); return { needs, blocked, learned: P.skills.frostnova === 1, tiers }; });
     t.ok(tree.needs && tree.blocked, 'the skill tree locks Frost Nova until Ember Bolt reaches 3');
     t.ok(tree.learned, 'once the requirement is met it can be learned');
-    t.ok(tree.tiers === 3, 'skills are laid out in tiers (3 for the Arcanist)');
+    t.ok(tree.tiers === 3, 'skills are laid out as a branch: Ember Bolt, then Frost Nova under it, then Arc Storm (3 rows)');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };
