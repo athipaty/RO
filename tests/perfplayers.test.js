@@ -21,6 +21,9 @@ module.exports = async t => {
     t.ok(r.on, '8 players on screen switch shared pictures on');
     t.ok(r.pics === 8, 'each player has its own picture (' + r.pics + ')');
     t.ok(r.ratio < .004, `the pictures look the same as drawing the players live (${r.diff} pixels differ, edges only)`);
+    // with the new hero art, 3 players nearby are enough (6 with the classic art)
+    const th = await g.ev(() => ({ min: pcrowdMin(), hero2: HERO2_ON }));
+    t.ok(th.min === (th.hero2 ? 3 : 6), `crowd pictures start at ${th.min} nearby players (${th.hero2 ? 'new' : 'classic'} hero art)`);
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };

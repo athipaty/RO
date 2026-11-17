@@ -1,7 +1,7 @@
 "use strict";
 /* ================= crowds of players stay smooth =================
    Every other player is a full hero drawing (body, hair, outfit, gear, weapon, mount, aura): a few dozen shapes.
-   With 6+ other players on screen (3+ once the battle smoother has stepped down), each player's look is drawn
+   With 6+ other players on screen (3+ with the new hero art, ?hero2=1) (3+ once the battle smoother has stepped down), each player's look is drawn
    into its own small picture 15 times a second and that picture is copied every frame at the player's smooth
    position. Movement stays at full frame rate; only the walk/swing animation steps at 15 a second.
    Each player redraws at its own moment within the 15 Hz step, so the work is spread over frames.
@@ -12,7 +12,9 @@ const PC_SZ={s:[140,132,70,104],b:[200,190,100,146]};
 function pcrowdOn(){if(PCROWD.frame===now)return PCROWD.on;PCROWD.frame=now;
   if(typeof window.__pcrowdForce==='boolean')return PCROWD.on=window.__pcrowdForce;
   let n=0;if(P&&typeof NET!=='undefined')for(const o of NET.others.values())if(o.z===zoneId&&Math.abs(o.rx-P.x)<700&&Math.abs(o.ry-P.y)<600)n++;
-  PCROWD.near=n;return PCROWD.on=n>=6||(typeof BS!=='undefined'&&BS.level>=2&&n>=3);}
+  PCROWD.near=n;return PCROWD.on=n>=pcrowdMin()||(typeof BS!=='undefined'&&BS.level>=2&&n>=3);}
+// with the new hero art (?hero2=1) each hero costs more to draw, so pictures start from 3 players nearby instead of 6
+const pcrowdMin=()=>typeof HERO2_ON!=='undefined'&&HERO2_ON?3:6;
 {const _doPC=drawOther;drawOther=function(o){
   if(!o||!o.peer||!pcrowdOn())return _doPC.apply(this,arguments);
   let e=PCROWD.pics.get(o.peer);const dp=DPR,tick=Math.floor(now*15+(e?e.ph:0)),sz=o.rd||o.ct?'b':'s',[W,H,OX,OY]=PC_SZ[sz];
