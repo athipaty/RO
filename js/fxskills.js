@@ -135,6 +135,7 @@ FXK.halo=(f,a)=>{const al=(a<.2?a/.2:a>.7?(1-a)/.3:1),y=f.y-(f.h||46)-Math.sin(n
 const SKILL_FX2={
   firstaid:l=>{fxF({k:'motes',x:P.x,y:P.y,o:P,col:'#7fd38a',col2:'#ffffff',n:10,r:20,dur:.9});},
   cleave:(l,t)=>{fxF({k:'crescent',x:t.x,y:t.y,ang:.4,r:34,w:13,col:'#e06a5a',dur:.3,h:fxSz(t)});fxF({k:'flare',x:t.x,y:t.y,col:'#ff8a6a',r:36,dur:.3,t0:now+.08,h:fxSz(t)});},
+  stalwart:(l,t)=>{fxF({k:'crescent',x:t.x,y:t.y,ang:-1.2,r:32,w:14,col:'#e8d8a8',dur:.3,h:fxSz(t)});fxF({k:'flare',x:t.x,y:t.y,col:'#c8b48a',r:70,dur:.35,t0:now+.08,h:6});fxF({k:'rune',x:P.x,y:P.y,o:P,col:'#c8b48a',g:'⛊',r:26,dur:.6});},
   whirl:l=>{fxF({k:'vortex',x:P.x,y:P.y,o:P,col:'#ffb070',col2:'#ffffff',r:95,dur:.5});for(let i=0;i<4;i++)fxF({k:'crescent',x:P.x,y:P.y,ang:i*1.57,r:44,col:'#ffd0a0',dur:.3,t0:now+i*.06});},
   ironwill:l=>{fxF({k:'dome',x:P.x,y:P.y,o:P,col:'#b0b8c8',r:30,dur:1.2});fxF({k:'rune',x:P.x,y:P.y,o:P,col:'#d0d8e8',g:'◆',r:30,dur:1});},
   emberbolt:(l,t)=>{fxF({k:'flare',x:t.x,y:t.y,col:'#ff8a3a',r:40,dur:.35,t0:now+.25,h:fxSz(t)});fxF({k:'motes',x:t.x,y:t.y,col:'#ffb060',col2:'#ff5a1a',n:10,r:18,dur:.6,t0:now+.25});},

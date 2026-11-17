@@ -20,14 +20,14 @@ const skpOn=()=>true; // since v1.0.7 desktop uses the icon tree too (lines betw
     left+=`<div class="skpsec">${esc(title)}</div>`;
     // laid out as branches: each starting skill heads a column and the skills it unlocks sit right under it, so
     // lines drop straight down or turn at right angles and never cross (skillBranchLayout)
-    const L=skillBranchLayout(ids.filter(id=>SKILLS[id])),hl=ids.includes(SKP.sel)?skillPathSet(SKP.sel):null; // fade only in the chosen skill's own section
+    const L=skillBranchLayout(ids.filter(id=>SKILLS[id])),hl=(()=>{const ps=skillPathSet(SKP.sel);return ps&&ids.some(i=>ps.has(i))?ps:null;})(); // fade in every section the chosen skill's path goes through
     left+=`<div class="skpgrid" style="--cols:${L.cols};--rows:${L.rows}">`+[...L.pos].map(([id,q])=>{const sk=SKILLS[id],l=P.skills[id]||0,locked=skillMissing(id).length>0;
       return `<button class="skpic${l?' has':''}${locked?' locked':''}${SKP.sel===id?' sel':''}${nx&&nx.id===id?' next':''}${sk.kind==='passive'?' pas':''}${hl&&!hl.has(id)?' dim':''}" style="--c:${q.col};--r:${q.row}" data-act="sksel" data-arg="${id}" aria-label="${esc(sk.name)} level ${l} of ${sk.max}">`+
         `<img src="${skillIconURL(id)}" alt="">${sk.party?'<span class="skpparty">party</span>':''}<span class="skplv">${l}/${sk.max}</span><span class="skpnm">${esc(sk.name)}</span></button>`;}).join('')+`</div>`;}
   const card=skillTiers([SKP.sel]).replace('<div class="ttier">','<div class="ttier skpcard">');
   const sk=SKILLS[SKP.sel],nl=Math.min(sk.max,(P.skills[SKP.sel]||0)+1);
   const more=(P.skills[SKP.sel]||0)<sk.max?`<div class="skpnext"><span class="muted">At Lv ${nl}:</span> ${esc(sk.desc(nl))}</div>`:'';
-  return head+`<div class="skpwrap"><div class="skpleft">${left}</div><div class="skpright">${card}${(P.skills[SKP.sel]||0)?more:''}</div></div>`;};}
+  return head+`<div class="skpwrap"><div class="skpleft">${left}</div><div class="skpright">${card}${typeof skillLeadsHtml==='function'?skillLeadsHtml(SKP.sel):''}${(P.skills[SKP.sel]||0)?more:''}</div></div>`;};}
 PANEL_ACTS.sksel=id=>{if(!SKILLS[id])return;SKP.sel=id;sfx('click');refreshPanel();};
 /* ---- branch layout for one section: {pos: Map(id -> {row, col}), cols, rows} ----
    depth = 1 + the deepest skill it needs (in this section); each skill hangs under its deepest requirement; a

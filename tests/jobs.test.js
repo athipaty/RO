@@ -28,7 +28,7 @@ module.exports = async t => {
     t.ok(pro.cls === 'ravager' && pro.jl === 1 && pro.kept, 'you become a Ravager at Job Lv 1 and keep your Warden skills');
     t.ok(pro.gold === 1000 && pro.bones === 0 && !pro.trial, 'the fee and trial items are taken');
 
-    const tree = await g.ev(() => { P.skillPts = 10; openPanel('skills'); const hs = [...panel.querySelectorAll('.skpsec')].map(h => h.textContent + ' skills'); const lb = id => { PANEL_ACTS.sksel(id); const b = panel.querySelector(`[data-act="learn"][data-arg="${id}"]`); if (!b) throw new Error('no learn for ' + id + ' sel=' + SKP.sel + ' ' + panelKind); return b; };
+    const tree = await g.ev(() => { P.skills.bladecraft = 5; P.skills.sunder = 3; P.skillPts = 10; /* Rending Blow grows from the Blade path (v1.18.0) */ openPanel('skills'); const hs = [...panel.querySelectorAll('.skpsec')].map(h => h.textContent + ' skills'); const lb = id => { PANEL_ACTS.sksel(id); const b = panel.querySelector(`[data-act="learn"][data-arg="${id}"]`); if (!b) throw new Error('no learn for ' + id + ' sel=' + SKP.sel + ' ' + panelKind); return b; };
       const learn = lb('frenzy'); const lockedFrenzy = learn.disabled;
       for (let i = 0; i < 3; i++) lb('rendingblow').click();
       lb('frenzy').click(); closePanel();

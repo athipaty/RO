@@ -65,6 +65,7 @@ Play online: https://ro-six-bay.vercel.app/ (add `?room=yourname` to the link fo
 - **Ambient weather**: fireflies, drifting sand, rising embers, snowfall and petals, different in each region
 - **Auto-hunt**: fights the nearest monster and drinks tonics when HP runs low, which helps on phones
 - **Phone-friendly**: tap to walk, attack and talk, plus big round Attack / Sit / Chat / sound buttons
+- **First-job paths**: every first job has two paths (Warden: Blade or Guard; Arcanist: Elements or Mana; Ranger: Volley or Marksman; Cleric: Battle or Healer). Each advanced calling's starting skills need first-job skills: one calling grows from each path and one mixes both, so plan your first-job skills with the calling you want in mind. The skill card and Guildmaster Corvin show which path a skill is on and what each calling needs. The Warden's Guard path has its own attack, Stalwart Strike.
 
 ## Controls
 | Input | Action |

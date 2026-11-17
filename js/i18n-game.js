@@ -2,6 +2,7 @@
 // Skill descriptions are made from numbers that change with the skill level, so each Thai line is a template:
 // {0}, {1}… are the numbers of the English line, in the order they appear there.
 const SKILL_TH={
+  stalwart:['โจมตีกำแพงโล่','ฟาดแบบกำแพงโล่ {0}% ATK บวก {1}% ต่อ VIT ไม่มีวันพลาด ศัตรูข้างเคียงไม่เกิน {2} ตัวโดนครึ่งหนึ่ง'],
   twinfang:['เขี้ยวคู่','แทงเร็วสองครั้ง ครั้งละ {0}% ATK โอกาสคริติคอลเพิ่ม {1}%'],
   backstab:['แทงข้างหลัง','ลอบไปด้านหลังเป้าหมายแล้วแทง {0}% ATK บวก {1}% ต่อ AGI ไม่มีวันพลาด'],
   smokestep:['ก้าวควัน','หายไปในควัน: {0} วินาที FLEE +{1} และ CRIT +{2}'],

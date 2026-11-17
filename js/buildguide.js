@@ -16,7 +16,7 @@ const BUILDS=[
     gear:['twinfang','fangblade','quickgrip','fourleaf','monocle','windscarf'],sigils:['rimestalker','gravehound','cavebat','greylupe','hopper'],awaken:['aspd','dbl','critdmg']},
   {id:'wall',job:'warden',name:'Iron Wall',th:'กำแพงเหล็ก',tag:'VIT tank',route:['warden','bulwark','aegislord'],stats:{vit:5,str:2,dex:1},
     desc:'Hardly ever falls. Holds bosses for the party; Second Wind, Shield Charge and Retribution grow with VIT.',
-    skills:[['cleave',3],['ironwill',10],['stoneblood',10],['secondwind',10],['whirl',5],['unbreakable',10],['bastion',10],['warcry',5],['shieldcharge',10],['shieldbash',5],['livingfortress',10],['fortress',10],['retribution',10],['titanslam',5]],
+    skills:[['cleave',3],['ironwill',3],['stalwart',5],['ironwill',10],['stoneblood',10],['secondwind',10],['whirl',5],['unbreakable',10],['bastion',10],['warcry',5],['shieldcharge',10],['shieldbash',5],['livingfortress',10],['fortress',10],['retribution',10],['titanslam',5]],
     gear:['stonewall','carapacemail','quickgrip'],sigils:['snowhulk','glacierbeetle','scarab','stonecrab','rimeheart','warlord'],awaken:['dmgred','hppct']},
   // ---- Arcanist
   {id:'nuke',job:'arcanist',name:'Elementalist',th:'จอมธาตุ',tag:'INT nuker',route:['arcanist','stormcaller','tempestsage'],stats:{int:5,dex:3,vit:1},

@@ -138,9 +138,9 @@ function jobHallHtml(c){let h='';const T=TRIALS[P.cls];
   h+=`<div class="say">“${trialDone()?'You did it. Now choose. Like the first time, this is for life.':'Not finished yet. Keep at it.'}” — Corvin</div>`;
   h+=trialRowHtml(`Trial of the ${c.name}`,T,P.trial.have,T.gold);
   if(trialDone()){h+=`<div class="choice">`;for(const id of jobsFrom(P.cls)){const k=CLASSES[id];
-    h+=`<button data-act="promote" data-arg="${id}"><b style="color:${k.acc}">${k.name}</b><small>${k.desc}</small><small>New skills: ${k.own.map(s=>SKILLS[s].name).join(', ')}</small></button>`;}h+=`</div>`;}
+    h+=`<button data-act="promote" data-arg="${id}"><b style="color:${k.acc}">${k.name}</b><small>${k.desc}</small><small>New skills: ${k.own.map(s=>SKILLS[s].name).join(', ')}</small>${typeof jobNeedsHtml==='function'?jobNeedsHtml(id):''}</button>`;}h+=`</div>`;}
   return h;}
-function jobPreview(){return `<div class="ds" style="margin:6px 0 2px">Advanced callings:</div>`+jobsFrom(P.cls).map(id=>`<div class="ds"><b style="color:${CLASSES[id].acc}">${CLASSES[id].name}</b> <span>${CLASSES[id].own.map(s=>SKILLS[s].name).join(', ')}</span></div>`).join('');}
+function jobPreview(){return `<div class="ds" style="margin:6px 0 2px">Advanced callings:</div>`+jobsFrom(P.cls).map(id=>`<div class="ds"><b style="color:${CLASSES[id].acc}">${CLASSES[id].name}</b> <span>${CLASSES[id].own.map(s=>SKILLS[s].name).join(', ')}</span>${typeof jobNeedsHtml==='function'?jobNeedsHtml(id):''}</div>`).join('');}
 PANEL_ACTS.trial=()=>{if(P.trial||!TRIALS[P.cls]||P.jl<JOB2_LV)return;P.trial={have:0};const T=TRIALS[P.cls];
   addLog(`Trial accepted: defeat ${T.need} ${MOBS[T.mob].name} and bring ${T.items} ${ITEMS[T.item].name}.`,'l-good');sfx('click');refreshPanel();save();};
 PANEL_ACTS.promote=arg=>{if(!trialDone()||!JOB2[arg]||JOB2[arg].base!==P.cls)return;const T=TRIALS[P.cls],k=CLASSES[arg];

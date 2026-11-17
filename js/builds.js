@@ -19,6 +19,11 @@ const BUILD_SKILLS={
   lethaledge:{name:'Lethal Edge',max:10,col:'#ffd27a',g:'✧',sp:l=>8+l,cd:1,kind:'target',range:55,
     desc:l=>`A swift strike for ${100+l*20}% ATK plus 1% per AGI that never misses, with ${l*6}% more critical chance.`,
     run:(l,t)=>{fx.push({k:'slash',x:t.x,y:t.y,t0:now,dur:.2});fx.push({k:'slash',x:t.x+6,y:t.y-4,t0:now+.06,dur:.2});dealPhys(t,1+l*.2+S.agi*.01,{sure:true,critPlus:l*6});}},
+  // v1.18.0: the Guard path's own attack, so a tank Warden is not left with Cleave alone
+  stalwart:{name:'Stalwart Strike',max:10,col:'#c8b48a',g:'⛊',sp:l=>9+l,cd:1.5,kind:'target',range:55,
+    desc:l=>`A shield-wall blow for ${120+l*20}% ATK plus 2% per VIT that never misses. Up to 2 foes beside it take half.`,
+    run:(l,t)=>{const k=1.2+l*.2+S.vit*.02;dealPhys(t,k,{sure:true});let n=0;
+      for(const o of mobs){if(n>=2)break;if(o===t||o.dead||o.dying||dist(o,t)>70)continue;dealPhys(o,k/2,{sure:true});n++;}}},
   stoneblood:{name:'Stoneblood',max:10,col:'#a89a88',g:'◆',...PASSIVE(),desc:l=>`+${l*2}% max HP, +${l} DEF and +${l} HP regen per second.`},
   secondwind:{name:'Second Wind',max:10,col:'#8fe0a8',g:'❋',sp:l=>15+l,cd:15,kind:'self',
     desc:l=>`Heal ${4+l}% of max HP plus ${l*2} per VIT, and +${l*3} DEF for 10s.`,
@@ -57,13 +62,13 @@ const BUILD_SKILLS={
   divineguard:{name:'Divine Guard',max:10,col:'#e8e0c8',g:'⛨',...PASSIVE(),desc:l=>`Take ${l*1.5}% less damage and +${l} DEF.`},
 };
 Object.assign(SKILLS,BUILD_SKILLS);
-Object.assign(SKILL_REQ,{duelist:{bladecraft:3},lethaledge:{duelist:3},secondwind:{stoneblood:3},sunder:{bladecraft:5,cleave:3},
+Object.assign(SKILL_REQ,{duelist:{bladecraft:3},lethaledge:{duelist:3},secondwind:{stoneblood:3},stalwart:{ironwill:1},sunder:{bladecraft:5,cleave:3},
   swiftcast:{manaflow:3},arcanefocus:{emberbolt:3},manashield:{manaflow:5},mindspike:{swiftcast:3},
   doublenock:{owleye:3},aimedshot:{huntersluck:3,owleye:3},
   holystrike:{macemastery:3},renew:{faith:3,mend:3},divineguard:{faith:5}});
 SKILL_ELEM.holystrike='holy';
 CAST.aimedshot=.5;
-const BUILD_OF={warden:['bladecraft','duelist','lethaledge','sunder','stoneblood','secondwind'],
+const BUILD_OF={warden:['bladecraft','duelist','lethaledge','sunder','stalwart','stoneblood','secondwind'],
   arcanist:['arcanefocus','manaflow','swiftcast','mindspike','manashield'],
   ranger:['owleye','doublenock','huntersluck','aimedshot','fleetstep'],
   cleric:['macemastery','holystrike','faith','renew','divineguard']};
