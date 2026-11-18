@@ -213,9 +213,11 @@ function netSnap(o,ts,jump){const t=Date.now(),st=ts>0?ts:t; // positions are ke
   else o.off=0;
   const b=o.buf||(o.buf=[]),last=b[b.length-1];
   // fit the playback delay to this connection: time between updates + how late updates arrive + a margin
-  if(ts>0)o.jit=Math.max(t-ts-o.offMin,(o.jit||0)*.97);
+  // how late updates arrive: rises a third of the way toward a late one (one spike no longer sets it), then fades
+  if(ts>0){const late=t-ts-o.offMin,j=o.jit||0;o.jit=late>j?j+(late-j)*.35:j*.97;}
   if(last&&!jump){const gap=st-last.t;if(gap>20&&gap<400)o.int=o.int?o.int+(gap-o.int)*.1:gap;}
-  o.dTarget=clamp((o.int||120)+(o.jit||0)+40,120,600);
+  // since v1.19.2 half an update gap (not a whole one): the rest is bridged by a short guess along their walk (netPos)
+  o.dTarget=clamp((o.int||120)*.5+(o.jit||0)*.8+25,70,500);
   if(jump||!last){b.length=0;b.push({t:st-1,x:o.x,y:o.y});}
   else if(st-last.t>300&&(last.x!==o.x||last.y!==o.y))b.push({t:st-110,x:last.x,y:last.y}); // starting to walk after standing still: ease in
   if(last&&st<=last.t)return;b.push({t:st,x:o.x,y:o.y});if(b.length>20)b.splice(0,b.length-20);}
@@ -224,15 +226,17 @@ function netPos(o){const b=o.buf;if(!b||!b.length)return [o.x,o.y];
   o.bump=(o.bump||0)*.995;
   const want=Math.min(700,(o.dTarget||NET_DELAY)+o.bump);o.delay=o.delay===undefined?want:o.delay+(want-o.delay)*(want>o.delay?.2:.02);
   const rt=Date.now()-(o.off||0)-o.delay;
-  {const l=b[b.length-1],p=b[b.length-2];if(p&&rt>l.t+20&&(l.x!==p.x||l.y!==p.y)&&rt-l.t<600)o.bump=Math.min(400,o.bump+(rt-l.t)*.5);}
+  {const l=b[b.length-1],p=b[b.length-2];const ahead=Math.min(220,(o.int||120)+40);if(p&&rt>l.t+ahead&&(l.x!==p.x||l.y!==p.y)&&rt-l.t<600)o.bump=Math.min(400,o.bump+(rt-l.t-ahead)*.5);}
   if(rt<=b[0].t)return [b[0].x,b[0].y];
   for(let i=b.length-1;i>0;i--){const a=b[i-1],c=b[i];if(rt>=a.t&&rt<=c.t){if(Math.hypot(c.x-a.x,c.y-a.y)>300)return [c.x,c.y];const k=(rt-a.t)/Math.max(1,c.t-a.t);return [a.x+(c.x-a.x)*k,a.y+(c.y-a.y)*k];}}
   const l=b[b.length-1],p=b[b.length-2];
-  if(p&&rt-l.t<80&&l.t-p.t>0&&l.t-p.t<300){const k=(rt-l.t)/(l.t-p.t);return [l.x+(l.x-p.x)*k,l.y+(l.y-p.y)*k];} // a short guess past the newest update
+  // a short guess past the newest update while they walk (up to one update gap), never once they have stopped
+  if(p&&o.moving&&rt-l.t<Math.min(220,(o.int||120)+40)&&l.t-p.t>0&&l.t-p.t<300){const k=(rt-l.t)/(l.t-p.t);return [l.x+(l.x-p.x)*k,l.y+(l.y-p.y)*k];}
   return [l.x,l.y];}
 function netTick(dt){
   for(const o of NET.others.values()){if(o.z!==zoneId)continue;const[nx,ny]=netPos(o),dx=nx-o.rx,dy=ny-o.ry,d=Math.hypot(dx,dy);
-    o.rx=nx;o.ry=ny;
+    // small corrections (a guess that was a little off) glide in over a few frames; big moves land at once
+    if(d<36&&d>0){const k=Math.min(1,dt*22);o.rx+=dx*k;o.ry+=dy*k;}else{o.rx=nx;o.ry=ny;}
     if(o.moving||d>.5)o.walkT+=dt;if(Math.abs(dx-dy)>.3)o.face=sface(dx,dy);}
   if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+(NET.viaBroker?.15:.125);
   if(typeof netFresh==='function'){NET.hits=netFresh(NET.hits);NET.vh=netFresh(NET.vh);NET.evs=netFresh(NET.evs);}
