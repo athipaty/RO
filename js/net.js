@@ -97,6 +97,9 @@ function ingest(p){
   let o=NET.others.get(p.peer);const fresh=!o;
   if(!o){o={peer:p.peer,rx:fin(s.x),ry:fin(s.y),seen:0,bubble:null,walkT:0};NET.others.set(p.peer,o);}
   o.n=clean(s.n,16)||'Traveller';o.cls=CLASSES[s.c]?s.c:'novice';o.z=ZONES[s.z]?s.z:'town';
+  // their walk (v1.19.6): speed, direction and the next points of a tapped path, so we can show where they are now
+  o.mvNew=s.sp!==undefined;o.sp=clamp(fin(s.sp),0,800);o.vx=clamp(fin(s.vx),-800,800);o.vy=clamp(fin(s.vy),-800,800);o.mvOn=!!s.mv;
+  o.wp=Array.isArray(s.wp)?s.wp.slice(0,4).map(w=>Array.isArray(w)?[clamp(fin(w[0]),0,4000),clamp(fin(w[1]),0,4000)]:null).filter(Boolean):null;
   o.x=clamp(fin(s.x),0,4000);o.y=clamp(fin(s.y),0,4000);o.face=s.f<0?-1:1;netSnap(o,fin(s.ts),o.z!==o.lastZ);o.lastZ=o.z;{const lv=clamp(Math.floor(fin(s.lv)),1,99);if(!fresh&&o.lv&&lv>o.lv&&typeof otherLevelUp==='function')otherLevelUp(o,lv);o.lv=lv;}
   o.pg=clamp(Math.round(fin(s.pg)),0,9999);o.moving=!!s.mv;o.sitting=!!s.st;o.back=!!s.b;o.look=lookDecode(s.lk);o.rb=s.rb===1?1:0;if(o.look&&(s.bt===1||s.bt===2))o.look.body=s.bt;o.vd=s.vd?clean(s.vd,30):null;o.dead=!!s.d;o.wid=typeof s.w==='string'&&ITEMS[s.w]&&ITEMS[s.w].type==='weapon'?s.w:null;o.guest=!!p.guest;
   {const hp0=o.hp;o.hurtT=(typeof hp0==='number'&&fin(s.hp)<hp0&&!s.d)?now:o.hurtT;if(s.d&&!o.wasDown)o.deadT=now;o.wasDown=!!s.d;}o.cs=typeof s.cs==='string'&&SKILLS[s.cs]?s.cs:null;o.ct=s.ct===1;o.rd=typeof rideRead==='function'?rideRead(s.rd):null;if(typeof bondRead==='function')bondRead(o,s);if(typeof groundRead==='function')groundRead(o,s);
@@ -221,8 +224,20 @@ function netSnap(o,ts,jump){const t=Date.now(),st=ts>0?ts:t; // positions are ke
   o.dTarget=clamp((o.int||120)*.5+(o.jit||0)*.8+25,70,500);
   if(jump||!last){b.length=0;b.push({t:st-1,x:o.x,y:o.y});}
   else if(st-last.t>300&&(last.x!==o.x||last.y!==o.y))b.push({t:st-110,x:last.x,y:last.y}); // starting to walk after standing still: ease in
-  if(last&&st<=last.t)return;b.push({t:st,x:o.x,y:o.y});if(b.length>20)b.splice(0,b.length-20);}
-function netPos(o){const b=o.buf;if(!b||!b.length)return [o.x,o.y];
+  if(last&&st<=last.t)return;const was=o.mvNew&&b.length?netPos(o):null;b.push({t:st,x:o.x,y:o.y,mv:o.mvOn,vx:o.vx,vy:o.vy,wp:o.wp,sp:o.sp,nw:o.mvNew});
+  if(was){const nw=netPosRaw(o),dx=was[0]-nw[0],dy=was[1]-nw[1];o.corr=Math.hypot(dx,dy)<80?{x:dx,y:dy,t:Date.now()}:null;}if(b.length>20)b.splice(0,b.length-20);}
+// where a walk sent at e has got to dt seconds later: along the tapped path at their speed, or straight on
+function netAdvance(e,dt){if(dt<=0||!(e.mv||e.vx||e.vy))return [e.x,e.y];
+  if(e.mv&&e.wp&&e.wp.length&&e.sp){let x=e.x,y=e.y,rem=e.sp*dt;for(const [wx,wy] of e.wp){const d=Math.hypot(wx-x,wy-y);if(d>=rem)return [x+(wx-x)/d*rem,y+(wy-y)/d*rem];x=wx;y=wy;rem-=d;}return [x,y];}
+  return [e.x+e.vx*dt,e.y+e.vy*dt];}
+// a new update moves the guess a little: that difference fades out over 150 ms instead of showing as a hop
+function netPos(o){const p=netPosRaw(o),c=o.corr;if(!c)return p;const k=1-(Date.now()-c.t)/120;if(k<=0){o.corr=null;return p;}return [p[0]+c.x*k,p[1]+c.y*k];}
+function netPosRaw(o){const b=o.buf;if(!b||!b.length)return [o.x,o.y];
+  // players on v1.19.6+ send their walk: show them where they are now (plus a small cushion for uneven delivery)
+  {const l=b[b.length-1];if(l.nw){const want=clamp((o.jit||0)*.5+20,20,120);o.lead=o.lead===undefined?want:o.lead+(want-o.lead)*.03;const td=Date.now()-(o.off||0)-o.lead;
+    if(td>=l.t)return netAdvance(l,Math.min(.5,(td-l.t)/1000));
+    for(let i=b.length-1;i>0;i--){const a=b[i-1],c=b[i];if(td>=a.t&&td<=c.t){if(Math.hypot(c.x-a.x,c.y-a.y)>300)return [c.x,c.y];const k=(td-a.t)/Math.max(1,c.t-a.t);return [a.x+(c.x-a.x)*k,a.y+(c.y-a.y)*k];}}
+    return [b[0].x,b[0].y];}}
   // if we ever run out of positions while they walk, grow the delay by the shortfall at once, then let it shrink slowly
   o.bump=(o.bump||0)*.995;
   const want=Math.min(700,(o.dTarget||NET_DELAY)+o.bump);o.delay=o.delay===undefined?want:o.delay+(want-o.delay)*(want>o.delay?.2:.02);
@@ -239,9 +254,17 @@ function netTick(dt){
     // small corrections (a guess that was a little off) glide in over a few frames; big moves land at once
     if(d<36&&d>0){const k=Math.min(1,dt*22);o.rx+=dx*k;o.ry+=dy*k;}else{o.rx=nx;o.ry=ny;}
     if(o.moving||d>.5)o.walkT+=dt;if(Math.abs(dx-dy)>.3)o.face=sface(dx,dy);}
-  if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+(NET.viaBroker?.15:.125);
+  // your walk (v1.19.6): velocity from how you actually moved, and an early update when you start, stop, turn or pick a new spot
+  if(P){const pv=NET.pv||(NET.pv={x:P.x,y:P.y,vx:0,vy:0,key:''});
+    const hs=pv.h||(pv.h=[]),tn=performance.now();hs.push([tn,P.x,P.y]);while(hs.length>2&&tn-hs[0][0]>100)hs.shift();
+    if(hs.length>1){const h0=hs[0],sec=(tn-h0[0])/1000;if(sec>.03){const ix=(P.x-h0[1])/sec,iy=(P.y-h0[2])/sec;if(Math.hypot(ix,iy)>900){pv.vx=pv.vy=0;hs.length=0;}else{pv.vx=ix;pv.vy=iy;}}}
+    pv.x=P.x;pv.y=P.y;pv.on=Math.hypot(pv.vx,pv.vy)>15;
+    const end=P.path&&P.path.length?P.path[P.path.length-1]:null,ang=Math.hypot(pv.vx,pv.vy)>20?Math.round(Math.atan2(pv.vy,pv.vx)/.4):'-';
+    const key=(pv.on?1:0)+'|'+(end?Math.round(end.x)+','+Math.round(end.y):ang);
+    if(key!==pv.key){pv.key=key;if(now-(NET.sentAt||0)>.06)NET.sendT=0;}}
+  if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+(NET.viaBroker?.15:.125);NET.sentAt=now;
   if(typeof netFresh==='function'){NET.hits=netFresh(NET.hits);NET.vh=netFresh(NET.vh);NET.evs=netFresh(NET.evs);}
-  const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,b:P.back?1:0,lk:lookCode(P.look),rb:P.reborn?1:0,j3:CLASSES[P.cls]&&CLASSES[P.cls].tier===3?1:0,bt:P.look&&P.look.body?P.look.body:0,lv:P.lv,pg:NET.ping?Math.round(NET.ping/10)*10:0,mv:P.moving?1:0,st:P.sitting?1:0,d:P.dead?1:0,
+  const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,b:P.back?1:0,lk:lookCode(P.look),rb:P.reborn?1:0,j3:CLASSES[P.cls]&&CLASSES[P.cls].tier===3?1:0,bt:P.look&&P.look.body?P.look.body:0,lv:P.lv,pg:NET.ping?Math.round(NET.ping/10)*10:0,mv:P.moving?1:0,sp:Math.round(S?S.speed:145),...(NET.pv&&NET.pv.on?{vx:Math.round(NET.pv.vx),vy:Math.round(NET.pv.vy)}:{}),...(P.moving&&P.path&&P.path.length?{wp:P.path.slice(0,4).map(w=>[Math.round(w.x),Math.round(w.y)])}:{}),st:P.sitting?1:0,d:P.dead?1:0,
     w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,fg:P.eq.face?P.eq.face.id:null,mg:P.eq.mouth?P.eq.mouth.id:null,ar:P.eq.armor?P.eq.armor.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),ch:NET.myChat,em:NET.myEmote||null,
     id:NET.myId,zt:NET.zt,vd:typeof TR!=='undefined'&&TR.vend?TR.vend.title:null,hd:document.hidden?1:0,hx:NET.hits};if(NET.sp&&NET.sp.length)s.sp=NET.sp;if(typeof groundPresence==='function'){const g=groundPresence();if(g)s.gz=g;}if(NET.vh&&NET.vh.length)s.hv=NET.vh;{const t=P.target;if(t&&!t.dead&&!t.pvp&&mobs[t.idx]===t)s.tg=t.idx;}if(loot.length&&typeof myGroundLoot==='function'){const gl=myGroundLoot();if(gl.length)s.gl=gl;}if(NET.dl&&NET.dl.length)s.dl=NET.dl;if(typeof petPresence==='function'){const pt=petPresence();if(pt)s.pt=pt;}if(typeof myTitle==='function'){const ti=myTitle();if(ti)s.ti=ti;}if(P.casting&&P.casting.id)s.cs=P.casting.id;if(typeof ridePresence==='function'){const rd=ridePresence();if(rd)s.rd=rd;}if(typeof cartPresence==='function'&&cartPresence())s.ct=1;if(typeof bondPresence==='function'){s.bdv=1;const bd=bondPresence();if(bd)s.bd=bd;}
   if(!zoneHost()&&othersHere()&&mobs.length){s.ev=NET.evs;
