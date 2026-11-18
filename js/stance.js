@@ -17,6 +17,6 @@ function drawStance(cls,look,x,y,face){
   ctx.save();ctx.translate(x+S.sway,y-S.lift);ctx.rotate(f*S.lean);ctx.translate(-x,-y);
   // advanced and master callings wear their job look (joblooks.js picks it from JL.cur)
   const jl=typeof JL!=='undefined'&&typeof JOB_LOOK!=='undefined'&&JOB_LOOK[cls];if(jl)JL.cur={look:JOB_LOOK[cls]};
-  try{drawHuman(x,y,c.col,look.hair,f,0,{look,outfit:fam,stance:S.stance,hands:S.hands});}finally{if(jl)JL.cur=null;}
+  try{drawHuman(x,y,c.col,look.hair,f,0,{look,outfit:fam,cls,stance:S.stance,hands:S.hands});}finally{if(jl)JL.cur=null;}
   /* no weapon, shield or effects: just the hero (user request); the stance shows the job */
   ctx.restore();}
