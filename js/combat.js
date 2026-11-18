@@ -26,7 +26,8 @@ function hurtMob(m,dmg,crit,kind){m.hitF=now;m.myDmg=(m.myDmg||0)+dmg;const clie
   if(crit){sfx('crit');hitStop(.09);shakeUntil=now+.2;fx.push({k:'critburst',x:m.x,y:m.y-m.d.size,t0:now,dur:.35});
     texts.push({x:m.x,y:m.y-m.d.size-34,txt:'CRITICAL',col:'#ffe27a',size:13,t0:now,dur:.9});
     texts.push({x:m.x,y:m.y-m.d.size-12,txt:fmt(dmg),col:'#ffb03a',size:26,t0:now,dur:1});}
-  else{sfx(kind==='mag'?'zap':hitSound());floatT(m.x,m.y-m.d.size-8,fmt(dmg),'#ffffff',15);}
+  // a hit that takes a bigger share of the monster's health shows a bigger, warmer number (v1.20.4)
+  else{sfx(kind==='mag'?'zap':hitSound());const sh=m.d&&m.d.hp?dmg/m.d.hp:0;floatT(m.x,m.y-m.d.size-8,fmt(dmg),sh>.25?'#ffe6a0':'#ffffff',15+Math.min(9,Math.round(sh*36)));}
   if(!client&&m.hp<=0){hitStop(.05);killMob(m);}}
 // the moment your hits finish a monster: flash, ring and shards, a tiny freeze and a shake for big ones
 function killFx(m){m.burstT=now;fx.push({k:'killburst',x:m.x,y:m.y,s:m.d.size,col:m.d.col||'#d8e0a0',t0:now,dur:.6});hitStop(m.d.boss?.12:.05);if(m.d.boss||m.d.size>=24)shakeUntil=Math.max(shakeUntil,now+(m.d.boss?.35:.15));}

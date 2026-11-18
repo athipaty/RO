@@ -1423,3 +1423,12 @@ button.advcard{cursor:pointer}button.advcard:hover,button.advcard:focus-visible{
 #panel .st .btn:disabled{background:rgba(255,255,255,.05);color:#6a7080;border-color:rgba(255,255,255,.08);box-shadow:none}
 #panel .tabs .btn.on,#panel .itabs .btn.on{box-shadow:0 0 0 1px rgba(255,215,106,.5),0 0 14px rgba(255,190,80,.25)}
 #panel h3{display:flex;align-items:center;gap:8px}#panel h3::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(232,194,90,.4),transparent)}
+/* ================= UI pass 3: on-screen buttons (v1.20.3) =================
+   Skill and item slots stay solid: a slot that cannot be used right now dims only its icon, an empty slot is a clear
+   dashed gold ring with a faint +, and every round button presses in the same way. */
+.slot.off,#hotbar .slot.off,#hotrows .slot.off{opacity:1!important}
+.slot.off img,.slot.off .ic{filter:grayscale(.85) brightness(.75);opacity:.7}
+#hotbar .slot.empty,#hotrows .slot.empty{opacity:1!important;border:2px dashed rgba(232,194,90,.5)!important;background:rgba(10,12,18,.7)!important;box-shadow:0 3px 10px rgba(0,0,0,.4)!important}
+#hotbar .slot.empty:not(.edit)::after,#hotrows .slot.empty::after{content:'+';color:rgba(232,194,90,.6);font-size:18px;font-weight:800;line-height:1}
+body.touchui #hotbar .slot:active,body.touchui #quick .qk:active,body.touchui #actions>button:active,body.touchui #quickL>button:active{filter:brightness(1.25)}
+body.touchui #hotbar .slot:not(.empty):not(.off){box-shadow:0 0 0 1px #000,0 5px 12px rgba(0,0,0,.5),0 0 10px rgba(255,200,100,.18)!important}
