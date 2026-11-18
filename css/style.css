@@ -1397,14 +1397,10 @@ button.advcard{cursor:pointer}button.advcard:hover,button.advcard:focus-visible{
 #title .t-sec h2,#title .t-name span,#title .lkrow>span{font-family:var(--display);font-size:18px!important;letter-spacing:.03em!important;text-transform:none!important;color:#ffd76a!important;font-weight:500!important}
 #title .t-sec{border-bottom-color:rgba(232,194,90,.14)!important}
 #title input{background:rgba(6,6,10,.6)!important;border-color:rgba(232,194,90,.25)!important;color:#f4ead6!important}
-#title .btn{border-color:rgba(232,194,90,.28)!important;color:#f4ead6!important;background:rgba(255,230,170,.05)!important}
-#title .btn:hover:not(:disabled){background:rgba(255,230,170,.12)!important}
-#title .btn.primary{font-family:var(--display)!important;font-size:24px!important;font-weight:700!important;letter-spacing:.03em;padding:12px 18px!important;border:2px solid #ffe08a!important;color:#2a1206!important;
-  background:linear-gradient(180deg,#ffd970 0%,#f5a43a 55%,#e0742a 100%)!important;text-shadow:0 1px 0 rgba(255,240,200,.6);
-  box-shadow:0 0 0 3px rgba(60,24,6,.6),0 8px 26px rgba(255,120,40,.45),inset 0 2px 0 rgba(255,255,255,.45)!important;animation:tGlow 2.2s ease-in-out infinite alternate}
-@keyframes tGlow{from{box-shadow:0 0 0 3px rgba(60,24,6,.6),0 6px 20px rgba(255,120,40,.35),inset 0 2px 0 rgba(255,255,255,.45)}to{box-shadow:0 0 0 3px rgba(60,24,6,.6),0 10px 34px rgba(255,140,40,.65),inset 0 2px 0 rgba(255,255,255,.45)}}
+#title .btn:not(.primary){border-color:rgba(232,194,90,.28)!important;color:#f4ead6!important;background:rgba(255,230,170,.05)!important}
+#title .btn:not(.primary):hover:not(:disabled){background:rgba(255,230,170,.12)!important}
 #title .slotc{border-color:rgba(232,194,90,.2)!important;background:rgba(255,230,170,.04)!important}
-@media (prefers-reduced-motion:reduce){#title::before,#title::after,#title .t-mark,#title .btn.primary{animation:none!important}}
+@media (prefers-reduced-motion:reduce){#title::before,#title::after,#title .t-mark{animation:none!important}}
 /* ================= UI pass 2: windows feel like a game (v1.20.2) =================
    List rows become framed cards with a bigger item slot (rarity glow kept), stat rows become cards with a gold +,
    and empty equipment slots shrink to a quiet one-line placeholder. Layout and every button stay the same. */
