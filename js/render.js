@@ -541,9 +541,10 @@ function drawPlayerBody(P,wid){
         drawWeaponShape(w,isBow?0:a); /* the bow undoes the turn it is given, so it gets 0 to keep the lean */ctx.fillStyle=(lookOf(P.name,P.look)||{}).skin||'#f6d6b8';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,2.6,0,7);ctx.fill();ctx.stroke();ctx.restore();};}
     if(W.behind)drawHeld(P.y-(typeof HERO2_ON!=='undefined'&&HERO2_ON?9:7)+(P.sitting?6:0));}
   const SP=P.sitting&&!P._rider&&typeof sitPoseOf==='function'?sitPoseOf(P.cls):null;
-  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?gaitWalk(P):0,{gait:typeof walkGait==='function'?walkGait(P.cls):null,...(SP?{sitPose:SP,hands:SP.hands}:{}),sit:P.sitting,cast:!!P.casting||(w&&w.wt==='bow'&&bowPhase(P)>=0&&bowPhase(P)<.8),hat,fc,mo,look:lookOf(P.name,P.look),outfit:baseOf(P.cls),back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
+  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?gaitWalk(P):0,{gait:typeof walkGait==='function'?walkGait(P.cls):null,...(SP?{sitPose:SP,hands:SP.hands}:{}),sit:P.sitting,cast:!!P.casting||(w&&w.wt==='bow'&&bowPhase(P)>=0&&bowPhase(P)<.8),hat,fc,mo,look:lookOf(P.name,P.look),outfit:baseOf(P.cls),cls:P.cls,back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
   drawJobMantle(c,P.x,P.y+(P.sitting?6:0),P.face,!!P.back);
-  if(baseOf(P.cls)==='warden'){ctx.fillStyle='#9aa0aa';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(P.x-P.face*13-5,by-14,10,14,3);ctx.fill();ctx.stroke();ctx.fillStyle='#e8c25a';ctx.beginPath();ctx.arc(P.x-P.face*13,by-7,2,0,7);ctx.fill();}
+  // the hand shield: with the new Warden outfits (js/hero2.js WARDEN_V2) only the Bulwark carries one; the Warden is a plain swordsman
+  if(baseOf(P.cls)==='warden'&&(typeof WARDEN_V2==='undefined'||!WARDEN_V2||P.cls==='bulwark')){ctx.fillStyle='#9aa0aa';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(P.x-P.face*13-5,by-14,10,14,3);ctx.fill();ctx.stroke();ctx.fillStyle='#e8c25a';ctx.beginPath();ctx.arc(P.x-P.face*13,by-7,2,0,7);ctx.fill();}
   if(sheath&&P.back)drawSlung(P,w);
   if(!w||sheath)return;
   if(W.behind)return;
