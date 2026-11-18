@@ -61,9 +61,9 @@ function hitPose(p,phase,w){if(!p||phase<0)return null;const fam=typeof baseOf==
 // archers: each calling draws its own way (k = 0..1 of the shot, release at BOW_RELEASE_V)
 function bowPose(p,k){if(k<0)return null;const R=typeof BOW_RELEASE_V!=='undefined'?BOW_RELEASE_V:.42,adv=hitAdvOf(p&&p.cls),d=k<R?ease3(k/R):0,a=k>=R?Math.min(1,(k-R)/.3):0,snap=k>=R?Math.sin(a*Math.PI):0;
   const g=hitIsMaster(p&&p.cls);let o;
-  if(adv==='sharpshooter')o={push:-1-1*snap,lean:-.04*d-.02*snap,hop:-2.5*(k<R?d:1-a)};          // a slow, steady draw, kneeling a little
-  else if(adv==='wildstalker')o={push:-2*snap+1.5*d,lean:.06*d,hop:-3.5*(k<R?d:1-a)};            // low and crouched like a hunter
-  else if(adv==='falconer')o={push:2.5*snap,lean:.1*snap-.04*d,hop:1.5*snap};                     // the arm thrusts forward to send the falcon
+  if(adv==='sharpshooter')o={push:-1.5-3*snap,lean:-.05*d-.04*snap,hop:-5*(k<R?d:1-a)};          // a slow, steady draw down on one knee, a hard kick back on release
+  else if(adv==='wildstalker')o={push:-1*snap+3*d+2*snap,lean:.14*d+.06*snap,hop:-4.5*(k<R?d:1-a)};  // low hunter's crouch, lunging forward as it shoots
+  else if(adv==='falconer')o={push:4.5*snap,lean:.16*snap-.03*d,hop:2*snap};                        // a short draw, then the whole body throws forward to send the falcon
   else o=k<R?{push:-1.5*d,lean:-.07*d}:{push:-1.5-1.5*snap,lean:-.07*(1-Math.min(1,(k-R)/.4))};  // Ranger: lean back, step back on release
   if(g&&k>=R&&k<R+.3)o.ghost=true;o.sx=1;return o;}
 function bowLean(k){return bowPose(typeof P!=='undefined'?P:null,k);}

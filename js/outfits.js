@@ -12,6 +12,8 @@ const ARC_LOOKS={
   stormcaller:{kit:'storm',robe:'#e8eef8',sleeve:'#2e4fa8',light:'#ffffff',blue:'#2e4fa8',trim:'#ffe066'},
   hexweaver:{kit:'hex',robe:'#2a1838',sleeve:'#2a1838',light:'#3e2654',trim:'#c58cff',gem:'#e0a8ff'},
   chronomancer:{kit:'chrono',robe:'#1f4a4a',sleeve:'#1f4a4a',light:'#2e6a66',brass:'#d8a840',trim:'#ffe08a'}};
+// which family uses which looks (js/hero2.js reads OUTFITS[family][job])
+const OUTFITS={arcanist:ARC_LOOKS};
 const outfitGlow=(col,fn,b=6)=>{ctx.save();ctx.shadowColor=col;ctx.shadowBlur=b;try{fn();}finally{ctx.restore();}};
 function outfitGear(cx,cy,r,col,OL){ctx.fillStyle=col;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();
   for(let i=0;i<16;i++){const a=i*Math.PI/8+now*.6,rr=i%2?r:r*1.28;ctx.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr);}ctx.closePath();ctx.fill();ctx.stroke();

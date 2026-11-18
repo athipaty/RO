@@ -483,8 +483,17 @@ function bowPhase(p){if(p.bowT&&now-p.bowT<(p.bowDur||.4))return (now-p.bowT)/(p
   // other players: their attack swing stands in for the shot (your own hero uses bowT)
   if(p!==P&&!p.bowT&&p.swingT&&now-p.swingT<.42)return (now-p.swingT)/.42;return -1;}
 function drawBowShot(P,w,by,k){const f=P.face||1,R=BOW_RELEASE_V,ease=x=>1-(1-x)*(1-x);
-  const up=k<R?ease(k/R):k<.75?1:1-ease((k-.75)/.25),pull=k<R?ease(k/R)*10:Math.max(0,10-(k-R)*140),recoil=k>R&&k<R+.12?Math.sin((k-R)/.12*Math.PI)*2.2:0;
-  const x=P.x+f*(9+up*7-recoil),y=by-4-up*10;ctx.save();ctx.translate(x,y);ctx.scale(f,1);ctx.rotate(-.12*up);
+  // each archer calling shoots its own way (v1.24.0): the Sharpshooter cants the bow and kicks back, the Wildstalker
+  // shoots low and fast, the Falconer only half draws and throws its arm out to send the falcon
+  const adv=typeof hitAdvOf==='function'?hitAdvOf(P.cls):P.cls,BS={sharpshooter:{pull:1.2,lift:7,tilt:-.55,kick:2.2},wildstalker:{pull:.8,lift:4,tilt:.45,kick:1,low:3},falconer:{pull:.45,lift:13,tilt:-.35,kick:.6,reach:4}}[adv]||{pull:1,lift:10,tilt:0,kick:1};
+  const up=k<R?ease(k/R):k<.75?1:1-ease((k-.75)/.25),pull=(k<R?ease(k/R)*10:Math.max(0,10-(k-R)*140))*BS.pull,recoil=k>R&&k<R+.12?Math.sin((k-R)/.12*Math.PI)*2.2*BS.kick:0;
+  const x=P.x+f*(9+up*(7+(BS.reach||0))-recoil),y=by-4-up*BS.lift+(BS.low||0)*up;
+  // the release, once per shot: a crack and flash, a second arrow, or a burst of feathers
+  {const key=P.bowT||P.swingT||0;if(k>=R&&P._bowRel!==key&&typeof fx!=='undefined'){P._bowRel=key;const t=P.target,tx=t&&!t.dead?t.x:P.x+f*160,ty=t&&!t.dead?t.y:P.y;
+    if(adv==='sharpshooter'){fx.push({k:'ring',x:x+f*14,y,r:16,col:'#ffe9a0',t0:now,dur:.25});fx.push({k:'ring',x:x+f*14,y,r:30,col:'rgba(255,233,160,.5)',t0:now+.04,dur:.3});}
+    else if(adv==='wildstalker')fx.push({k:'streak',x0:x,y0:y,x:tx,y:ty,col:'#c8ff80',w:5,dur:.2,t0:now+.08,seed:2});
+    else if(adv==='falconer')fx.push({k:'motes',x:x+f*10,y,col:'#e8dcc0',col2:'#a8885a',shape:'leaf',n:9,r:16,dur:.6,t0:now});}}
+  ctx.save();ctx.translate(x,y);ctx.scale(f,1);ctx.rotate(-.12*up+BS.tilt*up);
   // the bow's own look (js/weaponart.js), or the plain bow
   let BT=null;if(typeof bowLimbsArt==='function')BT=bowLimbsArt(w,14,1.25);
   else{ctx.lineCap='round';ctx.strokeStyle='#8a5a2a';ctx.lineWidth=2.6;ctx.beginPath();ctx.arc(0,0,14,-1.25,1.25);ctx.stroke();
