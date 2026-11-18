@@ -69,7 +69,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
       ctx.fillStyle='#3f7a46';ctx.beginPath();ctx.ellipse(x-f*3,by-15,8,4.5,0,0,7);fs();}
     if(AK)outfitPart(AK,'back',{x,y,by,f,bk,sway,bw,OL,fs,hy});
     else if(out==='arcanist'){ctx.fillStyle=dark;ctx.beginPath();ctx.ellipse(x-f*2,by-15.5,8.5,4,0,0,7);fs();}
-    if(out==='shade'){ctx.fillStyle='#2e2a3c';ctx.beginPath();ctx.moveTo(x-f*2,by-15);ctx.lineTo(x-f*9,by-14);ctx.quadraticCurveTo(x-f*13+sway*.6,by-4,x-f*11+sway,by+5);
+    if(out==='shade'&&!AK){ctx.fillStyle='#2e2a3c';ctx.beginPath();ctx.moveTo(x-f*2,by-15);ctx.lineTo(x-f*9,by-14);ctx.quadraticCurveTo(x-f*13+sway*.6,by-4,x-f*11+sway,by+5);
       ctx.lineTo(x-f*8+sway,by+2);ctx.lineTo(x-f*6+sway,by+6);ctx.lineTo(x-f*3,by-2);ctx.closePath();fs();}};
   if(!bk)backLayer();
   // ---- legs: trousers and boots; a stride while walking (robes show only the boots under the hem) ----
