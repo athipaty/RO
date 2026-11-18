@@ -99,21 +99,36 @@ function ascensionHtml(){const c=CLASSES[P.cls];let h=`<h3>Trial of Ascension</h
   if(c.tier===3)return h+`<div class="sub" style="color:${c.acc}">You are a ${c.name}. The stars remember your name.</div>`;
   const why=job3Why(),T=trial3Of(),next=c.tier===2?job3From(P.cls):[];
   h+=`<div class="sub">Reborn heroes with an advanced calling at job level ${JOB3_LV} and base level ${JOB3_BASE_LV} can rise into a master calling.</div>`;
-  if(next.length)h+=`<div class="ds" style="margin:6px 0">${next.map(id=>`<b style="color:${CLASSES[id].acc}">${CLASSES[id].name}</b>: ${CLASSES[id].desc} New skills: ${CLASSES[id].own.map(s=>SKILLS[s].name).join(', ')}.`).join('<br>')}</div>`;
+  // the confirm card: ascending is for life, so one more tap
+  if(ascendAsk&&next.includes(ascendAsk)&&trial3Done()){const id=ascendAsk,k=CLASSES[id],pic=advPic(id);
+    return h+`<div class="jconfirm">${pic?`<img alt="" src="${pic}">`:''}${advName(id)}<small>${k.desc}</small>`+
+      `<p>${esc(JB_L(`Ascend to ${k.name}? This is for life. You cannot go back to being a ${c.name}.`,`เลื่อนขั้นเป็น ${k.name} ไหม? เปลี่ยนแล้วเปลี่ยนกลับเป็น ${c.name} ไม่ได้อีก`))}</p>`+
+      `<p class="muted">${esc(JB_L(`Seer Valen takes the trial items and ${fmt(JOB3_GOLD)} gold. You keep every skill you have.`,`ผู้หยั่งรู้วาเลนจะรับไอเทมบททดสอบและ ${fmt(JOB3_GOLD)} โกลด์ คุณยังเก็บสกิลทั้งหมดที่มีไว้`))}</p></div>`+
+      `<div class="tbtns"><button class="btn" data-act="ascendyes" data-arg="${id}">${esc(JB_L(`Yes, I become a ${k.name}`,`ใช่ ฉันจะเป็น ${k.name}`))}</button><button class="btn" data-act="ascendno">${esc(JB_L('Go back','ย้อนกลับ'))}</button></div>`;}
+  ascendAsk=null;
+  // the master callings as picture cards: buttons once the trial is done, a preview before that
+  const pick=trial3Done()&&!why;
+  if(next.length)h+=(pick?`<div class="sub">${esc(JB_L('Tap a calling to choose it.','แตะที่อาชีพเพื่อเลือก'))}</div>`:'')+`<div class="advlist">`+next.map(id=>{const k=CLASSES[id],pic=advPic(id),tag=pick?'button':'div';
+    return `<${tag} class="advcard${pick?'':' prev'}"${pick?` data-act="ascend" data-arg="${id}"`:''}>${pic?`<img alt="" src="${pic}">`:''}<span class="advtxt">${advName(id)}<small>${k.desc}</small><small>New skills: ${k.own.map(s=>SKILLS[s].name).join(', ')}</small></span></${tag}>`;}).join('')+`</div>`;
   if(why)return h+`<div class="sub muted">${esc(why)}</div>`;
   if(!P.trial3)return h+trialRowHtml('The trial',T,null,JOB3_GOLD,`<button class="btn small" data-act="trial3">Accept trial</button>`);
   h+=trialRowHtml('The trial',T,P.trial3.have,JOB3_GOLD);
-  if(trial3Done())h+=`<div class="choice">`+next.map(id=>`<button data-act="ascend" data-arg="${id}"><b style="color:${CLASSES[id].acc}">Become a ${CLASSES[id].name}</b><small>${CLASSES[id].desc}</small></button>`).join('')+`</div>`;
   return h;}
+let ascendAsk=null;
 if(typeof PANELS!=='undefined'&&PANELS.rebirth){const _rb=PANELS.rebirth;PANELS.rebirth=function(){return _rb.apply(this,arguments)+ascensionHtml();};}
 PANEL_ACTS.trial3=()=>{if(P.trial3||job3Why())return;P.trial3={have:0};const T=trial3Of();
   addLog(`Ascension trial accepted: defeat ${T.need} ${MOBS[T.mob].name} and bring ${T.items} ${ITEMS[T.item].name} to Seer Valen.`,'l-good');sfx('click');refreshPanel();save();};
-PANEL_ACTS.ascend=arg=>{if(!trial3Done()||!JOB3[arg]||JOB3[arg].from!==P.cls)return;const T=trial3Of(),k=CLASSES[arg];
+// tapping a master calling asks first; Yes on the confirm card makes the change
+PANEL_ACTS.ascend=arg=>{if(!trial3Done()||!JOB3[arg]||JOB3[arg].from!==P.cls)return;ascendAsk=arg;sfx('click');refreshPanel();};
+PANEL_ACTS.ascendno=()=>{ascendAsk=null;sfx('click');refreshPanel();};
+PANEL_ACTS.ascendyes=arg=>{if(ascendAsk!==arg)return;ascendAsk=null;ascendNow(arg);};
+{const _opA=openPanel;openPanel=function(kind){if(kind==='rebirth')ascendAsk=null;return _opA.apply(this,arguments);};}
+function ascendNow(arg){if(!trial3Done()||!JOB3[arg]||JOB3[arg].from!==P.cls)return;const T=trial3Of(),k=CLASSES[arg];
   takeItem(T.item,T.items);P.gold-=JOB3_GOLD;P.trial3=null;P.cls=arg;P.jl=1;P.jexp=0;NET.lastSent='';NET.sendT=0;
   fx.push({k:'lvpillar',o:P,x:P.x,y:P.y,t0:now,dur:3});fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:2.4,txt:k.name.toUpperCase(),col:k.acc});sfx('fanfare');announce('job',arg);
   if(typeof showBanner==='function')showBanner(k.name,`${P.name} has ascended`);
   addLog(`You are now a ${k.name}! You keep every skill. New ones are waiting in the skill tree (K): ${k.own.map(s=>SKILLS[s].name).join(', ')}.`,'l-rare');
-  S=computeStats();rebuildHotbar();refreshPanel();save(true);};
+  S=computeStats();rebuildHotbar();refreshPanel();save(true);}
 // skill tree: three groups for a master calling
 {const _st=skillTreeHtml;skillTreeHtml=function(){const c=CLASSES[P.cls];if(!c||c.tier!==3)return _st.apply(this,arguments);const p=CLASSES[c.parent];
   const own3=new Set(c.own),own2=new Set(p.own),first=c.skills.filter(s=>!own3.has(s)&&!own2.has(s));

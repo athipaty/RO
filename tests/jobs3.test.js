@@ -11,15 +11,20 @@ module.exports = async t => {
       PANEL_ACTS.trial3(); for (let i = 0; i < 40; i++) questKill('snowhulk');
       giveItem('fur', 15); P.gold = 40000; refreshPanel();
       const choices = [...document.querySelectorAll('#panel [data-act="ascend"]')].map(b => b.dataset.arg);
-      PANEL_ACTS.ascend('aegislord');
+      const cards = [...document.querySelectorAll('#panel .advcard[data-act="ascend"]')].every(b => b.querySelector('img') && b.querySelector('.jpname[translate="no"]'));
+      PANEL_ACTS.ascend('aegislord'); const ask = !!panel.querySelector('.jconfirm') && P.cls === 'bulwark';
+      PANEL_ACTS.ascendno(); const back = !panel.querySelector('.jconfirm') && P.cls === 'bulwark' && !!P.trial3;
+      PANEL_ACTS.ascend('aegislord'); PANEL_ACTS.ascendyes('aegislord');
       const c = CLASSES[P.cls]; const sk = c.skills;
       P.skills.titanslam = 3; P.skillPts = 0; openPanel('skills'); const tree = [...panel.querySelectorAll('.skpsec')].map(e => e.textContent).join('|');
       const descs = c.own.map(id => SKILLS[id].desc(5));
-      return { early, canStart, choices, cls: P.cls, jl: P.jl, gold: P.gold, fur: invFind('fur') ? invFind('fur').n : 0, tier: c.tier, keeps: sk.includes('cleave') && sk.includes('shieldbash') && sk.includes('titanslam') && sk.includes('fortress'),
+      return { cards, ask, back, early, canStart, choices, cls: P.cls, jl: P.jl, gold: P.gold, fur: invFind('fur') ? invFind('fur').n : 0, tier: c.tier, keeps: sk.includes('cleave') && sk.includes('shieldbash') && sk.includes('titanslam') && sk.includes('fortress'),
         tree3: tree === 'Warden|Bulwark|Aegis Lord', descs,
         allTier3: Object.keys(CLASSES).filter(k => CLASSES[k].tier === 3).length, party: !!SKILLS.fortress.party };
     });
     t.ok(r.early && r.canStart, 'Valen asks for base level 50 again, then offers the Trial of Ascension');
+    t.ok(r.cards, 'the master callings are picture cards with their English names');
+    t.ok(r.ask && r.back, 'tapping one asks to confirm first; Go back changes nothing');
     t.ok(r.choices.length === 1 && r.choices[0] === 'aegislord', 'a Bulwark can rise into an Aegis Lord');
     t.ok(r.cls === 'aegislord' && r.tier === 3 && r.jl === 1 && r.gold === 10000 && r.fur === 0, 'ascending takes the items and 30,000 gold and starts job level again');
     t.ok(r.keeps, 'every old skill is kept and two new ones are added');
