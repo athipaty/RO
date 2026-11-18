@@ -1405,3 +1405,21 @@ button.advcard{cursor:pointer}button.advcard:hover,button.advcard:focus-visible{
 @keyframes tGlow{from{box-shadow:0 0 0 3px rgba(60,24,6,.6),0 6px 20px rgba(255,120,40,.35),inset 0 2px 0 rgba(255,255,255,.45)}to{box-shadow:0 0 0 3px rgba(60,24,6,.6),0 10px 34px rgba(255,140,40,.65),inset 0 2px 0 rgba(255,255,255,.45)}}
 #title .slotc{border-color:rgba(232,194,90,.2)!important;background:rgba(255,230,170,.04)!important}
 @media (prefers-reduced-motion:reduce){#title::before,#title::after,#title .t-mark,#title .btn.primary{animation:none!important}}
+/* ================= UI pass 2: windows feel like a game (v1.20.2) =================
+   List rows become framed cards with a bigger item slot (rarity glow kept), stat rows become cards with a gold +,
+   and empty equipment slots shrink to a quiet one-line placeholder. Layout and every button stay the same. */
+#panel .row{background:linear-gradient(180deg,rgba(255,236,190,.045),rgba(0,0,0,.12));border:1px solid rgba(232,194,90,.13);border-radius:10px;padding:7px 10px;margin:5px 0;box-shadow:inset 0 1px 0 rgba(255,240,200,.04)}
+#panel .row:hover{border-color:rgba(232,194,90,.28)}
+#panel .row .nm{font-size:14.5px;letter-spacing:.01em}
+#panel .row .ico.img{width:40px;height:40px;border-radius:9px;border-width:1.5px;background:radial-gradient(circle at 50% 40%,#2c3646,#121720)}
+#panel .row .ico:not(.img){width:34px;height:34px;font-size:14px;box-shadow:0 0 0 2px rgba(0,0,0,.35)}
+#panel .row .btn.small{min-width:64px;font-weight:800}
+#panel .row:has(.ds:empty):has(.nm>.muted:only-child){padding:4px 10px;opacity:.6;background:transparent;border-style:dashed}
+#panel .row:has(.ds:empty):has(.nm>.muted:only-child) .ico{width:22px;height:22px}
+#panel .st{background:linear-gradient(180deg,rgba(255,236,190,.05),rgba(0,0,0,.14));border:1px solid rgba(232,194,90,.14);border-radius:10px;padding:6px 8px 6px 12px;margin:5px 0}
+#panel .st>b{font-family:var(--display);font-size:17px;color:#ffd76a;letter-spacing:.04em}
+#panel .st>span:nth-of-type(2){font-weight:800;font-size:16px;color:#f4ead6;min-width:30px;text-align:right}
+#panel .st .btn{min-width:44px;font-size:18px;font-weight:900;color:#2a1206;background:linear-gradient(180deg,#ffd970,#e0942a);border-color:#ffe08a;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+#panel .st .btn:disabled{background:rgba(255,255,255,.05);color:#6a7080;border-color:rgba(255,255,255,.08);box-shadow:none}
+#panel .tabs .btn.on,#panel .itabs .btn.on{box-shadow:0 0 0 1px rgba(255,215,106,.5),0 0 14px rgba(255,190,80,.25)}
+#panel h3{display:flex;align-items:center;gap:8px}#panel h3::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(232,194,90,.4),transparent)}

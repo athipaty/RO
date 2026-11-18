@@ -80,7 +80,7 @@ document.addEventListener('input',ev=>{if(ev.target&&ev.target.id==='mkPrice')MK
 
 // ways in: a button in Ilsa's General Store, and /market
 {const _rpM=refreshPanel;refreshPanel=function(){const r=_rpM.apply(this,arguments);try{if(panelKind==='shop'&&!panel.querySelector('.mkopen')){const h2=panel.querySelector('h2');
-  if(h2)h2.insertAdjacentHTML('afterend',`<button class="btn small mkopen" data-act="mkopen">⚖ Market Board: buy and sell with players</button>`);}}catch(e){}return r;};}
+  if(h2)h2.insertAdjacentHTML('afterend',`<button class="btn small mkopen" data-act="mkopen"><i class="coin"></i> Market Board: buy and sell with players</button>`);}}catch(e){}return r;};}
 PANEL_ACTS.mkopen=()=>mkOpen();
 if(typeof chatCommand==='function'){const _ccM=chatCommand;chatCommand=function(k,arg){if(k==='market'||k==='mk'){mkOpen();return true;}return _ccM.apply(this,arguments);};
   if(typeof CMD_HELP!=='undefined')CMD_HELP.push(['/market','open the Market Board']);}
@@ -90,7 +90,7 @@ if(typeof chatCommand==='function'){const _ccM=chatCommand;chatCommand=function(
 .mksearch input{width:100%;box-sizing:border-box;padding:8px 10px;margin:4px 0 8px;background:#0b0e13;border:1px solid var(--edge-dim);border-radius:7px;color:var(--ink);font:inherit}
 .mklist{display:flex;flex-direction:column;gap:2px}.mkrow{padding:6px 0}.mkby{color:#9fb8d8!important}
 .mkprice{flex:none;display:flex;align-items:center;gap:4px;color:#ffd76a;font-weight:800;font-size:13.5px;margin-right:4px}
-.mkprice .coin,.trgold .coin{display:inline-block;width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff0a0,#e8b030 60%,#a07010)}
+.mkprice .coin,.trgold .coin,.mkopen .coin{display:inline-block;width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff0a0,#e8b030 60%,#a07010)}
 .mkgo{background:#3f8a4c;border-color:#62bf86;color:#fff}.mktag{flex:none;font-size:11px;color:#8a93a3;padding:0 6px}
 .mksell{display:flex;align-items:center;gap:10px;margin:8px 0;padding:10px;border:1px solid var(--edge-dim);border-radius:10px;background:#10141b}.mksell img{width:44px;height:44px}
 .mkhint{font-size:12px}.mkpurse{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0;padding:10px;border:1px solid #e8c25a;border-radius:10px;background:#2a2412}
@@ -98,7 +98,7 @@ if(typeof chatCommand==='function'){const _ccM=chatCommand;chatCommand=function(
 
 if(typeof TH!=='undefined'){Object.assign(TH,{'Market Board':'กระดานตลาด','Browse':'เลือกซื้อ','Sell':'ขาย','Buy':'ซื้อ','Confirm':'ยืนยัน','yours':'ของคุณ','Search items':'ค้นหาไอเทม',
   'Nothing matches.':'ไม่พบไอเทม','Nothing is for sale yet. Be the first: open Sell.':'ยังไม่มีของขาย ลงขายเป็นคนแรกได้ที่แท็บขาย','List for sale':'ลงขาย','Back':'กลับ','Price':'ราคา',
-  'Take back':'เอาคืน','Collect':'รับเงิน','Recent sales':'ขายล่าสุด','⚖ Market Board: buy and sell with players':'⚖ กระดานตลาด: ซื้อขายกับผู้เล่น',
+  'Take back':'เอาคืน','Collect':'รับเงิน','Recent sales':'ขายล่าสุด','Market Board: buy and sell with players':'กระดานตลาด: ซื้อขายกับผู้เล่น',
   'Loading the board…':'กำลังโหลดกระดาน…','Your bag':'กระเป๋าของคุณ','Not enough gold.':'โกลด์ไม่พอ','Log in to sell on the market.':'เข้าสู่ระบบเพื่อขายในตลาด',
   'Nothing listed. Open Sell to put something up.':'ยังไม่ได้ลงขาย ไปที่แท็บขายเพื่อลงขาย',
   'Selling on the market needs an account, so your items are kept safe while they wait for a buyer. Log in from the title screen.':'การขายในตลาดต้องมีบัญชี เพื่อเก็บไอเทมของคุณไว้อย่างปลอดภัยระหว่างรอผู้ซื้อ เข้าสู่ระบบจากหน้าแรก',
