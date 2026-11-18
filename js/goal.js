@@ -75,6 +75,12 @@ setInterval(()=>{try{goalChip();}catch(e){}},500);
     ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);
     if(sx>mL&&sx<mR&&sy>mT&&sy<mB){const b=Math.sin(now*5)*4,y=sy-34+b;ctx.fillStyle='rgba(255,207,90,.95)';ctx.strokeStyle='rgba(30,20,8,.8)';ctx.lineWidth=2;
       ctx.beginPath();ctx.moveTo(sx,y+10);ctx.lineTo(sx-8,y);ctx.lineTo(sx-3,y);ctx.lineTo(sx-3,y-8);ctx.lineTo(sx+3,y-8);ctx.lineTo(sx+3,y);ctx.lineTo(sx+8,y);ctx.closePath();ctx.stroke();ctx.fill();}
+    // upright phones (v1.21.3): the screen edges hold the button columns, so the arrow circles close around the hero
+    // like a compass instead; elsewhere it runs along the edge of the screen
+    else if(document.body.classList.contains('touchui')&&VH>VW){const hp=proj(P.x,P.y),hx=hp.x-camX,hy=hp.y-camY-26,ang=Math.atan2(sy-hy,sx-hx),R=Math.min(VW*.3,120),ax=hx+Math.cos(ang)*R,ay=hy+Math.sin(ang)*R*.8;
+      const pulse=.85+.15*Math.sin(now*4);ctx.translate(ax,ay);ctx.rotate(ang);ctx.globalAlpha=pulse;
+      ctx.fillStyle='rgba(14,18,26,.75)';ctx.beginPath();ctx.arc(-6,0,15,0,7);ctx.fill();
+      ctx.fillStyle='#ffcf5a';ctx.strokeStyle='rgba(30,20,8,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(9,0);ctx.lineTo(-9,-8);ctx.lineTo(-4,0);ctx.lineTo(-9,8);ctx.closePath();ctx.stroke();ctx.fill();}
     else{const cx=VW/2,cy=(mT+mB)/2,dx=sx-cx,dy=sy-cy,k=Math.min((mR-cx)/Math.max(1e-6,Math.abs(dx)),(mB-cy)/Math.max(1e-6,Math.abs(dy))),ax=cx+dx*k,ay=cy+dy*k,ang=Math.atan2(dy,dx);
       const pulse=.85+.15*Math.sin(now*4);ctx.translate(ax,ay);ctx.rotate(ang);ctx.globalAlpha=pulse;
       ctx.fillStyle='rgba(14,18,26,.75)';ctx.beginPath();ctx.arc(-6,0,17,0,7);ctx.fill();
