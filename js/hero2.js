@@ -33,7 +33,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   const G=opt.gait||{leg:1,bob:1,arm:1},wk=walk?Math.sin(walk*12):0,bob=walk?Math.abs(wk)*1.4*G.bob:0,br=walk||opt.sit?0:Math.sin(now*2.2+sd),sit=opt.sit?7:0;
   /* breathing: the whole body rises and settles a little (feet stay on the ground), the head follows a beat later */
   const breath=opt.sit?Math.sin(now*2.2+sd)*.3:br*.5;
-  const by=y-9-bob+(opt.sit&&opt.sitPose&&opt.sitPose.hip!==undefined?opt.sitPose.hip+1:sit)-breath,hy=by-20-Math.sin(now*2.2+sd-.6)*.2,robe=out==='arcanist'||out==='cleric',bw=BUILD_W[L.body|0]||1;LAST_HY=hy;
+  const by=y-9-bob+(opt.sit&&opt.sitPose&&opt.sitPose.hip!==undefined?opt.sitPose.hip+1:sit)-breath,hy=by-20-Math.sin(now*2.2+sd-.6)*.2,robe=(out==='arcanist'||out==='cleric')&&!(WARDEN_V2&&typeof OUTFITS!=='undefined'&&OUTFITS[out]&&OUTFITS[out][opt.cls]&&OUTFITS[out][opt.cls].legs),bw=BUILD_W[L.body|0]||1;LAST_HY=hy;
   // the Arcanist family's outfits are drawn by js/outfits.js (outfitPart); V hands it what it needs
   const AK=WARDEN_V2&&typeof OUTFITS!=='undefined'&&OUTFITS[out]?OUTFITS[out][opt.cls]||null:null;
   const top=AK?(AK.robe||AK.body):out==='cleric'?'#f4efe2':body,dark=hero2Shade(top,-38),lite=hero2Shade(top,30);
