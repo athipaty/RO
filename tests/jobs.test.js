@@ -39,7 +39,7 @@ module.exports = async t => {
     const tree = await g.ev(() => { P.skills.bladecraft = 5; P.skills.sunder = 3; P.skillPts = 10; /* Rending Blow grows from the Blade path (v1.18.0) */ openPanel('skills'); const hs = [...panel.querySelectorAll('.skpsec')].map(h => h.textContent + ' skills'); const lb = id => { PANEL_ACTS.sksel(id); const b = panel.querySelector(`[data-act="learn"][data-arg="${id}"]`); if (!b) throw new Error('no learn for ' + id + ' sel=' + SKP.sel + ' ' + panelKind); return b; };
       const learn = lb('frenzy'); const lockedFrenzy = learn.disabled;
       for (let i = 0; i < 3; i++) lb('rendingblow').click();
-      lb('frenzy').click(); closePanel();
+      lb('frenzy').click(); panel.querySelector('[data-act="pendsave"]').click(); closePanel();
       return { hs, lockedFrenzy, rb: P.skills.rendingblow, fr: P.skills.frenzy }; });
     t.ok(tree.hs.join('|') === 'Warden skills|Ravager skills', 'the skill tree shows Warden skills and Ravager skills in two sections');
     t.ok(tree.lockedFrenzy && tree.rb === 3 && tree.fr === 1, 'Frenzy needs Rending Blow 3, then can be learned');
