@@ -83,7 +83,7 @@ function giftPill(){let el=document.getElementById('giftPill');const d=P&&runnin
   if(!el){el=document.createElement('button');el.id='giftPill';el.type='button';document.body.appendChild(el);el.addEventListener('click',ev=>{ev.stopPropagation();loginCard();});}
   const t=`🎁 Daily gift · day ${d}`;if(el.textContent!==t)el.textContent=t;el.hidden=false;
   // upright phones: under the status box and the map (sideways and desktop: the CSS spot under the top strip)
-  let top='';if(innerHeight>innerWidth&&document.body.classList.contains('touchui')){let b=0;for(const id of ['hud','minibox']){const e=document.getElementById(id);if(e&&e.getClientRects().length)b=Math.max(b,e.getBoundingClientRect().bottom);}top=Math.round(b+8)+'px';}
+  let top='';if(innerHeight>innerWidth&&document.body.classList.contains('touchui')){let b=0;for(const id of ['hud','minibox','goalChip']){const e=document.getElementById(id);if(e&&e.getClientRects().length)b=Math.max(b,e.getBoundingClientRect().bottom);}top=Math.round(b+8)+'px';}
   if(el.style.top!==top)el.style.top=top;}
 setInterval(()=>{try{giftPill();}catch(e){}},1000);
 

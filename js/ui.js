@@ -14,7 +14,8 @@ function updateHud(){
   setT('ailT',ailText());
   {const wt=`Weight ${fmt(carryWeight())} / ${fmt(maxWeight())}`+(P.heavy===2?' · too heavy to fight':P.heavy?' · no regen':'');
     // phones hide the gold line to keep the box small, so the gold rides at the end of the weight line
-    const g=document.body.classList.contains('touchui')&&!P.heavy?`${goldShort(P.gold)} gold`:'',key=wt+'|'+g;
+    const gl=document.getElementById('gold'),glShown=!!(gl&&gl.getClientRects().length&&getComputedStyle(gl).display!=='none');
+    const g=document.body.classList.contains('touchui')&&!P.heavy&&!glShown?`${goldShort(P.gold)} gold`:'',key=wt+'|'+g;
     if(hudCache.weight!==key){hudCache.weight=key;const el=document.getElementById('weight');el.textContent=wt;if(g){const s=document.createElement('span');s.className='wgold';s.textContent=g;el.appendChild(s);}}}
   {const we=$('#weight'),hv=!!P.heavy;if(we.classList.contains('heavy')!==hv)we.classList.toggle('heavy',hv);}
   setT('gold',`${goldShort(P.gold)} gold`+(P.statPts?` · ${P.statPts} stat pts`:'')+(P.skillPts?` · ${P.skillPts} skill pts`:'')+(isRested()?` · ${restedText()}`:''));
