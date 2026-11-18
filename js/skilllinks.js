@@ -16,12 +16,19 @@ function skillLinkSvg(box,nodes){const old=box.querySelector(':scope>svg.sklinks
   const gaps=new Map();for(const L of links){const key=Math.round(L.c.t);if(!gaps.has(key))gaps.set(key,[]);const a=gaps.get(key);if(!a.includes(L.k))a.push(L.k);}
   for(const a of gaps.values())a.sort((x,y)=>nodes.get(x).getBoundingClientRect().left-nodes.get(y).getBoundingClientRect().left);
   const add=(tag,at)=>{const e=document.createElementNS(NS,tag);for(const k in at)e.setAttribute(k,at[k]);svg.appendChild(e);return e;};
-  const kids=new Map();
+  const kids=new Map(),rects=[...nodes].map(([id,el])=>({id,...R(el)})).filter(q=>q.w);
   const selGrid=box.querySelector('.skpic.sel')?.closest('.skpgrid')||null;
   for(const L of links){const met=(P.skills[L.k]||0)>=L.lv,same=!selGrid||nodes.get(L.id).closest('.skpgrid')===selGrid,on=!hl||!same||(hl.has(L.k)&&hl.has(L.id)),col=met?'#e8c25a':'#7d8798';
     const x1=(L.p.l+L.p.r)/2,y1=L.p.b-2,x2=(L.c.l+L.c.r)/2,y2=L.c.t+1,lanes=gaps.get(Math.round(L.c.t)),li=lanes.indexOf(L.k),ny=lanes.length;
     const yl=Math.max(y1+6,y2-10-(ny-1-li)*6);
-    const d=Math.abs(x1-x2)<2?`M${x1},${y1} V${y2-5}`:`M${x1},${y1} V${yl} H${x2} V${y2-5}`;
+    // a straight drop that would run over another skill steps aside into the gap between columns first
+    const others=rects.filter(q=>q.id!==L.id&&q.id!==L.k),hits=(x,ya,yb)=>others.some(q=>x>q.l-3&&x<q.r+3&&yb>q.t+2&&ya<q.b-2);
+    let d;
+    if(!hits(x1,y1,yl))d=Math.abs(x1-x2)<2?`M${x1},${y1} V${y2-5}`:`M${x1},${y1} V${yl} H${x2} V${y2-5}`;
+    else{const ys=y1+5,xs=[];const ed=[...new Set(rects.flatMap(q=>[q.l,q.r]))].sort((a,b)=>a-b);
+      for(let i=0;i<ed.length-1;i++)if(ed[i+1]-ed[i]>=4)xs.push((ed[i]+ed[i+1])/2);xs.push(ed[0]-6,ed[ed.length-1]+6);
+      const ok=xs.filter(x=>!hits(x,ys,yl)).sort((a,b)=>Math.abs(a-(x1+x2)/2)-Math.abs(b-(x1+x2)/2));const xc=ok.length?ok[0]:x1;
+      d=`M${x1},${y1} V${ys} H${xc} V${yl} H${x2} V${y2-5}`;}
     add('path',{d,fill:'none',stroke:col,'stroke-width':met?'2.4':'1.8','stroke-linejoin':'round','stroke-linecap':'round',...(met?{}:{'stroke-dasharray':'5 4'}),opacity:on?'1':'.18'});
     add('path',{d:`M${x2-5},${y2-8} L${x2},${y2-1} L${x2+5},${y2-8} Z`,fill:col,opacity:on?'1':'.18'});
     // the level it needs, as a tag on the child's top-right corner (one under the other when it needs two skills)

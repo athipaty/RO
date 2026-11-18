@@ -2,7 +2,7 @@
 /* ================= the Shade: the fifth first job =================
    Quick and hard to hit: the fastest attacks, critical hits, dodging and poison, with a dagger in the hand and a
    second one on the hip. A Novice earns it through its story with Guildmaster Corvin (js/jobstory.js), like the
-   other four. It has no advanced calling yet.
+   other four. Its advanced callings (Nightblade, Venomancer, Phantom) are in js/shade2.js.
    Loaded after js/builds.js (PASSIVE, passiveB, wieldType) and before js/jobs.js; the drawing tables of the other
    families (outfit, stance, attack, walk, sitting, weapon art) are filled in here too. */
 

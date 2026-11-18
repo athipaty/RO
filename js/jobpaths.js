@@ -17,6 +17,9 @@ const JOB_PATHS={
   cleric:{core:['smite','firstaid'],paths:[
     {id:'battle',name:'Battle',th:'สายนักรบ',role:'fights up close with a mace',roleTh:'สู้ระยะประชิดด้วยกระบอง',skills:['macemastery','holystrike']},
     {id:'healer',name:'Healer',th:'สายผู้รักษา',role:'heals and protects the party',roleTh:'รักษาและปกป้องปาร์ตี้',skills:['mend','blessing','haven','faith','renew','divineguard']}]},
+  shade:{core:['twinfang','firstaid'],paths:[
+    {id:'edge',name:'Edge',th:'สายคมมีด',role:'critical hits and quick stabs',roleTh:'คริติคอลและแทงรวดเร็ว',skills:['backstab','shadowsense','nimblehands']},
+    {id:'venom',name:'Venom',th:'สายพิษ',role:'poison and smoke',roleTh:'พิษและควัน',skills:['venomedge','smokestep']}]},
 };
 // what each advanced calling's starting skills need from the first job
 const CROSS_REQ={
@@ -36,6 +39,10 @@ const CROSS_REQ={
   crusade:{holystrike:3},zeal:{macemastery:5},
   sanctuary:{renew:3},insight:{faith:5},
   palmstrike:{macemastery:3},innercalm:{faith:3},
+  // Shade: Nightblade = Edge, Venomancer = Venom, Phantom = both
+  mortalcut:{backstab:3},edgemastery:{nimblehands:3},
+  toxicfang:{venomedge:3},toxicology:{smokestep:3},
+  phantomedge:{smokestep:3},umbralgrace:{shadowsense:3},
 };
 for(const id in CROSS_REQ)if(SKILLS[id])SKILL_REQ[id]=Object.assign({},SKILL_REQ[id]||{},CROSS_REQ[id]);
 
@@ -55,7 +62,7 @@ function jobPaths(job2){const k=CLASSES[job2];if(!k||!k.own)return [];const J=JO
 function jobNeeds(job2){const k=CLASSES[job2];if(!k||!k.own)return [];const out=[];
   for(const s of k.own)for(const r in CROSS_REQ[s]||{})out.push([r,CROSS_REQ[s][r],s]);return out;}
 const jpChip=(id,lv)=>`<span class="cm ${(P.skills[id]||0)>=lv?'ok':''}">${esc(SKILLS[id].name)} ${lv}</span>`;
-const jpTag=p=>`<span class="jptag" style="--pc:${p.id==='blade'||p.id==='elements'||p.id==='volley'||p.id==='battle'?'#e0904a':'#6ab0e0'}">${esc(jpLabel(p))}</span>`;
+const jpTag=p=>`<span class="jptag" style="--pc:${p.id==='blade'||p.id==='elements'||p.id==='volley'||p.id==='battle'||p.id==='edge'?'#e0904a':'#6ab0e0'}">${esc(jpLabel(p))}</span>`;
 
 // Guild Hall: under each advanced calling, the path it grows from and what it needs, ticked off as you learn them
 function jobNeedsHtml(job2){const ps=jobPaths(job2),need=jobNeeds(job2);if(!need.length)return '';
@@ -74,7 +81,7 @@ function skillLeadsHtml(id){const sk=SKILLS[id],c=CLASSES[P.cls];if(!sk||!c)retu
 
 if(typeof TH!=='undefined')Object.assign(TH,{'Needs from your first job:':'ต้องมีจากอาชีพแรก:','Core skill':'ทักษะหลัก','both paths use it':'ใช้ได้ทั้งสองสาย',
   'Leads to:':'นำไปสู่:','Grows from:':'ต่อยอดจาก:','Blade path':'สายดาบ','Guard path':'สายโล่','Elements path':'สายธาตุ','Mana path':'สายมานา','Volley path':'สายระดมยิง',
-  'Marksman path':'สายแม่นธนู','Battle path':'สายนักรบ','Healer path':'สายผู้รักษา'});
+  'Marksman path':'สายแม่นธนู','Battle path':'สายนักรบ','Healer path':'สายผู้รักษา','Edge path':'สายคมมีด','Venom path':'สายพิษ'});
 for(const J of Object.values(JOB_PATHS))for(const p of J.paths)if(typeof TH!=='undefined')TH[p.role]=p.roleTh;
 
 (()=>{const st=document.createElement('style');st.textContent=`
