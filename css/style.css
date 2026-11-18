@@ -1296,7 +1296,7 @@ body.touchui #panel.npcfull{overflow-x:hidden}
 #duelBox .jdots i{display:inline-block;width:9px;height:9px;margin:0 2px;border-radius:50%;background:rgba(255,255,255,.15);vertical-align:middle}#duelBox .jdots i.on{background:#ffcf5a}
 #duelBox .jhearts{color:#ff7a7a;margin-left:8px}#duelBox .jhearts s{color:rgba(255,255,255,.2);text-decoration:none}
 /* choosing a calling at Corvin (js/jobstory.js): picture cards, the job's tag on its story and the confirm card */
-.jpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;margin:6px 0 8px}
+.jpgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:6px 0 8px}.jpgrid>.jpick{flex:0 1 calc((100% - 12px)/3);min-width:96px;box-sizing:border-box}
 .jpick{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px 8px;border:1px solid var(--edge-dim);border-radius:8px;background:#10141b;color:inherit;font:inherit;cursor:pointer;text-align:center}
 .jpick:hover,.jpick:focus-visible{border-color:var(--edge);background:#161b24}
 .jpick img,.jconfirm img,.jsjob img,.choice .jcard img{image-rendering:auto;width:56px;height:64px;object-fit:contain}
