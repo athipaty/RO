@@ -132,7 +132,7 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 60. M Equipment window with a paper doll
 - [x] 61. S Draggable windows that remember their place (v0.34.0)
 - [x] 62. S Several hotbar rows with drag and drop (v0.56.0: ⊞ adds up to two rows, Alt+1–8 and F1–F8)
-- [x] 63. S Floating "+EXP / +Job" gains, EXP per hour (/exp)
+- [x] 63. S EXP per hour (/exp) (floating "+EXP / +Job" over the hero removed in v1.21.5: the status box bars show it)
 - [x] 64. S Name colours (players, nearby allies, guests, calm/aggressive monsters, bosses)
 - [x] 65. S Shift-click to attack in place (v0.32.0)
 - [x] 66. S Screenshot key (v0.52.0: P, or Photo in the phone menu)
