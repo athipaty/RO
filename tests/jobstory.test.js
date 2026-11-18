@@ -23,6 +23,14 @@ module.exports = async t => {
       P.jl = 10; out.offers = questsAt('corvin').offer.filter(id => QUESTS[id].job).length;
       // Corvin's window shows the five callings without instant job buttons
       openNpc(npc('Guildmaster Corvin')); PANEL_ACTS.tservice(); out.cards = panel.querySelectorAll('.jcard').length; out.noBtn = !panel.querySelector('[data-act="job"]'); closePanel();
+      // Corvin's talk: five picture cards with English job names; Accept on a first chapter asks to confirm first
+      openNpc(npc('Guildmaster Corvin')); const picks = [...panel.querySelectorAll('.jpick')];
+      out.picks = picks.length === 5 && picks.every(b => b.querySelector('img') && /^(Warden|Arcanist|Ranger|Cleric|Shade)$/.test(b.querySelector('.jpname').textContent)); out.picks = out.picks && !panel.querySelector('.tq.offer[data-arg^="offer:"]');
+      PANEL_ACTS.topen('offer:ws1'); talk.page = QUESTS.ws1.offer.length - 1; refreshPanel();
+      out.tag = /Warden/.test(panel.querySelector('.jsjob').textContent) && !panel.querySelector('[data-act="qaccept"]') && !!panel.querySelector('[data-act="jspick"]');
+      PANEL_ACTS.jspick('ws1'); out.confirm = !!panel.querySelector('.jconfirm') && !QS().active.ws1;
+      PANEL_ACTS.jsno(); out.back = !panel.querySelector('.jconfirm') && !QS().active.ws1;
+      PANEL_ACTS.jspick('ws1'); PANEL_ACTS.jsyes('ws1'); out.yes = !!QS().active.ws1; delete QS().active.ws1; closePanel();
 
       // ---- Warden, start to end
       accept('ws1'); out.oneAtATime = !qAvailable('as1') && !qAvailable('ss1');
@@ -61,6 +69,8 @@ module.exports = async t => {
     });
     t.ok(r.early, 'no calling story before Job Level 10');
     t.ok(r.offers === 5, `Corvin offers five calling stories at Job Level 10 (${r.offers})`);
+    t.ok(r.picks, 'Corvin shows the five callings as picture cards with their English names');
+    t.ok(r.tag && r.confirm && r.back && r.yes, 'a story offer shows its job; Accept asks to confirm, Go back cancels, Yes starts it');
     t.ok(r.cards === 5 && r.noBtn, 'the Guild Hall window shows the five callings, without instant job buttons');
     t.ok(r.oneAtATime, 'only one story can be under way at a time');
     t.ok(r.fences, 'Warden: Tamsin, the Turnip Sprites and both fence posts at Willowmere Farms ready the chapter');

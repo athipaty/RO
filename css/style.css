@@ -1295,3 +1295,15 @@ body.touchui #panel.npcfull{overflow-x:hidden}
 #duelBox .gts{font-size:12px;color:#c8d0dc;margin-top:3px}
 #duelBox .jdots i{display:inline-block;width:9px;height:9px;margin:0 2px;border-radius:50%;background:rgba(255,255,255,.15);vertical-align:middle}#duelBox .jdots i.on{background:#ffcf5a}
 #duelBox .jhearts{color:#ff7a7a;margin-left:8px}#duelBox .jhearts s{color:rgba(255,255,255,.2);text-decoration:none}
+/* choosing a calling at Corvin (js/jobstory.js): picture cards, the job's tag on its story and the confirm card */
+.jpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;margin:6px 0 8px}
+.jpick{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px 8px;border:1px solid var(--edge-dim);border-radius:8px;background:#10141b;color:inherit;font:inherit;cursor:pointer;text-align:center}
+.jpick:hover,.jpick:focus-visible{border-color:var(--edge);background:#161b24}
+.jpick img,.jconfirm img,.jsjob img,.choice .jcard img{image-rendering:auto;width:56px;height:64px;object-fit:contain}
+.jpname{font-size:16px;letter-spacing:.02em}
+.jpick small,.jconfirm small,.jsjob small{display:block;font-size:11.5px;color:#a9b2c2;line-height:1.3}
+.jsjob{display:flex;align-items:center;gap:8px;margin:4px 0;padding:4px 8px;border:1px solid var(--edge-dim);border-radius:8px;background:#10141b}
+.jsjob img{width:42px;height:48px}
+.jconfirm{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;margin:8px 0;padding:10px;border:1px solid var(--edge);border-radius:10px;background:#10141b}
+.jconfirm img{width:84px;height:96px}.jconfirm .jpname{font-size:20px}.jconfirm p{margin:6px 0 0}
+.choice .jcard img{float:right;width:42px;height:48px;margin:-2px 0 0 6px}

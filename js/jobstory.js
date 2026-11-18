@@ -307,6 +307,43 @@ PANEL_ACTS.tjask=arg=>{const [id,key]=String(arg).split('|'),q=QUESTS[id],o=q&&q
 PANEL_ACTS.tjback=()=>{if(talk)talk.jsay=null;refreshPanel();};
 {const _nm=npcMark;npcMark=function(n){const key=npcKeyOf(n);if(key&&jsTalks(key).length)return 'ready';return _nm.apply(this,arguments);};}
 
+/* ---- choosing a calling at Corvin: picture cards with the job's English name (also in Thai), and a confirm card ----
+   A Novice sees the five callings as cards (their hero dressed as that job, the job name in English, a short role line)
+   instead of plain story titles. Tapping one opens Corvin's offer as before; Accept on a first chapter asks once more
+   ("Start the Warden story?") so a stray tap does not start the wrong story. */
+const JS_ROLE={warden:['Tank · sword · the most HP','แทงค์ · ดาบ · HP มากที่สุด'],arcanist:['Magic from afar · wand','เวทมนตร์ระยะไกล · คทา'],
+  ranger:['Archer · bow · long range','นักธนู · ธนู · ระยะไกล'],cleric:['Healer · mace · holy power','ผู้รักษา · กระบอง · พลังศักดิ์สิทธิ์'],shade:['Fast · dagger · quick strikes','ว่องไว · มีดสั้น · โจมตีรวดเร็ว']};
+const jsPic=cls=>typeof jobPicURL==='function'?jobPicURL(cls):'';
+const jsRole=cls=>{const r=JS_ROLE[cls];return r?JS_L(r[0],r[1]):'';};
+// the job name stays English in every language (translate="no" keeps the page sweep off it)
+const jsJobName=cls=>`<b class="jpname" translate="no" style="color:${CLASSES[cls].col}">${esc(CLASSES[cls].name)}</b>`;
+function jsJobCard(cls,act,arg){const pic=jsPic(cls);
+  return `<button class="jpick" data-act="${act}" data-arg="${arg}">${pic?`<img alt="" src="${pic}">`:''}${jsJobName(cls)}<small>${esc(jsRole(cls))}</small></button>`;}
+{const _pt2=PANELS.talk;PANELS.talk=function(){if(!talk)return _pt2.apply(this,arguments);
+  // the confirm card
+  if(talk.jconfirm){const id=talk.jconfirm,q=QUESTS[id],cls=q&&q.job;if(!cls){talk.jconfirm=null;return _pt2.apply(this,arguments);}
+    const nm=CLASSES[cls].name,pic=jsPic(cls);
+    return `<div class="thead"><canvas id="talkCv" width="144" height="144" aria-hidden="true"></canvas><h2>${esc(npcName(talk.npc))}</h2></div>`+
+      `<div class="jconfirm">${pic?`<img alt="" src="${pic}">`:''}${jsJobName(cls)}<small>${esc(jsRole(cls))}</small>`+
+      `<p>${esc(JS_L(`Start the ${nm} story? When you finish it, you become a ${nm}.`,`เริ่มเรื่องราวของ ${nm} ไหม? เมื่อจบเรื่อง คุณจะได้เป็น ${nm}`))}</p>`+
+      `<p class="muted">${esc(JS_L('You can follow only one story at a time. Until the last chapter you can still give it up in the quest log and pick another.','ทำได้ทีละเรื่องเท่านั้น ก่อนถึงบทสุดท้าย ยังยกเลิกได้ในสมุดเควสแล้วเลือกเรื่องอื่น'))}</p></div>`+
+      `<div class="tbtns"><button class="btn" data-act="jsyes" data-arg="${id}">${esc(JS_L(`Yes, I choose ${nm}`,`ใช่ ฉันเลือก ${nm}`))}</button><button class="btn" data-act="jsno">${esc(JS_L('Go back','ย้อนกลับ'))}</button></div>`;}
+  let h=_pt2.apply(this,arguments);
+  // an offer of a story: show which job it leads to; the first chapter's Accept asks to confirm
+  if(talk.id){const q=QUESTS[talk.id];if(!q||!q.job||talk.jsay)return h;
+    const tag=`<div class="jsjob">${jsPic(q.job)?`<img alt="" src="${jsPic(q.job)}">`:''}<span>${esc(JS_L('Calling:','อาชีพ:'))} ${jsJobName(q.job)}<small>${esc(jsRole(q.job))}</small></span></div>`;
+    const i=h.indexOf('</div>',h.indexOf('<div class="sub">'));if(i>=0&&h.indexOf('<div class="sub">')>=0)h=h.slice(0,i+6)+tag+h.slice(i+6);
+    if(talk.mode==='offer'&&JS_FIRST.includes(talk.id))h=h.replace(`data-act="qaccept" data-arg="${talk.id}"`,`data-act="jspick" data-arg="${talk.id}"`);
+    return h;}
+  // Corvin's list: the first chapters become picture cards
+  const offers=JS_FIRST.filter(id=>h.includes(`data-arg="offer:${id}"`));if(!offers.length)return h;
+  for(const id of offers){const a=h.indexOf(`<button class="tq offer" data-act="topen" data-arg="offer:${id}">`),b=a<0?-1:h.indexOf('</button>',a);if(b>=0)h=h.slice(0,a)+h.slice(b+9);}
+  const grid=`<div class="sub">${esc(JS_L('Choose your calling. Tap a job to hear its story.','เลือกอาชีพของคุณ แตะที่อาชีพเพื่อฟังเรื่องราว'))}</div><div class="jpgrid">`+offers.map(id=>jsJobCard(QUESTS[id].job,'topen','offer:'+id)).join('')+`</div>`;
+  const i=h.indexOf('<div class="tlist">');return i<0?h+grid:h.slice(0,i)+grid+h.slice(i);};}
+PANEL_ACTS.jspick=id=>{if(!talk||!qAvailable(id))return;talk.jconfirm=id;sfx('click');refreshPanel();};
+PANEL_ACTS.jsno=()=>{if(talk)talk.jconfirm=null;sfx('click');refreshPanel();};
+PANEL_ACTS.jsyes=id=>{if(!talk||talk.jconfirm!==id)return;talk.jconfirm=null;PANEL_ACTS.qaccept(id);};
+
 /* ---- the last chapter makes you that job ---- */
 {const _qf=PANEL_ACTS.qfinish;PANEL_ACTS.qfinish=function(id){const q=QUESTS[id],grant=q&&q.grant&&qReady(id)&&talk&&q.to===talk.npc?q.grant:null;
   const r=_qf.apply(this,arguments);if(grant&&QS().done.includes(id)&&typeof becomeJob==='function'){becomeJob(grant);if(typeof showBanner==='function')showBanner(CLASSES[grant].name,JS_L('Your story is complete','เรื่องราวของคุณจบสมบูรณ์'));}return r;};}

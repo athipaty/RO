@@ -125,7 +125,7 @@ function thText0(s){const k=s.trim();if(!k)return s;let t=TH[k];
   if(t===undefined||t===k)return s;const lead=s.match(/^\s*/)[0],trail=s.match(/\s*$/)[0];return lead+t+trail;}
 // sweep the page: text nodes and the attributes people read (titles, labels, placeholders, quick tooltips)
 const TH_ATTR=['title','aria-label','placeholder','data-tip'];
-function thNode(n){if(n.nodeType===3){const p=n.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName)||p.closest&&p.closest('.l-chat,.l-whisper,.l-party,.l-guild,.l-room,#chatIn'))return;
+function thNode(n){if(n.nodeType===3){const p=n.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName)||p.closest&&p.closest('.l-chat,.l-whisper,.l-party,.l-guild,.l-room,#chatIn,[translate="no"]'))return;
     const v=n.nodeValue;if(n.__th===v)return;const t=thText(v);if(t!==v){n.__th=t;n.nodeValue=t;}else n.__th=v;return;}
   if(n.nodeType!==1)return;for(const a of TH_ATTR){const v=n.getAttribute&&n.getAttribute(a);if(v){const t=thText(v);if(t!==v)n.setAttribute(a,t);}}
   if(n.nodeName==='SCRIPT'||n.nodeName==='STYLE')return;for(const c of n.childNodes)thNode(c);}

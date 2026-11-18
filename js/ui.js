@@ -218,7 +218,7 @@ function refreshPanel(){
     if(P.cls!=='novice')h+=jobHallHtml(c);
     else if(P.jl<10)h+=`<div class="say">“Every calling starts in the meadow. Reach Job Level 10 and come see me. You're at ${P.jl} now.” — Corvin</div>`;
     else{h+=`<div class="say">“You've earned it. Every calling has its own story, and you have to live it before the guild gives you the name. Talk to me again and pick the one to begin. You can change your mind before the end.” — Corvin</div><div class="choice">`;
-      for(const id of JOB_FIRST){const k=CLASSES[id];h+=`<div class="jcard"><b style="color:${k.col}">${k.name}</b><small>${k.desc}</small><small>Starts with: ${ITEMS[k.gift].name}</small></div>`;}
+      for(const id of JOB_FIRST){const k=CLASSES[id];const pic=typeof jobPicURL==='function'?jobPicURL(id):'';h+=`<div class="jcard">${pic?`<img alt="" src="${pic}">`:''}<b translate="no" style="color:${k.col}">${k.name}</b><small>${k.desc}</small><small>Starts with: ${ITEMS[k.gift].name}</small></div>`;}
       h+=`</div>`;}
     h+=respecHtml();
     h+=`<h3>Hunting contracts</h3>`;
