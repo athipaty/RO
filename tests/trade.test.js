@@ -18,7 +18,7 @@ module.exports = async t => {
     t.ok(await B.ev(() => !document.getElementById('tradeAsk').hidden), 'Beta gets a trade request card');
     await B.ev(() => document.getElementById('taYes').click()); await wait(1000);
     t.ok(await A.ev(() => panelKind === 'trade') && await B.ev(() => panelKind === 'trade'), 'both get the trade window');
-    await A.ev(() => { const i = P.inv.findIndex(e => e.id === 'red'); document.getElementById('tq' + i).value = 3; PANEL_ACTS.tradeAdd(i); document.getElementById('tGold').value = 50; PANEL_ACTS.tradeGold(); });
+    await A.ev(() => { const i = P.inv.findIndex(e => e.id === 'red'); tradeAddN(i, 3); document.getElementById('tGold').value = 50; PANEL_ACTS.tradeGold(); });
     await B.ev(() => PANEL_ACTS.tradeAdd(P.inv.findIndex(e => e.id === 'scroll')));
     await wait(1000);
     t.ok(await B.ev(() => { const th = TR.trade.state.them; return th.items.some(e => e.id === 'red' && e.n === 3) && th.gold === 50; }), "Beta sees Alpha's offer (3 Red Tonics and 50 gold)");

@@ -66,22 +66,39 @@ $('#taYes').addEventListener('click',()=>{if(TR.ask)soc('tradeAccept',{peer:TR.a
 $('#taNo').addEventListener('click',()=>{if(TR.ask)soc('tradeDecline',{peer:TR.ask.peer});hideTradeAsk();});
 function returnTrade(){const t=TR.trade;TR.trade=null;if(!t)return;for(const e of t.mine.items)bagAdd(e);P.gold+=t.mine.gold;}
 function sendOffer(){const m=TR.trade.mine;soc('tradeOffer',{items:m.items.map(wireEntry),gold:m.gold});refreshPanel();}
+/* the trade window (v1.19.5): both offers side by side with where each player stands, steps 1-2-3, the bag as tiles
+   (tap to add; a stack asks how many), gold with quick picks, and the next button at the bottom */
+const trPic=id=>typeof itemIconURL==='function'?`<img src="${itemIconURL(id)}" alt="">`:icon(ITEMS[id]);
+const trRow=(e,btn)=>`<div class="trrow">${trPic(e.id)}<span class="trtx"><b style="color:${rarityCol(e.id)}">${esc(itemName(e))}${e.n!==undefined&&e.n>1?` <span class="trn">×${e.n}</span>`:''}</b><small>${itemDesc(e)}</small></span>${btn||''}</div>`;
+const trBadge=s=>s.ok?`<span class="trbadge ok">✓ Ready</span>`:s.locked?`<span class="trbadge lk">🔒 Locked</span>`:`<span class="trbadge">Adding…</span>`;
 PANELS.trade=()=>{const t=TR.trade;if(!t)return '<p class="muted">No trade open.</p>';
-  const st=t.state||{me:{},them:{items:[],gold:0}},lockedMe=!!st.me.locked;
-  let h=`<h2>Trade with ${esc(t.name)}</h2><div class="sub">Add items and gold, lock your offer, then both press Trade.</div><div class="tgrid">`;
-  h+=`<div class="tcol"><h3>You offer${lockedMe?' ✓':''}</h3>`+(t.mine.items.map((e,j)=>itemRow(e,lockedMe?'':`<button class="btn small" data-act="tradeRemove" data-arg="${j}">Remove</button>`)).join('')||'<p class="muted">Nothing yet.</p>')+
-    `<div class="tgold">${fmt(t.mine.gold)} gold</div></div>`;
-  h+=`<div class="tcol"><h3>${esc(t.name)} offers${st.them.locked?' ✓':''}</h3>`+(st.them.items.map(e=>itemRow(e)).join('')||'<p class="muted">Nothing yet.</p>')+`<div class="tgold">${fmt(st.them.gold)} gold</div></div></div>`;
-  if(!lockedMe){
-    h+=`<div class="trow"><label>Gold <input id="tGold" type="number" min="0" max="${P.gold+t.mine.gold}" value="${t.mine.gold}"></label><button class="btn small" data-act="tradeGold">Set gold</button></div>`;
-    h+=`<h3>Your bag</h3>`+(P.inv.map((e,i)=>itemRow(e,(e.n!==undefined&&e.n>1?`<input class="tq" id="tq${i}" type="number" min="1" max="${e.n}" value="${e.n}" aria-label="How many">`:'')+`<button class="btn small" data-act="tradeAdd" data-arg="${i}" ${t.mine.items.length>=10?'disabled':''}>Add</button>`)).join('')||'<p class="muted">Your bag is empty.</p>');}
-  h+=`<div class="tbtns">`+(!lockedMe?`<button class="btn" data-act="tradeLock">Lock offer</button>`:
-    st.me.ok?`<span class="muted">Waiting for ${esc(t.name)} to press Trade…</span>`:
-    st.them.locked?`<button class="btn" data-act="tradeConfirm">Trade</button>`:`<span class="muted">Waiting for ${esc(t.name)} to lock…</span>`)+
+  const st=t.state||{me:{},them:{items:[],gold:0}},me=st.me||{},them=st.them||{items:[],gold:0},lockedMe=!!me.locked;
+  const step=!lockedMe?1:!them.locked?2:3;
+  let h=`<h2>Trade with ${esc(t.name)}</h2>`;
+  h+=`<div class="trsteps">${['Add items','Lock','Trade'].map((n,i)=>`<span class="${i+1===step?'on':i+1<step?'done':''}"><b>${i+1}</b>${n}</span>`).join('')}</div>`;
+  const side=(who,s,items,gold,mine)=>`<div class="trside${s.locked?' locked':''}${mine?' mine':''}"><div class="trhead"><b>${who}</b>${trBadge(s)}</div>`+
+    `<div class="trlist">${items.map((e,j)=>trRow(e,mine&&!lockedMe?`<button class="trx" data-act="tradeRemove" data-arg="${j}" aria-label="Take back">✕</button>`:'')).join('')||'<p class="muted trnone">Nothing yet</p>'}</div>`+
+    `<div class="trgold"><span class="coin"></span>${fmt(gold)} gold</div></div>`;
+  h+=`<div class="trboth">`+side('You',me,t.mine.items,t.mine.gold,true)+side(esc(t.name),them,them.items,them.gold,false)+`</div>`;
+  if(!lockedMe){const max=P.gold+t.mine.gold;
+    h+=`<div class="trgoldset"><label>Gold <input id="tGold" type="number" inputmode="numeric" min="0" max="${max}" value="${t.mine.gold}"></label>`+
+      `<button class="btn small" data-act="tradeGold">Set</button></div><div class="trchips">${[['+100',100],['+1k',1000],['+10k',10000]].map(([l,v])=>`<button class="btn small trq" data-act="tradeGoldAdd" data-arg="${v}" ${t.mine.gold+v>max?'disabled':''}>${l}</button>`).join('')}`+
+      `<button class="btn small trq" data-act="tradeGoldAdd" data-arg="max">All</button>${t.mine.gold?`<button class="btn small trq" data-act="tradeGoldAdd" data-arg="0">0</button>`:''}</div>`;
+    const full=t.mine.items.length>=10;
+    h+=`<h3 class="trbagh">Your bag <span class="muted">${full?'· the offer is full (10)':'· tap to add'}</span></h3><div class="trbag">`+
+      (P.inv.map((e,i)=>`<button class="trtile" data-act="tradeAdd" data-arg="${i}" ${full?'disabled':''} title="${esc(itemName(e))}">${trPic(e.id)}${e.n!==undefined&&e.n>1?`<span class="trc">${e.n}</span>`:''}<span class="trnm" style="color:${rarityCol(e.id)}">${esc(itemName(e))}</span></button>`).join('')||'<p class="muted">Your bag is empty.</p>')+`</div>`;}
+  h+=`<div class="tbtns trbar">`+(!lockedMe?`<button class="btn trmain" data-act="tradeLock">🔒 Lock my offer</button>`:
+    me.ok?`<span class="muted">Waiting for ${esc(t.name)} to press Trade…</span>`:
+    them.locked?`<button class="btn trmain go" data-act="tradeConfirm">✓ Trade</button>`:`<span class="muted">Waiting for ${esc(t.name)} to lock…</span>`)+
     `<button class="btn" data-act="tradeCancel">Cancel</button></div>`;
   return h;};
-PANEL_ACTS.tradeAdd=i=>{const t=TR.trade;if(!t||t.state&&t.state.me.locked||t.mine.items.length>=10)return;const q=document.getElementById('tq'+i);
-  const e=bagTake(+i,q?+q.value:0);if(!e)return;const same=e.n!==undefined&&t.mine.items.find(x=>x.id===e.id&&x.n!==undefined);if(same)same.n+=e.n;else t.mine.items.push(e);sendOffer();};
+// add from the bag: a stack asks how many (from a tap), a single piece goes in at once
+function tradeAddN(i,n){const t=TR.trade;if(!t||t.state&&t.state.me.locked||t.mine.items.length>=10)return;
+  const e=bagTake(+i,n||0);if(!e)return;const same=e.n!==undefined&&t.mine.items.find(x=>x.id===e.id&&x.n!==undefined);if(same)same.n+=e.n;else t.mine.items.push(e);sendOffer();}
+PANEL_ACTS.tradeAdd=(i,b)=>{const e=P.inv[+i];if(!e)return;
+  if(b&&e.n!==undefined&&e.n>1&&typeof qtyAsk==='function')qtyAsk({id:e.id,max:e.n,def:e.n,verb:'Add'},v=>tradeAddN(+i,v));else tradeAddN(+i,e.n);};
+PANEL_ACTS.tradeGoldAdd=arg=>{const t=TR.trade;if(!t||t.state&&t.state.me.locked)return;const max=P.gold+t.mine.gold;
+  const want=arg==='max'?max:+arg===0?0:clamp(t.mine.gold+(+arg||0),0,max);P.gold+=t.mine.gold-want;t.mine.gold=want;sfx('coin');sendOffer();};
 PANEL_ACTS.tradeRemove=j=>{const t=TR.trade;if(!t||t.state&&t.state.me.locked)return;const e=t.mine.items.splice(+j,1)[0];if(e)bagAdd(e);sendOffer();};
 PANEL_ACTS.tradeGold=()=>{const t=TR.trade;if(!t||t.state&&t.state.me.locked)return;const want=clamp(Math.floor(+document.getElementById('tGold').value||0),0,P.gold+t.mine.gold);
   P.gold+=t.mine.gold-want;t.mine.gold=want;sendOffer();};
@@ -128,3 +145,7 @@ function shopSign(x,y,title){ctx.font='800 11px "Alegreya Sans",sans-serif';cons
   ctx.fillStyle='#e0a030';ctx.beginPath();ctx.arc(bx+9,by+10,3.5,0,7);ctx.fill();
   ctx.fillStyle='#3a2410';ctx.textAlign='left';let t=title;while(ctx.measureText(t).width>w-17&&t.length>1)t=t.slice(0,-2)+'…';ctx.fillText(t,bx+15,by+14);}
 function shopAt(sc){for(const [peer,o] of NET.others){if(!o.vd||o.z!==zoneId)continue;const p=proj(o.rx,o.ry);if(Math.abs(p.x-sc.x)<70&&sc.y>p.y-90&&sc.y<p.y+4)return peer;}return null;}
+if(typeof TH!=='undefined'){Object.assign(TH,{'Add items':'ใส่ของ','Lock':'ล็อก','Trade':'แลกเปลี่ยน','Adding…':'กำลังใส่ของ…','✓ Ready':'✓ พร้อม','🔒 Locked':'🔒 ล็อกแล้ว',
+  'You':'คุณ','Your bag':'กระเป๋าของคุณ','· tap to add':'· แตะเพื่อใส่','· the offer is full (10)':'· ใส่ครบแล้ว (10)','🔒 Lock my offer':'🔒 ล็อกข้อเสนอ','✓ Trade':'✓ แลกเปลี่ยน',
+  'Set':'ตั้ง','All':'ทั้งหมด','Nothing yet':'ยังไม่มี','Gold':'โกลด์','Take back':'เอาคืน','No trade open.':'ไม่มีการแลกเปลี่ยน'});
+  if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^Trade with (.+)$/,'แลกเปลี่ยนกับ $1'],[/^Waiting for (.+) to press Trade…$/,'รอ $1 กดแลกเปลี่ยน…'],[/^Waiting for (.+) to lock…$/,'รอ $1 ล็อกข้อเสนอ…']);}

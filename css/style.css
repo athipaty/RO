@@ -1313,3 +1313,37 @@ body.touchui #panel.npcfull{overflow-x:hidden}
 button.advcard{cursor:pointer}button.advcard:hover,button.advcard:focus-visible{border-color:var(--edge);background:#161b24}
 .advcard img{width:56px;height:64px;object-fit:contain;flex:none}.advcard.prev img{width:42px;height:48px}
 .advtxt{display:flex;flex-direction:column;gap:2px;min-width:0}.advtxt small{display:block;font-size:12px;color:#a9b2c2;line-height:1.35}
+/* the trade window (js/trade.js, v1.19.5) */
+.trsteps{display:flex;gap:4px;margin:4px 0 10px}
+.trsteps span{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:5px 4px;border-radius:7px;background:#10141b;border:1px solid var(--edge-dim);font-size:12.5px;color:#8a93a3;white-space:nowrap}
+.trsteps b{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#2a3140;color:#c8d0dc;font-size:11px}
+.trsteps .on{border-color:#e8c25a;color:#f4e6c4;background:#2a2412}.trsteps .on b{background:#e8c25a;color:#2a2012}
+.trsteps .done{color:#9fd3a8}.trsteps .done b{background:#3f8a4c;color:#fff}
+.trboth{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.trside{display:flex;flex-direction:column;min-width:0;border:1px solid var(--edge-dim);border-radius:10px;background:#10141b;padding:8px}
+.trside.locked{border-color:#7fb8ff;box-shadow:0 0 0 1px rgba(127,184,255,.25) inset}
+.trhead{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px}.trhead>b{font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trbadge{flex:none;font-size:11px;font-weight:700;padding:2px 7px;border-radius:9px;background:#2a3140;color:#c8d0dc}
+.trbadge.lk{background:#1e3350;color:#9fd0ff}.trbadge.ok{background:#1f4a2a;color:#9be3a8}
+.trlist{display:flex;flex-direction:column;gap:4px;flex:1;min-height:44px}.trnone{margin:8px 0;text-align:center;font-size:13px}
+.trrow{display:flex;align-items:center;gap:6px;min-width:0;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.trrow img,.trrow .ico{width:30px;height:30px;flex:none}
+.trtx{display:flex;flex-direction:column;min-width:0;flex:1}.trtx b{font-size:13px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trtx small{font-size:11px;color:#8a93a3;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.trn{color:#f4e6c4}
+.trx{flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--edge-dim);background:#1c2230;color:#e8a0a0;font:inherit;font-size:12px;cursor:pointer}
+.trgold{display:flex;align-items:center;gap:5px;margin-top:6px;padding-top:6px;border-top:1px solid var(--edge-dim);color:#ffd76a;font-weight:700;font-size:13.5px}
+.trgold .coin{width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff0a0,#e8b030 60%,#a07010);flex:none}
+.trgoldset{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:10px 0 2px}
+.trgoldset{flex-wrap:nowrap}.trgoldset label{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.trchips{display:flex;gap:5px;margin:5px 0 2px}.trchips .trq{flex:1;padding-left:4px;padding-right:4px}.trgoldset input{flex:1;min-width:0;width:auto;padding:6px 8px;background:#0b0e13;border:1px solid var(--edge-dim);border-radius:6px;color:var(--ink);font:inherit}
+.trgoldset .trq{padding-left:8px;padding-right:8px}
+.trbagh{margin:12px 0 6px}.trbagh .muted{font-size:12px;font-weight:400}
+.trbag{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:6px}
+.trtile{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 3px 5px;border:1px solid var(--edge-dim);border-radius:8px;background:#10141b;color:inherit;font:inherit;cursor:pointer;min-width:0}
+.trtile:hover:not(:disabled),.trtile:focus-visible{border-color:var(--edge);background:#161b24}.trtile:disabled{opacity:.45;cursor:default}
+.trtile img,.trtile .ico{width:34px;height:34px}
+.trc{position:absolute;top:3px;right:4px;font-size:11px;font-weight:800;color:#f4e6c4;background:rgba(0,0,0,.65);padding:0 4px;border-radius:6px}
+.trnm{font-size:10.5px;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trbar{position:sticky;bottom:0;margin-top:10px;padding:8px 0 2px;background:linear-gradient(transparent,rgba(12,16,24,.92) 30%)}
+.trmain{flex:1;font-weight:800}.trmain.go{background:#3f8a4c;border-color:#62bf86;color:#fff}
+@media (max-width:360px){.trboth{grid-template-columns:1fr}}
