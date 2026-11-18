@@ -288,8 +288,8 @@ function jdTap(){const r=JD.run;if(!r||performance.now()<r.lock)return;r.lock=pe
     sfx('fanfare');fx.push({k:'lvpillar',x:ob.x,y:ob.y,t0:now,dur:1.2});jsMark(ob.qid,o);addLog(JS_L(o.win,o.winTh),'l-rare');jsAfter(ob.qid);return;}
   if(r.miss>=3){JD.run=null;JD.el.querySelector('.gts').textContent=JS_L('Out of breath… try again.','หมดแรง… ลองใหม่อีกครั้ง');setTimeout(()=>{if(!JD.run)JD.el.hidden=true;},900);return;}
   jdRound();}
-// walking off or getting hit stops it
-setInterval(()=>{const r=JD.run;if(r&&P&&(P.dead||Math.hypot(P.x-r.ob.x,P.y-r.ob.y)>110||(P.hurtT&&now-P.hurtT<.2))){JD.run=null;if(JD.el)JD.el.hidden=true;}},200);
+// walking off or going down stops it (a hit no longer does, since v1.19.1: a passing monster used to ruin the duel)
+setInterval(()=>{const r=JD.run;if(r&&P&&(P.dead||Math.hypot(P.x-r.ob.x,P.y-r.ob.y)>110)){JD.run=null;if(JD.el)JD.el.hidden=true;}},200);
 addEventListener('keydown',ev=>{if(JD.run&&(ev.code==='Space'||ev.code==='Enter')){ev.preventDefault();jdTap();}});
 
 /* ---- talking to someone as a step (Brannoc, Wenna, Tobin…) ---- */
