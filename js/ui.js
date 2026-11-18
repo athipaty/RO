@@ -14,10 +14,10 @@ function updateHud(){
   setT('ailT',ailText());
   {const wt=`Weight ${fmt(carryWeight())} / ${fmt(maxWeight())}`+(P.heavy===2?' · too heavy to fight':P.heavy?' · no regen':'');
     // phones hide the gold line to keep the box small, so the gold rides at the end of the weight line
-    const g=document.body.classList.contains('touchui')&&!P.heavy?`${fmt(P.gold)} gold`:'',key=wt+'|'+g;
+    const g=document.body.classList.contains('touchui')&&!P.heavy?`${goldShort(P.gold)} gold`:'',key=wt+'|'+g;
     if(hudCache.weight!==key){hudCache.weight=key;const el=document.getElementById('weight');el.textContent=wt;if(g){const s=document.createElement('span');s.className='wgold';s.textContent=g;el.appendChild(s);}}}
   {const we=$('#weight'),hv=!!P.heavy;if(we.classList.contains('heavy')!==hv)we.classList.toggle('heavy',hv);}
-  setT('gold',`${fmt(P.gold)} gold`+(P.statPts?` · ${P.statPts} stat pts`:'')+(P.skillPts?` · ${P.skillPts} skill pts`:'')+(isRested()?` · ${restedText()}`:''));
+  setT('gold',`${goldShort(P.gold)} gold`+(P.statPts?` · ${P.statPts} stat pts`:'')+(P.skillPts?` · ${P.skillPts} skill pts`:'')+(isRested()?` · ${restedText()}`:''));
   const pc=partyCount();const pe=$('#party');if(pe.hidden!==!pc)pe.hidden=!pc;if(pc)setT('party',`Party: ${SOC.party.mode==='share'?'sharing EXP':'+25% EXP each'} · ${pc} member${pc>1?'s':''} here`);
   const qe=$('#quest');if(qe.hidden!==!P.quest)qe.hidden=!P.quest;if(P.quest)setT('quest',`Contract: ${MOBS[P.quest.mob].name} ${P.quest.have}/${P.quest.need}`);
   const t=P.target&&!P.target.dead?P.target:null;const te=$('#target');
@@ -33,6 +33,9 @@ function updateHud(){
 let hotEls=[];
 function hotSlots(){const sk=hotSkills();
   return [...sk.map(s=>s?{skill:s}:null),{item:'red'},{item:'orange'},{item:'blue'},{item:'scroll'}];}
+// big amounts in the status box: 12.3k, 1.23M, 4.5B (the full amount is in the bag and shop windows)
+function goldShort(n){n=Math.floor(n||0);const c=(v,u)=>(v>=100?Math.floor(v):v>=10?Math.floor(v*10)/10:Math.floor(v*100)/100)+u;
+  return n<10000?fmt(n):n<1e6?c(n/1e3,'k'):n<1e9?c(n/1e6,'M'):c(n/1e9,'B');}
 function rebuildHotbar(){
   if(!P)return;const hb=$('#hotbar');const slots=hotSlots();const sig=JSON.stringify(slots);if(hb._sig===sig)return;hb._sig=sig;
   hb.innerHTML='';hotEls=[];

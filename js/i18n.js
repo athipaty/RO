@@ -105,7 +105,7 @@ const TH_PAT=[
   [/^Continue as (.+) \(Lv (\d+)\)$/,'เล่นต่อเป็น $1 (Lv $2)'],[/^Lv (\d+) · (.+?)( ✦)?$/,(m,a,b,c)=>`Lv ${a} · ${thText(b)}${c||''}`],
   [/^Delete (.+) \(Lv (\d+)\)\? This cannot be undone\. Items in storage stay for your other characters\.$/,'ลบ $1 (Lv $2)? ย้อนกลับไม่ได้ ของในคลังยังอยู่สำหรับตัวละครอื่นของคุณ'],
   [/^Lv (\d+)$/,'Lv $1'],[/^Job (\d+)$/,'อาชีพ $1'],[/^Job (max)$/,'อาชีพ สูงสุด'],[/^Weight ([\d,]+) \/ ([\d,]+)(.*)$/,(m,a,b,c)=>`น้ำหนัก ${a} / ${b}${c.replace(' · too heavy to fight',' · หนักเกินกว่าจะสู้').replace(' · no regen',' · ไม่ฟื้นพลัง')}`],
-  [/^([\d,]+) gold(.*)$/,(m,a,b)=>`${a} โกลด์${b.replace(/ · (\d+) stat pts/,' · แต้มสถานะ $1').replace(/ · (\d+) skill pts/,' · แต้มสกิล $1')}`],
+  [/^([\d,.]+[kMB]?) gold(.*)$/,(m,a,b)=>`${a} โกลด์${b.replace(/ · (\d+) stat pts/,' · แต้มสถานะ $1').replace(/ · (\d+) skill pts/,' · แต้มสกิล $1')}`],
   [/^Base ([\d.]+)% · Job (.*)$/,(m,a,b)=>`ฐาน ${a}% · อาชีพ ${b.replace('max','สูงสุด')}`],
   [/^Base level (\d+)! You have (\d+) stat points to spend \(C\)\.(.*)$/,'เลเวลฐาน $1! คุณมีแต้มสถานะ $2 แต้มให้ใช้ (C)$3'],[/^Job level (\d+)! You have (\d+) skill points \(K\)\.$/,'เลเวลอาชีพ $1! คุณมีแต้มสกิล $2 แต้ม (K)'],
   [/^You got (.+?)( ×\d+)?\.$/,'คุณได้รับ $1$2'],[/^Equipped (.+)\.$/,'สวมใส่ $1 แล้ว'],[/^You enter (.+) \((.+)\)\.$/,(m,a,b)=>`คุณเข้าสู่ ${a} (${thText(b)})`],[/^Welcome to (.+), (.+)\.$/,'ยินดีต้อนรับสู่ $1, $2'],
