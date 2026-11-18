@@ -4,7 +4,7 @@
    the status box and the online badge, where the thumb rests and the screen is free. Quests stays by the
    minimap; Menu and Sit stay in the top row. Upright (and on a computer) everything goes back where it was.
    The buttons are moved, not copied, so they keep working exactly as before. They fade in fights like the rest. */
-(()=>{const ids=['status','skills','items','equip'];
+(()=>{const ids=['status','skills','equip','items'];
   const row=document.createElement('div');row.id='quickL';row.setAttribute('role','toolbar');row.setAttribute('aria-label','Character windows');row.hidden=true;document.body.appendChild(row);
   const home=[]; // [element, original parent, original next sibling], in the order they were moved
   const sideways=()=>document.body.classList.contains('touchui')&&innerWidth>innerHeight&&innerHeight<=520;

@@ -5,9 +5,9 @@
    Swipes that start on something that scrolls sideways (a tab row, a slider) are left alone. Desktop is unchanged. */
 const WIN_TABS=[
   ['status','Stats','<path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/>'],
-  ['items','Items','<path d="M5.5 9h13l-1.2 11.5H6.7z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/>'],
-  ['equip','Equip','<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>'],
   ['skills','Skills','<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>'],
+  ['equip','Equip','<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>'],
+  ['items','Items','<path d="M5.5 9h13l-1.2 11.5H6.7z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/>'],
   ['quests','Quests','<path d="M7 3h10v18l-5-3-5 3z"/><path d="M10 8h4M10 11h4"/>'],
   ['guild','Guild','<path d="M5 21V4"/><path d="M5 4h13l-2.5 4.5L18 13H5"/>'],
   ['settings','Settings','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>']];

@@ -23,7 +23,7 @@ module.exports = async t => {
     const quick = await ev(() => { const q = document.getElementById('quick'), L = document.getElementById('quickL'), r = q.getBoundingClientRect(), mb = document.getElementById('minibox').getBoundingClientRect(), h = document.getElementById('hud').getBoundingClientRect(), lr = L.getBoundingClientRect();
       L.querySelector('[data-open="skills"]').click(); const k = panelKind; closePanel();
       return { left: [...L.children].map(c => c.dataset.open || c.id).join(','), rest: [...q.querySelectorAll('.qk')].map(c => c.dataset.open).join(','), beside: r.right <= mb.left + 2 && r.top < 60, onLeft: lr.left <= h.left + 1 && lr.top > h.bottom, k }; });
-    t.ok(quick.left === 'status,skills,items,equip,rideBtn' && quick.onLeft && quick.k === 'skills', `Stats, Skills, Items, Equip and Ride sit in a row on the left under the status box and open their windows (${quick.left})`);
+    t.ok(quick.left === 'status,skills,equip,items,rideBtn' && quick.onLeft && quick.k === 'skills', `Stats, Skills, Equip, Items and Ride sit in a row on the left under the status box and open their windows (${quick.left})`);
     t.ok(quick.rest === 'quests' && quick.beside, 'Quests stays beside the minimap');
     const auto = await ev(() => { const a = document.getElementById('autoBtn').getBoundingClientRect(), atk = document.getElementById('atkBtn').getBoundingClientRect(); return { right: a.left > innerWidth * .7, above: a.bottom < atk.top }; });
     t.ok(auto.right && auto.above, 'Auto sits on the right, above the shortcuts');
