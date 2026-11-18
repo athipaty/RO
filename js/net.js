@@ -39,6 +39,7 @@ const SERVER=(()=>{const s=new URLSearchParams(location.search).get('server');re
 function serverRoom(){
   return (window.io?Promise.resolve():loadScript('https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js')).then(()=>new Promise((res,rej)=>{
     const sock=io(SERVER+'/embervale',{transports:['websocket'],auth:{token:ACC.token||undefined},reconnectionDelayMax:8000});
+    NET.sock=sock; // js/ping.js times a round trip on it
     socialAttach(sock);if(typeof guildAttach==='function')guildAttach(sock);if(typeof modAttach==='function')modAttach(sock);if(typeof arenaAttach==='function')arenaAttach(sock);if(typeof guildwarAttach==='function')guildwarAttach(sock);if(typeof roomsAttach==='function')roomsAttach(sock);
     const seen=new Map();let cb=null,last=null,ready=false; // peer id -> latest {peer,presence,guest}
     const fail=setTimeout(()=>{if(!ready){ready=true;sock.close();rej(new Error('timeout'));}},9000);
@@ -97,7 +98,7 @@ function ingest(p){
   if(!o){o={peer:p.peer,rx:fin(s.x),ry:fin(s.y),seen:0,bubble:null,walkT:0};NET.others.set(p.peer,o);}
   o.n=clean(s.n,16)||'Traveller';o.cls=CLASSES[s.c]?s.c:'novice';o.z=ZONES[s.z]?s.z:'town';
   o.x=clamp(fin(s.x),0,4000);o.y=clamp(fin(s.y),0,4000);o.face=s.f<0?-1:1;netSnap(o,fin(s.ts),o.z!==o.lastZ);o.lastZ=o.z;{const lv=clamp(Math.floor(fin(s.lv)),1,99);if(!fresh&&o.lv&&lv>o.lv&&typeof otherLevelUp==='function')otherLevelUp(o,lv);o.lv=lv;}
-  o.moving=!!s.mv;o.sitting=!!s.st;o.back=!!s.b;o.look=lookDecode(s.lk);o.rb=s.rb===1?1:0;if(o.look&&(s.bt===1||s.bt===2))o.look.body=s.bt;o.vd=s.vd?clean(s.vd,30):null;o.dead=!!s.d;o.wid=typeof s.w==='string'&&ITEMS[s.w]&&ITEMS[s.w].type==='weapon'?s.w:null;o.guest=!!p.guest;
+  o.pg=clamp(Math.round(fin(s.pg)),0,9999);o.moving=!!s.mv;o.sitting=!!s.st;o.back=!!s.b;o.look=lookDecode(s.lk);o.rb=s.rb===1?1:0;if(o.look&&(s.bt===1||s.bt===2))o.look.body=s.bt;o.vd=s.vd?clean(s.vd,30):null;o.dead=!!s.d;o.wid=typeof s.w==='string'&&ITEMS[s.w]&&ITEMS[s.w].type==='weapon'?s.w:null;o.guest=!!p.guest;
   {const hp0=o.hp;o.hurtT=(typeof hp0==='number'&&fin(s.hp)<hp0&&!s.d)?now:o.hurtT;if(s.d&&!o.wasDown)o.deadT=now;o.wasDown=!!s.d;}o.cs=typeof s.cs==='string'&&SKILLS[s.cs]?s.cs:null;o.ct=s.ct===1;o.rd=typeof rideRead==='function'?rideRead(s.rd):null;if(typeof bondRead==='function')bondRead(o,s);if(typeof groundRead==='function')groundRead(o,s);
   o.hat=typeof s.h==='string'&&ITEMS[s.h]&&ITEMS[s.h].type==='head'?s.h:null;o.fc=typeof s.fg==='string'&&ITEMS[s.fg]&&ITEMS[s.fg].type==='face'?s.fg:null;o.mo=typeof s.mg==='string'&&ITEMS[s.mg]&&ITEMS[s.mg].type==='mouth'?s.mg:null;o.ar=typeof s.ar==='string'&&ITEMS[s.ar]&&ITEMS[s.ar].type==='armor'?s.ar:null;o.hp=clamp(fin(s.hp),0,100);
   o.guild=typeof guildTag==='function'?guildTag(p.guild):null;o.id=clean(s.id,16)||null;o.zt=fin(s.zt);o.hd=!!s.hd;
@@ -126,7 +127,7 @@ function updateWho(){
   list.textContent='';
   const row=(name,o,me,peer)=>{const d=document.createElement('div');d.className='who'+(me?' me':'')+(peer&&inParty(peer)?' party':'');
     const nm=document.createElement('b');nm.textContent=name+(me?' (you)':'');
-    const info=document.createElement('span');const z=o.z||zoneId;info.textContent=`${CLASSES[o.cls]?.name||'Novice'} Lv ${o.lv||1} · ${ZONES[z]?.name||''}${!me&&z===zoneId?' · here':''}${o.guild?' · '+o.guild.n:''}`;
+    const info=document.createElement('span');const z=o.z||zoneId;info.textContent=`${CLASSES[o.cls]?.name||'Novice'} Lv ${o.lv||1} · ${ZONES[z]?.name||''}${!me&&z===zoneId?' · here':''}${o.guild?' · '+o.guild.n:''}${typeof pingText==='function'?pingText(me?NET.ping:o.pg):''}`;
     d.append(nm,info);
     if(peer&&P&&NET.room&&NET.room.server){const bs=document.createElement('div');bs.className='wb';
       const mk=(label,fn)=>{const b=document.createElement('button');b.className='btn small';b.type='button';b.textContent=label;b.addEventListener('click',ev=>{ev.stopPropagation();fn();});bs.appendChild(b);};
@@ -240,7 +241,7 @@ function netTick(dt){
     if(o.moving||d>.5)o.walkT+=dt;if(Math.abs(dx-dy)>.3)o.face=sface(dx,dy);}
   if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+(NET.viaBroker?.15:.125);
   if(typeof netFresh==='function'){NET.hits=netFresh(NET.hits);NET.vh=netFresh(NET.vh);NET.evs=netFresh(NET.evs);}
-  const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,b:P.back?1:0,lk:lookCode(P.look),rb:P.reborn?1:0,j3:CLASSES[P.cls]&&CLASSES[P.cls].tier===3?1:0,bt:P.look&&P.look.body?P.look.body:0,lv:P.lv,mv:P.moving?1:0,st:P.sitting?1:0,d:P.dead?1:0,
+  const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,b:P.back?1:0,lk:lookCode(P.look),rb:P.reborn?1:0,j3:CLASSES[P.cls]&&CLASSES[P.cls].tier===3?1:0,bt:P.look&&P.look.body?P.look.body:0,lv:P.lv,pg:NET.ping?Math.round(NET.ping/10)*10:0,mv:P.moving?1:0,st:P.sitting?1:0,d:P.dead?1:0,
     w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,fg:P.eq.face?P.eq.face.id:null,mg:P.eq.mouth?P.eq.mouth.id:null,ar:P.eq.armor?P.eq.armor.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),ch:NET.myChat,em:NET.myEmote||null,
     id:NET.myId,zt:NET.zt,vd:typeof TR!=='undefined'&&TR.vend?TR.vend.title:null,hd:document.hidden?1:0,hx:NET.hits};if(NET.sp&&NET.sp.length)s.sp=NET.sp;if(typeof groundPresence==='function'){const g=groundPresence();if(g)s.gz=g;}if(NET.vh&&NET.vh.length)s.hv=NET.vh;{const t=P.target;if(t&&!t.dead&&!t.pvp&&mobs[t.idx]===t)s.tg=t.idx;}if(loot.length&&typeof myGroundLoot==='function'){const gl=myGroundLoot();if(gl.length)s.gl=gl;}if(NET.dl&&NET.dl.length)s.dl=NET.dl;if(typeof petPresence==='function'){const pt=petPresence();if(pt)s.pt=pt;}if(typeof myTitle==='function'){const ti=myTitle();if(ti)s.ti=ti;}if(P.casting&&P.casting.id)s.cs=P.casting.id;if(typeof ridePresence==='function'){const rd=ridePresence();if(rd)s.rd=rd;}if(typeof cartPresence==='function'&&cartPresence())s.ct=1;if(typeof bondPresence==='function'){s.bdv=1;const bd=bondPresence();if(bd)s.bd=bd;}
   if(!zoneHost()&&othersHere()&&mobs.length){s.ev=NET.evs;
