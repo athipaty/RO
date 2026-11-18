@@ -13,7 +13,7 @@ module.exports = async t => {
     t.ok(r.skills && r.inherit, 'their skills are in their trees, and the master keeps every earlier skill');
     // Corvin's trial offers the new calling; taking it works
     const pro = await g.ev(() => { P.cls = 'ranger'; P.jl = 40; P.skills = { twinshot: 5 }; P.trial = { have: 25 }; P.inv.push({ id: 'needle', n: 10 }); P.gold = 10000; openPanel('job');
-      const offer = !!panel.querySelector('[data-act="promote"][data-arg="falconer"]'); panel.querySelector('[data-act="promote"][data-arg="falconer"]').click(); closePanel();
+      const offer = !!panel.querySelector('[data-act="promote"][data-arg="falconer"]'); panel.querySelector('[data-act="promote"][data-arg="falconer"]').click(); panel.querySelector('[data-act="promoteyes"][data-arg="falconer"]').click(); closePanel();
       return { offer, cls: P.cls, tier: CLASSES[P.cls].tier }; });
     t.ok(pro.offer && pro.cls === 'falconer' && pro.tier === 2, 'Guildmaster Corvin offers the Falconer after the Ranger trial, and it can be taken');
     // every new active skill works on a monster

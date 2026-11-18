@@ -1307,3 +1307,9 @@ body.touchui #panel.npcfull{overflow-x:hidden}
 .jconfirm{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;margin:8px 0;padding:10px;border:1px solid var(--edge);border-radius:10px;background:#10141b}
 .jconfirm img{width:84px;height:96px}.jconfirm .jpname{font-size:20px}.jconfirm p{margin:6px 0 0}
 .choice .jcard img{float:right;width:42px;height:48px;margin:-2px 0 0 6px}
+/* advanced callings in the Guild Hall (js/jobs.js): picture cards in a list; the confirm card reuses .jconfirm */
+.advlist{display:flex;flex-direction:column;gap:6px;margin:6px 0 8px}
+.advcard{display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;text-align:left;padding:6px 10px;border:1px solid var(--edge-dim);border-radius:8px;background:#10141b;color:inherit;font:inherit}
+button.advcard{cursor:pointer}button.advcard:hover,button.advcard:focus-visible{border-color:var(--edge);background:#161b24}
+.advcard img{width:56px;height:64px;object-fit:contain;flex:none}.advcard.prev img{width:42px;height:48px}
+.advtxt{display:flex;flex-direction:column;gap:2px;min-width:0}.advtxt small{display:block;font-size:12px;color:#a9b2c2;line-height:1.35}

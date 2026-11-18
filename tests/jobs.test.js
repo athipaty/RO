@@ -23,7 +23,15 @@ module.exports = async t => {
     t.ok(trial.have === 25, `trial kills count only the right monster (${trial.have}/25)`);
     t.ok(trial.choices.join() === 'bulwark,ravager,runeguard', 'a finished trial offers the three Warden paths');
 
-    const pro = await g.ev(() => { panel.querySelector('[data-act="promote"][data-arg="ravager"]').click();
+    // tapping a calling shows a confirm card with its picture; Go back changes nothing; Yes makes the change
+    const ask = await g.ev(() => { const cards = [...panel.querySelectorAll('.advcard[data-act="promote"]')];
+      const pics = cards.length === 3 && cards.every(b => b.querySelector('img') && b.querySelector('.jpname[translate="no"]'));
+      panel.querySelector('[data-act="promote"][data-arg="ravager"]').click(); const card = !!panel.querySelector('.jconfirm') && /Ravager/.test(panel.querySelector('.jconfirm').textContent), still = P.cls === 'warden';
+      panel.querySelector('[data-act="promoteno"]').click(); const back = !panel.querySelector('.jconfirm') && P.cls === 'warden' && !!P.trial;
+      panel.querySelector('[data-act="promote"][data-arg="ravager"]').click(); return { pics, card, still, back }; });
+    t.ok(ask.pics, 'the three callings are picture cards with their English names');
+    t.ok(ask.card && ask.still && ask.back, 'tapping one asks to confirm first; Go back changes nothing');
+    const pro = await g.ev(() => { panel.querySelector('[data-act="promoteyes"][data-arg="ravager"]').click();
       return { cls: P.cls, jl: P.jl, gold: P.gold, bones: invFind('bone') ? invFind('bone').n : 0, kept: P.skills.cleave === 5, trial: P.trial, name: document.getElementById('hCls').textContent }; });
     t.ok(pro.cls === 'ravager' && pro.jl === 1 && pro.kept, 'you become a Ravager at Job Lv 1 and keep your Warden skills');
     t.ok(pro.gold === 1000 && pro.bones === 0 && !pro.trial, 'the fee and trial items are taken');

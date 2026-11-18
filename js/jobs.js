@@ -137,17 +137,37 @@ function jobHallHtml(c){let h='';const T=TRIALS[P.cls];
     trialRowHtml(`Trial of the ${c.name}`,T,null,T.gold,`<button class="btn small" data-act="trial">Accept trial</button>`)+jobPreview();
   h+=`<div class="say">“${trialDone()?'You did it. Now choose. Like the first time, this is for life.':'Not finished yet. Keep at it.'}” — Corvin</div>`;
   h+=trialRowHtml(`Trial of the ${c.name}`,T,P.trial.have,T.gold);
-  if(trialDone()){h+=`<div class="choice">`;for(const id of jobsFrom(P.cls)){const k=CLASSES[id];
-    h+=`<button data-act="promote" data-arg="${id}"><b style="color:${k.acc}">${k.name}</b><small>${k.desc}</small><small>New skills: ${k.own.map(s=>SKILLS[s].name).join(', ')}</small>${typeof jobNeedsHtml==='function'?jobNeedsHtml(id):''}</button>`;}h+=`</div>`;}
+  if(trialDone()){
+    // the confirm card: becoming an advanced calling is for life, so one more tap
+    if(promoteAsk&&jobsFrom(P.cls).includes(promoteAsk)){const id=promoteAsk,k=CLASSES[id],pic=advPic(id);
+      return `<div class="jconfirm">${pic?`<img alt="" src="${pic}">`:''}${advName(id)}<small>${k.desc}</small>`+
+        `<p>${esc(JB_L(`Become a ${k.name}? This is for life. You cannot go back to being a ${c.name}.`,`เปลี่ยนเป็น ${k.name} ไหม? เปลี่ยนแล้วเปลี่ยนกลับเป็น ${c.name} ไม่ได้อีก`))}</p>`+
+        `<p class="muted">${esc(JB_L(`Corvin takes the trial items and ${fmt(T.gold)} gold. You keep every skill you have.`,`คอร์วินจะรับไอเทมบททดสอบและ ${fmt(T.gold)} โกลด์ คุณยังเก็บสกิลทั้งหมดที่มีไว้`))}</p></div>`+
+        `<div class="tbtns"><button class="btn" data-act="promoteyes" data-arg="${id}">${esc(JB_L(`Yes, I become a ${k.name}`,`ใช่ ฉันจะเป็น ${k.name}`))}</button><button class="btn" data-act="promoteno">${esc(JB_L('Go back','ย้อนกลับ'))}</button></div>`;}
+    promoteAsk=null;
+    h+=`<div class="sub">${esc(JB_L('Tap a calling to choose it.','แตะที่อาชีพเพื่อเลือก'))}</div><div class="advlist">`;for(const id of jobsFrom(P.cls)){const k=CLASSES[id],pic=advPic(id);
+    h+=`<button class="advcard" data-act="promote" data-arg="${id}">${pic?`<img alt="" src="${pic}">`:''}<span class="advtxt">${advName(id)}<small>${k.desc}</small><small>New skills: ${k.own.map(s=>SKILLS[s].name).join(', ')}</small>${typeof jobNeedsHtml==='function'?jobNeedsHtml(id):''}</span></button>`;}h+=`</div>`;}
   return h;}
-function jobPreview(){return `<div class="ds" style="margin:6px 0 2px">Advanced callings:</div>`+jobsFrom(P.cls).map(id=>`<div class="ds"><b style="color:${CLASSES[id].acc}">${CLASSES[id].name}</b> <span>${CLASSES[id].own.map(s=>SKILLS[s].name).join(', ')}</span>${typeof jobNeedsHtml==='function'?jobNeedsHtml(id):''}</div>`).join('');}
+/* advanced callings are shown with a picture (your hero dressed as that job, js/buildguide.js jobPicURL) and their
+   English name in every language (translate="no" keeps the Thai page sweep off it) */
+const JB_L=(en,th)=>typeof LANG!=='undefined'&&LANG==='th'&&th?th:en;
+const advPic=id=>typeof jobPicURL==='function'?jobPicURL(id):'';
+const advName=id=>`<b class="jpname" translate="no" style="color:${CLASSES[id].acc}">${esc(CLASSES[id].name)}</b>`;
+let promoteAsk=null;
+function jobPreview(){return `<div class="ds" style="margin:6px 0 2px">Advanced callings:</div><div class="advlist">`+jobsFrom(P.cls).map(id=>{const pic=advPic(id);
+  return `<div class="advcard prev">${pic?`<img alt="" src="${pic}">`:''}<span class="advtxt">${advName(id)}<small>${CLASSES[id].own.map(s=>SKILLS[s].name).join(', ')}</small>${typeof jobNeedsHtml==='function'?jobNeedsHtml(id):''}</span></div>`;}).join('')+`</div>`;}
 PANEL_ACTS.trial=()=>{if(P.trial||!TRIALS[P.cls]||P.jl<JOB2_LV)return;P.trial={have:0};const T=TRIALS[P.cls];
   addLog(`Trial accepted: defeat ${T.need} ${MOBS[T.mob].name} and bring ${T.items} ${ITEMS[T.item].name}.`,'l-good');sfx('click');refreshPanel();save();};
-PANEL_ACTS.promote=arg=>{if(!trialDone()||!JOB2[arg]||JOB2[arg].base!==P.cls)return;const T=TRIALS[P.cls],k=CLASSES[arg];
+// tapping a calling asks first; Yes on the confirm card makes the change
+PANEL_ACTS.promote=arg=>{if(!trialDone()||!JOB2[arg]||JOB2[arg].base!==P.cls)return;promoteAsk=arg;sfx('click');refreshPanel();};
+PANEL_ACTS.promoteno=()=>{promoteAsk=null;sfx('click');refreshPanel();};
+PANEL_ACTS.promoteyes=arg=>{if(promoteAsk!==arg)return;promoteAsk=null;promoteNow(arg);};
+{const _opJ=openPanel;openPanel=function(kind){if(kind==='job')promoteAsk=null;return _opJ.apply(this,arguments);};}
+function promoteNow(arg){if(!trialDone()||!JOB2[arg]||JOB2[arg].base!==P.cls)return;const T=TRIALS[P.cls],k=CLASSES[arg];
   takeItem(T.item,T.items);P.gold-=T.gold;P.trial=null;P.cls=arg;P.jl=1;P.jexp=0;
   fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:2.2,txt:k.name.toUpperCase(),col:k.acc});fx.push({k:'beam',x:P.x,y:P.y,t0:now,dur:1.6});sfx('fanfare');announce('job',arg);
   addLog(`You are now a ${k.name}! You keep all your skills. New ones are waiting in the skill tree (K): ${k.own.map(s=>SKILLS[s].name).join(', ')}.`,'l-rare');
-  S=computeStats();rebuildHotbar();refreshPanel();save(true);};
+  S=computeStats();rebuildHotbar();refreshPanel();save(true);}
 
 /* ---- hotbar: choose which four skills sit on keys 1–4 ---- */
 function hotSkills(){const c=CLASSES[P.cls],all=c.skills;let h=Array.isArray(P.hot)?P.hot.slice(0,4):null;
