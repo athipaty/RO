@@ -34,7 +34,9 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   /* breathing: the whole body rises and settles a little (feet stay on the ground), the head follows a beat later */
   const breath=opt.sit?Math.sin(now*2.2+sd)*.3:br*.5;
   const by=y-9-bob+(opt.sit&&opt.sitPose&&opt.sitPose.hip!==undefined?opt.sitPose.hip+1:sit)-breath,hy=by-20-Math.sin(now*2.2+sd-.6)*.2,robe=out==='arcanist'||out==='cleric',bw=BUILD_W[L.body|0]||1;LAST_HY=hy;
-  const top=out==='cleric'?'#f4efe2':body,dark=hero2Shade(top,-38),lite=hero2Shade(top,30);
+  // the Arcanist family's outfits are drawn by js/outfits.js (outfitPart); V hands it what it needs
+  const AK=out==='arcanist'&&WARDEN_V2&&typeof ARC_LOOKS!=='undefined'?ARC_LOOKS[opt.cls]||null:null;
+  const top=AK?AK.robe:out==='cleric'?'#f4efe2':body,dark=hero2Shade(top,-38),lite=hero2Shade(top,30);
   if(!HERO2_HI)shadow(x,y,12);ctx.lineJoin='round';ctx.lineCap='round';ctx.lineWidth=1.5;ctx.strokeStyle=OL;
   const fs=()=>{ctx.fill();ctx.stroke();};
   const sway=Math.sin(now*3+sd)*1.2+wk*1.5;
@@ -65,7 +67,8 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
       ctx.fillStyle='#e8e0d0';for(const k of [-2,0,2]){ctx.beginPath();ctx.moveTo(k,-13);ctx.lineTo(k-1.6,-18);ctx.lineTo(k+1.6,-18);ctx.closePath();ctx.fill();}
       ctx.fillStyle='#c84a3a';for(const k of [-2,0,2])ctx.fillRect(k-1,-14.5,2,1.6);ctx.restore();
       ctx.fillStyle='#3f7a46';ctx.beginPath();ctx.ellipse(x-f*3,by-15,8,4.5,0,0,7);fs();}
-    if(out==='arcanist'){ctx.fillStyle=dark;ctx.beginPath();ctx.ellipse(x-f*2,by-15.5,8.5,4,0,0,7);fs();}
+    if(AK)outfitPart(AK,'back',{x,y,by,f,bk,sway,bw,OL,fs,hy});
+    else if(out==='arcanist'){ctx.fillStyle=dark;ctx.beginPath();ctx.ellipse(x-f*2,by-15.5,8.5,4,0,0,7);fs();}
     if(out==='shade'){ctx.fillStyle='#2e2a3c';ctx.beginPath();ctx.moveTo(x-f*2,by-15);ctx.lineTo(x-f*9,by-14);ctx.quadraticCurveTo(x-f*13+sway*.6,by-4,x-f*11+sway,by+5);
       ctx.lineTo(x-f*8+sway,by+2);ctx.lineTo(x-f*6+sway,by+6);ctx.lineTo(x-f*3,by-2);ctx.closePath();fs();}};
   if(!bk)backLayer();
@@ -89,11 +92,12 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   // ---- arms: shoulder to hand, swinging against the legs; up while casting; on the knees when sitting ----
   const hand=k=>{if(opt.hands){const h=opt.hands[k===f?0:1];return [x+f*h[0],by+h[1]];}if(opt.sit)return [x+k*10*bw,y-4];if(opt.cast)return [x+k*11.5*bw,by-17+Math.sin(now*9+k)*1.2];
     return [x+k*9.6*bw-k*wk*f*0+(walk?-k*wk*2.6*G.arm:0),by-3+(walk?Math.abs(wk)*-.6:0)+br*.3];};
-  const sleeve=BERS?L.skin:WV?WV.sleeve:out==='warden'?'#c9d0da':out==='cleric'?'#f4efe2':top;
+  const sleeve=AK?AK.sleeve:BERS?L.skin:WV?WV.sleeve:out==='warden'?'#c9d0da':out==='cleric'?'#f4efe2':top;
   const arm=k=>{const sx=x+k*8*bw,sy=by-12,[hx,hy2]=hand(k);
     ctx.strokeStyle=OL;ctx.lineWidth=6.4;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(hx,hy2-1.5);ctx.stroke();
     ctx.strokeStyle=sleeve;ctx.lineWidth=3.8;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(hx,hy2-1.5);ctx.stroke();
-    if(out==='arcanist'||out==='cleric'){ctx.fillStyle=sleeve;ctx.strokeStyle=OL;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(hx-3.4,hy2-4.5);ctx.lineTo(hx+3.4,hy2-4.5);ctx.lineTo(hx+4.2,hy2-.5);ctx.lineTo(hx-4.2,hy2-.5);ctx.closePath();fs();
+    if(AK)outfitPart(AK,'arm',{x,y,by,f,bk,sway,OL,fs,sx,sy,hx,hy2,sleeve,k});
+    else if(out==='arcanist'||out==='cleric'){ctx.fillStyle=sleeve;ctx.strokeStyle=OL;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(hx-3.4,hy2-4.5);ctx.lineTo(hx+3.4,hy2-4.5);ctx.lineTo(hx+4.2,hy2-.5);ctx.lineTo(hx-4.2,hy2-.5);ctx.closePath();fs();
       ctx.strokeStyle=D.trim;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(hx-4,hy2-1);ctx.lineTo(hx+4,hy2-1);ctx.stroke();}
     else if(FORT){ctx.fillStyle=STEEL;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(hx,hy2-2,4.2,3,0,0,7);fs();ctx.strokeStyle=GOLD;ctx.lineWidth=.9;ctx.beginPath();ctx.ellipse(hx,hy2-2,3,2,0,Math.PI,0);ctx.stroke();}
     else if(BERS){const ang=Math.atan2(hy2-sy,hx-sx);ctx.save();ctx.translate(sx+(hx-sx)*.66,sy+(hy2-sy)*.66);ctx.rotate(ang);ctx.fillStyle='#d8c8a0';ctx.strokeStyle=OL;ctx.lineWidth=.9;
@@ -207,6 +211,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
     ctx.fillStyle='#6a707c';for(const [a,b] of [[-4.5,-12],[4.5,-12],[-4,-6.5],[4,-6.5]]){ctx.beginPath();ctx.arc(x+a,by+b,.8,0,7);ctx.fill();}
     belt(D.belt,by-1);ctx.fillStyle='#9a2e24';ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-3.5,by+.5);ctx.lineTo(x+3.5,by+.5);ctx.lineTo(x+2.5,hip+3.5);ctx.lineTo(x-2.5,hip+3.5);ctx.closePath();fs();
     ctx.fillStyle='#d8dde6';ctx.lineWidth=1.5;for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*8.4,by-13,4.6,3.6,k*.35,0,7);fs();}}
+  else if(AK)outfitPart(AK,'torso',{x,y,by,hip,f,bk,sway,bw,OL,fs,top,dark,lite});
   else if(out==='arcanist'){ctx.strokeStyle=D.trim;ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(x-10,y-3.2);ctx.quadraticCurveTo(x,y-.2,x+10,y-3.2);ctx.stroke();
     ctx.fillStyle=lite;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-4.5,by-15.5);ctx.lineTo(x,by-11);ctx.lineTo(x+4.5,by-15.5);ctx.closePath();fs();
     ctx.strokeStyle=D.trim;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(x-7,by-3);ctx.quadraticCurveTo(x,by-1,x+7.4,by-3);ctx.stroke();
