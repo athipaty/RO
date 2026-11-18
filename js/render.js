@@ -205,6 +205,8 @@ function render(){
     const pop=e<.1?1.8-8*e:1,x=t.x+(t.vx||0)*e,y=t.y-120*e+125*e*e;
     // each floating number is drawn once into a small picture and reused (outlined text every frame is slow)
     if(!t.img)t.img=floatImg(t.txt,t.col,t.size);const im=t.img;
+    // critical hits (v1.21.6): a spiky gold-and-red starburst behind the number, turning slowly
+    if(t.burst)drawCritBurst(x,y-t.size*.34,Math.max(im._w*.66,t.size*1.15)*pop,e);
     if(pop!==1){ctx.save();ctx.translate(x,y);ctx.scale(pop,pop);drawFloat(im,-im._w/2,-im._b);ctx.restore();}else drawFloat(im,x-im._w/2,y-im._b);ctx.globalAlpha=1;});
   ctx.restore();
   drawAmbient();
@@ -425,6 +427,10 @@ function swingPhase(P){const sd=P.swingDur||.22;return P.swingT&&now-P.swingT<sd
 const ease3=k=>k*k*(3-2*k),easeOut=k=>1-(1-k)**3;
 // the walk phase scaled by the family's step speed (js/hitstyle.js walkGait)
 function gaitWalk(P){return (P.walkT||0)*(typeof walkGait==='function'?walkGait(P.cls).rate:1);}
+function drawCritBurst(cx,cy,R,e){const n=14,rot=e*.9;ctx.save();ctx.translate(cx,cy);ctx.rotate(rot);ctx.beginPath();
+  for(let i=0;i<n*2;i++){const a=i*Math.PI/n,r=i%2?R*.62:R*(i%4?1:.9);ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r*.82);}ctx.closePath();
+  const g=ctx.createRadialGradient(0,0,R*.1,0,0,R);g.addColorStop(0,'#fff3a0');g.addColorStop(.45,'#ffb030');g.addColorStop(1,'#d8321e');
+  ctx.fillStyle=g;ctx.fill();ctx.lineWidth=2.2;ctx.strokeStyle='#5a1408';ctx.stroke();ctx.restore();}
 function drawPlayer(P,wid){
   const w=wid?ITEMS[wid]:null,melee=!w||(w.wt!=='bow'&&w.wt!=='wand'),p=swingPhase(P),body=melee&&p>=0&&P.lungeT&&Math.abs(P.lungeT-P.swingT)<.05;
   let push=0,lean=0;
