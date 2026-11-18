@@ -157,3 +157,15 @@ Size: S small · M medium · L big · (server) needs Stage 2b. Ticked items are 
 - [x] 81. S Build loadouts: save two skill and stat setups and swap between them at the Guild Hall (v1.3.0, js/loadouts.js)
 - [x] 82. M Mirelight Fen: a Lv 55–70 marsh east of Frostpeak Pass, seven monsters and the Mire Matriarch (v1.7.0)
 - [x] 83. S Auto-hunt Stay here: fight around one spot, skills first, without wandering (v1.8.0 Hit button, merged into the Auto card in v1.8.2)
+
+# Stage 9: launch polish (Google Play) and a living economy
+- [x] 84. S Job choice with picture cards, English job names in every language, and a confirm card (v1.18.2–v1.18.4)
+- [x] 85. L The Shade's advanced callings: Nightblade, Venomancer, Phantom (v1.19.0)
+- [x] 86. S Corvin offers only the advanced callings you have earned from your first-job path (v1.19.8)
+- [x] 87. M (server) Connection display and smoother other players: ping dots, walks sent with their path (v1.19.3–v1.19.6)
+- [x] 88. S Stat and skill points need Save; a cleaner trade window; requests in the middle of the screen (v1.19.4–v1.19.7)
+- [x] 89. L (server) Market Board: sell to players who are offline (v1.20.0)
+- [x] 90. M Game-like look: title screen, window cards, solid buttons, level-up and rare-drop moments (v1.20.1–v1.20.4)
+- [x] 91. S First steps for new players: a tip card that ticks off the basics (v1.21.0)
+- [ ] 92. M (server) Leaderboards: highest level, richest, top hunters, per week and all time
+- [ ] 93. M Google Play launch kit: app icon set, store screenshots, short and long description (English and Thai)
