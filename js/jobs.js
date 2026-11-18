@@ -145,8 +145,11 @@ function jobHallHtml(c){let h='';const T=TRIALS[P.cls];
         `<p class="muted">${esc(JB_L(`Corvin takes the trial items and ${fmt(T.gold)} gold. You keep every skill you have.`,`คอร์วินจะรับไอเทมบททดสอบและ ${fmt(T.gold)} โกลด์ คุณยังเก็บสกิลทั้งหมดที่มีไว้`))}</p></div>`+
         `<div class="tbtns"><button class="btn" data-act="promoteyes" data-arg="${id}">${esc(JB_L(`Yes, I become a ${k.name}`,`ใช่ ฉันจะเป็น ${k.name}`))}</button><button class="btn" data-act="promoteno">${esc(JB_L('Go back','ย้อนกลับ'))}</button></div>`;}
     promoteAsk=null;
-    h+=`<div class="sub">${esc(JB_L('Tap a calling to choose it.','แตะที่อาชีพเพื่อเลือก'))}</div><div class="advlist">`;for(const id of jobsFrom(P.cls)){const k=CLASSES[id],pic=advPic(id);
-    h+=`<button class="advcard" data-act="promote" data-arg="${id}">${pic?`<img alt="" src="${pic}">`:''}<span class="advtxt">${advName(id)}<small>${k.desc}</small><small>New skills: ${k.own.map(s=>SKILLS[s].name).join(', ')}</small>${typeof jobNeedsHtml==='function'?jobNeedsHtml(id):''}</span></button>`;}h+=`</div>`;}
+    // only the callings whose first-job skills you have learned can be chosen; the rest show what is still missing
+    const ready=jobsFrom(P.cls).filter(jobReady);
+    h+=`<div class="sub">${esc(ready.length?JB_L('Tap a calling to choose it. Callings marked 🔒 need more first-job skills.','แตะที่อาชีพเพื่อเลือก อาชีพที่มี 🔒 ต้องเรียนสกิลอาชีพแรกเพิ่ม'):JB_L('None of these callings is open yet: learn the first-job skills each one needs (Skills window), then come back.','ยังไม่มีอาชีพที่เปิด: เรียนสกิลอาชีพแรกที่แต่ละอาชีพต้องการ (หน้าต่างสกิล) แล้วกลับมาใหม่'))}</div><div class="advlist">`;
+    for(const id of [...ready,...jobsFrom(P.cls).filter(j=>!ready.includes(j))]){const k=CLASSES[id],pic=advPic(id),ok=ready.includes(id),tag=ok?'button':'div';
+    h+=`<${tag} class="advcard${ok?'':' locked'}"${ok?` data-act="promote" data-arg="${id}"`:''}>${pic?`<img alt="" src="${pic}">`:''}<span class="advtxt">${ok?'':'<span class="advlock">🔒</span>'}${advName(id)}<small>${k.desc}</small><small>New skills: ${k.own.map(s=>SKILLS[s].name).join(', ')}</small>${typeof jobNeedsHtml==='function'?jobNeedsHtml(id):''}</span></${tag}>`;}h+=`</div>`;}
   return h;}
 /* advanced callings are shown with a picture (your hero dressed as that job, js/buildguide.js jobPicURL) and their
    English name in every language (translate="no" keeps the Thai page sweep off it) */
@@ -159,7 +162,9 @@ function jobPreview(){return `<div class="ds" style="margin:6px 0 2px">Advanced 
 PANEL_ACTS.trial=()=>{if(P.trial||!TRIALS[P.cls]||P.jl<JOB2_LV)return;P.trial={have:0};const T=TRIALS[P.cls];
   addLog(`Trial accepted: defeat ${T.need} ${MOBS[T.mob].name} and bring ${T.items} ${ITEMS[T.item].name}.`,'l-good');sfx('click');refreshPanel();save();};
 // tapping a calling asks first; Yes on the confirm card makes the change
-PANEL_ACTS.promote=arg=>{if(!trialDone()||!JOB2[arg]||JOB2[arg].base!==P.cls)return;promoteAsk=arg;sfx('click');refreshPanel();};
+// a calling is open when every first-job skill its starting skills need is learned (js/jobpaths.js jobNeeds)
+function jobReady(id){return typeof jobNeeds!=='function'||jobNeeds(id).every(([r,l])=>(P.skills[r]||0)>=l);}
+PANEL_ACTS.promote=arg=>{if(!trialDone()||!JOB2[arg]||JOB2[arg].base!==P.cls||!jobReady(arg))return;promoteAsk=arg;sfx('click');refreshPanel();};
 PANEL_ACTS.promoteno=()=>{promoteAsk=null;sfx('click');refreshPanel();};
 PANEL_ACTS.promoteyes=arg=>{if(promoteAsk!==arg)return;promoteAsk=null;promoteNow(arg);};
 {const _opJ=openPanel;openPanel=function(kind){if(kind==='job')promoteAsk=null;return _opJ.apply(this,arguments);};}

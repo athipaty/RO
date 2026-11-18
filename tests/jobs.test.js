@@ -17,10 +17,12 @@ module.exports = async t => {
     const trial = await g.ev(() => { P.jl = 40; openPanel('job'); panel.querySelector('[data-act="trial"]').click();
       const started = !!P.trial; const noPromote = !panel.querySelector('[data-act="promote"]');
       for (let i = 0; i < 25; i++) questKill('bonearcher'); questKill('scarab');
-      giveItem('bone', 10); P.gold = 6000; refreshPanel(); const choices = [...panel.querySelectorAll('[data-act="promote"]')].map(b => b.dataset.arg);
-      return { started, noPromote, have: P.trial.have, choices }; });
+      giveItem('bone', 10); P.gold = 6000; refreshPanel(); const lockedOnly = !panel.querySelector('[data-act="promote"]') && panel.querySelectorAll('.advcard.locked').length === 3; PANEL_ACTS.promote('ravager'); const refused = !promoteAsk;
+      for (const j of jobsFrom(P.cls)) for (const [r, l] of jobNeeds(j)) P.skills[r] = Math.max(P.skills[r] || 0, l); refreshPanel(); const choices = [...panel.querySelectorAll('[data-act="promote"]')].map(b => b.dataset.arg);
+      return { started, noPromote, have: P.trial.have, choices, lockedOnly, refused }; });
     t.ok(trial.started && trial.noPromote, 'at Job Lv 40 you can accept the trial, and cannot promote before finishing it');
     t.ok(trial.have === 25, `trial kills count only the right monster (${trial.have}/25)`);
+    t.ok(trial.lockedOnly && trial.refused, 'a calling whose first-job skills are not learned is shown locked and cannot be chosen');
     t.ok(trial.choices.join() === 'bulwark,ravager,runeguard', 'a finished trial offers the three Warden paths');
 
     // tapping a calling shows a confirm card with its picture; Go back changes nothing; Yes makes the change

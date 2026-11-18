@@ -1358,3 +1358,4 @@ button.advcard{cursor:pointer}button.advcard:hover,button.advcard:focus-visible{
 #tradeAsk .btn,#invite .btn,#duelAsk .btn,#bondAsk .btn,#ginvite .btn{flex:1 1 0;min-width:110px;padding:11px 14px!important;font-size:16px!important;font-weight:800}
 #tradeAsk .btn:first-of-type,#invite .btn:first-of-type,#duelAsk .btn:first-of-type,#bondAsk .btn:first-of-type,#ginvite .btn:first-of-type{background:#3f8a4c;border-color:#62bf86;color:#fff}
 @keyframes askPop{from{opacity:0;transform:translate(-50%,-50%) scale(.85)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.advcard.locked{opacity:.55;filter:grayscale(.6);border-style:dashed}.advlock{font-size:13px;margin-bottom:-2px}

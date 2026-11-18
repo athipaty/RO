@@ -10,6 +10,8 @@ module.exports = async t => {
       out.callings = jobsFrom('shade').join(); out.paths = jobsFrom('shade').map(j => jobPaths(j).map(p => p.id).join('+')).join();
       P.cls = 'shade'; P.jl = 40; P.skills = { twinfang: 5, backstab: 3, shadowsense: 3, nimblehands: 3 }; openPanel('job');
       panel.querySelector('[data-act="trial"]').click(); for (let i = 0; i < 25; i++) questKill('gloomcap'); giveItem('gloomspore', 10); P.gold = 6000; refreshPanel();
+      out.edgeOnly = [...panel.querySelectorAll('[data-act="promote"]')].map(b => b.dataset.arg).join();
+      for (const j of jobsFrom(P.cls)) for (const [r, l] of jobNeeds(j)) P.skills[r] = Math.max(P.skills[r] || 0, l); refreshPanel();
       out.choices = [...panel.querySelectorAll('[data-act="promote"]')].map(b => b.dataset.arg).join();
       panel.querySelector('[data-act="promote"][data-arg="nightblade"]').click(); panel.querySelector('[data-act="promoteyes"]').click(); closePanel();
       out.cls = P.cls; out.keeps = P.skills.twinfang === 5;
@@ -25,6 +27,7 @@ module.exports = async t => {
     });
     t.ok(r.callings === 'nightblade,venomancer,phantom', 'the Shade has three advanced callings: ' + r.callings);
     t.ok(r.paths === 'edge,venom,edge+venom' || r.paths.split(',').sort().join() === ['edge', 'edge+venom', 'venom'].sort().join(), 'one per path and one mixing both: ' + r.paths);
+    t.ok(r.edgeOnly === 'nightblade', 'with only Edge skills learned, Corvin offers just the Nightblade (' + r.edgeOnly + ')');
     t.ok(r.choices === 'nightblade,venomancer,phantom', 'after the Gloomcap trial Corvin offers all three');
     t.ok(r.cls === 'nightblade' && r.keeps, 'confirming makes you a Nightblade and you keep your Shade skills');
     const miss = Object.entries(r.hit).filter(([, v]) => !v).map(([k]) => k);
