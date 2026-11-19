@@ -258,9 +258,16 @@ const tbGuildLights=b=>{const G=tbGuildGeo(b);return tbLit([[G.bx0+33,G.byF,24],
 /* ---------------- the Chapel ---------------- */
 // a white stone chapel: the nave's gable faces the street with a stained-glass sun, a bell tower with a swinging bell and
 // a spire crowned by a golden sun, stained-glass windows down the side, a glowing healing basin, an herb garden, doves
-const tbChapelGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,nx0=X0+88,nx1=X1-40,ny0=Y0+6,nyF=Y1-44;
-  return{X0,Y0,X1,Y1,nx0,nx1,ny0,nyF,H:52,RH:62,tx0:X0+6,tx1:X0+48,ty0:Y1-100,ty1:Y1-58,TH:104,BH:30,SH:50,well:{x:X0+62,y:Y1-16}};};
+const tbChapelGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,nx0=X0+56,nx1=X1-44,ny0=Y0+52,nyF=Y1-40,xc=(nx0+nx1)/2;
+  // the bell tower stands behind the nave, on its ridge line, tall enough for the belfry to show over the roof (v1.33.3)
+  return{X0,Y0,X1,Y1,nx0,nx1,ny0,nyF,H:52,RH:62,tx0:xc-22,tx1:xc+22,ty0:Y0+4,ty1:Y0+48,TH:132,BH:30,SH:50,well:{x:X0+28,y:Y1-30}};};
 function tbArchWin(S,uc,hw,h0,h1,fill){const pts=[S(uc-hw,h0),S(uc+hw,h0)];for(let i=0;i<=10;i++){const t=i/10,u=uc+hw-2*hw*t;pts.push(S(u,h1+Math.sqrt(Math.max(0,1-(2*t-1)**2))*hw));}poly(pts,fill,TB_OL);}
+// the top of the bell tower: the stone cap, the slate spire and the golden sun (drawn again over the swinging bell)
+function tbChapelTop(G){const {tx0,tx1,ty0,ty1,TH,BH,SH}=G,P=TB_P,c=ctx,slate='#5a6478',gold='#e8c25a';
+  tbBox(tx0-3,ty0-3,tx1+3,ty1+3,TH+BH,TH+BH+6,'#d8d0c0','#c0b8a8','#c8c0b0');
+  const apex=P((tx0+tx1)/2,(ty0+ty1)/2,TH+BH+6+SH);
+  poly([P(tx0-3,ty1+3,TH+BH+6),P(tx1+3,ty1+3,TH+BH+6),apex],slate,TB_OL);poly([P(tx1+3,ty1+3,TH+BH+6),P(tx1+3,ty0-3,TH+BH+6),apex],shade(slate,-30),TB_OL);
+  c.fillStyle=gold;c.strokeStyle='#8a6a2a';c.lineWidth=1;c.beginPath();for(let k=0;k<16;k++){const a=k*Math.PI/8,r=k%2?4:8;c.lineTo(apex.x+Math.cos(a)*r,apex.y-10+Math.sin(a)*r);}c.closePath();c.fill();c.stroke();tbSeg(apex,{x:apex.x,y:apex.y-4},'#8a6a2a',1.6);}
 function tbChapel(b){const G=tbChapelGeo(b),{X0,Y0,X1,Y1,nx0,nx1,ny0,nyF,H,RH,tx0,tx1,ty0,ty1,TH,BH,SH}=G,P=TB_P,c=ctx,wall='#f2ede2',wallR='#d4cdbe',slate='#5a6478',gold='#e8c25a';
   poly([P(X0,Y1),P(X1+26,Y1),P(X1+26,Y0+26),P(X1,Y0)],'rgba(0,0,0,.18)');
   // a flagstone path from the door to the street
@@ -272,6 +279,15 @@ function tbChapel(b){const G=tbChapelGeo(b),{X0,Y0,X1,Y1,nx0,nx1,ny0,nyF,H,RH,tx
       else{tbDisc(p.x,p.y-4,6,4.5,'#4e8a3a');tbDisc(p.x-2,p.y-6,3,2.2,'#6aa84a');}}
     for(const [ya,yb,xa,xb] of [[gy1,gy1,gx0,gx1],[gy0,gy1,gx1,gx1]])for(let k=0;k<=8;k++){const x=xa+(xb-xa)*k/8,y=ya+(yb-ya)*k/8;tbSeg(P(x,y),P(x,y,10),'#f4ead6',2);}
     tbSeg(P(gx0,gy1,8),P(gx1,gy1,8),'#f4ead6',1.6);tbSeg(P(gx1,gy1,8),P(gx1,gy0,8),'#f4ead6',1.6);}
+  // the bell tower, behind the nave (drawn first, so the nave stands in front of its foot)
+  // the bell tower: a stone shaft, an open belfry (the bell is drawn live), a slate spire with a golden sun
+  tbBox(tx0,ty0,tx1,ty1,0,TH,wall,wallR);
+  {const TF=tbF(tx0,ty1),TR=tbR(tx1,ty1),tw=tx1-tx0,td=ty1-ty0;for(const [S,L] of [[TF,tw],[TR,td]]){tbArchWin(S,L/2,5,TH-44,TH-24,'#3a5a8a');tbQuad(S,0,TH-4,L,TH,'#c8c0b0');}
+    // the belfry: the back of the opening dark, then four corner piers
+    poly([P(tx0,ty0,TH),P(tx1,ty0,TH),P(tx1,ty1,TH),P(tx0,ty1,TH)],'#2e2a26');
+    tbBox(tx0,ty0,tx1,ty0+4,TH,TH+BH,'#3a3430','#3a3430');
+    for(const [x,y] of [[tx0,ty0],[tx1-6,ty0],[tx0,ty1-6],[tx1-6,ty1-6]])tbBox(x,y,x+6,y+6,TH,TH+BH,wall,wallR);
+    tbChapelTop(G);}
   // the nave
   tbBox(nx0,ny0,nx1,nyF,0,H,wall,wallR);
   const F=tbF(nx0,nyF),R=tbR(nx1,nyF),W=nx1-nx0,D=nyF-ny0;
@@ -294,22 +310,6 @@ function tbChapel(b){const G=tbChapelGeo(b),{X0,Y0,X1,Y1,nx0,nx1,ny0,nyF,H,RH,tx
   // the door: arched, double, studded, with a stone step
   tbBox(nx0+W/2-20,nyF,nx0+W/2+20,nyF+6,0,4,'#c8c0b0','#b0a898','#d8d0c0');
   tbArchWin(F,W/2,13,0,22,'#6a4426');tbSeg(F(W/2,0),F(W/2,34),'#3a2410',1.6);for(const h of [8,18])for(const u of [-8,-4,4,8]){const p=F(W/2+u,h);c.fillStyle='#d8b060';c.fillRect(p.x-.8,p.y-.8,1.6,1.6);}
-  // the bell tower stands on a stone plinth with its shadow on the ground, joined to the nave by a low wall
-  poly([P(tx0,ty1+4),P(tx1+40,ty1+4),P(tx1+40,ty0+10),P(tx1,ty0-4)],'rgba(0,0,0,.22)');
-  tbBox(tx1,ty0+8,nx0,ty0+20,0,22,'#d8d0c0','#c0b8a8','#e2dccf');
-  tbBox(tx0-4,ty0-4,tx1+4,ty1+4,0,10,'#b8b0a0','#a09888','#c8c0b0');
-  // the bell tower: a stone shaft, an open belfry (the bell is drawn live), a slate spire with a golden sun
-  tbBox(tx0,ty0,tx1,ty1,10,TH,wall,wallR);
-  {const TF=tbF(tx0,ty1),TR=tbR(tx1,ty1),tw=tx1-tx0,td=ty1-ty0;for(const [S,L] of [[TF,tw],[TR,td]]){tbArchWin(S,L/2,5,30,48,'#3a5a8a');tbQuad(S,0,TH-4,L,TH,'#c8c0b0');}
-    tbArchWin(TF,tw/2,8,10,26,'#6a4426');
-    // the belfry: the back of the opening dark, then four corner piers
-    poly([P(tx0,ty0,TH),P(tx1,ty0,TH),P(tx1,ty1,TH),P(tx0,ty1,TH)],'#2e2a26');
-    tbBox(tx0,ty0,tx1,ty0+4,TH,TH+BH,'#3a3430','#3a3430');
-    for(const [x,y] of [[tx0,ty0],[tx1-6,ty0],[tx0,ty1-6],[tx1-6,ty1-6]])tbBox(x,y,x+6,y+6,TH,TH+BH,wall,wallR);
-    tbBox(tx0-3,ty0-3,tx1+3,ty1+3,TH+BH,TH+BH+6,'#d8d0c0','#c0b8a8','#c8c0b0');
-    const apex=P((tx0+tx1)/2,(ty0+ty1)/2,TH+BH+6+SH);
-    poly([P(tx0-3,ty1+3,TH+BH+6),P(tx1+3,ty1+3,TH+BH+6),apex],slate,TB_OL);poly([P(tx1+3,ty1+3,TH+BH+6),P(tx1+3,ty0-3,TH+BH+6),apex],shade(slate,-30),TB_OL);
-    c.fillStyle=gold;c.strokeStyle='#8a6a2a';c.lineWidth=1;c.beginPath();for(let k=0;k<16;k++){const a=k*Math.PI/8,r=k%2?4:8;c.lineTo(apex.x+Math.cos(a)*r,apex.y-10+Math.sin(a)*r);}c.closePath();c.fill();c.stroke();tbSeg(apex,{x:apex.x,y:apex.y-4},'#8a6a2a',1.6);}
   // the healing basin: a round stone bowl (its glowing water is drawn live)
   {const p=P(G.well.x,G.well.y);c.fillStyle='#c8c0b0';c.strokeStyle=TB_OL;c.lineWidth=1.2;c.beginPath();c.ellipse(p.x,p.y,18,9,0,0,Math.PI);c.lineTo(p.x-18,p.y-12);c.ellipse(p.x,p.y-12,18,9,0,Math.PI,0,true);c.closePath();c.fill();c.stroke();
     tbDisc(p.x,p.y-12,18,9,'#d8d0c0',TB_OL);for(const [dx,dy] of [[-22,4],[22,4],[0,12]]){tbDisc(p.x+dx,p.y+dy,3.5,2.5,'#f07ca0');tbDisc(p.x+dx+4,p.y+dy-1,3,2.2,'#ffffff');}}
@@ -321,6 +321,8 @@ function tbChapelLive(b){const G=tbChapelGeo(b),P=TB_P,c=ctx,t=now;c.save();
   c.fillStyle='#e8c25a';c.fillRect(-9,15,4,2);tbDisc(0,20,2.4,2.4,'#6a4a1a');c.restore();c.save();
   // the belfry's front piers again, so the bell hangs behind them
   for(const [x,y] of [[G.tx0,G.ty1-6],[G.tx1-6,G.ty0],[G.tx1-6,G.ty1-6]])tbBox(x,y,x+6,y+6,G.TH,G.TH+G.BH,'#f2ede2','#d4cdbe');
+  // and the tower's roof again, so it stays in front of the bell and the piers
+  tbChapelTop(G);
   // the healing water glows and sends up motes of light
   const w=P(G.well.x,G.well.y,12),pl=.6+Math.sin(t*2)*.15;
   c.globalCompositeOperation='lighter';const g=c.createRadialGradient(w.x,w.y,2,w.x,w.y,26);g.addColorStop(0,`rgba(140,230,200,${.45*pl})`);g.addColorStop(1,'rgba(100,200,255,0)');c.fillStyle=g;c.beginPath();c.ellipse(w.x,w.y,28,14,0,0,7);c.fill();c.globalCompositeOperation='source-over';
