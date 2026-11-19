@@ -94,7 +94,7 @@ function sigwBlock(fam,smith){const L=SIGW[fam],nx=sigwNext(fam),own=sigwOwned(f
   const s=nx.s,here=s.smith===smith,tierOk=tierOf(P.cls)>=s.tier,lvOk=P.lv>=s.lv,ownOk=nx.i===0||(own&&own.where!=='storage');
   const matsOk=Object.entries(s.mats).every(([id,n])=>((invFind(id)||{}).n||0)>=n),ok=here&&tierOk&&lvOk&&ownOk&&matsOk&&P.gold>=s.gold;
   const need=[];if(!tierOk)need.push(s.tier===2?'your advanced calling':'your master calling');if(!lvOk)need.push(`base level ${s.lv}`);if(!ownOk)need.push(`the ${ITEMS[own.e.id].name} with you (not in storage)`);
-  h+=`<div class="row sigwrow">${icon({id:s.id})}<div class="grow"><div class="nm">${nx.i?`${esc(ITEMS[own.e.id].name)} → `:''}${esc(s.name)} <span class="muted">· stage ${nx.i+1}/3 · ATK ${s.atk} · ${s.slots} slot${s.slots>1?'s':''}</span></div>`+
+  h+=`<div class="row sigwrow">${icon({id:s.id})}<div class="grow"><div class="nm">${nx.i?`<span>${esc(ITEMS[own.e.id].name)}</span> → `:''}<span>${esc(s.name)}</span> <span class="muted">· stage ${nx.i+1}/3 · ATK ${s.atk} · ${s.slots} slot${s.slots>1?'s':''}</span></div>`+
     `<div class="ds">${esc(L.special(s))}${nx.i?' Keeps its refine, sigils and awakened line.':''}</div>`+
     `<div class="cms">${Object.entries(s.mats).map(([id,n])=>itemChip(id,n)).join('')}${goldChip(s.gold)}</div>`+
     (need.length?`<div class="ds" style="color:var(--warn)">Needs ${need.join(', ')}.</div>`:'')+
@@ -217,3 +217,33 @@ function sigwGift(){if(!P||!running||P.dead)return;const fam=famOf(P.cls),L=SIGW
   addLog(`A gift for every ${L.fam}: your own ${s.name} is in your bag! Equip it from Items. Smith Garrow in Aurelmark re-forges it after your advanced and master callings.`,'l-rare');save();}
 setInterval(()=>{try{sigwGift();}catch(e){}},2000);
 if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^A gift for every (\w+): your own (.+) is in your bag! Equip it from Items\. Smith Garrow in Aurelmark re-forges it after your advanced and master callings\.$/,(m,f,w)=>`ของขวัญสำหรับ${f}ทุกคน: ${thText(w)} ของคุณอยู่ในกระเป๋าแล้ว! สวมใส่ได้จากหน้าไอเทม ช่างแกร์โรว์ในออเรลมาร์กจะตีให้แกร่งขึ้นหลังได้อาชีพขั้นสองและขั้นสาม`]);
+/* ---- v1.39.9 the guide: every calling's line, stage by stage (the Grand Library's Signature tab, the smith's button) ---- */
+let SIGW_GUIDE=null;
+const SIGW_CALL=['your first calling','your advanced calling','your master calling'];
+function sigwGuideHtml(){const mine=P?famOf(P.cls):null,fams=Object.keys(SIGW);if(!SIGW_GUIDE||!SIGW[SIGW_GUIDE])SIGW_GUIDE=SIGW[mine]?mine:fams[0];
+  let h=`<div class="sub">Every calling's own weapon, in three stages. The first is given to you when you take the calling; Smith Garrow in Aurelmark re-forges it after your advanced and master callings, keeping its refine, sigils and awakened line. Tap a material to see who drops it.</div>`;
+  h+=`<div class="cxrow"><span class="cxlbl">Calling</span><div class="cxchips">`+fams.map(f=>`<button type="button" class="cxchip${SIGW_GUIDE===f?' on':''}" aria-pressed="${SIGW_GUIDE===f}" data-act="sigwfam" data-arg="${f}"><span>${SIGW[f].fam}</span>${f===mine?' <span>★</span>':''}</button>`).join('')+`</div></div>`;
+  const L=SIGW[SIGW_GUIDE],own=P&&SIGW_GUIDE===mine?sigwOwned(SIGW_GUIDE):null;
+  h+=`<div class="sgwlist">`;
+  L.stages.forEach((s,i)=>{const it=ITEMS[s.id],have=own&&own.i===i,done=own&&own.i>i;
+    h+=`<div class="sgwcard${have?' have':''}${done?' done':''}"><div class="sgwtop">${icon({id:s.id}).replace(/ data-item="[^"]*"/,'')}<div class="grow">`+
+      `<div class="nm">${esc(it.name)} <span class="muted">· stage ${i+1}/3</span>${have?' <span class="pill">yours</span>':done?' <span class="pill">passed</span>':''}</div>`+
+      `<div class="ds">${it.matk?`MATK ${it.matk} · ATK ${it.atk}`:`ATK ${it.atk}`} · Lv ${s.lv} · ${s.slots} slot${s.slots>1?'s':''}</div></div></div>`+
+      `<div class="sgwsp">✦ ${esc(L.special(s))}</div>`+
+      `<div class="ds">${i===0?`Given free when you take the ${L.fam} calling (Brannoc in Hearthvale forges it again if lost).`:`Smith Garrow, Forge Royal (Aurelmark) · needs ${SIGW_CALL[i]} · base Lv ${s.lv}`}</div>`+
+      `<div class="cms">${Object.entries(s.mats).map(([id,n])=>itemChip(id,n)).join('')}${goldChip(s.gold)}</div></div>`;});
+  return h+`</div>`;}
+PANEL_ACTS.sigwfam=f=>{if(SIGW[f]){SIGW_GUIDE=f;sfx('click');refreshPanel();}};
+PANELS.sigwguide=()=>`<h2>Signature weapons</h2>`+sigwGuideHtml();
+PANEL_ACTS.sigwguide=()=>openPanel('sigwguide');
+// a button to the guide in the smith's window
+{const _rp2=refreshPanel;refreshPanel=function(){const r=_rp2.apply(this,arguments);try{const box=panelKind==='smith'&&panel.querySelector('.sigwbox');
+  if(box&&!box.querySelector('.sgwbtn'))box.insertAdjacentHTML('beforeend',`<div class="tbtns sgwbtn" style="justify-content:flex-start;margin:4px 0 8px"><button class="btn small" data-act="sigwguide">📖 See all signature weapons</button></div>`);}catch(e){}return r;};}
+if(typeof TH!=='undefined'){for(const [k,v] of [['Signature','อาวุธประจำอาชีพ'],['Signature weapons','อาวุธประจำอาชีพ'],['Calling','อาชีพ'],['yours','ของคุณ'],['passed','ผ่านแล้ว'],['📖 See all signature weapons','📖 ดูอาวุธประจำอาชีพทั้งหมด'],
+  ['Every calling\'s own weapon, in three stages. The first is given to you when you take the calling; Smith Garrow in Aurelmark re-forges it after your advanced and master callings, keeping its refine, sigils and awakened line. Tap a material to see who drops it.','อาวุธประจำแต่ละอาชีพมี 3 ขั้น ขั้นแรกได้รับเมื่อเปลี่ยนอาชีพ ช่างแกร์โรว์ในออเรลมาร์กจะตีให้แกร่งขึ้นหลังได้อาชีพขั้นสองและขั้นสาม โดยคงระดับตีบวก ซิกิล และพลังที่ปลุกไว้ แตะวัตถุดิบเพื่อดูว่ามอนสเตอร์ตัวไหนดรอป'],
+  ['"Every calling has a weapon of its own, and it grows as you do. Here is how each is forged, and what it asks of you." — Oren','"ทุกอาชีพมีอาวุธของตนเอง และมันจะเติบโตไปพร้อมกับเจ้า นี่คือวิธีตีแต่ละเล่ม และสิ่งที่มันต้องการจากเจ้า" — โอเรน']])if(!TH[k])TH[k]=v;
+  if(typeof TH_PAT!=='undefined')TH_PAT.unshift(
+    [/^Given free when you take the (\w+) calling \(Brannoc in Hearthvale forges it again if lost\)\.$/,'ได้รับฟรีเมื่อเปลี่ยนเป็นอาชีพ $1 (แบรนน็อคในฮาร์ธเวลตีให้ใหม่ได้ถ้าหาย)'],
+    [/^Smith Garrow, Forge Royal \(Aurelmark\) · needs your (advanced|master) calling · base Lv (\d+)$/,(m,t,l)=>`ช่างแกร์โรว์ โรงตีหลวง (ออเรลมาร์ก) · ต้องมีอาชีพขั้น${t==='advanced'?'สอง':'สาม'} · เลเวลฐาน ${l}`],
+    [/^((?:MATK \d+ · )?ATK \d+) · Lv (\d+) · (\d) slots?$/,'$1 · Lv $2 · $3 ช่อง'],[/^· stage (\d)\/3$/,'· ขั้น $1/3'],
+    [/^✦ (.+)$/,(m,a)=>'✦ '+(typeof thText==='function'?thText(a):a)]);}
