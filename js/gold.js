@@ -15,10 +15,11 @@ const FREE_RESETS=true;
 const resetCost=k=>FREE_RESETS?0:(k==='stats'?statResetCost():skillResetCost());
 
 function innHtml(){const c=innCost(),r=isRested();
-  return `<h3>Bunk room</h3><div class="row"><div class="grow"><div class="nm">Rent a bunk</div><div class="ds">Full HP and SP, and you wake <b>Well rested</b>: +${REST_BONUS*100}% EXP and job EXP for ${REST_MS/60000} minutes${r?` · <span class="gold">${restedText()} left</span>`:''}</div></div><span class="gold">${fmt(c)}</span><button class="btn small" data-act="inn" ${P.gold>=c?'':'disabled'}>Rest</button></div>`;}
-PANEL_ACTS.inn=()=>{const c=innCost();if(P.gold<c)return;P.gold-=c;S=computeStats();P.hp=S.maxhp;P.sp=S.maxsp;P.rested=Date.now()+REST_MS;
-  sfx('coin');fx.push({k:'heal',x:P.x,y:P.y,t0:now,dur:.8});floatT(P.x,P.y-44,'Well rested','#ffe7a0',13);
-  addLog(`You rest at the Waystation for ${fmt(c)} gold. Well rested: +${REST_BONUS*100}% EXP for ${REST_MS/60000} minutes.`,'l-good');refreshPanel();save();};
+  // v1.40.5 a paid EXP boost only: healing is the Chapel's (free), so the bunk no longer refills HP and SP
+  return `<h3>Rest well (+${REST_BONUS*100}% EXP)</h3><div class="row"><div class="grow"><div class="nm">Well rested</div><div class="ds">+${REST_BONUS*100}% EXP and job EXP for ${REST_MS/60000} minutes</div>${r?`<div class="ds"><span class="gold">${restedText()} left</span></div>`:''}<div class="ds muted">To heal, visit the Chapel: it is free.</div></div><span class="gold">${fmt(c)}</span><button class="btn small" data-act="inn" ${P.gold>=c?'':'disabled'}>Rest</button></div>`;}
+PANEL_ACTS.inn=()=>{const c=innCost();if(P.gold<c)return;P.gold-=c;P.rested=Date.now()+REST_MS;
+  sfx('coin');fx.push({k:'ring',x:P.x,y:P.y,r:36,col:'#ffe7a0',t0:now,dur:.6});floatT(P.x,P.y-44,'Well rested','#ffe7a0',13);
+  addLog(`You take a good rest at the Waystation for ${fmt(c)} gold. Well rested: +${REST_BONUS*100}% EXP for ${REST_MS/60000} minutes.`,'l-good');refreshPanel();save();};
 
 function respecHtml(){
   const spentStats=Object.values(P.st).reduce((a,v)=>a+statSpent(v),0),spentSkills=Object.entries(P.skills).reduce((a,[s,v])=>s==='firstaid'?a:a+v,0);
@@ -41,3 +42,5 @@ PANEL_ACTS.respec=k=>{
     addLog(`Your skills are reset. ${n} skill points to spend again (K).`,'l-good');}
   refreshPanel();save();};
 PANEL_CLOSE.job=()=>{resetAsk=null;};
+if(typeof TH!=='undefined'){for(const [k,v] of [['Well rested','พักผ่อนเต็มที่'],['To heal, visit the Chapel: it is free.','ถ้าจะรักษา ไปที่โบสถ์ได้ฟรี']])if(!TH[k])TH[k]=v;
+  if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^Rest well \(\+(\d+)% EXP\)$/,'พักผ่อน (EXP +$1%)'],[/^\+(\d+)% EXP and job EXP for (\d+) minutes$/,'EXP และ EXP อาชีพ +$1% เป็นเวลา $2 นาที'],[/^Well rested (\d+)m left$/,'พักผ่อนเต็มที่ เหลือ $1 นาที']);}

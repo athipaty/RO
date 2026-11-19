@@ -11,7 +11,7 @@ module.exports = async t => {
       const e0 = P.exp; gainExp(100, 0); const got = P.exp - e0; closePanel();
       const saved = snapshot().p.rested > Date.now(); P.rested = Date.now() - 1; const e1 = P.exp; gainExp(100, 0); const after = P.exp - e1;
       return { has, paid, cost: 50 + 20 * 10, full, rest, left: /Well rested 15m left/.test(txt), got, after, saved, line: document.getElementById('gold').textContent }; });
-    t.ok(inn.has && inn.paid === inn.cost && inn.full, `renting a bunk at the Waystation costs ${inn.cost} gold at Lv 20 and refills HP and SP`);
+    t.ok(inn.has && inn.paid === inn.cost && !inn.full, `resting well at the Waystation costs ${inn.cost} gold at Lv 20 and is an EXP boost only (healing is the Chapel's)`);
     t.ok(inn.rest && inn.left && inn.saved, 'you wake Well rested for 15 minutes, and that is saved');
     t.ok(inn.got === 110 && inn.after === 100, `Well rested gives +10% EXP (${inn.got} instead of 100), and stops when it runs out`);
     const rs = await g.ev(() => { P.st = { str: 15, agi: 1, vit: 5, int: 1, dex: 1, luk: 1 }; P.statPts = 3; P.gold = 100000; P.lv = 20; P.jl = 12; P.cls = 'warden';
