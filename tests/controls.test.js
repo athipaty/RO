@@ -37,9 +37,9 @@ module.exports = async t => {
     const fade = await ev(() => { enterZone('capital', 'town'); const b = Z.buildings.find(x => x.name === 'Grand Library'); return { behind: bldHides(b, (b.x - .4) * TILE, (b.y + b.h * .6) * TILE), front: bldHides(b, (b.x + b.w / 2) * TILE, (b.y + b.h + 2) * TILE) }; });
     t.ok(fade.behind && !fade.front, 'a building fades when your hero is behind it, not when in front');
     const redraw = await ev(async () => { enterZone('capital', 'town'); const b = Z.buildings.find(x => x.name === 'Gemcutter'); P.x = b.x * TILE - 30; P.y = (b.y + b.h * .5) * TILE; P.path = [];
-      let after = 0, built = false; const db = drawBuilding, dp = drawPlayer; drawBuilding = (...a) => { built = true; return db(...a); }; drawPlayer = (...a) => { if (built && a[0] === P) after++; return dp(...a); };
-      await new Promise(r => setTimeout(r, 300)); drawBuilding = db; drawPlayer = dp; return after; });
-    t.ok(redraw > 2, 'a hero hidden by a building is drawn again on top of it');
+      let frames = 0, heroes = 0; const db = drawBuilding, dp = drawPlayer; drawBuilding = (...a) => { if (a[0] === b) frames++; return db(...a); }; drawPlayer = (...a) => { if (a[0] === P) heroes++; return dp(...a); };
+      await new Promise(r => setTimeout(r, 300)); drawBuilding = db; drawPlayer = dp; return { frames, heroes, hidden: bldHides(b, P.x, P.y) }; });
+    t.ok(redraw.hidden && redraw.frames > 2 && redraw.heroes <= redraw.frames + 1, 'a hero hidden by a building is drawn once, behind it (the building turns see-through), not again on top ' + JSON.stringify(redraw));
     t.ok(errors.length === 0, 'no script errors' + errors.map(e => ': ' + e).join(''));
   } finally { await browser.close(); }
 };

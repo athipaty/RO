@@ -135,9 +135,8 @@ function bldCacheBlit(b,draw){if(window.__bldLive||typeof DPR!=='number'||!DPR)r
     const main=ctx,t0=now;ctx=g;now=0;try{draw();}catch(err){ctx=main;now=t0;return false;}finally{ctx=main;now=t0;}
     // a spot on the front wall (always painted) to check later that the picture was not wiped by the browser
     const wall=proj((X0+X1-30)/2,Y1-30);e={c,x:minX,y:minY,w:c.width/DPR,h:c.height/DPR,cx:Math.round((wall.x-minX)*DPR),cy:Math.round((wall.y-20-minY)*DPR)};BLD_CACHE.map.set(key,e);}
-  // a building that hides your hero is faded (globalAlpha .5): drawn shape by shape that looked almost solid, so the
-  // single picture is faded only a little to keep the same look (your hero is drawn on top anyway)
-  const a0=ctx.globalAlpha;if(a0<1)ctx.globalAlpha=Math.min(1,a0+.3);ctx.drawImage(e.c,e.x,e.y,e.w,e.h);ctx.globalAlpha=a0;return true;}
+  // a building that hides your hero is drawn see-through (the caller sets globalAlpha), so your hero shows through it
+  ctx.drawImage(e.c,e.x,e.y,e.w,e.h);return true;}
 
 /* ---- keep the building pictures alive (phones can wipe pictures while the game is in the background) ---- */
 function bldCacheClear(){BLD_CACHE.map.clear();BLD_CACHE.zone=null;}

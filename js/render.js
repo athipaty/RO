@@ -181,9 +181,8 @@ function render(){
   // everything in one pass, in an order that respects each building: what is behind a building is drawn
   // before it, what is beside or in front of it after it. A building that would still hide your hero fades.
   let heroHidden=false;
-  for(const n of order){if(n.b){const hide=bldHides(n.b,P.x,P.y);if(hide){heroHidden=true;ctx.save();ctx.globalAlpha=.5;}drawBuilding(n.b);if(hide)ctx.restore();}else drawItem(n.it);}
-  // your hero is never lost behind a building: drawn again on top, fully visible
-  if(heroHidden&&!P.dead)drawItem({e:P,x:P.x,y:P.y});
+  for(const n of order){if(n.b){const hide=bldHides(n.b,P.x,P.y);if(hide){heroHidden=true;ctx.save();ctx.globalAlpha=.55;}drawBuilding(n.b);if(hide)ctx.restore();}else drawItem(n.it);}
+  // your hero is never lost behind a building: the building turns see-through so you show through it (v1.33.1: no longer drawn on top of it)
   // target ring
   if(P.target&&!P.target.dead){const t=P.target;at(t.x,t.y,()=>{ctx.strokeStyle='rgba(255,90,70,.9)';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.lineDashOffset=-now*20;ctx.beginPath();ctx.ellipse(t.x,t.y+2,t.d.size+9,(t.d.size+9)*.5,0,0,7);ctx.stroke();ctx.setLineDash([]);});}
   // projectiles
