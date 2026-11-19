@@ -6,7 +6,7 @@ module.exports = async t => {
   try {
     await wait(500);
     const r = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); const out = {};
-      for (const z of ['town', 'capital']) { enterZone(z); await w(200); out[z] = Z.buildings.filter(b => !b.kind).map(b => (archiOf(b) ? Object.keys(ARCHI).find(k => ARCHI[k] === archiOf(b)) : 'none')); for (const b of Z.buildings) drawBuilding(b); }
+      for (const z of ['town', 'capital']) { enterZone(z); await w(200); out[z] = Z.buildings.filter(b => !b.kind && !(z === 'capital' && typeof CAP_BLD !== 'undefined' && b.npc && CAP_BLD[b.npc.role])).map(b => (archiOf(b) ? Object.keys(ARCHI).find(k => ARCHI[k] === archiOf(b)) : 'none')); for (const b of Z.buildings) drawBuilding(b); }
       return { out, roofs: new Set(Object.values(ARCHI).map(a => a.roof)).size, dark: shade('#8e3b2e', -40), frac: shade('#8e3b2e', -.5) }; });
     t.ok(!r.out.town.includes('none') && !r.out.capital.includes('none'), 'every building in Hearthvale and Aurelmark has a style: ' + r.out.town.join(',') + ' | ' + r.out.capital.join(','));
     t.ok(new Set(r.out.town).size === r.out.town.length, 'no two Hearthvale buildings share a style');

@@ -365,10 +365,86 @@ function cbForgeLive(b){const G=cbForgeGeo(b),{bx0,bx1,by0,byF,W,D,ch,wheel}=G,P
   c.restore();}
 const cbForgeLights=b=>{const G=cbForgeGeo(b);return tbLit([[G.bx0+G.W/2,G.byF,26],[G.bx0+G.W/2-18,G.byF,14],[G.bx0+G.W/2+18,G.byF,14],[G.bx1,G.byF-G.D*.22,47],[G.bx1,G.byF-G.D*.78,47]]);};
 
+/* ---------------- the Royal Palace ---------------- */
+// white marble with gold, under blue slate: a tall keep at the back flying the colours of whoever holds Emberkeep,
+// round corner towers with blue cones and pennants, a crenellated gatehouse with gold-studded doors, the royal crest
+// and two long banners, broad steps and two burning braziers
+const cbPalGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,bx0=X0+30,bx1=X1-30,by0=Y0+52,byF=Y1-66,xc=(X0+X1)/2;
+  return{X0,Y0,X1,Y1,bx0,bx1,by0,byF,xc,yc:(by0+byF)/2,W:bx1-bx0,D:byF-by0,H:84,RH:40,keep:{x0:xc-28,y0:Y0+8,x1:xc+28,y1:Y0+62,h:176},
+    tw:[{x:bx0,y:byF,r:22,h:128},{x:bx1,y:byF,r:22,h:128},{x:bx1,y:by0,r:18,h:116}],gate:{x0:xc-42,x1:xc+42,y0:byF-8,y1:byF+16,h:112},br:[{x:xc-64,y:byF+46},{x:xc+64,y:byF+46}]};};
+// merlons along the top of a face
+function cbCren(S,L,h,step,col,colR){for(let u=0;u<L-2;u+=step*2){poly([S(u,h),S(u+step,h),S(u+step,h+7),S(u,h+7)],col,TB_OL);}}
+function cbConeTower(t,stone,stoneR,roof,gold){const {x,y,r,h}=t;cbCyl(x,y,r,0,h,stoneR,null);
+  poly([...cbRing(x,y,r,h,Math.PI*.35,Math.PI*.75,10),...cbRing(x,y,r,0,Math.PI*.75,Math.PI*.35,10)],stone,null);
+  ctx.globalAlpha=.25;for(let k=14;k<h;k+=14)poly(cbRing(x,y,r,k,-Math.PI/4,Math.PI*.75,18),null,'#8a8070');ctx.globalAlpha=1;
+  for(const hh of [40,82]){const a=Math.PI*.42,p=TB_P(x+Math.cos(a)*r,y+Math.sin(a)*r,hh);ctx.fillStyle='#22344a';ctx.beginPath();ctx.roundRect(p.x-3.5,p.y-14,7,14,[3.5,3.5,0,0]);ctx.fill();ctx.strokeStyle=gold;ctx.lineWidth=1.2;ctx.stroke();}
+  cbCyl(x,y,r+3,h-5,h,gold,null,'#8a6a1a');
+  const ap=TB_P(x,y,h+r*2.4),ring=cbRing(x,y,r+6,h,-Math.PI/4,Math.PI*.75,18);poly([...ring,ap],roof,shade(roof,-45));
+  poly([...cbRing(x,y,r+6,h,Math.PI*.4,Math.PI*.75,8),ap],shade(roof,22),null);
+  ctx.fillStyle=gold;ctx.beginPath();ctx.arc(ap.x,ap.y-3,2.6,0,7);ctx.fill();tbSeg(ap,{x:ap.x,y:ap.y-16},'#8a6a1a',1.4);}
+function cbPalace(b){const G=cbPalGeo(b),{X0,Y0,X1,Y1,bx0,bx1,by0,byF,xc,yc,W,D,H,RH,keep,gate}=G,P=TB_P,c=ctx;
+  const stone='#f4efe4',stoneR='#d4ccbc',trim='#e2d6bc',gold='#e8c25a',roof=b.roof||'#2a4a8a',crim='#a8283a';
+  poly([P(bx0-20,Y1),P(X1+30,Y1),P(X1+30,Y0+30),P(bx1,Y0)],'rgba(0,0,0,.2)');
+  // the keep, rising behind everything
+  {const {x0,y0,x1,y1,h}=keep;tbBox(x0,y0,x1,y1,0,h,stone,stoneR);const F=tbF(x0,y1),R=tbR(x1,y1);
+    for(const [S,L] of [[F,x1-x0],[R,y1-y0]]){c.globalAlpha=.22;for(let k=14;k<h;k+=14)tbSeg(S(0,k),S(L,k),'#8a8070',.8);c.globalAlpha=1;tbQuad(S,0,h-8,L,h-4,gold,'#8a6a1a');}
+    for(const hh of [120,148]){cbArch(F,(x1-x0)/2-6,(x1-x0)/2+6,hh,hh+10,'#22344a');cbArch(R,(y1-y0)/2-5,(y1-y0)/2+5,hh,hh+9,'#22344a');}
+    poly([P(x0,y0,h),P(x1,y0,h),P(x1,y1,h),P(x0,y1,h)],'#d8d0c0',TB_OL);cbCren(F,x1-x0,h,6,stone);cbCren(R,y1-y0,h,6,stoneR);
+    tbSeg(P((x0+x1)/2,(y0+y1)/2,h),P((x0+x1)/2,(y0+y1)/2,h+46),'#5a4a2a',2);}
+  // the back corner tower
+  cbConeTower(G.tw[2],stone,stoneR,roof,gold);
+  // the main hall: two floors of tall arched windows with gold sills, a gold band between them, a blue hip roof
+  tbBox(bx0,by0,bx1,byF,0,H,stone,stoneR);const F=tbF(bx0,byF),R=tbR(bx1,byF);
+  for(const [S,L] of [[F,W],[R,D]]){c.globalAlpha=.2;for(let k=12;k<H;k+=12)tbSeg(S(0,k),S(L,k),'#8a8070',.8);c.globalAlpha=1;
+    tbQuad(S,0,0,L,8,trim);tbQuad(S,0,42,L,46,gold,'#8a6a1a');tbQuad(S,0,H-6,L,H,trim);}
+  const win=(S,u)=>{for(const [h0,h1] of [[12,34],[52,74]]){cbArch(S,u-7,u+7,h0,h1-7,'#2a3e5a');tbSeg(S(u,h0),S(u,h1),gold,.8);tbQuad(S,u-9,h0-3,u+9,h0,gold,'#8a6a1a');}};
+  for(const u of [24,50,W-50,W-24])win(F,u);for(const u of [D*.25,D*.5,D*.75])win(R,u);
+  {const e=12,hh=D/2,r1=P(bx0+hh,yc,H+RH),r2=P(bx1-hh,yc,H+RH),eT=P(bx0-e,by0-e,H),eR=P(bx1+e,by0-e,H),eB=P(bx1+e,byF+e,H),eL=P(bx0-e,byF+e,H);
+    poly([eT,eR,r2,r1],shade(roof,-40));poly([eL,eT,r1],shade(roof,-25),shade(roof,-60));poly([eR,eB,r2],shade(roof,-12),shade(roof,-60));poly([eB,eL,r1,r2],roof,shade(roof,-60));
+    c.globalAlpha=.3;for(let k=1;k<6;k++){const t=k/6;tbSeg(P(bx0-e+(hh+e)*t,byF+e-(byF+e-yc)*t,H+RH*t),P(bx1+e-(hh+e)*t,byF+e-(byF+e-yc)*t,H+RH*t),shade(roof,-70),1);}c.globalAlpha=1;
+    tbSeg(r1,r2,gold,2.6);for(const t of [.3,.7]){const p=P(bx0+hh+(W-2*hh)*t,yc,H+RH);c.fillStyle=gold;c.beginPath();c.arc(p.x,p.y-4,3,0,7);c.fill();tbSeg(p,{x:p.x,y:p.y-12},'#8a6a1a',1.4);}}
+  // the front corner towers
+  cbConeTower(G.tw[0],stone,stoneR,roof,gold);cbConeTower(G.tw[1],stone,stoneR,roof,gold);
+  // the gatehouse: crenellated, with gold-studded doors, the crest and two banners
+  {const {x0,x1,y0,y1,h}=gate,GF=tbF(x0,y1),GR=tbR(x1,y1),L=x1-x0;tbBox(x0,y0,x1,y1,0,h,stone,stoneR);
+    c.globalAlpha=.2;for(let k=12;k<h;k+=12)tbSeg(GF(0,k),GF(L,k),'#8a8070',.8);c.globalAlpha=1;
+    tbQuad(GF,0,0,L,8,trim);tbQuad(GF,0,h-10,L,h-6,gold,'#8a6a1a');poly([P(x0,y0,h),P(x1,y0,h),P(x1,y1,h),P(x0,y1,h)],'#e2dac8',TB_OL);cbCren(GF,L,h,7,stone);cbCren(GR,y1-y0,h,7,stoneR);
+    cbArch(GF,L/2-20,L/2+20,0,38,'#3a2a1a');cbArch(GF,L/2-17,L/2+17,0,36,'#c8963a');tbSeg(GF(L/2,0),GF(L/2,52),'#7a5a1a',1.6);
+    for(const u of [L/2-11,L/2+11])for(const hh of [10,22,34]){const p=GF(u,hh);c.fillStyle='#fff0b0';c.beginPath();c.arc(p.x,p.y,1.4,0,7);c.fill();}
+    cbArch(GF,L/2-23,L/2+23,0,38,null,'#b8a888');
+    // the crest: a blue shield with a gold crown
+    {const p=GF(L/2,86);c.fillStyle='#2a4a8a';c.strokeStyle=gold;c.lineWidth=2;c.beginPath();c.moveTo(p.x-11,p.y-12);c.lineTo(p.x+11,p.y-12);c.lineTo(p.x+11,p.y+2);c.quadraticCurveTo(p.x+11,p.y+12,p.x,p.y+16);c.quadraticCurveTo(p.x-11,p.y+12,p.x-11,p.y+2);c.closePath();c.fill();c.stroke();
+      c.fillStyle=gold;c.beginPath();c.moveTo(p.x-6,p.y+3);c.lineTo(p.x-7,p.y-5);c.lineTo(p.x-3,p.y-1);c.lineTo(p.x,p.y-7);c.lineTo(p.x+3,p.y-1);c.lineTo(p.x+7,p.y-5);c.lineTo(p.x+6,p.y+3);c.closePath();c.fill();}
+    // two long crimson banners with a gold border and crown
+    for(const u of [9,L-9]){poly([GF(u-6,h-12),GF(u+6,h-12),GF(u+6,50),GF(u,44),GF(u-6,50)],crim,'#5a1018');tbSeg(GF(u-4,h-14),GF(u-4,52),gold,1);tbSeg(GF(u+4,h-14),GF(u+4,52),gold,1);
+      const p=GF(u,h-26);c.fillStyle=gold;c.beginPath();c.moveTo(p.x-4,p.y+2);c.lineTo(p.x-5,p.y-4);c.lineTo(p.x-2,p.y-1);c.lineTo(p.x,p.y-5);c.lineTo(p.x+2,p.y-1);c.lineTo(p.x+5,p.y-4);c.lineTo(p.x+4,p.y+2);c.closePath();c.fill();}}
+  // broad steps up to the gate
+  for(let k=0;k<4;k++)tbBox(gate.x0-12+k*2,gate.y1,gate.x1+12-k*2,gate.y1+30-k*7,k*3,k*3+3,'#e8e0d0','#c8beac','#f4efe4');
+  // braziers: stone bowls on short pillars (the fire is live)
+  for(const {x,y} of G.br){cbCyl(x,y,5,0,22,'#c8beac',null);cbCyl(x,y,10,22,28,'#a89e8c','#3a2a1a');}
+}
+function cbPalaceLive(b){const G=cbPalGeo(b),P=TB_P,c=ctx,t=now;c.save();
+  // pennants on the corner towers
+  for(const [i,tw] of G.tw.entries()){const top=P(tw.x,tw.y,tw.h+tw.r*2.4),x=top.x,y=top.y-16,ph=t*4+i;c.fillStyle=i===2?'#e8c25a':'#a8283a';c.strokeStyle='#3a1a10';c.lineWidth=.8;c.beginPath();c.moveTo(x,y);
+    for(let k=1;k<=5;k++){const u=k/5;c.lineTo(x+u*16,y+2.5*u+Math.sin(ph-u*3)*2*u);}for(let k=5;k>=0;k--){const u=k/5;c.lineTo(x+u*16,y+7-2.5*u+Math.sin(ph-u*3)*2*u);}c.closePath();c.fill();c.stroke();}
+  // the great flag on the keep: the colours of the guild that holds Emberkeep, else the Crown's blue and gold
+  {const k=G.keep,top=P((k.x0+k.x1)/2,(k.y0+k.y1)/2,k.h+46),x=top.x,y=top.y,ph=t*3,col=typeof GW!=='undefined'&&GW.owner&&typeof keepColour==='function'?keepColour():'#2a4a8a';
+    const pts=[];for(let i=0;i<=8;i++){const u=i/8;pts.push({x:x+u*34,y:y+Math.sin(ph-u*3.5)*3*u});}
+    c.fillStyle=col;c.strokeStyle='#1a1a2a';c.lineWidth=1;c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(const p of pts)c.lineTo(p.x,p.y);for(let i=8;i>=0;i--)c.lineTo(pts[i].x,pts[i].y+20);c.closePath();c.fill();c.stroke();
+    if(!(typeof GW!=='undefined'&&GW.owner)){const m=pts[4];c.fillStyle='#e8c25a';c.beginPath();c.moveTo(m.x-5,m.y+14);c.lineTo(m.x-6,m.y+6);c.lineTo(m.x-2.5,m.y+9);c.lineTo(m.x,m.y+4);c.lineTo(m.x+2.5,m.y+9);c.lineTo(m.x+6,m.y+6);c.lineTo(m.x+5,m.y+14);c.closePath();c.fill();}
+    else if(typeof drawEmblem==='function')try{drawEmblem(c,GW.owner.emblem,pts[4].x,pts[4].y+10,14);}catch(e){}}
+  // the braziers burn
+  for(const [i,{x,y}] of G.br.entries()){const p=P(x,y,28);for(let k=0;k<5;k++){const ph=(t*1.8+k*.21+i*.37)%1;c.globalAlpha=1-ph;c.fillStyle=k%2?'#ffd060':'#ff7a2a';c.beginPath();c.ellipse(p.x+Math.sin(t*5+k)*3*(1-ph),p.y-2-ph*18,4.5-ph*3,7-ph*4,0,0,7);c.fill();}
+    c.globalAlpha=.35;const g=c.createRadialGradient(p.x,p.y-6,1,p.x,p.y-6,20);g.addColorStop(0,'rgba(255,200,90,.8)');g.addColorStop(1,'rgba(255,200,90,0)');c.fillStyle=g;c.beginPath();c.arc(p.x,p.y-6,20,0,7);c.fill();c.globalAlpha=1;}
+  c.restore();}
+const cbPalaceLights=b=>{const G=cbPalGeo(b),out=[];for(const u of [24,50,G.W-50,G.W-24])for(const h of [23,63])out.push([G.bx0+u,G.byF,h]);
+  for(const u of [.25,.5,.75])out.push([G.bx1,G.byF-G.D*u,63]);for(const t of G.tw.slice(0,2))out.push([t.x,t.y+t.r,82]);out.push([G.xc,G.gate.y1,20,1]);for(const r of G.br)out.push([r.x,r.y,34]);return tbLit(out);};
+
 const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   gemcut:{body:cbGemcut,live:cbGemcutLive,signAt:b=>{const G=cbGemGeo(b);return[{name:b.name,x:(G.bx0+44)/TILE,w:0,y:(G.byF+12)/TILE,h:0},40];},lights:cbGemcutLights},
   library:{body:cbLib,live:cbLibLive,signAt:b=>{const G=cbLibGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:(G.byF+G.po.d+2)/TILE,h:0},G.po.h+9];},lights:cbLibLights},
   smith:{body:cbForge,live:cbForgeLive,signAt:b=>{const G=cbForgeGeo(b);return[{name:b.name,x:(G.bx0+G.W/2)/TILE,w:0,y:G.byF/TILE,h:0},G.H-4];},lights:cbForgeLights},
+  palace:{body:cbPalace,live:cbPalaceLive,signAt:b=>{const G=cbPalGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.gate.y1/TILE,h:0},58];},lights:cbPalaceLights},
   shop:{body:cbMarket,live:cbMarketLive,signAt:b=>{const G=cbMarketGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.byF/TILE,h:0},G.H1+20];},lights:cbMarketLights}};
 // take over the drawing of the capital's pieces that have a design of their own
 {const _prev=drawBuilding;

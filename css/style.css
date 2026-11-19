@@ -1521,3 +1521,15 @@ body.touchui #panel.npcsheet .x{border-radius:50%!important}
 #panel .fuseprev .fpmobs{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}
 #panel .fuseprev .fpmobs figure{margin:0;text-align:center;font-size:10.5px;line-height:1.2}
 #panel .fuseprev .fpmobs img{width:44px;height:44px;border-radius:8px;background:rgba(0,0,0,.2);border:1px solid rgba(201,162,74,.3)}
+/* the Royal Palace window (js/palace.js, v1.37.0) */
+#panel .palseal{display:inline-flex;align-items:center;gap:2px;font-weight:800;color:#ffe08a;background:rgba(42,74,138,.55);border:1px solid #c9a24a;border-radius:10px;padding:0 7px;font-size:12px;white-space:nowrap}
+#panel .pallist{display:flex;flex-direction:column;gap:6px;margin:6px 0}
+#panel .palcard{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.045);border:1px solid rgba(160,180,230,.18)}
+#panel .palcard.ready{border-color:#ffe08a;box-shadow:0 0 12px rgba(255,200,90,.25)}
+#panel .palcard.claimed{opacity:.6}
+#panel .palcard>img{width:48px;height:48px;flex:none;border-radius:10px;background:rgba(0,0,0,.2);border:1px solid rgba(201,162,74,.35)}
+#panel .palcard .grow{min-width:0}#panel .palcard .abar{margin:4px 0 3px}
+#panel .palico{width:40px;height:40px;flex:none;display:grid;place-items:center;font-size:20px;color:#ffe08a;border-radius:10px;background:rgba(42,74,138,.55);border:1px solid #c9a24a}
+#panel .palkeep{margin:8px 0;padding:8px 10px;border-radius:10px;border:1px solid rgba(201,162,74,.45);background:rgba(42,74,138,.35)}
+#panel .palhero.me{background:rgba(255,224,138,.08);border-radius:8px}
+#panel .palrank{width:26px;text-align:center;font-weight:800;color:#ffe08a}
