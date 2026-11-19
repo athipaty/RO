@@ -40,6 +40,7 @@ function getZone(id){
              {x:5,y:5,w:8,h:5,name:'Aurel Market',roof:'#a8452e',npc:{name:'Merchant Tavi',role:'shop',col:'#c86a3a',hair:'#3a2a1a'}},
              {x:15,y:5,w:7,h:5,name:'Gemcutter',roof:'#5a3a8a',npc:{name:'Gemcutter Sela',role:'gemcut',col:'#7a5ac0',hair:'#e8e4f0'}},
              {x:37,y:4,w:10,h:6,name:'Grand Library',roof:'#2e4f6e',npc:{name:'Librarian Oren',role:'library',col:'#3b5a7a',hair:'#c8c8c8'}},
+             {x:4,y:24,w:7,h:5,name:'Hall of Awakening',roof:'#6a4aa8',npc:{name:'Awakener Liora',role:'awaken',col:'#e8e0f4',hair:'#c8b0ff'}}, // v1.37.4 in Noble Gardens
              {x:46,y:27,w:7,h:5,name:'Royal Stables',roof:'#2a4a8a',npc:{name:'Stablemaster Rowan',role:'stables',col:'#6a4a2a',hair:'#c86a2a'}}, // v1.37.2
              {x:38,y:26,w:7,h:5,name:'Forge Royal',roof:'#5a4a42',npc:{name:'Smith Garrow',role:'smith',col:'#6a5040',hair:'#8a5a2b'}}];
     for(const b of B){const fy=b.y+b.h,cx=Math.floor(b.x+b.w/2);

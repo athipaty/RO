@@ -561,6 +561,52 @@ function cbStablesLive(b){const G=cbStbGeo(b),P=TB_P,c=ctx,t=now,F=tbF(G.bx0,G.b
   c.restore();}
 const cbStablesLights=b=>{const G=cbStbGeo(b);return tbLit([...G.stall.map(u=>[G.bx0+u,G.byF,36]),[G.bx1,(G.by0+G.byF)/2,40]]);};
 
+/* ---------------- the Hall of Awakening (v1.37.4) ---------------- */
+// an open round temple on a stepped platform: white columns in a ring, a violet glass dome with gold ribs and a star;
+// inside, a rune circle turns on the floor, a column of light rises and a crystal floats and spins; violet braziers
+const cbAwGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE;return{X0,Y0,X1,Y1,cx:(X0+X1)/2-6,cy:(Y0+Y1)/2-4,R:66,cr:52,ch:112,n:8,br:[{x:X0+18,y:Y1-12},{x:X1-30,y:Y1-12}]};};
+function cbAwCol(G,i,c){const a=i*Math.PI*2/G.n+Math.PI/8,x=G.cx+Math.cos(a)*G.cr,y=G.cy+Math.sin(a)*G.cr;
+  cbCyl(x,y,5.5,12,G.ch,Math.sin(a+Math.PI/4)>0?'#f4efe4':'#ddd4c2',null,'#8a8070');cbCyl(x,y,7.5,G.ch-4,G.ch,'#e8c25a',null,'#8a6a1a');cbCyl(x,y,7.5,12,15,'#e2dac8',null,'#8a8070');}
+const cbAwFront=(G,i)=>Math.sin(i*Math.PI*2/G.n+Math.PI/8+Math.PI/4)>-.05;
+function cbAwaken(b){const G=cbAwGeo(b),{cx,cy,R}=G,P=TB_P;
+  poly(cbRing(cx+14,cy+14,R+14,0),'rgba(0,0,0,.18)');
+  // three steps up to the floor
+  cbCyl(cx,cy,R+10,0,4,'#c8beac','#ddd4c2');cbCyl(cx,cy,R+4,4,8,'#d4ccbc','#e8e0d0');cbCyl(cx,cy,R-2,8,12,'#e2dac8','#f0eadc');
+  // the floor: pale marble with a ring of darker stone where the runes turn
+  poly(cbRing(cx,cy,G.cr-10,12),'#e8e0d4','#b8ae9a');poly(cbRing(cx,cy,G.cr-16,12),'#3a2a5a',null);
+  // the columns at the back (the front ones are drawn over the light, live)
+  for(let i=0;i<G.n;i++)if(!cbAwFront(G,i))cbAwCol(G,i);
+  // braziers on short pillars by the steps (their violet fire is live)
+  for(const {x,y} of G.br){cbCyl(x,y,5,0,20,'#c8beac',null);cbCyl(x,y,9,20,26,'#8a7aa0','#2a1a3a');}
+}
+function cbAwakenLive(b){const G=cbAwGeo(b),{cx,cy}=G,P=TB_P,c=ctx,t=now;c.save();
+  // the rune circle turns on the floor
+  {const r1=G.cr-18,ctr=P(cx,cy,12);const g=c.createRadialGradient(ctr.x,ctr.y,2,ctr.x,ctr.y,r1*1.1);g.addColorStop(0,'rgba(200,150,255,.55)');g.addColorStop(1,'rgba(120,80,220,0)');
+    c.fillStyle=g;c.beginPath();c.ellipse(ctr.x,ctr.y,r1*1.103,r1*.552,0,0,7);c.fill();
+    c.strokeStyle='rgba(220,190,255,.9)';c.lineWidth=1.6;poly(cbRing(cx,cy,r1,12,0,Math.PI*2,40),null,'rgba(220,190,255,.9)');poly(cbRing(cx,cy,r1-9,12,0,Math.PI*2,40),null,'rgba(220,190,255,.6)');
+    c.font='bold 9px serif';c.textAlign='center';c.fillStyle='#f0e0ff';const gl='ᚨᛒᛞᛖᚠᛟᛗᛉ';for(let k=0;k<8;k++){const a=t*.5+k*Math.PI/4,p=P(cx+Math.cos(a)*(r1-4.5),cy+Math.sin(a)*(r1-4.5),12);c.fillText(gl[k],p.x,p.y+3);}
+    for(let k=0;k<3;k++){const a=-t*.8+k*Math.PI*2/3,p1=P(cx+Math.cos(a)*(r1-9),cy+Math.sin(a)*(r1-9),12),p2=P(cx+Math.cos(a+Math.PI*2/3)*(r1-9),cy+Math.sin(a+Math.PI*2/3)*(r1-9),12);tbSeg(p1,p2,'rgba(220,190,255,.55)',1.2);}}
+  // a column of light and the floating crystal
+  {const base=P(cx,cy,12),top=P(cx,cy,G.ch+6),pulse=.5+Math.sin(t*2)*.15;const g=c.createLinearGradient(0,base.y,0,top.y);g.addColorStop(0,`rgba(210,170,255,${pulse})`);g.addColorStop(1,'rgba(210,170,255,0)');
+    c.fillStyle=g;c.beginPath();c.moveTo(base.x-14,base.y);c.lineTo(top.x-8,top.y);c.lineTo(top.x+8,top.y);c.lineTo(base.x+14,base.y);c.closePath();c.fill();
+    const p=P(cx,cy,50+Math.sin(t*1.5)*4),s=12,w=Math.max(.3,Math.abs(Math.cos(t*1.1)));
+    const gl=c.createRadialGradient(p.x,p.y,1,p.x,p.y,26);gl.addColorStop(0,'rgba(230,200,255,.7)');gl.addColorStop(1,'rgba(230,200,255,0)');c.fillStyle=gl;c.beginPath();c.arc(p.x,p.y,26,0,7);c.fill();
+    c.fillStyle='#c890ff';c.strokeStyle='#4a1a7a';c.lineWidth=1.3;c.beginPath();c.moveTo(p.x,p.y-s*1.6);c.lineTo(p.x+s*w,p.y-s*.2);c.lineTo(p.x,p.y+s*1.4);c.lineTo(p.x-s*w,p.y-s*.2);c.closePath();c.fill();c.stroke();
+    c.fillStyle='rgba(255,255,255,.5)';c.beginPath();c.moveTo(p.x,p.y-s*1.6);c.lineTo(p.x-s*w,p.y-s*.2);c.lineTo(p.x,p.y);c.closePath();c.fill();
+    for(let k=0;k<6;k++){const ph=(t*.3+k/6)%1,a=k*1.05+t*.4,q=P(cx+Math.cos(a)*18,cy+Math.sin(a)*18,14+ph*(G.ch-10));c.globalAlpha=Math.sin(ph*Math.PI);c.fillStyle='#f0e0ff';c.fillRect(q.x-1.2,q.y-1.2,2.4,2.4);}c.globalAlpha=1;}
+  // the front columns, then the ring and the dome over them
+  for(let i=0;i<G.n;i++)if(cbAwFront(G,i))cbAwCol(G,i);
+  cbCyl(cx,cy,G.cr+9,G.ch,G.ch+8,'#e2dac8','#f0eadc');cbCyl(cx,cy,G.cr+9,G.ch+8,G.ch+11,'#e8c25a',null,'#8a6a1a');
+  {const ct=P(cx,cy,G.ch+11),rx=(G.cr+6)*1.103,ry=(G.cr+6)*.552,dh=34;const gr=c.createLinearGradient(ct.x-rx,0,ct.x+rx,0);gr.addColorStop(0,'rgba(200,170,255,.95)');gr.addColorStop(.5,'rgba(140,100,220,.92)');gr.addColorStop(1,'rgba(90,60,170,.95)');
+    c.fillStyle=gr;c.strokeStyle='#3a1a6a';c.lineWidth=1.5;c.beginPath();c.ellipse(ct.x,ct.y,rx,dh,0,Math.PI,Math.PI*2);c.ellipse(ct.x,ct.y,rx,ry,0,0,Math.PI);c.closePath();c.fill();c.stroke();
+    c.strokeStyle='#e8c25a';c.lineWidth=1.3;for(let k=1;k<6;k++){const a=Math.PI*k/6,qx=ct.x-Math.cos(a)*rx,qy=ct.y+Math.sin(a)*ry;c.beginPath();c.moveTo(qx,qy);c.quadraticCurveTo(qx,ct.y-dh*.75,ct.x,ct.y-dh);c.stroke();}
+    c.fillStyle='rgba(255,255,255,.35)';c.beginPath();c.ellipse(ct.x-rx*.4,ct.y-dh*.5,6,12,-.4,0,7);c.fill();
+    const st=ct.y-dh-10;c.fillStyle='#e8c25a';c.strokeStyle='#8a6a1a';c.lineWidth=1;c.beginPath();for(let k=0;k<8;k++){const a=k*Math.PI/4-Math.PI/2,r=k%2?3:8;c.lineTo(ct.x+Math.cos(a)*r,st+Math.sin(a)*r);}c.closePath();c.fill();c.stroke();}
+  // violet fire in the braziers
+  for(const [i,{x,y}] of G.br.entries()){const p=P(x,y,26);for(let k=0;k<5;k++){const ph=(t*1.8+k*.21+i*.37)%1;c.globalAlpha=1-ph;c.fillStyle=k%2?'#e0b0ff':'#9a5ae8';c.beginPath();c.ellipse(p.x+Math.sin(t*5+k)*3*(1-ph),p.y-2-ph*16,4-ph*2.6,6.5-ph*3.5,0,0,7);c.fill();}c.globalAlpha=1;}
+  c.restore();}
+const cbAwakenLights=b=>{const G=cbAwGeo(b);return tbLit([[G.cx,G.cy,46],...G.br.map(r=>[r.x,r.y,32])]);};
+
 const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   gemcut:{body:cbGemcut,live:cbGemcutLive,signAt:b=>{const G=cbGemGeo(b);return[{name:b.name,x:(G.bx0+44)/TILE,w:0,y:(G.byF+12)/TILE,h:0},40];},lights:cbGemcutLights},
   library:{body:cbLib,live:cbLibLive,signAt:b=>{const G=cbLibGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:(G.byF+G.po.d+2)/TILE,h:0},G.po.h+9];},lights:cbLibLights},
@@ -569,6 +615,7 @@ const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   wall:{draw:cbWallDraw,lights:()=>[]},
   gatetower:{body:cbGateTower,live:cbGateLive,lights:b=>tbLit([[b.x*TILE+18,b.up?(b.y+b.h)*TILE:b.y*TILE+10,58]])},
   stables:{body:cbStables,live:cbStablesLive,signAt:b=>{const G=cbStbGeo(b);return[{name:b.name,x:(G.bx0+G.stall[1]+10)/TILE,w:0,y:G.byF/TILE,h:0},G.H+20];},lights:cbStablesLights},
+  awaken:{body:cbAwaken,live:cbAwakenLive,signAt:b=>{const G=cbAwGeo(b);return[{name:b.name,x:G.cx/TILE,w:0,y:(G.cy+G.cr+9)/TILE,h:0},G.ch+4];},lights:cbAwakenLights},
   shop:{body:cbMarket,live:cbMarketLive,signAt:b=>{const G=cbMarketGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.byF/TILE,h:0},G.H1+20];},lights:cbMarketLights}};
 // take over the drawing of the capital's pieces that have a design of their own
 {const _prev=drawBuilding;

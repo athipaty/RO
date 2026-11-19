@@ -48,14 +48,17 @@ const looseSigils=()=>P.inv.filter(e=>ITEMS[e.id]&&ITEMS[e.id].type==='sigil'&&e
 const trayCount=id=>AWK.tray.filter(x=>x===id).length;
 
 /* ---- Sela's window: Slots (as before) · Awaken · Fuse sigils ---- */
-{const _gem=PANELS.gemcut;PANELS.gemcut=function(){
-  const tabs=`<div class="tabs itabs" role="tablist">`+[['slots','Sigil slots'],['awaken','Awaken'],['fuse','Fuse sigils']].map(([k,l])=>`<button class="btn small ${AWK.tab===k?'on':''}" role="tab" aria-selected="${AWK.tab===k}" data-act="gemtab" data-arg="${k}">${l}</button>`).join('')+`</div>`;
-  if(AWK.tab==='slots'){const h=_gem.apply(this,arguments);const i=h.indexOf('</div>',h.indexOf('class="say"'));return i<0?tabs+h:h.slice(0,i+6)+tabs+h.slice(i+6);}
-  let h=`<h2>Gemcutter Sela</h2>`;
-  if(AWK.tab==='awaken'){
-    h+=`<div class="say">"Every blade has a voice it hasn't used yet. Let me wake it. If you don't like what it says, I'll put it back to sleep and you keep the old one."</div>`+tabs;
+// v1.37.4: Awaken has its own building (the Hall of Awakening, Awakener Liora); Sela keeps the slots (and fusing until
+// the Sigil Forge opens). One page per place; SELA_TABS lists the tabs Sela still shows.
+let SELA_TABS=[['slots','Sigil slots'],['fuse','Fuse sigils']];
+{const _gem=PANELS.gemcut;const awPage=function(page){const inSela=page==='sela';if(inSela&&!SELA_TABS.some(t=>t[0]===AWK.tab))AWK.tab='slots';const tab=inSela?AWK.tab:page;
+  const tabs=!inSela||SELA_TABS.length<2?'':`<div class="tabs itabs" role="tablist">`+SELA_TABS.map(([k,l])=>`<button class="btn small ${AWK.tab===k?'on':''}" role="tab" aria-selected="${AWK.tab===k}" data-act="gemtab" data-arg="${k}">${l}</button>`).join('')+`</div>`;
+  if(tab==='slots'){const h=_gem.apply(this,arguments);const i=h.indexOf('</div>',h.indexOf('class="say"'));return i<0?tabs+h:h.slice(0,i+6)+tabs+h.slice(i+6);}
+  let h=tab==='awaken'?`<h2>Hall of Awakening</h2>`:tab==='fuse'&&!inSela?`<h2>The Sigil Forge</h2>`:`<h2>Gemcutter Sela</h2>`;
+  if(tab==='awaken'){
+    h+=`<div class="say">"Every blade has a voice it hasn't used yet. Step into the circle and I will wake it. If you don't like what it says, I'll put it back to sleep and you keep the old one." — Awakener Liora</div>`+tabs;
     const pd=AWK.pending;
-    if(pd){const found=gemList().find(x=>x.e.uid===pd.uid);if(!found){AWK.pending=null;return PANELS.gemcut();}
+    if(pd){const found=gemList().find(x=>x.e.uid===pd.uid);if(!found){AWK.pending=null;return PANELS.awaken();}
       h+=`<div class="awbox"><div class="nm">${esc(itemName(found.e))}</div><div class="awrow"><span class="muted">Now</span><b>${pd.old?esc(awText(pd.old)):'<span class="muted">nothing</span>'}</b></div>`+
         `<div class="awrow"><span class="muted">New</span><b style="color:${AW_Q[pd.roll.q].col}">${esc(awText(pd.roll))}</b></div>`+
         `<div class="tbtns"><button class="btn small" data-act="awkeep" data-arg="new">Keep the new one</button><button class="btn small ghost" data-act="awkeep" data-arg="old">Keep ${pd.old?'the old one':'it asleep'}</button></div></div>`;return h;}
@@ -89,7 +92,8 @@ const trayCount=id=>AWK.tray.filter(x=>x===id).length;
     .sort(AWK.fs==='name'?(a,b)=>ITEMS[a.id].name.localeCompare(ITEMS[b.id].name):AWK.fs==='most'?(a,b)=>b.n-a.n||sigLv(b.id)-sigLv(a.id):(a,b)=>sigLv(b.id)-sigLv(a.id)||(ITEMS[b.id].radiant?1:0)-(ITEMS[a.id].radiant?1:0));
   for(const e of shown){const it=ITEMS[e.id],left=e.n-trayCount(e.id);h+=`<div class="row">${icon({id:e.id})}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${esc(it.name)} <span class="muted">×${left}</span></div><div class="ds">${SIG_KN[it.kind]||it.kind} · Lv ${sigLv(e.id)} · ${esc(it.txt||(sigMob(e.id)?sigMob(e.id).sig.txt:''))}</div></div>`+
     `<button class="btn small" data-act="fusein" data-arg="${e.id}" ${left>0&&AWK.tray.length<3?'':'disabled'}>Add</button></div>`;}
-  return h;};}
+  return h;};
+  PANELS.gemcut=function(){return awPage.call(this,'sela');};PANELS.awaken=function(){return awPage.call(this,'awaken');};PANELS.fuse=function(){return awPage.call(this,'fuse');};}
 const SIG_KN={weapon:'Weapon',armor:'Armor',head:'Head',accessory:'Accessory'};
 PANEL_ACTS.fusekind=k=>{AWK.fk=k;sfx('click');refreshPanel();};
 PANEL_ACTS.fusesort=k=>{AWK.fs=k;sfx('click');refreshPanel();};
@@ -118,3 +122,5 @@ if(typeof TH!=='undefined')for(const [k,v] of [['What can come out','ผลท�
 if(typeof TH!=='undefined'){for(const [k,v] of [['Radiant chance 12%, +8% for each Radiant sigil you put in. The result is near the level of the three; three of the same kind give that kind.','โอกาสเรเดียนต์ 12% และ +8% ต่อซิกิลเรเดียนต์ที่ใส่ ผลจะใกล้เลเวลของทั้งสาม ถ้าทั้งสามเป็นชนิดเดียวกันจะได้ชนิดนั้น'],['Head','หัว']])if(!TH[k])TH[k]=v;
   if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^Add (\d) more sigils?\. Three of the same kind always give that kind back\.$/,'ใส่ซิกิลอีก $1 อัน ถ้าทั้งสามเป็นชนิดเดียวกันจะได้ชนิดนั้นเสมอ'],
     [/^\(all three are (.+)\)$/,(m,a)=>`(ทั้งสามเป็น${{weapon:'อาวุธ',armor:'เกราะ',head:'หัว',accessory:'เครื่องประดับ'}[a]||a})`]);}
+if(typeof TH!=='undefined')for(const [k,v] of [['Hall of Awakening','หอปลุกพลัง'],['Awakener Liora','ผู้ปลุกพลังลิโอรา'],['The Sigil Forge','โรงหลอมซิกิล'],['The royal garden and the Hall of Awakening','สวนหลวงและหอปลุกพลัง'],
+  ['"Every blade has a voice it hasn\'t used yet. Step into the circle and I will wake it. If you don\'t like what it says, I\'ll put it back to sleep and you keep the old one." — Awakener Liora','"อาวุธทุกเล่มมีเสียงที่ยังไม่เคยเปล่ง ก้าวเข้ามาในวงเวท แล้วข้าจะปลุกมัน ถ้าเจ้าไม่ชอบสิ่งที่มันบอก ข้าจะให้มันหลับต่อและเจ้าเก็บของเดิมไว้" — ผู้ปลุกพลังลิโอรา']])if(!TH[k])TH[k]=v;
