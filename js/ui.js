@@ -538,6 +538,7 @@ function startWith(data){
   else if(!Array.isArray(P.storage))P.storage=[];
   if(!Array.isArray(P.friends))P.friends=[];
   if(P.lv>=99)P.exp=0; // saves from before the cap fix could hold more than 100%
+  if(typeof sigwSweep==='function')sigwSweep(); // v1.40.0 retired signature weapons leave old saves
   S=computeStats();if(!data||P.hp<=0){P.hp=S.maxhp;P.sp=S.maxsp;}
   $('#title').hidden=true;running=true;rebuildHotbar();
   enterZone(data&&ZONES[P.zone]?P.zone:'town');

@@ -31,3 +31,22 @@ const isShopItem=id=>SHOP.includes(id)||ROYAL_SHOP.includes(id);
 const BRANNOC_MAX=7,ROYAL_REFINE=[0,1,1,1,1,.95,.8,.6,.45,.3,.2];
 const refineCap=()=>inCapital()?10:BRANNOC_MAX;
 const refineOdds=n=>(inCapital()?ROYAL_REFINE:REFINE_CHANCE)[n];
+
+// the Royal Stock's weapons get their own look too: white-gold steel, royal blue and gold
+if(typeof WA!=='undefined'){Object.assign(WA,{
+  aurelblade:()=>waSword({w:4.6,len:25,guard:7,blade:'#f4f0e0',gcol:'#e8c25a',gem:'#2a6ad0',grip:'#2a4a8a',wrap:'#e8c25a',pom:'#e8c25a',glow:'#ffe8a0'}),
+  aurelaxe:()=>waAxe({double:true,head:'#f0e0a0',haft:'#2a4a8a',len:26}),
+  aureldagger:()=>waSword({w:3,len:16,guard:4.5,blade:'#f4f0e0',gcol:'#e8c25a',gem:'#c8283a',grip:'#2a4a8a',wrap:'#e8c25a',pom:'#e8c25a'}),
+  aurelmace:()=>waMace({head:'#e8c25a',flange:'#f4e090',gem:'#2a6ad0',glow:'#ffe8a0'}),
+  aurelstaff:()=>waWand({len:23,shaft:'#f0e8d0',spiral:'rgba(200,160,60,.5)',band:'#2a4a8a',prong:'#e8c25a',crystal:'#9ad0ff',glow:'#cfe8ff',star:true})});
+  if(typeof WA_BOW!=='undefined')WA_BOW.aurelbow={wood:'#e8d8a0',grip:'#2a4a8a',scale:1.1,tip:'#e8c25a',feather:'#ffffff'};}
+/* v1.40.0 the signature weapons were taken out of the game: any a hero still carries leaves the bag, the hands and storage,
+   and sigils socketed in them come back to the bag */
+const SIGW_GONE=/^(oathblade|starweave|windstring|dawnbell|veilfang)[123]$/;
+// called while a hero loads (ui.js startWith), before stats are worked out
+function sigwSweep(){if(!P)return;let n=0;const back=[];
+  const strip=e=>{if(Array.isArray(e.s))for(const v of e.s)if(v)back.push(v);n++;};
+  if(P.eq&&P.eq.weapon&&SIGW_GONE.test(P.eq.weapon.id)){strip(P.eq.weapon);P.eq.weapon=null;}
+  for(const L of [P.inv,P.storage])if(Array.isArray(L))for(let i=L.length-1;i>=0;i--)if(L[i]&&SIGW_GONE.test(L[i].id)){strip(L[i]);L.splice(i,1);}
+  if(!n)return;for(const id of back)if(ITEMS[id])giveItem(id,1);
+  setTimeout(()=>{try{save();addLog(`The signature weapons have been retired from Embervale.${back.length?' The sigils that were in yours are back in your bag.':''}`,'l-sys');}catch(e){}},1500);}
