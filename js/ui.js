@@ -200,7 +200,7 @@ function refreshPanel(){
     <h3>Adventure</h3><button class="btn" data-act="newgame">Start a new adventure</button>`;
   }
   else if(panelKind==='shop'){
-    if(inCapital())h+=`<h2>Aurel Market</h2><div class="say">“Everything Hearthvale sells, and the Royal Stock besides: the city's own steel, made for those who have walked far.” — Tavi</div>`;
+    if(inCapital())h+=`<h2>Aurel Market</h2><div class="say">“Only the Royal Stock here: the city's own steel and finest tonics, made for those who have walked far. For the everyday things, Ilsa in Hearthvale has you covered.” — Tavi</div>`;
     else h+=`<h2>General Store</h2><div class="say">“Tonics, steel and sturdy cloth. And I'll buy whatever you dragged out of the wilds.” — Ilsa</div>`;
     h+=`<div class="tabs"><button class="btn small ${shopTab==='buy'?'on':''}" data-act="tab" data-arg="buy">Buy</button><button class="btn small ${shopTab==='sell'?'on':''}" data-act="tab" data-arg="sell">Sell</button><span class="shopstat" style="margin-left:auto"><span class="gold">${fmt(P.gold)} gold</span>${shopWeightHtml()}</span></div>`;
     // type tabs under Buy / Sell: Use, Equip, Sigils, Etc (only the ones that have something)

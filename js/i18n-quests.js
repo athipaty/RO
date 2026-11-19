@@ -43,7 +43,7 @@ Object.assign(TH,{
   '“Rest a moment, traveller. The light asks nothing of you.” — Sister Maren':'“พักสักครู่เถิด นักเดินทาง แสงสว่างไม่ขอสิ่งใดจากเจ้า” — Sister Maren',
   '“Tonics, steel and sturdy cloth. And I\'ll buy whatever you dragged out of the wilds.” — Ilsa':'“ยา เหล็ก และผ้าเนื้อดี แล้วข้าก็รับซื้อทุกอย่างที่เจ้าลากกลับมาจากป่า” — Ilsa',
   '“I can send you to any road you\'ve already walked. The fare depends on how far you go. And if your feet are sore, the bunks upstairs are clean.” — Tobin':'“ข้าส่งเจ้าไปยังเส้นทางที่เจ้าเคยเดินแล้วได้ทุกที่ ค่าเดินทางขึ้นกับระยะทาง และถ้าเท้าเจ้าเมื่อย เตียงชั้นบนก็สะอาดดี” — Tobin',
-  '“Everything Hearthvale sells, and the Royal Stock besides: the city\'s own steel, made for those who have walked far.” — Tavi':'“ทุกอย่างที่ฮาร์ธเวลขาย และยังมีสินค้าหลวงอีกด้วย เหล็กกล้าของเมืองหลวง ทำมาเพื่อผู้ที่เดินทางมาไกล” — ทาวี',
+  "“Only the Royal Stock here: the city's own steel and finest tonics, made for those who have walked far. For the everyday things, Ilsa in Hearthvale has you covered.” — Tavi":'“ที่นี่มีแต่สินค้าหลวง เหล็กกล้าของเมืองหลวงและยาชั้นดี ทำมาเพื่อผู้ที่เดินทางมาไกล ของใช้ทั่วไปไปหาอิลซาที่ฮาร์ธเวลได้เลย” — ทาวี',
   '"Royal forge, royal hand. I take a blade all the way to +10, and my strikes miss less than most. Still, past +4 a bad one shatters the piece."':'"เตาหลวง มือหลวง ข้าตีบวกได้ถึง +10 และพลาดน้อยกว่าใคร แต่หลัง +4 ถ้าพลาดของก็แตกได้เหมือนกัน"',
   '"The Royal Bank and Wenna\'s warehouse share one vault. Whatever you leave with either of us waits for you at both."':'"ธนาคารหลวงกับโกดังของเวนนาใช้ห้องนิรภัยเดียวกัน ฝากไว้ที่ใครก็รับคืนได้ทั้งสองที่"',
   'Aurel Market':'ตลาดออเรล','Sold at Aurel Market in Aurelmark for':'มีขายที่ตลาดออเรลในออเรลมาร์ก ราคา',
