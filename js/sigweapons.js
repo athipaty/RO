@@ -13,31 +13,31 @@
    Drawn in code, original art. */
 const SIGW={
   warden:{fam:'Warden',stages:[
-    {id:'oathblade1',name:'Oathbound Blade',atk:72,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{pelt:10,ramhorn:6,emberore:3},bonus:.15},
+    {id:'oathblade1',name:'Oathbound Blade',atk:72,lv:10,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{pelt:10,ramhorn:6,emberore:3},bonus:.15},
     {id:'oathblade2',name:'Sworn Oathblade',atk:150,lv:45,slots:2,tier:2,smith:'garrow',gold:20000,mats:{bone:12,core:6,dust:10,emberore:5},bonus:.25},
     {id:'oathblade3',name:'Oathkeeper',atk:215,lv:75,slots:3,tier:3,smith:'garrow',gold:80000,mats:{mantisblade:10,mirestone:8,fang:12,emberore:10},bonus:.40}],
     wt:'sword',special:s=>`The lower your HP, the harder you hit: up to +${Math.round(s.bonus*100)}% damage when nearly fallen.`},
   // v1.39.4 the Arcanist's Starweave Staff: every few spells one comes free and quick (the stars round its head count up)
   arcanist:{fam:'Arcanist',stages:[
-    {id:'starweave1',name:'Starweave Staff',atk:12,matk:72,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{spore:10,wispbreath:8,glintstone:3},every:5,fast:.3},
+    {id:'starweave1',name:'Starweave Staff',atk:12,matk:72,lv:10,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{spore:10,wispbreath:8,glintstone:3},every:5,fast:.3},
     {id:'starweave2',name:'Nightweave Staff',atk:18,matk:142,lv:45,slots:2,tier:2,smith:'garrow',gold:20000,mats:{dust:10,gloomspore:8,shard:6,glintstone:5},every:4,fast:.5},
     {id:'starweave3',name:'Astral Loom',atk:26,matk:208,lv:75,slots:3,tier:3,smith:'garrow',gold:80000,mats:{wispglow:12,rotspore:10,shadeveil:8,glintstone:10},every:3,fast:.7}],
     wt:'wand',special:s=>`Every ${['','','2nd','3rd','4th','5th'][s.every]} spell costs no SP and casts ${Math.round(s.fast*100)}% faster.`},
   // v1.39.5 the Ranger's Windstring Bow: some shots loose extra arrows at other monsters nearby
   ranger:{fam:'Ranger',stages:[
-    {id:'windstring1',name:'Windstring Bow',atk:50,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{thorn:8,tuft:12,emberore:3},chance:.25,extra:1,dmg:.7},
+    {id:'windstring1',name:'Windstring Bow',atk:50,lv:10,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{thorn:8,tuft:12,emberore:3},chance:.25,extra:1,dmg:.7},
     {id:'windstring2',name:'Galestring Bow',atk:110,lv:45,slots:2,tier:2,smith:'garrow',gold:20000,mats:{needle:10,batwing:10,crabshell:6,emberore:5},chance:.35,extra:1,dmg:.85},
     {id:'windstring3',name:'Skyreaver',atk:162,lv:75,slots:3,tier:3,smith:'garrow',gold:80000,mats:{lurkerscale:10,mantisblade:6,fur:10,emberore:10},chance:.45,extra:2,dmg:1}],
     wt:'bow',special:s=>`${Math.round(s.chance*100)}% of your shots loose ${s.extra>1?'two more arrows':'a second arrow'} at other monsters nearby (${Math.round(s.dmg*100)}% damage).`},
   // v1.39.6 the Cleric's Dawnbell Mace: hits heal you (and, later, party members nearby)
   cleric:{fam:'Cleric',stages:[
-    {id:'dawnbell1',name:'Dawnbell Mace',atk:66,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{sap:15,shell:10,emberore:3},heal:.02,party:false},
+    {id:'dawnbell1',name:'Dawnbell Mace',atk:66,lv:10,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{sap:15,shell:10,emberore:3},heal:.02,party:false},
     {id:'dawnbell2',name:'Sunpeal Mace',atk:140,lv:45,slots:2,tier:2,smith:'garrow',gold:20000,mats:{carapace:10,glowsilk:10,crabshell:6,emberore:5},heal:.03,party:true},
     {id:'dawnbell3',name:'Dawnchime',atk:200,lv:75,slots:3,tier:3,smith:'garrow',gold:80000,mats:{wispglow:10,bogmoss:12,fur:8,emberore:10},heal:.04,party:true}],
     wt:'mace',special:s=>`Your hits heal you for ${Math.round(s.heal*100)}% of your max HP${s.party?', and party members nearby too':''} (at most every 0.6 s).`},
   // v1.39.7 the Shade's Veilfang: hits may poison, and poisoned monsters take more from you
   shade:{fam:'Shade',stages:[
-    {id:'veilfang1',name:'Veilfang',atk:58,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{spore:8,pelt:6,emberore:3},chance:.2,pois:.25,vs:.15},
+    {id:'veilfang1',name:'Veilfang',atk:58,lv:10,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{spore:8,pelt:6,emberore:3},chance:.2,pois:.25,vs:.15},
     {id:'veilfang2',name:'Duskfang',atk:118,lv:45,slots:2,tier:2,smith:'garrow',gold:20000,mats:{shadeveil:10,dust:10,needle:6,emberore:5},chance:.3,pois:.35,vs:.25},
     {id:'veilfang3',name:'Eclipse Fang',atk:178,lv:75,slots:3,tier:3,smith:'garrow',gold:80000,mats:{rotspore:12,gloomspore:10,mantisblade:6,emberore:10},chance:.4,pois:.5,vs:.35}],
     wt:'dagger',special:s=>`${Math.round(s.chance*100)}% of your hits poison (${Math.round(s.pois*100)}% ATK every second for 4 s), and poisoned monsters take ${Math.round(s.vs*100)}% more damage from you.`}};
@@ -208,3 +208,12 @@ function waVeilfang(stage){const c=ctx,t=typeof now==='number'?now:0,L=[15,17,19
 if(typeof WA!=='undefined'){WA.veilfang1=()=>waVeilfang(0);WA.veilfang2=()=>waVeilfang(1);WA.veilfang3=()=>waVeilfang(2);}
 if(typeof TH!=='undefined'){for(const [k,v] of [['Veilfang','เขี้ยวม่าน'],['Duskfang','เขี้ยวสนธยา'],['Eclipse Fang','เขี้ยวสุริยคราส'],['Shade signature weapon','อาวุธประจำสายเชด'],['Poisoned','ติดพิษ']])if(!TH[k])TH[k]=v;
   if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(\d+)% of your hits poison \((\d+)% ATK every second for 4 s\), and poisoned monsters take (\d+)% more damage from you\.( Keeps its refine, sigils and awakened line\.)?$/,(m,c,p,v,k)=>`การโจมตี ${c}% จะทำให้ติดพิษ (${p}% ATK ทุกวินาที 4 วินาที) และมอนสเตอร์ที่ติดพิษได้รับความเสียหายจากคุณเพิ่ม ${v}%${k?' คงระดับตีบวก ซิกิล และพลังที่ปลุกไว้':''}`]);}
+/* ---- v1.39.8 every hero of a calling with a signature weapon is given its first stage, once: heroes who already had the
+   calling get it when they next play, new ones when they change job. Brannoc still forges it again if it is lost. ---- */
+function sigwGift(){if(!P||!running||P.dead)return;const fam=famOf(P.cls),L=SIGW[fam];if(!L)return;
+  if(!P.sigwGot||typeof P.sigwGot!=='object')P.sigwGot={};if(P.sigwGot[fam])return;P.sigwGot[fam]=1;
+  if(sigwOwned(fam)){save();return;}const s=L.stages[0];giveItem(s.id,1);sfx('fanfare');
+  fx.push({k:'ring',x:P.x,y:P.y,r:48,col:'#ffd76a',t0:now,dur:.8});fx.push({k:'lvl',x:P.x,y:P.y-30,t0:now,dur:2,txt:'SIGNATURE WEAPON',col:'#ffd76a'});
+  addLog(`A gift for every ${L.fam}: your own ${s.name} is in your bag! Equip it from Items. Smith Garrow in Aurelmark re-forges it after your advanced and master callings.`,'l-rare');save();}
+setInterval(()=>{try{sigwGift();}catch(e){}},2000);
+if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^A gift for every (\w+): your own (.+) is in your bag! Equip it from Items\. Smith Garrow in Aurelmark re-forges it after your advanced and master callings\.$/,(m,f,w)=>`ของขวัญสำหรับ${f}ทุกคน: ${thText(w)} ของคุณอยู่ในกระเป๋าแล้ว! สวมใส่ได้จากหน้าไอเทม ช่างแกร์โรว์ในออเรลมาร์กจะตีให้แกร่งขึ้นหลังได้อาชีพขั้นสองและขั้นสาม`]);
