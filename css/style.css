@@ -1581,3 +1581,4 @@ body.touchui #panel.npcsheet .x{border-radius:50%!important}
 .pmr,body.touchui #partyBox .pmr{grid-template-columns:minmax(0,1fr) auto auto auto;row-gap:3px;padding:3px 0 5px}
 #partyBox .pmr .ph{grid-column:1/-1;grid-row:2;height:7px}
 #partyBox .pmr+.pmr{border-top:1px solid rgba(255,255,255,.06)}
+#panel .aidnote{margin:6px 0 8px;padding:8px 10px;border-radius:10px;background:rgba(200,80,40,.18);border:1px solid rgba(255,140,90,.5);color:#ffd0b0;font-size:13px}

@@ -20,7 +20,7 @@ module.exports = async t => {
 
       // too early: no story before Job Level 10
       P.jl = 9; out.early = JS_FIRST.every(id => !qAvailable(id));
-      P.jl = 10; out.offers = questsAt('corvin').offer.filter(id => QUESTS[id].job).length;
+      P.jl = 10; P.skills.firstaid = 5; out.offers = questsAt('corvin').offer.filter(id => QUESTS[id].job).length;
       // Corvin's window shows the five callings without instant job buttons
       openNpc(npc('Guildmaster Corvin')); PANEL_ACTS.tservice(); out.cards = panel.querySelectorAll('.jcard').length; out.noBtn = !panel.querySelector('[data-act="job"]'); closePanel();
       // Corvin's talk: five picture cards with English job names; Accept on a first chapter asks to confirm first
@@ -41,7 +41,7 @@ module.exports = async t => {
       finish('ws3'); out.warden = P.cls === 'warden' && P.eq.weapon && P.eq.weapon.id === 'sword';
 
       // ---- Arcanist stones: wrong order resets, right order works (on a fresh novice)
-      P.cls = 'novice'; P.jl = 10; QS().done = []; QS().active = {};
+      P.cls = 'novice'; P.jl = 10; P.skills.firstaid = 5; QS().done = []; QS().active = {};
       accept('as1'); finish('as1'); accept('as2'); talkTo('alda', 'tjask', 'as2|talk:alda'); closePanel(); enterZoneIf('heights'); await w(100); jsSync();
       const stone = k => Z.objs.find(o => o.kind === 'qspot' && o.qo.spot === k);
       jsDo(stone('rEmber')); jsDo(stone('rStorm')); out.reset = !jsDone('as2', QUESTS.as2.obj.find(o => o.spot === 'rEmber'));
