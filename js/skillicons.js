@@ -5,9 +5,8 @@ function skillIconURL(id){if(SKILL_ICON_URL[id])return SKILL_ICON_URL[id];const 
   try{drawSkillIcon(g,id);}catch(e){}return SKILL_ICON_URL[id]=c.toDataURL();}
 
 function drawSkillIcon(g,id){const sk=SKILLS[id];if(!sk)return;const col=sk.col||'#c8c2b4',dk=shade(col,-.62),lt=shade(col,.45);
-  // badge
-  const gr=g.createRadialGradient(13,11,2,16,16,16);gr.addColorStop(0,shade(col,-.35));gr.addColorStop(1,dk);
-  g.fillStyle=gr;g.beginPath();g.arc(16,16,15,0,7);g.fill();g.lineWidth=1.6;g.strokeStyle=col;g.stroke();
+  // v1.39.3 an energy background with rays (the frame, gloss and element gem are added after the symbol)
+  skBack(g,col,dk,lt);
   g.lineJoin='round';g.lineCap='round';g.strokeStyle='#1a120a';g.lineWidth=1.3;
   const fill=(f,s)=>{g.fillStyle=f;g.fill();if(s!==false)g.stroke();};
   const path=pts=>{g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));};
@@ -26,6 +25,7 @@ function drawSkillIcon(g,id){const sk=SKILLS[id];if(!sk)return;const col=sk.col|
   const eye=c=>{g.beginPath();g.moveTo(5,16);g.quadraticCurveTo(16,5,27,16);g.quadraticCurveTo(16,27,5,16);fill('#f4efe2');g.beginPath();g.arc(16,16,5,0,7);fill(c);g.fillStyle='#14100c';g.beginPath();g.arc(16,16,2.2,0,7);g.fill();};
   const heart=c=>{g.beginPath();g.moveTo(16,25);g.bezierCurveTo(3,16,8,5,16,11);g.bezierCurveTo(24,5,29,16,16,25);fill(c);};
   const spiral=c=>{g.strokeStyle=c;g.lineWidth=2.2;g.beginPath();for(let a=0;a<14;a+=.2){const r=1+a*.75;g.lineTo(16+Math.cos(a)*r,16+Math.sin(a)*r);}g.stroke();g.strokeStyle='#1a120a';g.lineWidth=1.3;};
+  g.save();g.translate(16,16.5);g.scale(1.1,1.1);g.translate(-16,-16);g.shadowColor='rgba(0,0,0,.7)';g.shadowBlur=3;g.shadowOffsetY=1; // bigger symbols that stand out
   switch(id){
     case 'firstaid':cross('#7fd38a');break;
     case 'cleave':blade(.6);slash('#ffb070',1);break;
@@ -76,4 +76,35 @@ function drawSkillIcon(g,id){const sk=SKILLS[id];if(!sk)return;const col=sk.col|
     case 'radiance':sun(6,'#fff6c0');break;
     case 'divinegrace':g.beginPath();g.moveTo(9,25);g.quadraticCurveTo(10,10,24,5);g.quadraticCurveTo(21,18,9,25);fill('#e8f4ff');g.strokeStyle='#7fd3ff';g.beginPath();g.moveTo(9,25);g.quadraticCurveTo(15,15,22,7);g.stroke();break;
     default:g.fillStyle=lt;g.font='800 16px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(sk.g||'?',16,17);}
+  g.restore();skFrame(g,id,col);
 }
+// ---- the finish every skill picture shares (v1.39.3) ----
+function skBack(g,col,dk,lt){g.save();g.beginPath();g.arc(16,16,14.6,0,7);g.clip();
+  const gr=g.createRadialGradient(16,14,1,16,16,16);gr.addColorStop(0,shade(col,-.28));gr.addColorStop(.5,shade(col,-.55));gr.addColorStop(1,shade(col,-.82));g.fillStyle=gr;g.fillRect(0,0,32,32);
+  // rays of light from the middle
+  g.globalAlpha=.13;g.fillStyle=lt;for(let k=0;k<12;k++){const a=k*Math.PI/6+.13;g.beginPath();g.moveTo(16,16);g.lineTo(16+Math.cos(a-.12)*18,16+Math.sin(a-.12)*18);g.lineTo(16+Math.cos(a+.12)*18,16+Math.sin(a+.12)*18);g.closePath();g.fill();}
+  g.globalAlpha=1;const hal=g.createRadialGradient(16,16,2,16,16,10);hal.addColorStop(0,'rgba(255,255,255,.12)');hal.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=hal;g.fillRect(0,0,32,32);
+  // a dark edge inside the frame
+  const vg=g.createRadialGradient(16,16,10,16,16,15);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.55)');g.fillStyle=vg;g.fillRect(0,0,32,32);g.restore();}
+let SK_TIER=null;
+function skTier(id){if(!SK_TIER){SK_TIER={};for(const [c,C] of Object.entries(CLASSES))for(const s of C.skills||[]){const t=C.tier||1;if(!SK_TIER[s]||t<SK_TIER[s])SK_TIER[s]=t;}}return SK_TIER[id]||1;}
+const SK_METAL={1:['#f4d4a0','#b07438','#5a3014'],2:['#f4f8ff','#9aaac4','#3a4458'],3:['#fff4b8','#e8b440','#7a5010']};
+const SK_ELCOL={fire:'#ff7a3a',water:'#5aa8f0',wind:'#7ae0a0',earth:'#c8a060',holy:'#fff0a0',shadow:'#a070e0'};
+function skFrame(g,id,col){const t=skTier(id),[a,b,c]=SK_METAL[t];g.save();g.shadowBlur=0;
+  // the metal ring
+  const mg=g.createLinearGradient(2,2,30,30);mg.addColorStop(0,a);mg.addColorStop(.45,b);mg.addColorStop(1,c);
+  g.beginPath();g.arc(16,16,15.6,0,7);g.arc(16,16,13.9,0,7,true);g.fillStyle=mg;g.fill();
+  g.lineWidth=.8;g.strokeStyle='#120c06';g.beginPath();g.arc(16,16,15.6,0,7);g.stroke();g.beginPath();g.arc(16,16,13.9,0,7);g.stroke();
+  // a thin line of the skill's colour inside the ring
+  g.strokeStyle=col;g.globalAlpha=.8;g.lineWidth=.7;g.beginPath();g.arc(16,16,13.3,0,7);g.stroke();g.globalAlpha=1;
+  // advanced callings: two studs; master callings: four gem points like a crown
+  const stud=(x,y,r,fill)=>{g.beginPath();g.arc(x,y,r,0,7);g.fillStyle=fill;g.fill();g.lineWidth=.6;g.strokeStyle='#120c06';g.stroke();g.fillStyle='rgba(255,255,255,.7)';g.beginPath();g.arc(x-r*.3,y-r*.3,r*.35,0,7);g.fill();};
+  if(t===2)for(const x of [1.6,30.4])stud(x,16,1.6,'#9fd0ff');
+  if(t===3){for(const [x,y,r] of [[16,1,2.2],[1.4,16,1.7],[30.6,16,1.7],[16,31,1.7]]){g.beginPath();g.moveTo(x,y-r*1.4);g.lineTo(x+r,y);g.lineTo(x,y+r*1.4);g.lineTo(x-r,y);g.closePath();g.fillStyle='#ffe27a';g.fill();g.lineWidth=.6;g.strokeStyle='#5a3a08';g.stroke();}
+    stud(16,1,1,'#ff5a5a');}
+  // a gloss across the top
+  g.save();g.beginPath();g.arc(16,16,13.9,0,7);g.clip();const gl=g.createLinearGradient(0,2,0,14);gl.addColorStop(0,'rgba(255,255,255,.32)');gl.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle=gl;g.beginPath();g.ellipse(14,7,12,6.5,-.25,0,7);g.fill();g.restore();
+  // the element gem
+  const el=typeof SKILL_ELEM!=='undefined'?SKILL_ELEM[id]:null;if(el&&SK_ELCOL[el]){g.beginPath();g.arc(26.2,26.2,3.4,0,7);g.fillStyle='#120c06';g.fill();stud(26.2,26.2,2.6,SK_ELCOL[el]);}
+  g.restore();}
