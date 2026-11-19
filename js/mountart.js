@@ -16,7 +16,7 @@ function mountTurn(key,p){const last=MART.lastPos.get(key);let a=MART.turn.get(k
   if(last){const dx=p.x-last.x,dy=p.y-last.y;if(Math.hypot(dx,dy)>.3){const sx=(dx-dy)*ISO,sy=(dx+dy)*ISO/2,want=Math.atan2(sy,Math.abs(sx)||.0001);a+=(want-a)*.18;}}
   MART.turn.set(key,a);return a;}
 function mountPhase(key,p,k){const last=MART.lastPos.get(key),d=last?Math.hypot(p.x-last.x,p.y-last.y):0;MART.lastPos.set(key,{x:p.x,y:p.y});
-  const per=k==='hopper'?46:38;let ph=(MART.phase.get(key)||0)+Math.min(d,30)/per*Math.PI*2;if(!p.moving&&d<.2)ph+=(Math.round(ph/Math.PI)*Math.PI-ph)*.15;MART.phase.set(key,ph);return ph;}
+  const per=k==='hopper'?78:66;/* v1.38.8 longer, calmer strides (were 46 and 38) */let ph=(MART.phase.get(key)||0)+Math.min(d,30)/per*Math.PI*2;if(!p.moving&&d<.2)ph+=(Math.round(ph/Math.PI)*Math.PI-ph)*.15;MART.phase.set(key,ph);return ph;}
 function drawMountArt(p,k){const L=MOUNT_LOOK[k];if(!L)return 0;const key=p===P?'me':(p.name||'?'),f=p.face<0?-1:1,turn=mountTurn(key,p),ph=mountPhase(key,p,k),mv=!!p.moving;
   // turning: tilt the nose down (toward the camera) or up (away), and foreshorten the body on steep diagonals
   const tilt=clamp(turn*.42,-.36,.36),fx=.66+.34*Math.cos(turn);
