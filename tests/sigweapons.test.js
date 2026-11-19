@@ -39,9 +39,15 @@ module.exports = async t => {
       P.x = t1.x + 60; P.y = t1.y; t2.x = t1.x + 20; t2.y = t1.y + 20; const shots = [], rs = shoot, rr = Math.random;
       shoot = (from, to) => shots.push(to); Math.random = () => 0; basicAttack(t1); await w(900); shoot = rs; Math.random = rr;
       o.rng = { range: S.range, toFirst: shots.includes(t1), toSecond: shots.includes(t2) };
+      // the Cleric's Dawnbell Mace: hits heal you
+      P.cls = 'cleric'; enterZone('town'); await w(200); openPanel('smith'); for (const [id, n] of [['sap', 20], ['shell', 20], ['emberore', 20]]) giveItem(id, n); refreshPanel(); PANEL_ACTS.sigwforge('cleric');
+      const db = P.inv.find(x => x.id === 'dawnbell1'); P.inv.push(P.eq.weapon); P.eq.weapon = db; P.inv.splice(P.inv.indexOf(db), 1); closePanel();
+      enterZone('meadow'); await w(300); S = computeStats(); const mb = mobs.find(m => !m.dead); mb.hp = mb.d.hp * 50; P.hp = Math.round(S.maxhp / 2); const hp0 = P.hp;
+      bellAt = -9; dealPhys(mb, 1); o.cler = { gain: P.hp - hp0, want: Math.round(S.maxhp * .02) };
       closePanel(); return o; });
     t.ok(r.arcOffered && r.arc.durs.slice(0, 4).every(d => d === 1) && Math.abs(r.arc.durs[4] - .7) < .01, `the Arcanist's Starweave Staff: every 5th spell casts 30% faster (${r.arc.durs.join(', ')})`);
     t.ok(r.rng.toFirst && r.rng.toSecond, `the Ranger's Windstring Bow looses an extra arrow at a second monster nearby (${JSON.stringify(r.rng)})`);
+    t.ok(r.cler.gain >= r.cler.want && r.cler.want > 0, `the Cleric's Dawnbell Mace heals you when you hit (+${r.cler.gain} HP, 2% of max is ${r.cler.want})`);
     t.ok(r.offered && r.forged, 'a Warden can have Brannoc forge the Oathbound Blade (with one sigil slot)');
     t.ok(r.bonus[0] === 1 && r.bonus[1] > 1.14, `the lower the HP, the harder it hits (x${r.bonus[0]} at full, x${r.bonus[1].toFixed(2)} nearly fallen)`);
     t.ok(r.lockedTown, 'the next stage waits for the advanced calling and Smith Garrow');

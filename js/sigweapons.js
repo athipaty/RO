@@ -24,7 +24,13 @@ const SIGW={
     {id:'windstring1',name:'Windstring Bow',atk:50,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{thorn:8,tuft:12,emberore:3},chance:.25,extra:1,dmg:.7},
     {id:'windstring2',name:'Galestring Bow',atk:110,lv:45,slots:2,tier:2,smith:'garrow',gold:20000,mats:{needle:10,batwing:10,crabshell:6,emberore:5},chance:.35,extra:1,dmg:.85},
     {id:'windstring3',name:'Skyreaver',atk:162,lv:75,slots:3,tier:3,smith:'garrow',gold:80000,mats:{lurkerscale:10,mantisblade:6,fur:10,emberore:10},chance:.45,extra:2,dmg:1}],
-    wt:'bow',special:s=>`${Math.round(s.chance*100)}% of your shots loose ${s.extra>1?'two more arrows':'a second arrow'} at other monsters nearby (${Math.round(s.dmg*100)}% damage).`}};
+    wt:'bow',special:s=>`${Math.round(s.chance*100)}% of your shots loose ${s.extra>1?'two more arrows':'a second arrow'} at other monsters nearby (${Math.round(s.dmg*100)}% damage).`},
+  // v1.39.6 the Cleric's Dawnbell Mace: hits heal you (and, later, party members nearby)
+  cleric:{fam:'Cleric',stages:[
+    {id:'dawnbell1',name:'Dawnbell Mace',atk:66,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{sap:15,shell:10,emberore:3},heal:.02,party:false},
+    {id:'dawnbell2',name:'Sunpeal Mace',atk:140,lv:45,slots:2,tier:2,smith:'garrow',gold:20000,mats:{carapace:10,glowsilk:10,crabshell:6,emberore:5},heal:.03,party:true},
+    {id:'dawnbell3',name:'Dawnchime',atk:200,lv:75,slots:3,tier:3,smith:'garrow',gold:80000,mats:{wispglow:10,bogmoss:12,fur:8,emberore:10},heal:.04,party:true}],
+    wt:'mace',special:s=>`Your hits heal you for ${Math.round(s.heal*100)}% of your max HP${s.party?', and party members nearby too':''} (at most every 0.6 s).`}};
 const SIGW_BY={};for(const [fam,L] of Object.entries(SIGW))L.stages.forEach((s,i)=>{SIGW_BY[s.id]={fam,i,s,L};
   ITEMS[s.id]={name:s.name,type:'weapon',wt:L.wt,atk:s.atk,...(s.matk?{matk:s.matk}:{}),lv:s.lv,slots:s.slots,price:0,col:'#e8c25a',g:'W',sigw:fam,stage:i+1,
     desc:`${L.fam} signature weapon, stage ${i+1} of 3. ${L.special(s)} Only the ${L.fam} family can wield it.`};});
@@ -48,6 +54,18 @@ function starCharge(){const sw=sigwNow();return sw&&sw.fam==='arcanist'?{n:(P.st
     const rel=(P.bowDur||.4)*(typeof BOW_RELEASE==='number'?BOW_RELEASE:.5)*1000+60;
     others.forEach((m,k)=>setTimeout(()=>{if(!P||P.dead||m.dead)return;shoot(P,m,'arrow','#9fe8c8',()=>dealPhys(m,sw.s.dmg));},rel+k*70));
     if(others.length)floatT(P.x,P.y-58,others.length>1?'Triple shot!':'Double shot!','#9fe8c8',13);}}catch(e){}return r;};}
+// the Cleric's special: hits heal you, and party members nearby at the later stages
+let bellAt=0;
+function bellHit(){const sw=sigwNow();if(!sw||sw.fam!=='cleric'||!S||now-bellAt<.6||P.dead)return;bellAt=now;const v=Math.round(S.maxhp*sw.s.heal);healP(v);
+  if(sw.s.party&&typeof partyMatesHere==='function'){const mates=partyMatesHere().filter(o=>o.id&&Math.hypot(o.rx-P.x,o.ry-P.y)<=200);
+    if(mates.length){NET.sp=[...(NET.sp||[]),...mates.map(o=>({i:++NET.spId,to:o.id,k:'dawnbell',l:1,v}))].slice(-12);NET.lastSent='';NET.sendT=0;
+      for(const o of mates)floatT(o.rx,o.ry-30,'+'+fmt(v),'#ffe9a0',13);}}}
+{const _dp2=dealPhys;dealPhys=function(){const r=_dp2.apply(this,arguments);try{bellHit();}catch(e){}return r;};}
+{const _dm2=dealMag;dealMag=function(){const r=_dm2.apply(this,arguments);try{bellHit();}catch(e){}return r;};}
+// a party member's Dawnbell heal reaching you
+if(typeof supportRecv==='function'){const _sr=supportRecv;supportRecv=function(o,arr,fresh){try{if(Array.isArray(arr)&&!fresh&&P&&!P.dead)for(const e of arr.slice(-12)){
+    if(!e||e.k!=='dawnbell'||e.to!==NET.myId||fin(e.i)<=(o.spSeen||0)||!inParty(o.peer)||o.z!==zoneId||Math.hypot(o.x-P.x,o.y-P.y)>350)continue;healP(clamp(Math.round(fin(e.v)),0,50000));}}catch(err){}
+  return _sr.apply(this,arguments);};}
 // where your line stands: the piece you own (worn or in the bag), and the next stage you can reach
 function sigwOwned(fam){const L=SIGW[fam];if(!L)return null;let best=null;
   const consider=(e,where)=>{const b=e&&SIGW_BY[e.id];if(b&&b.fam===fam&&(!best||b.i>best.i))best={e,where,i:b.i};};
@@ -143,3 +161,18 @@ if(typeof TH!=='undefined'){for(const [k,v] of [['Windstring Bow','ธนูส�
 // the Windstring bows' bag pictures use their own bow drawing
 {const _dib=drawItemIcon;drawItemIcon=function(g,id){if(!(ITEMS[id]&&ITEMS[id].sigw&&typeof WA_BOW!=='undefined'&&WA_BOW[id]))return _dib.apply(this,arguments);
   const main=ctx;g.save();g.translate(12,17);g.rotate(-Math.PI/4);g.scale(1.05,1.05);ctx=g;try{drawWeaponShape(ITEMS[id],0);}finally{ctx=main;g.restore();}};}
+/* ---- the Dawnbell line: a mace whose head is a golden bell (it swings), sun rays at stage 2, a halo and wings at stage 3 ---- */
+function waDawnbell(stage){const c=ctx,t=typeof now==='number'?now:0,L=[16,18,20][stage],gold='#e8c25a',top=-L;
+  c.beginPath();c.roundRect(-1.4,top+4,2.8,L+3,1.2);waFS('#f4efe2');c.strokeStyle=gold;c.lineWidth=.8;for(let y=top+7;y<4;y+=4){c.beginPath();c.moveTo(-1.4,y);c.lineTo(1.4,y);c.stroke();}
+  c.beginPath();c.arc(0,5.4,1.8,0,7);waFS(gold);
+  if(stage>=1){c.strokeStyle='#fff3c0';c.lineWidth=1.1;for(let k=0;k<8;k++){const a=k*Math.PI/4+t*.3;c.beginPath();c.moveTo(Math.cos(a)*5,top-1+Math.sin(a)*5);c.lineTo(Math.cos(a)*(8.5+stage),top-1+Math.sin(a)*(8.5+stage));c.stroke();}}
+  if(stage>=2){c.save();c.strokeStyle='#fff3c0';c.lineWidth=1.2;c.beginPath();c.ellipse(0,top-9,5,1.8,0,0,7);c.stroke();c.restore();
+    for(const sgn of [-1,1]){c.beginPath();c.moveTo(sgn*3,top+2);c.quadraticCurveTo(sgn*13,top+2,sgn*14,top-10);c.quadraticCurveTo(sgn*10,top-5,sgn*8,top-6);c.quadraticCurveTo(sgn*7,top-2,sgn*3,top-2);c.closePath();waFS('#fffaf0',.7);}}
+  // the bell, swinging a little, and its clapper
+  c.save();c.translate(0,top-3);c.rotate(Math.sin(t*2.5)*.18);const R=3.6+stage*.7;
+  c.beginPath();c.moveTo(-R*.6,-R);c.quadraticCurveTo(-R*.7,R*.2,-R*1.2,R*1.2);c.lineTo(R*1.2,R*1.2);c.quadraticCurveTo(R*.7,R*.2,R*.6,-R);c.closePath();waFS(gold);
+  c.fillStyle='rgba(255,255,255,.45)';c.beginPath();c.ellipse(-R*.3,-R*.2,R*.2,R*.6,0,0,7);c.fill();c.beginPath();c.arc(0,R*1.35,R*.35,0,7);waFS('#a8783a',.7);c.restore();
+  waGlow(0,top-2,6+stage*2,'#fff0a0',.35+stage*.1);}
+if(typeof WA!=='undefined'){WA.dawnbell1=()=>waDawnbell(0);WA.dawnbell2=()=>waDawnbell(1);WA.dawnbell3=()=>waDawnbell(2);}
+if(typeof TH!=='undefined'){for(const [k,v] of [['Dawnbell Mace','กระบองระฆังอรุณ'],['Sunpeal Mace','กระบองเสียงตะวัน'],['Dawnchime','ระฆังรุ่งอรุณ'],['Cleric signature weapon','อาวุธประจำสายเคลอริก']])if(!TH[k])TH[k]=v;
+  if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^Your hits heal you for (\d+)% of your max HP(, and party members nearby too)? \(at most every 0\.6 s\)\.( Keeps its refine, sigils and awakened line\.)?$/,(m,h,p,k)=>`การโจมตีฟื้นฟู HP ให้คุณ ${h}% ของ HP สูงสุด${p?' และเพื่อนในปาร์ตี้ที่อยู่ใกล้ ๆ ด้วย':''} (สูงสุดทุก 0.6 วินาที)${k?' คงระดับตีบวก ซิกิล และพลังที่ปลุกไว้':''}`]);}
