@@ -14,7 +14,7 @@ function zoneStep(from,to){if(from===to)return to;const prev={[from]:null},q=[fr
 const mobZone=id=>Object.keys(ZONES).find(z=>(ZONES[z].mobs||[]).some(m=>m[0]===id))||null;
 function npcZoneOf(key){if(typeof QNPC!=='undefined'&&QNPC[key])return QNPC[key].zone;
   const name=typeof npcName==='function'?npcName(key):key;for(const z of ['town','capital'])if(zoneCache[z]&&zoneCache[z].npcs.some(n=>n.name===name))return z;
-  return /Ansel|Tavi|Sela|Oren|Ivo|Ada|Mira|Garrow|Valen/.test(name)?'capital':'town';}
+  return /Tavi|Sela|Oren|Garrow|Valen/.test(name)?'capital':'town';}
 // what to do next: {zone, mob | npc, text}
 function goalWhat(){if(!P)return null;
   const s=typeof QS==='function'?QS():null,act=s?Object.keys(s.active):[];const id=P.track&&s&&s.active[P.track]?P.track:act[0];

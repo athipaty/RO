@@ -144,8 +144,7 @@ function refreshPanel(){
         `<button class="btn small" data-act="refine" data-arg="${key}" ${!has||P.gold<fee?'disabled':''}>${armed?'Sure?':'Refine'}</button>`)+`</div>`;}
   }
   else if(panelKind==='storage'){
-    if(inCapital())h+=`<h2>Banker Ivo</h2><div class="say">"The Royal Bank and Wenna's warehouse share one vault. Whatever you leave with either of us waits for you at both."</div>`;
-    else h+=`<h2>Wenna the Keeper</h2><div class="say">"Leave it with me, love. It'll be right here when you come back."</div>`;
+    h+=`<h2>Wenna the Keeper</h2><div class="say">"Leave it with me, love. It'll be right here when you come back."</div>`;
     h+=`<div class="sub">Storage ${P.storage.length}/${STORAGE_MAX} · Weight ${fmt(carryWeight())}/${fmt(maxWeight())}</div>`;
     if(CS.shared)h+=`<p class="muted">${CS.busy||CS.oldSt?'Saving…':'Shared by all your characters.'}</p>`;
     h+=`<h3>Your bag</h3>`;if(!P.inv.length)h+=`<p class="muted">Empty.</p>`;

@@ -2,17 +2,18 @@
 /* ================= #32 the capital: Aurelmark =================
    A safe city west of Hearthvale (through the new west gate) with four districts, each announced as you walk in:
      Market Row        Merchant Tavi (the general store) and Gemcutter Sela, who adds sigil slots to gear
-     Scholars' Quarter Librarian Oren's bestiary of every monster you have defeated, and Mentor Ansel (callings)
-     Noble Gardens     Banker Ivo (storage), Sister Ada (healing), flower beds and a pond
-     Grand Gate        Wayfarer Mira (travel and the inn), Smith Garrow (refining), the road home
+     Scholars' Quarter Librarian Oren's bestiary of every monster you have defeated, and Seer Valen (rebirth)
+     Noble Gardens     a royal garden: flower beds and a pond
+     Grand Gate        Smith Garrow (refining past +7), the road home
+   v1.35.1: the bank, chapel, guild hall and waystation that only copied Hearthvale's were taken out.
    Layout lives in world.js (theme 'town', id 'capital'); no monsters, so the server needs nothing new. */
 ZONES.capital={name:'Aurelmark',w:56,h:42,theme:'town',safe:true,lvl:'Capital city',links:{east:'town'}};
 if(!ZONE_ORDER.includes('capital'))ZONE_ORDER.push('capital');
 if(typeof WORLD_ROAD!=='undefined'&&!WORLD_ROAD.includes('capital'))WORLD_ROAD.unshift('capital');
 const DISTRICTS=[{name:'Market Row',sub:'Shops and the Gemcutter',x0:3,y0:3,x1:26,y1:19},
   {name:"Scholars' Quarter",sub:'The Grand Library',x0:29,y0:3,x1:53,y1:19},
-  {name:'Noble Gardens',sub:'The Royal Bank and the Chapel of Dawn',x0:3,y0:22,x1:26,y1:39},
-  {name:'Grand Gate',sub:'The road east to Hearthvale',x0:29,y0:22,x1:53,y1:39}];
+  {name:'Noble Gardens',sub:'The royal garden',x0:3,y0:22,x1:26,y1:39},
+  {name:'Grand Gate',sub:'The Forge Royal and the road east to Hearthvale',x0:29,y0:22,x1:53,y1:39}];
 let districtNow=null;
 function districtAt(x,y){const tx=x/TILE,ty=y/TILE;return DISTRICTS.find(d=>tx>=d.x0&&tx<=d.x1&&ty>=d.y0&&ty<=d.y1)||null;}
 setInterval(()=>{try{if(!running||!P||zoneId!=='capital'){districtNow=null;return;}const d=districtAt(P.x,P.y);

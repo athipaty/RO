@@ -25,7 +25,7 @@ const TH={
   'Nothing in the cart yet. Loot, potions and spare gear can ride here.':'ยังไม่มีของในรถเข็น ใส่ของที่เก็บได้ ยา และอุปกรณ์สำรองไว้ที่นี่ได้',
   'Sigil album':'สมุดซิกิล','📔 Sigil album':'📔 สมุดซิกิล',
   'Characters':'ตัวละคร','Empty slot':'ช่องว่าง','New character':'ตัวละครใหม่','Delete this character':'ลบตัวละครนี้','Delete':'ลบ','Keep':'เก็บไว้',
-  'Up to six characters. They all share one storage at the Warehouse and the Royal Bank.':'สร้างได้สูงสุดหกตัวละคร ทุกตัวใช้คลังเก็บของร่วมกันที่โกดังและธนาคารหลวง',
+  'Up to six characters. They all share one storage at the Warehouse.':'สร้างได้สูงสุดหกตัวละคร ทุกตัวใช้คลังเก็บของร่วมกันที่โกดัง',
   'Delete this character? This cannot be undone.':'ลบตัวละครนี้? ย้อนกลับไม่ได้','Character deleted.':'ลบตัวละครแล้ว','Loading your characters…':'กำลังโหลดตัวละคร…',
   'All your character slots are full. Delete a character first.':'ช่องตัวละครเต็มแล้ว ลบตัวละครก่อน','That slot is empty now.':'ช่องนี้ว่างแล้ว',
   'Shared by all your characters.':'ใช้ร่วมกันทุกตัวละครของคุณ','Saving…':'กำลังบันทึก…','Switch character':'เปลี่ยนตัวละคร','Character slots':'ช่องตัวละคร',

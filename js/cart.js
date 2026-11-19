@@ -1,6 +1,6 @@
 "use strict";
 /* ================= Stage 8: the pushcart =================
-   Rent a pushcart once from Wenna the Keeper (Warehouse) or Banker Ivo (Royal Bank). It carries a second load of
+   Rent a pushcart once from Wenna the Keeper (Warehouse). It carries a second load of
    up to CART_MAX stacks and CART_WEIGHT weight that does not count against your bag, and you can use it anywhere
    (Items window → Cart, or /cart). It rolls along behind you, and other players see it (presence field ct). */
 const CART_PRICE=2500,CART_MAX=100,CART_WEIGHT=8000;
@@ -12,7 +12,7 @@ function cartPut(e){if(!hasCart())return false;if(cartWeight()+itemWeight(e.id)*
   const st=e.n!==undefined?P.cart.find(x=>x.id===e.id&&x.n!==undefined):null;if(st){st.n+=e.n;return true;}
   if(P.cart.length>=CART_MAX){addLog(`Your cart is full (${CART_MAX} stacks).`,'l-bad');return false;}P.cart.push(e);return true;}
 
-PANELS.cart=()=>{if(!hasCart())return `<h2>Pushcart</h2><p class="say">You don't have a pushcart. Wenna the Keeper in Hearthvale or Banker Ivo in Aurelmark rent them out for ${fmt(CART_PRICE)} gold.</p>`;
+PANELS.cart=()=>{if(!hasCart())return `<h2>Pushcart</h2><p class="say">You don't have a pushcart. Wenna the Keeper in Hearthvale rents them out for ${fmt(CART_PRICE)} gold.</p>`;
   const row=(e,i,act,label)=>`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${esc(itemName(e))}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><button class="btn small" data-act="${act}" data-arg="${i}">${label}</button></div>`;
   let h=`<h2>🛒 Pushcart</h2><div class="sub">Cart ${P.cart.length}/${CART_MAX} · cart weight ${fmt(cartWeight())}/${fmt(CART_WEIGHT)} · bag ${fmt(carryWeight())}/${fmt(maxWeight())}</div>`;
   h+=`<h3>Your bag</h3>`;const bag=P.inv.map((e,i)=>[e,i]);h+=bag.length?bag.map(([e,i])=>row(e,i,'cartin','Put in')).join(''):`<p class="muted">Empty.</p>`;

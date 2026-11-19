@@ -13,7 +13,7 @@ if(typeof icon==='function'){const _icP=icon;icon=function(it){const h=_icP.appl
 const ZONE_BLURB={meadow:'Gentle hills and slow monsters. A good place to learn to fight.',woods:'Old trees, wolves in packs and stairs down into the caverns.',
   dunes:'Hot sand, scarabs and the dead that drift on the wind.',crypt:'Ember and bone. The Ashen Warlord waits at the bottom.',frost:'Snow, ice and the strongest monsters in Embervale.',
   deep1:'Dark tunnels under the woods. Bring light, or at least potions.',deep2:'Crystals and stone crabs, deeper down.',deep3:'The Gloomcap King rules the deepest cave.',
-  capital:'The capital: markets, the gemcutter, the library and the Hall of Callings.',town:'Your home town, safe from monsters.'};
+  capital:'The capital: the royal market, the gemcutter, the library and the royal forge.',town:'Your home town, safe from monsters.'};
 function regionCard(id){const D=ZONES[id];if(!D)return;let el=document.getElementById('zoneCard');
   if(!el){el=document.createElement('div');el.id='zoneCard';el.setAttribute('role','status');document.body.appendChild(el);
     // taps go through it to the game (a monster under it can still be hit); any tap also puts it away

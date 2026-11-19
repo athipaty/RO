@@ -7,7 +7,7 @@ module.exports = async t => {
       return { gate: !!pt, safe: Z.D.safe, mobs: mobs.length, back: !!back, roles: Z.npcs.map(n => n.role).sort().join(',') }; });
     t.ok(gate.gate && gate.back, 'Hearthvale has a west gate to Aurelmark, and a way back');
     t.ok(gate.safe && gate.mobs === 0, 'the capital is a safe city with no monsters');
-    t.ok(['shop', 'gemcut', 'library', 'job', 'storage', 'heal', 'warp', 'smith'].every(r => gate.roles.includes(r)), 'it has shops, the Gemcutter, the Library, bank, chapel, travel and a smith: ' + gate.roles);
+    t.ok(['shop', 'gemcut', 'library', 'smith', 'rebirth'].every(r => gate.roles.includes(r)) && !['job', 'storage', 'heal', 'warp'].some(r => gate.roles.includes(r)), 'it has the royal market, the Gemcutter, the Library, the Forge Royal and the Seer, and none of the copies of Hearthvale (bank, chapel, guild, waystation): ' + gate.roles);
     const banner = await A.ev(async () => { P.x = 14 * TILE; P.y = 12 * TILE; await new Promise(r => setTimeout(r, 900)); return document.getElementById('zoneBanner').textContent; });
     t.ok(/Market Row/.test(banner), 'walking into a district shows its name');
     const gem = await A.ev(() => { P.gold = 100000; P.inv = []; giveItem('glintstone', 10); giveItem('robe'); const e = P.inv.find(x => x.id === 'robe'); const n0 = e.s.length;

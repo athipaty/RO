@@ -30,19 +30,16 @@ function getZone(id){
     // Trees only on the far (north and west) edges, so nothing stands between the camera and the people.
     const fill=(x0,y0,x1,y1,v)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)set(x,y,v);};
     for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(x===1||y===1){if(r()<.7)set(x,y,2);}else if(x===W-2||y===H-2){}else set(x,y,r()<.05?7:0);}
-    for(let y=24;y<=38;y++)for(let x=3;x<=24;x++)if(r()<.12)set(x,y,7);          // Noble Gardens: more flowers
-    for(let y=3;y<=H-4;y++)for(let x=3;x<=W-4;x++)if(Math.hypot(x+.5-16.5,(y+.5-35)*1.3)<2.9)set(x,y,3); // the garden pond
+    for(let y=24;y<=38;y++)for(let x=3;x<=24;x++)if(r()<.14)set(x,y,7);          // Noble Gardens: a royal garden, no buildings (v1.35.1)
+    for(let y=3;y<=H-4;y++)for(let x=3;x<=W-4;x++)if(Math.hypot(x+.5-13,(y+.5-31)*1.2)<3.6)set(x,y,3); // the garden pond
     for(let k=3;k<=W-4;k++){if(k<23||k>32){set(k,18,7);set(k,23,7);}}for(let k=3;k<=H-4;k++)if(k<16||k>25){set(25,k,7);set(30,k,7);} // hedges
     fill(2,19,W-1,22,6);fill(26,2,29,H-3,6);                                     // the two avenues (the east one runs out of the gate)
+    fill(18,30,25,31,6);                                                          // a walk in from the plaza
     for(let y=12;y<=30;y++)for(let x=19;x<=37;x++)if(Math.hypot(x+.5-28,y+.5-21)<7.2)set(x,y,6); // the royal plaza
     const B=[{x:5,y:5,w:8,h:5,name:'Aurel Market',roof:'#a8452e',npc:{name:'Merchant Tavi',role:'shop',col:'#c86a3a',hair:'#3a2a1a'}},
              {x:15,y:5,w:7,h:5,name:'Gemcutter',roof:'#5a3a8a',npc:{name:'Gemcutter Sela',role:'gemcut',col:'#7a5ac0',hair:'#e8e4f0'}},
-             {x:33,y:4,w:10,h:6,name:'Grand Library',roof:'#2e4f6e',npc:{name:'Librarian Oren',role:'library',col:'#3b5a7a',hair:'#c8c8c8'}},
-             {x:45,y:5,w:7,h:5,name:'Hall of Callings',roof:'#2e4f8e',npc:{name:'Mentor Ansel',role:'job',col:'#3b5ea8',hair:'#5a3a22'}},
-             {x:14,y:25,w:8,h:5,name:'Royal Bank',roof:'#7a6a3a',npc:{name:'Banker Ivo',role:'storage',col:'#8a7a4a',hair:'#2b1d16'}},
-             {x:4,y:25,w:7,h:5,name:'Chapel of Dawn',roof:'#d8d0c0',npc:{name:'Sister Ada',role:'heal',col:'#efe7d6',hair:'#b8473a'}},
-             {x:34,y:26,w:8,h:5,name:'Grand Waystation',roof:'#3e7a4a',npc:{name:'Wayfarer Mira',role:'warp',col:'#4f8a4a',hair:'#d8b060'}},
-             {x:44,y:26,w:7,h:5,name:'Forge Royal',roof:'#5a4a42',npc:{name:'Smith Garrow',role:'smith',col:'#6a5040',hair:'#8a5a2b'}}];
+             {x:37,y:4,w:10,h:6,name:'Grand Library',roof:'#2e4f6e',npc:{name:'Librarian Oren',role:'library',col:'#3b5a7a',hair:'#c8c8c8'}},
+             {x:38,y:26,w:7,h:5,name:'Forge Royal',roof:'#5a4a42',npc:{name:'Smith Garrow',role:'smith',col:'#6a5040',hair:'#8a5a2b'}}];
     for(const b of B){const fy=b.y+b.h,cx=Math.floor(b.x+b.w/2);
       fill(b.x,fy,b.x+b.w-1,fy+1,6);                                             // a paved forecourt along the front
       if(fy<19)fill(cx-1,fy,cx,18,6);else fill(cx-1,23,cx,b.y-1,6);              // and a walk to the avenue

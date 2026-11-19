@@ -233,7 +233,7 @@ TH_PAT.unshift(
   [/^A second load that rolls along behind you: (\d+) stacks, ([\d,]+) weight, usable anywhere\. Yours to keep\.$/,'สัมภาระชุดที่สองที่เข็นตามหลังคุณ: $1 ช่อง น้ำหนัก $2 ใช้ได้ทุกที่ เป็นของคุณตลอดไป'],
   [/^(\d+)\/(\d+) stacks · ([\d,]+)\/([\d,]+) weight$/,'$1/$2 ช่อง · น้ำหนัก $3/$4'],
   [/^Cart (\d+)\/(\d+) · cart weight ([\d,]+)\/([\d,]+) · bag ([\d,]+)\/([\d,]+)$/,'รถเข็น $1/$2 · น้ำหนักรถเข็น $3/$4 · กระเป๋า $5/$6'],
-  [/^You don't have a pushcart\. (.+) rent them out for ([\d,]+) gold\.$/,'คุณยังไม่มีรถเข็น เช่าได้จาก Wenna ใน Hearthvale หรือ Ivo ใน Aurelmark ราคา $2 โกลด์'],
+  [/^You don't have a pushcart\. (.+) rents? them out for ([\d,]+) gold\.$/,'คุณยังไม่มีรถเข็น เช่าได้จาก Wenna ใน Hearthvale ราคา $2 โกลด์'],
   [/^You are in a (.+) match\.$/,'คุณอยู่ในแมตช์ $1'],[/^Waiting for a (.+) opponent…$/,'กำลังรอคู่ต่อสู้ $1…'],
   [/^Every evening at 20:00 \(Thailand time\) guilds fight for the Ember Crystal for (\d+) minutes\. A guild that stands alone in the golden ring for (\d+) seconds takes the crystal, and the guild holding it scores a point every second\. Rival guilds in the ring stop a capture\. The guild with the most points owns Emberkeep until the next war, and its members get \+10% EXP\.$/,
     'ทุกเย็นเวลา 20:00 (เวลาไทย) กิลด์ต่างๆ จะชิง Ember Crystal กันเป็นเวลา $1 นาที กิลด์ที่ยืนอยู่ในวงแหวนทองลำพังครบ $2 วินาทีจะยึดคริสตัลได้ และกิลด์ที่ครองอยู่ได้แต้มทุกวินาที กิลด์คู่แข่งในวงแหวนจะหยุดการยึด กิลด์ที่ได้แต้มมากที่สุดครอง Emberkeep จนถึงสงครามครั้งถัดไป และสมาชิกได้ EXP +10%'],

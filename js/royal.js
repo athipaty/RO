@@ -6,7 +6,7 @@
                     forge still give the best pieces (they carry bonuses); royal gear is the dependable step between.
      Forge Royal    Smith Garrow is the only one who can refine past +7 (Brannoc in Hearthvale stops there), and his
                     hand is a little surer on the risky steps.
-   Storage stays one shared vault for both keepers (the server keeps it), so the Royal Bank holds the same things. */
+   (v1.35.1) The capital has no bank, chapel, guild hall or waystation: those were only copies of Hearthvale's. */
 const ROYAL_SHOP=['crimson','azure',
   'aurelblade','aurelaxe','aureldagger','aurelbow','aurelmace','aurelstaff','aurelplate','aurelmantle','aurelsignet'];
 Object.assign(ITEMS,{
