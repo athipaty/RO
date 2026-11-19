@@ -14,6 +14,9 @@
      heal   Chapel: a white stone chapel, its gable to the street with a stained-glass sun, a bell tower with a swinging
             bell under a slate spire crowned by a golden sun, stained-glass windows between buttresses, a glowing
             healing basin sending up motes of light, a fenced herb garden of lavender, doves on the ridge and one circling
+     storage Warehouse: a tall brick storehouse with stone corners, loft doors up the front, a hoist beam with a crate
+            swinging on a rope, a sliding door with a padlock and a key sign, a loading dock of crates, barrels and
+            sacks, a hand truck, barrels down the side and a tarp-covered stack
    The body is drawn once into a cached picture (js/archi.js bldCacheBlit); anything that moves is drawn live on top.
    Buildings not listed here keep the shared styles from js/archi.js. All drawn in code, original art. */
 const TB_P=(x,y,h=0)=>{const p=proj(x,y);return{x:p.x,y:p.y-h};};
@@ -252,8 +255,8 @@ const tbGuildLights=b=>{const G=tbGuildGeo(b);return tbLit([[G.bx0+33,G.byF,24],
 /* ---------------- the Chapel ---------------- */
 // a white stone chapel: the nave's gable faces the street with a stained-glass sun, a bell tower with a swinging bell and
 // a spire crowned by a golden sun, stained-glass windows down the side, a glowing healing basin, an herb garden, doves
-const tbChapelGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,nx0=X0+70,nx1=X1-44,ny0=Y0+6,nyF=Y1-44;
-  return{X0,Y0,X1,Y1,nx0,nx1,ny0,nyF,H:52,RH:62,tx0:X0+12,tx1:X0+58,ty0:Y1-96,ty1:Y1-50,TH:104,BH:30,SH:50,well:{x:X0+36,y:Y1-20}};};
+const tbChapelGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,nx0=X0+88,nx1=X1-40,ny0=Y0+6,nyF=Y1-44;
+  return{X0,Y0,X1,Y1,nx0,nx1,ny0,nyF,H:52,RH:62,tx0:X0+6,tx1:X0+48,ty0:Y1-100,ty1:Y1-58,TH:104,BH:30,SH:50,well:{x:X0+62,y:Y1-16}};};
 function tbArchWin(S,uc,hw,h0,h1,fill){const pts=[S(uc-hw,h0),S(uc+hw,h0)];for(let i=0;i<=10;i++){const t=i/10,u=uc+hw-2*hw*t;pts.push(S(u,h1+Math.sqrt(Math.max(0,1-(2*t-1)**2))*hw));}poly(pts,fill,TB_OL);}
 function tbChapel(b){const G=tbChapelGeo(b),{X0,Y0,X1,Y1,nx0,nx1,ny0,nyF,H,RH,tx0,tx1,ty0,ty1,TH,BH,SH}=G,P=TB_P,c=ctx,wall='#f2ede2',wallR='#d4cdbe',slate='#5a6478',gold='#e8c25a';
   poly([P(X0,Y1),P(X1+26,Y1),P(X1+26,Y0+26),P(X1,Y0)],'rgba(0,0,0,.18)');
@@ -309,6 +312,8 @@ function tbChapelLive(b){const G=tbChapelGeo(b),P=TB_P,c=ctx,t=now;c.save();
   const bp=P((G.tx0+G.tx1)/2,(G.ty0+G.ty1)/2+6,G.TH+G.BH-4),sw=Math.sin(t*2.4)*.35;c.translate(bp.x,bp.y);c.rotate(sw);
   c.fillStyle='#c89a3a';c.strokeStyle='#6a4a1a';c.lineWidth=1.2;c.beginPath();c.moveTo(-4,2);c.quadraticCurveTo(-6,10,-10,18);c.lineTo(10,18);c.quadraticCurveTo(6,10,4,2);c.closePath();c.fill();c.stroke();
   c.fillStyle='#e8c25a';c.fillRect(-9,15,4,2);tbDisc(0,20,2.4,2.4,'#6a4a1a');c.restore();c.save();
+  // the belfry's front piers again, so the bell hangs behind them
+  for(const [x,y] of [[G.tx0,G.ty1-6],[G.tx1-6,G.ty0],[G.tx1-6,G.ty1-6]])tbBox(x,y,x+6,y+6,G.TH,G.TH+G.BH,'#f2ede2','#d4cdbe');
   // the healing water glows and sends up motes of light
   const w=P(G.well.x,G.well.y,12),pl=.6+Math.sin(t*2)*.15;
   c.globalCompositeOperation='lighter';const g=c.createRadialGradient(w.x,w.y,2,w.x,w.y,46);g.addColorStop(0,`rgba(140,230,200,${.55*pl})`);g.addColorStop(1,'rgba(100,200,255,0)');c.fillStyle=g;c.beginPath();c.ellipse(w.x,w.y,46,30,0,0,7);c.fill();c.globalCompositeOperation='source-over';
@@ -319,13 +324,71 @@ function tbChapelLive(b){const G=tbChapelGeo(b),P=TB_P,c=ctx,t=now;c.save();
   c.fillStyle='#fbfbf6';c.strokeStyle='#a8a8a0';c.lineWidth=.8;tbDisc(dx,dy,5,3,'#fbfbf6','#a8a8a0');c.beginPath();c.moveTo(dx-2,dy);c.lineTo(dx-7,dy-5-fl);c.lineTo(dx+1,dy-1);c.closePath();c.fill();c.stroke();c.beginPath();c.moveTo(dx+1,dy);c.lineTo(dx+6,dy-5+fl);c.lineTo(dx+3,dy);c.closePath();c.fill();c.stroke();
   c.restore();}
 const tbChapelLights=b=>{const G=tbChapelGeo(b),xc=(G.nx0+G.nx1)/2;return tbLit([[xc,G.nyF,G.H+G.RH*.36],[G.nx1,G.nyF-20,24],[G.nx1,G.ny0+30,24],[xc,G.nyF,12,1],[G.well.x,G.well.y,14]]);};
+/* ---------------- the Warehouse ---------------- */
+// a tall brick storehouse: loft doors up the front, a hoist beam with a crate on a rope, a sliding door with a padlock and
+// a key sign, a loading dock of crates, barrels and sacks, a hand truck, a tarp-covered stack at the side
+const tbWareGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,bx0=X0+34,bx1=X1-34,by0=Y0+6,byF=Y1-48;
+  return{X0,Y0,X1,Y1,bx0,bx1,by0,byF,xc:(bx0+bx1)/2,H:98,RH:40,dk:24,hook:{x:(bx0+bx1)/2,y:byF+34}};};
+function tbCrate(x,y,w,d,h0,h1,col){tbBox(x,y,x+w,y+d,h0,h1,col||'#c8a060',shade(col||'#c8a060',-25),shade(col||'#c8a060',12));
+  const F=tbF(x,y+d);tbSeg(F(0,h0),F(w,h1),'#7a5a32',1.2);tbSeg(F(0,h1),F(w,h0),'#7a5a32',1.2);}
+function tbWare(b){const G=tbWareGeo(b),{X0,Y0,X1,Y1,bx0,bx1,by0,byF,xc,H,RH,dk}=G,P=TB_P,c=ctx,brick='#a85a42',brickR='#8a4834',stone='#d8d0c0',roof='#4a4038',wood='#7a5232';
+  poly([P(bx0,Y1),P(X1+30,Y1),P(X1+30,Y0+30),P(bx1,Y0)],'rgba(0,0,0,.2)');
+  // the tarp-covered stack on the left
+  tbCrate(X0+4,Y0+30,26,26,0,22);tbCrate(X0+4,Y0+58,26,24,0,22);tbCrate(X0+6,Y0+40,22,24,22,42);
+  poly([P(X0+2,Y0+28,46),P(X0+32,Y0+28,46),P(X0+32,Y0+84,26),P(X0+2,Y0+84,26)],'#5a7a4a','#2a3a22');
+  // the building: brick with stone corners and a stone band at each floor
+  tbBox(bx0,by0,bx1,byF,0,H,brick,brickR);
+  const F=tbF(bx0,byF),R=tbR(bx1,byF),W=bx1-bx0,D=byF-by0;
+  for(const [S,L,col] of [[F,W,'#7a3a2a'],[R,D,'#6a3022']]){ctx.globalAlpha=.4;for(let h=6;h<H;h+=6)tbSeg(S(0,h),S(L,h),col,.8);for(let h=0;h<H;h+=6)for(let u=((h/6)%2)*7+3;u<L;u+=14)tbSeg(S(u,h),S(u,h+6),col,.8);ctx.globalAlpha=1;
+    for(const h of [34,66])tbQuad(S,0,h,L,h+4,stone);for(let h=0;h<H;h+=12){tbQuad(S,0,h,h%24?6:10,h+10,stone);tbQuad(S,L-(h%24?6:10),h,L,h+10,stone);}}
+  // barred windows down the side
+  for(const h of [44,76])for(const u of [D*.3,D*.7]){tbQuad(R,u-7,h,u+7,h+14,'#2e2a26');for(const k of [-3.5,0,3.5])tbSeg(R(u+k,h),R(u+k,h+14),'#5a5652',1.2);tbQuad(R,u-8,h-3,u+8,h,stone);}
+  // the gable roof to the street, with a hoist beam out of the top
+  {const e=6,rF=P(xc,byF+e,H+RH),rB=P(xc,by0-e,H+RH),eL=P(bx0-e,byF+e,H),eT=P(bx0-e,by0-e,H),eB=P(bx1+e,byF+e,H),eR=P(bx1+e,by0-e,H);
+    poly([eL,eT,rB,rF],shade(roof,-20),TB_OL);poly([F(0,H),F(W,H),F(W/2,H+RH)],brick,TB_OL);poly([eB,eR,rB,rF],roof,shade(roof,-40));
+    ctx.globalAlpha=.35;for(let k=1;k<6;k++){const t=k/6;tbSeg(P(xc+(bx1+e-xc)*t,byF+e,H+RH*(1-t)),P(xc+(bx1+e-xc)*t,by0-e,H+RH*(1-t)),'#2a2420',1);}ctx.globalAlpha=1;
+    tbSeg(eL,rF,'#5a4a3a',3);tbSeg(eB,rF,'#5a4a3a',3);}
+  // loft doors stacked up the front, the top pair swung open
+  for(const [h0,h1,open] of [[40,62,false],[72,94,true]]){tbQuad(F,W/2-12,h0,W/2+12,h1,open?'#2a2420':wood);
+    if(open){poly([F(W/2-12,h0),F(W/2-12,h1),P(bx0+W/2-24,byF+10,h1),P(bx0+W/2-24,byF+10,h0)],wood,TB_OL);poly([F(W/2+12,h0),F(W/2+12,h1),P(bx0+W/2+24,byF+10,h1),P(bx0+W/2+24,byF+10,h0)],shade(wood,-15),TB_OL);
+      for(let i=0;i<3;i++){const p=F(W/2-6+i*6,h0);tbDisc(p.x,p.y-4,3,3,'#c8a060','#7a5a32');}}
+    else{tbSeg(F(W/2,h0),F(W/2,h1),'#3a2410',1.4);tbSeg(F(W/2-12,h0),F(W/2+12,h1),'#3a2410',1.2);}
+    tbQuad(F,W/2-14,h0-3,W/2+14,h0,stone);}
+  // the hoist beam and its pulley (the rope and crate are drawn live)
+  {const a=P(xc,byF,H+RH-12),z=P(xc,G.hook.y,H+RH-12);tbBox(xc-3,byF,xc+3,G.hook.y,H+RH-16,H+RH-10,wood,shade(wood,-20),shade(wood,15));
+    tbSeg(P(xc,byF,H+RH-30),P(xc,byF+18,H+RH-14),wood,3);tbDisc(z.x,z.y+6,4,4,'#5a5652',TB_OL);}
+  // the loading dock: a plank platform with steps, goods stacked on it
+  tbBox(bx0-8,byF,bx1+8,byF+dk,0,12,'#8a6040','#6a4628','#a87a50');ctx.globalAlpha=.4;for(let x=bx0;x<bx1+8;x+=9)tbSeg(P(x,byF,12),P(x,byF+dk,12),'#5a3a1c',1);ctx.globalAlpha=1;
+  for(let k=0;k<3;k++)tbBox(bx1+8,byF+4+k*0,bx1+14+k*6,byF+dk,0,12-k*4,'#8a6040','#6a4628','#a87a50');
+  // the sliding door on its rail, a padlock, and the key sign over it
+  {tbQuad(F,W/2-30,12,W/2+30,48,'#2a2420');tbSeg(F(W/2-36,50),F(W/2+40,50),'#3a3632',2.4);
+    tbQuad(F,W/2-8,12,W/2+30,48,'#6a4a2a');for(let u=W/2-4;u<W/2+30;u+=6)tbSeg(F(u,12),F(u,48),'#4a3018',1);tbSeg(F(W/2-8,12),F(W/2+30,48),'#4a3018',1.6);
+    const lk=F(W/2-6,28);c.fillStyle='#c8a050';c.fillRect(lk.x-3,lk.y-3,6,6);c.strokeStyle='#8a6a2a';c.lineWidth=1.4;c.beginPath();c.arc(lk.x,lk.y-3,2.4,Math.PI,0);c.stroke();
+    const s=F(W/2,58);c.fillStyle='#2e3a4a';c.strokeStyle=TB_OL;c.lineWidth=1.2;c.beginPath();c.roundRect(s.x-15,s.y-8,30,16,3);c.fill();c.stroke();
+    c.strokeStyle='#e8c25a';c.lineWidth=2.4;c.beginPath();c.arc(s.x-6,s.y,4,0,7);c.stroke();tbSeg({x:s.x-2,y:s.y},{x:s.x+10,y:s.y},'#e8c25a',2.4);tbSeg({x:s.x+6,y:s.y},{x:s.x+6,y:s.y+4},'#e8c25a',2);tbSeg({x:s.x+9,y:s.y},{x:s.x+9,y:s.y+3},'#e8c25a',2);}
+  // goods on the dock
+  tbCrate(bx0-6,byF+4,18,18,12,30);tbCrate(bx0-4,byF+6,14,14,30,42,'#d8b070');
+  barrel(bx1-6,byF+14,'#7a4a2a');sack(bx1-22,byF+18);
+  // the right side: a line of barrels
+  for(let k=0;k<3;k++)barrel(bx1+18,by0+24+k*22,k%2?'#8a5a32':'#6a4a2a');
+  // a hand truck with a crate, out on the street side
+  {const x=X0+18,y=Y1-14,p=P(x,y);tbCrate(x-8,y-12,16,14,2,18,'#c8a060');tbSeg({x:p.x+10,y:p.y+2},{x:p.x+14,y:p.y-30},'#5a5652',2.4);tbSeg({x:p.x-8,y:p.y+4},{x:p.x+10,y:p.y+2},'#5a5652',2.4);
+    tbDisc(p.x+8,p.y+3,4.5,4.5,'#2a2826',TB_OL);c.fillStyle='#5a5652';c.fillRect(p.x+12,p.y-33,6,3);}
+}
+function tbWareLive(b){const G=tbWareGeo(b),P=TB_P,c=ctx,t=now;c.save();
+  const z=P(G.xc,G.hook.y,G.H+G.RH-12),top={x:z.x,y:z.y+10},sw=Math.sin(t*1.3)*.12,L=34,hx=top.x+Math.sin(sw)*L,hy=top.y+Math.cos(sw)*L;
+  tbSeg(top,{x:hx,y:hy},'#c8b088',1.4);tbSeg({x:hx,y:hy},{x:hx-8,y:hy+6},'#c8b088',1);tbSeg({x:hx,y:hy},{x:hx+8,y:hy+6},'#c8b088',1);
+  c.translate(hx,hy+6);c.rotate(sw*.6);c.fillStyle='#c8a060';c.strokeStyle='#7a5a32';c.lineWidth=1.2;c.fillRect(-10,0,20,16);c.strokeRect(-10,0,20,16);c.fillStyle='#a07a42';c.fillRect(-10,0,20,3);
+  c.beginPath();c.moveTo(-10,3);c.lineTo(10,16);c.moveTo(10,3);c.lineTo(-10,16);c.stroke();c.restore();}
+const tbWareLights=b=>{const G=tbWareGeo(b);return tbLit([[G.xc,G.byF,83],[G.bx1,G.byF-20,50],[G.bx1,G.by0+24,50],[G.xc+6,G.byF,26,1]]);};
 const TOWN_BLD={shop:{body:tbStore,sign:96,lights:tbStoreLights},smith:{body:tbSmith,live:tbSmithLive,sign:60,lights:tbSmithLights},
   job:{body:tbGuild,live:tbGuildLive,sign:98,lights:tbGuildLights},
-  heal:{body:tbChapel,live:tbChapelLive,sign:44,lights:tbChapelLights}};
+  heal:{body:tbChapel,live:tbChapelLive,signAt:b=>{const G=tbChapelGeo(b);return[{name:b.name,x:(G.nx0+G.nx1)/2/TILE,w:0,y:G.nyF/TILE,h:0},48];},lights:tbChapelLights},
+  storage:{body:tbWare,live:tbWareLive,sign:30,lights:tbWareLights}};
 // take over the drawing of Hearthvale's buildings that have a design of their own
 {const _prev=drawBuilding;
   drawBuilding=function(b){const T=typeof zoneId!=='undefined'&&zoneId==='town'&&b.npc&&TOWN_BLD[b.npc.role];if(!T)return _prev.apply(this,arguments);
     if(T.lights&&!b._tbl){b._nl=T.lights(b);b._tbl=1;}
     if(!bldCacheBlit(b,()=>T.body(b)))T.body(b);
     if(T.live)try{T.live(b);}catch(e){}
-    try{drawSign(b,T.sign||54);}catch(e){}};}
+    try{const sa=T.signAt?T.signAt(b):[b,T.sign||54];drawSign(sa[0],sa[1]);}catch(e){}};}
