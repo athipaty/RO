@@ -17,6 +17,9 @@
      storage Warehouse: a tall brick storehouse with stone corners, loft doors up the front, a hoist beam with a crate
             swinging on a rope, a sliding door with a padlock and a key sign, a loading dock of crates, barrels and
             sacks, a hand truck, barrels down the side and a tarp-covered stack
+     warp   Waystation: a coaching stable under a hip roof with a cupola and a swinging arrow weathervane, a horse
+            nodding over its stall door, a covered wagon, a signpost of coloured arrows with a lantern, a water trough,
+            and the waystone: a rune-cut obelisk glowing over a turning magic circle with motes of light rising
    The body is drawn once into a cached picture (js/archi.js bldCacheBlit); anything that moves is drawn live on top.
    Buildings not listed here keep the shared styles from js/archi.js. All drawn in code, original art. */
 const TB_P=(x,y,h=0)=>{const p=proj(x,y);return{x:p.x,y:p.y-h};};
@@ -381,10 +384,86 @@ function tbWareLive(b){const G=tbWareGeo(b),P=TB_P,c=ctx,t=now;c.save();
   c.translate(hx,hy+6);c.rotate(sw*.6);c.fillStyle='#c8a060';c.strokeStyle='#7a5a32';c.lineWidth=1.2;c.fillRect(-10,0,20,16);c.strokeRect(-10,0,20,16);c.fillStyle='#a07a42';c.fillRect(-10,0,20,3);
   c.beginPath();c.moveTo(-10,3);c.lineTo(10,16);c.moveTo(10,3);c.lineTo(-10,16);c.stroke();c.restore();}
 const tbWareLights=b=>{const G=tbWareGeo(b);return tbLit([[G.xc,G.byF,83],[G.bx1,G.byF-20,50],[G.bx1,G.by0+24,50],[G.xc+6,G.byF,26,1]]);};
+/* ---------------- the Waystation ---------------- */
+// a coaching stable: a hip roof with a cupola and an arrow weathervane, a horse looking out of its stall, a covered wagon,
+// a signpost of arrows, a water trough, and the waystone itself: a rune-cut obelisk glowing over a turning magic circle
+const tbWayGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,sx0=X0+8,sx1=X1-74,sy0=Y0+6,syF=Y0+84;
+  return{X0,Y0,X1,Y1,sx0,sx1,sy0,syF,H:46,RH:40,stone:{x:X0+36,y:Y1-34},post:{x:X0+150,y:Y1-14}};};
+function tbWheel(p,r,col){tbDisc(p.x,p.y,r*.55,r,col||'#6a4426',TB_OL);tbDisc(p.x,p.y,r*.38,r*.7,'#8a6040');for(let k=0;k<6;k++){const a=k*Math.PI/3;tbSeg(p,{x:p.x+Math.cos(a)*r*.5,y:p.y+Math.sin(a)*r*.92},'#4a3018',1.2);}tbDisc(p.x,p.y,1.8,2.6,'#3a2410');}
+function tbWay(b){const G=tbWayGeo(b),{X0,Y0,X1,Y1,sx0,sx1,sy0,syF,H,RH}=G,P=TB_P,c=ctx,wood='#a8784a',woodR='#8a6038',roof=b.roof||'#3e7a4a';
+  poly([P(sx0,Y1),P(X1+26,Y1),P(X1+26,Y0+26),P(X1,Y0)],'rgba(0,0,0,.18)');
+  // the stable: plank walls, a stone footing
+  tbBox(sx0,sy0,sx1,syF,0,H,wood,woodR);
+  const F=tbF(sx0,syF),R=tbR(sx1,syF),W=sx1-sx0,D=syF-sy0;
+  for(const [S,L,col] of [[F,W,'#6a4426'],[R,D,'#5a3a20']]){ctx.globalAlpha=.5;for(let h=8;h<H;h+=7)tbSeg(S(0,h),S(L,h),col,1);ctx.globalAlpha=1;tbQuad(S,0,0,L,6,'#8a8478');for(const u of [0,L])tbSeg(S(u,0),S(u,H),'#4a2e18',3);}
+  // two stall doors: the left one a half door with a horse looking out, the right one a big X-braced door
+  {const u0=W*.24;tbQuad(F,u0-16,0,u0+16,36,'#2a1c12');tbQuad(F,u0-16,0,u0+16,18,'#7a4a2a');tbSeg(F(u0-16,0),F(u0+16,18),'#4a2e18',1.6);tbSeg(F(u0-16,18),F(u0+16,0),'#4a2e18',1.6);
+    // hay inside
+    const hy=F(u0+8,22);tbDisc(hy.x,hy.y,6,4,'#d8b850');}
+  {const u1=W*.62;tbQuad(F,u1-20,0,u1+20,38,'#7a4a2a');tbSeg(F(u1,0),F(u1,38),'#4a2e18',1.6);for(const s of [-1,1]){tbSeg(F(u1+s*20,0),F(u1,38),'#4a2e18',1.4);tbSeg(F(u1,0),F(u1+s*20,38),'#4a2e18',1.4);}
+    tbQuad(F,u1-22,38,u1+22,42,'#4a2e18');}
+  // a round window on the side and a horseshoe over the big door
+  {const p=R(D/2,30);tbDisc(p.x,p.y,6,8,'#e8c878',TB_OL);tbSeg({x:p.x,y:p.y-8},{x:p.x,y:p.y+8},'#4a2e18',1);
+    const hs=F(W*.62,44);c.strokeStyle='#c8ccd4';c.lineWidth=2.4;c.beginPath();c.arc(hs.x,hs.y,4,Math.PI*.85,Math.PI*2.15);c.stroke();}
+  // the hip roof with a cupola and a weathervane
+  {const e=10,yc=(sy0+syF)/2,hh=D/2,eT=P(sx0-e,sy0-e,H),eR=P(sx1+e,sy0-e,H),eB=P(sx1+e,syF+e,H),eL=P(sx0-e,syF+e,H),r1=P(sx0+hh,yc,H+RH),r2=P(sx1-hh,yc,H+RH);
+    poly([eT,eR,r2,r1],shade(roof,-40));poly([eL,eT,r1],shade(roof,-25),shade(roof,-55));poly([eR,eB,r2],shade(roof,-12),shade(roof,-55));poly([eB,eL,r1,r2],roof,shade(roof,-55));
+    ctx.globalAlpha=.3;for(let k=1;k<5;k++){const t=k/5;tbSeg(P(sx0-e+(hh+e)*t,syF+e-(syF+e-yc)*t,H+RH*t),P(sx1+e-(hh+e)*t,syF+e-(syF+e-yc)*t,H+RH*t),shade(roof,-60),1);}ctx.globalAlpha=1;
+    const cx=(sx0+sx1)/2;tbBox(cx-10,yc-10,cx+10,yc+10,H+RH-4,H+RH+16,'#f0e6d0','#d0c4a8');tbQuad(tbF(cx-10,yc+10),5,H+RH+2,15,H+RH+12,'#2a2420',null);
+    const ap=P(cx,yc,H+RH+34);poly([P(cx-13,yc+13,H+RH+16),P(cx+13,yc+13,H+RH+16),ap],roof,TB_OL);poly([P(cx+13,yc+13,H+RH+16),P(cx+13,yc-13,H+RH+16),ap],shade(roof,-25),TB_OL);
+    tbSeg(ap,{x:ap.x,y:ap.y-16},'#2a2420',1.4);}
+  // the water trough by the stable
+  tbBox(sx1-34,syF+6,sx1-4,syF+16,0,10,'#8a6040','#6a4628');{const p=P(sx1-19,syF+11,10);tbDisc(p.x,p.y,10,3,'#5a8ab0');}
+  // the covered wagon: a plank bed on four spoked wheels under a canvas hood, its shaft out front
+  {const x0=G.sx1+8,x1=X1-4,y0=Y0+18,y1=Y0+46;tbWheel(P(x0+12,y0,10),11);tbWheel(P(x1-12,y0,10),11);
+    tbBox(x0,y0,x1,y1,12,24,'#8a5a32','#6a4426','#a87a4a');
+    // the canvas hood: arched hoops
+    const hoop=(x,ang)=>{const yy=y0+(y1-y0)*(1-Math.cos(ang))/2;return P(x,yy,24+Math.sin(ang)*30);};
+    for(let k=0;k<8;k++){const a0=k/8*Math.PI,a1=(k+1)/8*Math.PI;poly([hoop(x0+4,a0),hoop(x1-4,a0),hoop(x1-4,a1),hoop(x0+4,a1)],k<4?'#ede4cc':'#f6efdc','rgba(90,70,40,.35)');}
+    {const pts=[];for(let k=0;k<=12;k++)pts.push(hoop(x1-4,k/12*Math.PI));poly(pts,'#ddd2b4',TB_OL);for(const x of [x0+22,x0+44])tbSeg(hoop(x,0),hoop(x,Math.PI*.999),'rgba(90,70,40,.5)',1);}
+    tbWheel(P(x0+12,y1,10),11);tbWheel(P(x1-12,y1,10),11);
+    tbSeg(P(x0+20,y1,14),P(x0+16,y1+34,6),'#6a4426',2.4);tbSeg(P(x0+40,y1,14),P(x0+44,y1+34,6),'#6a4426',2.4);}
+  // the signpost: a pole with arrows pointing all ways, a lantern on top
+  {const p=P(G.post.x,G.post.y);tbBox(G.post.x-3,G.post.y-3,G.post.x+3,G.post.y+3,0,62,'#7a5230','#5a3a1c');
+    const arrows=[[46,1,'#c84a3a'],[38,-1,'#4a7ac8'],[30,1,'#e8c040'],[22,-1,'#5aa84a']];
+    for(const [h,d,col] of arrows){const y=p.y-h,x0=p.x,len=26;c.fillStyle=col;c.strokeStyle=TB_OL;c.lineWidth=1;c.beginPath();c.moveTo(x0,y-4);c.lineTo(x0+d*len,y-4+d*2);c.lineTo(x0+d*(len+7),y+d*2);c.lineTo(x0+d*len,y+4+d*2);c.lineTo(x0,y+4);c.closePath();c.fill();c.stroke();
+      c.fillStyle='rgba(255,255,255,.5)';c.fillRect(x0+d*6-(d<0?10:0),y-1+d,10,1.4);}
+    const l=P(G.post.x,G.post.y,66);c.fillStyle='#2a2420';c.fillRect(l.x-5,l.y-12,10,12);c.fillStyle='#ffd27a';c.fillRect(l.x-3,l.y-10,6,8);c.beginPath();c.moveTo(l.x-6,l.y-12);c.lineTo(l.x,l.y-18);c.lineTo(l.x+6,l.y-12);c.closePath();c.fillStyle='#2a2420';c.fill();}
+  // the waystone: a stone dais, a tall obelisk cut with runes (they glow live)
+  {const s=G.stone,p=P(s.x,s.y);c.fillStyle='#8a8478';c.strokeStyle=TB_OL;c.lineWidth=1.2;c.beginPath();c.ellipse(p.x,p.y,30,15,0,0,Math.PI);c.lineTo(p.x-30,p.y-6);c.ellipse(p.x,p.y-6,30,15,0,Math.PI,0,true);c.closePath();c.fill();c.stroke();
+    tbDisc(p.x,p.y-6,30,15,'#a8a294',TB_OL);tbDisc(p.x,p.y-6,22,11,'#5a5a6a');
+    const o0=P(s.x-8,s.y+8,6),o1=P(s.x+8,s.y+8,6),o2=P(s.x+8,s.y-8,6),tp=P(s.x,s.y,94);
+    poly([o0,o1,{x:(o1.x+tp.x)/2+2,y:tp.y+10},{x:tp.x,y:tp.y}],'#7a7a8a',TB_OL);poly([o1,o2,{x:tp.x,y:tp.y},{x:(o1.x+tp.x)/2+2,y:tp.y+10}],'#5e5e6e',TB_OL);}
+}
+function tbWayLive(b){const G=tbWayGeo(b),P=TB_P,c=ctx,t=now;c.save();
+  const s=G.stone,p=P(s.x,s.y,6),pl=.7+Math.sin(t*2.2)*.2;
+  // the magic circle on the dais turns slowly
+  c.globalCompositeOperation='lighter';{const g=c.createRadialGradient(p.x,p.y-30,4,p.x,p.y-30,80);g.addColorStop(0,`rgba(110,210,255,${.45*pl})`);g.addColorStop(1,'rgba(80,140,255,0)');c.fillStyle=g;c.beginPath();c.ellipse(p.x,p.y-24,80,60,0,0,7);c.fill();}
+  c.strokeStyle=`rgba(140,230,255,${.8*pl})`;c.lineWidth=1.6;c.beginPath();c.ellipse(p.x,p.y,20,10,0,0,7);c.stroke();c.beginPath();c.ellipse(p.x,p.y,14,7,0,0,7);c.stroke();
+  for(let k=0;k<6;k++){const a=t*.8+k*Math.PI/3,x=p.x+Math.cos(a)*17,y=p.y+Math.sin(a)*8.5;c.fillStyle=`rgba(200,245,255,${pl})`;c.fillRect(x-1.5,y-1.5,3,3);}
+  // runes down the obelisk
+  const o1=P(s.x+8,s.y+8,6),tp=P(s.x,s.y,94);for(let k=0;k<4;k++){const f=.2+k*.17,x=o1.x+(tp.x-o1.x)*f-6,y=o1.y+(tp.y-o1.y)*f;const a=.5+.5*Math.sin(t*3-k*.8);
+    c.strokeStyle=`rgba(150,235,255,${a})`;c.lineWidth=1.6;c.beginPath();if(k%2){c.moveTo(x-3,y-4);c.lineTo(x,y+4);c.lineTo(x+3,y-4);}else{c.moveTo(x,y-5);c.lineTo(x,y+5);c.moveTo(x-3,y-1);c.lineTo(x+3,y+2);}c.stroke();}
+  // motes of light rising
+  for(let k=0;k<7;k++){const ph=(t*.3+k/7)%1;c.fillStyle=`rgba(190,240,255,${1-ph})`;c.beginPath();c.arc(p.x+Math.sin(k*2.3+t)*18,p.y-ph*100,1.6,0,7);c.fill();}
+  c.globalCompositeOperation='source-over';
+  // the horse looks out of its stall, nodding
+  const W=G.sx1-G.sx0,hp=TB_P(G.sx0+W*.24+2,G.syF+4,22+Math.sin(t*1.6)*1.5);
+  c.fillStyle='#7a4a2a';c.strokeStyle=TB_OL;c.lineWidth=1;c.beginPath();c.ellipse(hp.x,hp.y-6,7,10,-.25,0,7);c.fill();c.stroke();
+  c.beginPath();c.ellipse(hp.x-5,hp.y+3,5,6.5,-.5,0,7);c.fill();c.stroke();tbDisc(hp.x-7,hp.y+7,3,2.2,'#5a3420');
+  c.fillStyle='#3a2414';c.beginPath();c.moveTo(hp.x+2,hp.y-16);c.quadraticCurveTo(hp.x+9,hp.y-6,hp.x+5,hp.y+4);c.lineTo(hp.x+2,hp.y-4);c.closePath();c.fill();
+  c.fillStyle='#f4ead6';c.fillRect(hp.x-3,hp.y-10,2.4,5);c.fillStyle='#1a1410';c.beginPath();c.arc(hp.x-1,hp.y-7,1.3,0,7);c.fill();
+  c.fillStyle='#7a4a2a';c.beginPath();c.moveTo(hp.x-1,hp.y-15);c.lineTo(hp.x+1,hp.y-21);c.lineTo(hp.x+3,hp.y-14);c.closePath();c.fill();c.stroke();
+  // the weathervane arrow swings in the wind
+  const cx=(G.sx0+G.sx1)/2,yc=(G.sy0+G.syF)/2,v=P(cx,yc,G.H+G.RH+48),a=Math.sin(t*.5)*.6;c.translate(v.x,v.y);c.scale(1,.5);c.rotate(a);c.strokeStyle='#2a2420';c.lineWidth=2;
+  c.beginPath();c.moveTo(-12,0);c.lineTo(12,0);c.stroke();c.fillStyle='#2a2420';c.beginPath();c.moveTo(12,0);c.lineTo(6,-5);c.lineTo(6,5);c.closePath();c.fill();c.beginPath();c.moveTo(-12,0);c.lineTo(-16,-5);c.lineTo(-9,0);c.lineTo(-16,5);c.closePath();c.fill();
+  c.restore();}
+const tbWayLights=b=>{const G=tbWayGeo(b);return tbLit([[G.stone.x,G.stone.y,50],[G.post.x,G.post.y,60],[G.sx1,(G.sy0+G.syF)/2,30],[G.sx0+(G.sx1-G.sx0)*.24,G.syF,20,1]]);};
 const TOWN_BLD={shop:{body:tbStore,sign:96,lights:tbStoreLights},smith:{body:tbSmith,live:tbSmithLive,sign:60,lights:tbSmithLights},
   job:{body:tbGuild,live:tbGuildLive,sign:98,lights:tbGuildLights},
   heal:{body:tbChapel,live:tbChapelLive,signAt:b=>{const G=tbChapelGeo(b);return[{name:b.name,x:(G.nx0+G.nx1)/2/TILE,w:0,y:G.nyF/TILE,h:0},48];},lights:tbChapelLights},
-  storage:{body:tbWare,live:tbWareLive,sign:30,lights:tbWareLights}};
+  storage:{body:tbWare,live:tbWareLive,sign:30,lights:tbWareLights},
+  warp:{body:tbWay,live:tbWayLive,signAt:b=>{const G=tbWayGeo(b);return[{name:b.name,x:(G.sx0+G.sx1)/2/TILE,w:0,y:G.syF/TILE,h:0},50];},lights:tbWayLights}};
 // take over the drawing of Hearthvale's buildings that have a design of their own
 {const _prev=drawBuilding;
   drawBuilding=function(b){const T=typeof zoneId!=='undefined'&&zoneId==='town'&&b.npc&&TOWN_BLD[b.npc.role];if(!T)return _prev.apply(this,arguments);
