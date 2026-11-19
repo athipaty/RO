@@ -47,34 +47,42 @@ function getZone(id){
     zone.portals.push({x:(W-2+.5)*TILE,y:21*TILE,to:'town',side:'east'});
     zone.spawn={x:(W-6)*TILE,y:21*TILE};
   } else if(D.theme==='town'){
-    for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){ if(x===1||y===1||x===W-2||y===H-2){ if(r()<.6)set(x,y,2); } else if(x>3&&y>3&&x<W-4&&y<H-4) set(x,y,6); else if(r()<.12) set(x,y,7); }
-    const B=[{x:5,y:4,w:7,h:5,name:'General Store',roof:'#8e3b2e',npc:{name:'Ilsa the Merchant',role:'shop',col:'#c86a3a',hair:'#8a3b1a'}},
-             {x:27,y:4,w:8,h:5,name:'Guild Hall',roof:'#2e4f8e',npc:{name:'Guildmaster Corvin',role:'job',col:'#3b5ea8',hair:'#c8c8c8'}},
-             {x:5,y:20,w:7,h:5,name:'Chapel',roof:'#cfc6b4',npc:{name:'Sister Maren',role:'heal',col:'#efe7d6',hair:'#e0c070'}},
-             {x:28,y:20,w:7,h:5,name:'Waystation',roof:'#3e7a4a',npc:{name:'Tobin the Wayfarer',role:'warp',col:'#4f8a4a',hair:'#5a3a20'}},
-             {x:14,y:4,w:6,h:4,name:'Smithy',roof:'#5a4a42',npc:{name:'Brannoc the Smith',role:'smith',col:'#6a5040',hair:'#2b1d16'}},
-             {x:14,y:20,w:6,h:4,name:'Warehouse',roof:'#7a6a3a',npc:{name:'Wenna the Keeper',role:'storage',col:'#8a6a9a',hair:'#d86a9a'}}];
-    for(const b of B){for(let y=b.y;y<b.y+b.h;y++)for(let x=b.x;x<b.x+b.w;x++)set(x,y,5);
+    // v1.27.0 Hearthvale in four districts around a round fountain plaza; the four roads run out to the gates.
+    //   Market Row (north-west): shop, smithy, the stylist's stall      Adventurers' Yard (north-east): guild hall, arena, keep, training yard
+    //   Chapel Close (south-west): chapel, the elder, the mage, the veiled shade      Travellers' Green (south-east): warehouse, waystation, festival
+    // no extra trees on the south and east edges: they stand nearest the camera and would hide the people behind them
+    for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(x===1||y===1){if(r()<.6)set(x,y,2);}else if(x===W-2||y===H-2){}else set(x,y,r()<.05?7:0);}
+    const fill=(x0,y0,x1,y1,v)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)set(x,y,v);};
+    fill(2,2,16,11,6);                                   // Market Row: cobbles
+    fill(23,2,37,11,6);fill(33,3,37,9,1);               // Adventurers' Yard: cobbles, a dirt training yard in the corner
+    for(let y=18;y<=27;y++)for(let x=2;x<=16;x++)if(r()<.12)set(x,y,7);fill(3,24,16,25,6); // Chapel Close: a flowered green, a cobbled walk
+    fill(23,24,37,25,1);fill(32,26,35,27,3);             // Travellers' Green: a dirt lane past the doors, a duck pond
+    for(let k=2;k<=37;k++){if(k<17||k>22){set(k,12,7);set(k,17,7);}}for(let k=2;k<=27;k++)if(k<12||k>17){set(17,k,7);set(22,k,7);} // flower hedges between districts
+    fill(0,13,W-1,16,1);fill(18,0,21,H-1,1);             // the two roads, gate to gate
+    for(let y=8;y<=22;y++)for(let x=13;x<=26;x++)if(Math.hypot(x+.5-20,y+.5-15)<6)set(x,y,6); // the round plaza
+    fill(18,13,21,16,3);                                 // the fountain pool
+    for(const [x,y] of [[17,2],[22,2],[2,12],[2,17],[2,23],[2,24],[2,25]])set(x,y,2); // trees framing the roads; a dark corner for Nyx
+    const B=[{x:3,y:3,w:7,h:4,name:'General Store',roof:'#8e3b2e',npc:{name:'Ilsa the Merchant',role:'shop',col:'#c86a3a',hair:'#8a3b1a'}},
+             {x:11,y:3,w:6,h:4,name:'Smithy',roof:'#5a4a42',npc:{name:'Brannoc the Smith',role:'smith',col:'#6a5040',hair:'#2b1d16'}},
+             {x:24,y:3,w:8,h:5,name:'Guild Hall',roof:'#2e4f8e',npc:{name:'Guildmaster Corvin',role:'job',col:'#3b5ea8',hair:'#c8c8c8'}},
+             {x:4,y:19,w:7,h:5,name:'Chapel',roof:'#cfc6b4',npc:{name:'Sister Maren',role:'heal',col:'#efe7d6',hair:'#e0c070'}},
+             {x:24,y:19,w:6,h:4,name:'Warehouse',roof:'#7a6a3a',npc:{name:'Wenna the Keeper',role:'storage',col:'#8a6a9a',hair:'#d86a9a'}},
+             {x:31,y:19,w:7,h:5,name:'Waystation',roof:'#3e7a4a',npc:{name:'Tobin the Wayfarer',role:'warp',col:'#4f8a4a',hair:'#5a3a20'}}];
+    for(const b of B){fill(b.x,b.y,b.x+b.w-1,b.y+b.h-1,5);
       zone.buildings.push(b);
       const nx=(b.x+b.w/2+NPC_BESIDE)*TILE, ny=(b.y+b.h)*TILE+20;
       zone.npcs.push({...b.npc,x:nx,y:ny});}
-    for(let y=12;y<16;y++)for(let x=18;x<22;x++)set(x,y,3);
-    for(let y=13;y<=16;y++)for(let x=W-5;x<W;x++)set(x,y,1);
-    zone.portals.push({x:(W-2+.5)*TILE,y:15*TILE,to:'meadow',side:'east'});
-    // #32 the west gate leads to the capital, Aurelmark
-    for(let y=13;y<=16;y++)for(let x=0;x<5;x++)set(x,y,1);
-    zone.portals.push({x:1.5*TILE,y:15*TILE,to:'capital',side:'west'});
-    // v1.17.0 the north gate leads to Windwhistle Heights, the south gate to Willowmere Farms
-    for(let y=0;y<=11;y++)for(let x=21;x<=23;x++)set(x,y,1);
-    zone.portals.push({x:22.5*TILE,y:1.5*TILE,to:'heights',side:'north'});
-    for(let y=17;y<H;y++)for(let x=21;x<=23;x++)set(x,y,1);
-    zone.portals.push({x:22.5*TILE,y:(H-1.5)*TILE,to:'farms',side:'south'});
-    // Stage 6: the Arena Master by the fountain sends players to the Ember Arena
-    zone.npcs.push({name:'Arena Master Vexa',role:'arena',col:'#a8323a',hair:'#1c1c1c',x:24.5*TILE,y:14.5*TILE});
-    zone.npcs.push({name:'Lune the Stylist',role:'stylist',col:'#d86a9a',hair:'#7a4fb0',x:13.5*TILE,y:13.5*TILE});
-    zone.npcs.push({name:'Festival Keeper Pim',role:'festival',col:'#e07ab0',hair:'#f0c040',x:22.5*TILE,y:10.5*TILE});
-    zone.npcs.push({name:'Keep Herald Orrin',role:'keep',col:'#5a3a8a',hair:'#d8b060',x:24.5*TILE,y:17.5*TILE});
-    zone.spawn={x:20*TILE,y:19*TILE};
+    zone.portals.push({x:(W-1.5)*TILE,y:15*TILE,to:'meadow',side:'east'});
+    zone.portals.push({x:1.5*TILE,y:15*TILE,to:'capital',side:'west'});   // #32 the west gate leads to the capital, Aurelmark
+    zone.portals.push({x:20*TILE,y:1.5*TILE,to:'heights',side:'north'});   // v1.17.0 Windwhistle Heights
+    zone.portals.push({x:20*TILE,y:(H-1.5)*TILE,to:'farms',side:'south'}); // and Willowmere Farms
+    zone.npcs.push({name:'Arena Master Vexa',role:'arena',col:'#a8323a',hair:'#1c1c1c',x:26.8*TILE,y:10.4*TILE});
+    zone.npcs.push({name:'Keep Herald Orrin',role:'keep',col:'#5a3a8a',hair:'#d8b060',x:33.8*TILE,y:10.6*TILE});
+    zone.npcs.push({name:'Lune the Stylist',role:'stylist',col:'#d86a9a',hair:'#7a4fb0',x:6.5*TILE,y:10.2*TILE});
+    zone.npcs.push({name:'Festival Keeper Pim',role:'festival',col:'#e07ab0',hair:'#f0c040',x:27.5*TILE,y:26.2*TILE});
+    // district signposts where each district meets the plaza (drawn by drawObj, kind 'dsign')
+    zone.signs=[{x:15.2,y:10.6,name:'Market Row'},{x:24.8,y:10.6,name:'Adventurers\' Yard'},{x:15.2,y:19.4,name:'Chapel Close'},{x:24.8,y:19.4,name:'Travellers\' Green'}];
+    zone.spawn={x:20*TILE,y:19.5*TILE};
   } else if(D.theme==='keep'){
     // a walled courtyard with four gates; cobbled inside, the golden capture ring around the crystal
     const [cx,cy]=KEEP_C;
@@ -165,7 +173,8 @@ function renderZone(z, r){
     if(kind==='rock')k=th2==='crypt'||th2==='arena'||th2==='keep'?'pillar':th2==='cave'?'rock':th2==='heights'?(R()<.35?'crag':'rock'):(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':th2==='farms'&&R()<.3?'hay':'tree';
     z.objs.push({x:px+16,y:py+16,kind:k,v:Math.floor(R()*3),sc:.85+R()*.3});}
   for(const b of z.buildings){mg.fillStyle=b.roof;mg.fillRect(b.x,b.y,b.w,b.h);}
-  if(z.D.theme==='town')z.objs.push(z.id==='capital'?{x:28*TILE,y:16*TILE,kind:'fountain',v:0,sc:1.5}:{x:20*TILE,y:14*TILE,kind:'fountain',v:0,sc:1});
+  if(z.D.theme==='town')z.objs.push(z.id==='capital'?{x:28*TILE,y:16*TILE,kind:'fountain',v:0,sc:1.5}:{x:20*TILE,y:15*TILE,kind:'fountain',v:0,sc:1});
+  for(const s of z.signs||[])z.objs.push({x:s.x*TILE,y:s.y*TILE,kind:'dsign',name:s.name,v:0,sc:1});
   if(z.D.theme==='keep'){const [cx,cy]=KEEP_C;z.objs=z.objs.filter(o=>!(Math.abs(o.x-(cx*TILE+16))<1&&Math.abs(o.y-(cy*TILE+16))<1));z.objs.push({x:(cx+.5)*TILE,y:(cy+.5)*TILE,kind:'crystal',v:0,sc:1});}
   z.img=c; z.mini=mini;
 }

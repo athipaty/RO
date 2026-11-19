@@ -55,6 +55,7 @@ function drawObj(o){
     ctx.restore();
     const name=typeof keepLabel==='function'?keepLabel():'';if(name)label(name,p.x,p.y-100+b,col,13);
     return;}
+  if(o.kind==='dsign'){drawDistrictSign(o);return;}
   if(o.kind==='fountain'){const p=proj(o.x,o.y);
     ctx.fillStyle='#cfc6b4';ctx.fillRect(p.x-8,p.y-40,16,40);ctx.fillStyle='#e8e0d0';ctx.beginPath();ctx.ellipse(p.x,p.y-40,16,6,0,0,7);ctx.fill();
     ctx.fillStyle='#bfe0f0';ctx.beginPath();ctx.ellipse(p.x,p.y-41,11,4,0,0,7);ctx.fill();
@@ -62,6 +63,16 @@ function drawObj(o){
     return;}
   const sp=sprite(Z.D.theme,o.kind,o.v),p=proj(o.x,o.y),w=sp.c.width*o.sc,h=sp.c.height*o.sc;
   ctx.drawImage(sp.c,p.x-sp.ax*o.sc,p.y-sp.ay*o.sc,w,h);}
+// v1.27.0 a district signpost in Hearthvale: a wooden post with a painted board and the district's name
+const DSIGN_TH={'Market Row':'ย่านตลาด',"Adventurers' Yard":'ลานนักผจญภัย','Chapel Close':'ย่านโบสถ์',"Travellers' Green":'ลานนักเดินทาง'};
+function drawDistrictSign(o){const p=proj(o.x,o.y),name=typeof LANG!=='undefined'&&LANG==='th'&&DSIGN_TH[o.name]||o.name;
+  ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(p.x,p.y,10,4,0,0,7);ctx.fill();
+  ctx.fillStyle='#6a4a2a';ctx.fillRect(p.x-3,p.y-44,6,44);ctx.fillStyle='#4a3220';ctx.fillRect(p.x+1,p.y-44,2,44);
+  ctx.font='700 11px "Alegreya Sans",sans-serif';const tw=ctx.measureText(name).width+16,by=p.y-58;
+  ctx.fillStyle='#8a6034';ctx.strokeStyle='#3a2716';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(p.x-tw/2,by-9,tw,18,3);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#a8784a';ctx.fillRect(p.x-tw/2+3,by-7,tw-6,3);
+  ctx.fillStyle='#3a2716';for(const dx of [-tw/2+5,tw/2-5]){ctx.beginPath();ctx.arc(p.x+dx,by,1.6,0,7);ctx.fill();}
+  ctx.fillStyle='#f4e6c8';ctx.textAlign='center';ctx.fillText(name,p.x,by+4);}
 // draw order for things standing in the world and the buildings between them (a small topological sort):
 // a point west or north of a building's footprint (x<X1 and y<Y1) is behind it; anything else near it is in front.
 // Among themselves, things go back to front (x+y). Buildings entirely west/north of another come first.

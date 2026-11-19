@@ -17,9 +17,9 @@ const JS_L=(en,th)=>TH_ON&&th?th:en;
 
 /* ---- the people of the stories ---- */
 Object.assign(QNPC,{
-  brega:{name:'Captain Brega',zone:'town',tx:34.5,ty:17.5,col:'#8a3a2a',hair:'#c8b8a0'},
-  ondine:{name:'Magister Ondine',zone:'town',tx:6.5,ty:17.5,col:'#4a5ab0',hair:'#e8e0f0'},
-  nyx:{name:'Nyx of the Veil',zone:'town',tx:3.5,ty:11.5,col:'#3a3450',hair:'#1e1a28'},
+  brega:{name:'Captain Brega',zone:'town',tx:35.5,ty:6,col:'#8a3a2a',hair:'#c8b8a0'},
+  ondine:{name:'Magister Ondine',zone:'town',tx:15,ty:25,col:'#4a5ab0',hair:'#e8e0f0'},
+  nyx:{name:'Nyx of the Veil',zone:'town',tx:3.6,ty:26.3,col:'#3a3450',hair:'#1e1a28'},
   // v1.17.0 the regions by the north and south gates
   alda:{name:'Shepherd Alda',zone:'heights',dx:4,dy:-3,col:'#8a7a5a',hair:'#d8d0c0'},
   tamsin:{name:'Farmer Tamsin',zone:'farms',dx:-4,dy:3,col:'#6a8a3a',hair:'#c8783a'},

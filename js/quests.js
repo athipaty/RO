@@ -3,7 +3,7 @@
 
 // Extra NPCs: Elder Hollis in Hearthvale, and a guide standing near the entrance of each region.
 const QNPC={
-  hollis:{name:'Elder Hollis',zone:'town',tx:16.5,ty:17,col:'#6a5a8a',hair:'#e8e4dc'},
+  hollis:{name:'Elder Hollis',zone:'town',tx:14.5,ty:21,col:'#6a5a8a',hair:'#e8e4dc'},
   pell:{name:'Warden Pell',zone:'meadow',dx:3,dy:-2,col:'#a0503a',hair:'#3b2b20'},
   ysolde:{name:'Ysolde the Tracker',zone:'woods',dx:3,dy:-2,col:'#3f7a4c',hair:'#c8783a'},
   kade:{name:'Scout Kade',zone:'dunes',dx:3,dy:-2,col:'#b08a4a',hair:'#2b1d16'},
