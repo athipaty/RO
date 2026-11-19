@@ -50,7 +50,7 @@ const trayCount=id=>AWK.tray.filter(x=>x===id).length;
 /* ---- Sela's window: Slots (as before) · Awaken · Fuse sigils ---- */
 // v1.37.4: Awaken has its own building (the Hall of Awakening, Awakener Liora); Sela keeps the slots (and fusing until
 // the Sigil Forge opens). One page per place; SELA_TABS lists the tabs Sela still shows.
-let SELA_TABS=[['slots','Sigil slots'],['fuse','Fuse sigils']];
+let SELA_TABS=[]; // v1.38.3 fusing moved to the Sigil Forge (Sigilwright Dorn); Sela only cuts slots
 {const _gem=PANELS.gemcut;const awPage=function(page){const inSela=page==='sela';if(inSela&&!SELA_TABS.some(t=>t[0]===AWK.tab))AWK.tab='slots';const tab=inSela?AWK.tab:page;
   const tabs=!inSela||SELA_TABS.length<2?'':`<div class="tabs itabs" role="tablist">`+SELA_TABS.map(([k,l])=>`<button class="btn small ${AWK.tab===k?'on':''}" role="tab" aria-selected="${AWK.tab===k}" data-act="gemtab" data-arg="${k}">${l}</button>`).join('')+`</div>`;
   if(tab==='slots'){const h=_gem.apply(this,arguments);const i=h.indexOf('</div>',h.indexOf('class="say"'));return i<0?tabs+h:h.slice(0,i+6)+tabs+h.slice(i+6);}
@@ -69,7 +69,7 @@ let SELA_TABS=[['slots','Sigil slots'],['fuse','Fuse sigils']];
       `<button class="btn small" data-act="awaken" data-arg="${e.uid}" ${awCan(e)?'':'disabled'}>${e.aw?'Re-awaken':'Awaken'}</button></div>`;}
     return h;}
   // fuse
-  h+=`<div class="say">"Three sigils into one. The stone decides what it becomes, but now and then it comes out Radiant, and nobody else in Embervale can make those."</div>`+tabs;
+  h+=`<div class="say">"Three sigils into one. The stone decides what it becomes, but now and then it comes out Radiant, and nobody else in Embervale can make those." — Sigilwright Dorn</div>`+tabs;
   const loose=looseSigils();
   h+=`<div class="fusetray">`+[0,1,2].map(i=>{const id=AWK.tray[i];return id?`<button class="fuseslot full" data-act="fuseout" data-arg="${i}" title="${esc(ITEMS[id].name)}">${icon({id})}<span>${esc(ITEMS[id].name.replace(' Sigil',''))}</span></button>`:`<div class="fuseslot"><span class="muted">empty</span></div>`;}).join('')+`</div>`;
   // the preview: what can come out of the three in the tray
@@ -124,3 +124,4 @@ if(typeof TH!=='undefined'){for(const [k,v] of [['Radiant chance 12%, +8% for ea
     [/^\(all three are (.+)\)$/,(m,a)=>`(ทั้งสามเป็น${{weapon:'อาวุธ',armor:'เกราะ',head:'หัว',accessory:'เครื่องประดับ'}[a]||a})`]);}
 if(typeof TH!=='undefined')for(const [k,v] of [['Hall of Awakening','หอปลุกพลัง'],['Awakener Liora','ผู้ปลุกพลังลิโอรา'],['The Sigil Forge','โรงหลอมซิกิล'],['The royal garden and the Hall of Awakening','สวนหลวงและหอปลุกพลัง'],
   ['"Every blade has a voice it hasn\'t used yet. Step into the circle and I will wake it. If you don\'t like what it says, I\'ll put it back to sleep and you keep the old one." — Awakener Liora','"อาวุธทุกเล่มมีเสียงที่ยังไม่เคยเปล่ง ก้าวเข้ามาในวงเวท แล้วข้าจะปลุกมัน ถ้าเจ้าไม่ชอบสิ่งที่มันบอก ข้าจะให้มันหลับต่อและเจ้าเก็บของเดิมไว้" — ผู้ปลุกพลังลิโอรา']])if(!TH[k])TH[k]=v;
+if(typeof TH!=='undefined')for(const [k,v] of [['Sigilwright Dorn','ช่างซิกิลดอร์น'],['Sigil Forge','โรงหลอมซิกิล']])if(!TH[k])TH[k]=v;

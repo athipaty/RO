@@ -607,6 +607,52 @@ function cbAwakenLive(b){const G=cbAwGeo(b),{cx,cy}=G,P=TB_P,c=ctx,t=now;c.save(
   c.restore();}
 const cbAwakenLights=b=>{const G=cbAwGeo(b);return tbLit([[G.cx,G.cy,46],...G.br.map(r=>[r.x,r.y,32])]);};
 
+/* ---------------- the Sigil Forge (v1.38.3) ---------------- */
+// an arcane workshop of dark stone under a teal roof: a round window with a glowing star sigil, racks of sigil moulds,
+// a chimney throwing coloured sparks; out front a crucible bubbles over blue fire with three sigils floating over
+// pedestals around it, each sending its light into the pot (three in, one out)
+const cbSfGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,bx0=X0+62,bx1=X1-10,by0=Y0+10,byF=Y1-58;
+  return{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W:bx1-bx0,D:byF-by0,H:64,RH:34,pot:{x:X0+38,y:Y1-40},ch:{x:bx1-26,y:by0+18}};};
+const CB_SIGC=['#ff7a5a','#5ab0ff','#7ae07a'];
+function cbSigil(x,y,r,col){const c=ctx;c.fillStyle='#2a2440';c.strokeStyle=col;c.lineWidth=1.6;c.beginPath();c.arc(x,y,r,0,7);c.fill();c.stroke();
+  c.fillStyle=col;c.beginPath();for(let k=0;k<10;k++){const a=k*Math.PI/5-Math.PI/2,rr=k%2?r*.35:r*.75;c.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);}c.closePath();c.fill();}
+function cbSigilForge(b){const G=cbSfGeo(b),{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W,D,H,RH,pot,ch}=G,P=TB_P,c=ctx;const stone='#7a7488',stoneR='#5e586c',roof=b.roof||'#2e6e6a',gold='#e8c25a';
+  poly([P(bx0,Y1),P(X1+22,Y1),P(X1+22,Y0+22),P(bx1,Y0)],'rgba(0,0,0,.2)');
+  // the chimney
+  tbBox(ch.x-10,ch.y-10,ch.x+10,ch.y+10,0,H+RH+30,'#5a5468','#48425a','#3a3448');
+  tbBox(bx0,by0,bx1,byF,0,H,stone,stoneR);const F=tbF(bx0,byF),R=tbR(bx1,byF);
+  for(const [S,L] of [[F,W],[R,D]]){c.globalAlpha=.35;for(let h=10;h<H;h+=10){tbSeg(S(0,h),S(L,h),'#3a3448',.8);for(let u=((h/10)%2)*10+5;u<L;u+=20)tbSeg(S(u,h-10),S(u,h),'#3a3448',.8);}c.globalAlpha=1;tbQuad(S,0,0,L,6,'#4a4458');}
+  // the round window with a star sigil (it glows, live); racks of sigil moulds either side of the door
+  {const p=F(W*.5,46);tbDisc(p.x,p.y,13,13,'#1a1428',gold);}
+  for(const u0 of [10,W-34]){tbQuad(F,u0,18,u0+24,40,'#5a3a1c');for(const [du,h] of [[6,34],[18,34],[6,24],[18,24]]){const p=F(u0+du,h);cbSigil(p.x,p.y,3.6,CB_SIGC[(du+h)%3]);}}
+  {const u=W*.5;tbQuad(F,u-11,0,u+11,30,'#3a2a3a');cbArch(F,u-11,u+11,0,24,'#4a3048');tbSeg(F(u,0),F(u,30),'#2a1a2a',1.2);}
+  for(const u of [D*.3,D*.7]){const p=R(u,40);c.fillStyle='#1a1428';c.beginPath();c.arc(p.x,p.y-4,5,0,7);c.fill();c.strokeStyle=gold;c.lineWidth=1.2;c.stroke();}
+  tbGableX(bx0,by0,bx1,byF,H,RH,roof,stoneR);
+  {const top=H+RH+30;const F2=tbF(ch.x-10,ch.y+10),R2=tbR(ch.x+10,ch.y+10);tbQuad(F2,0,H+RH*.5,20,top,'#5a5468');tbQuad(R2,0,H+RH*.5,20,top,'#48425a');tbBox(ch.x-12,ch.y-12,ch.x+12,ch.y+12,top,top+5,'#3a3448','#2e2a3a','#1a1626');}
+  // the crucible's stand, the three pedestals
+  {const {x,y}=pot;for(let k=0;k<3;k++){const a=-Math.PI/2+k*Math.PI*2/3+Math.PI/6,px=x+Math.cos(a)*30,py=y+Math.sin(a)*22;cbCyl(px,py,5,0,16,'#8a8498','#a8a2b8');}
+    for(const dx of [-10,10])tbSeg(P(x+dx,y+4,0),P(x+dx*.6,y+2,14),'#3a3448',2.4);cbCyl(x,y,12,0,4,'#3a3448','#2a2438');}
+}
+function cbSigilForgeLive(b){const G=cbSfGeo(b),{pot,ch,bx0,byF,W,H,RH}=G,P=TB_P,c=ctx,t=now;c.save();
+  // blue fire under the crucible, the crucible, its glowing bubbling top
+  {const {x,y}=pot;const f=P(x,y,4);for(let k=0;k<5;k++){const ph=(t*2.2+k*.2)%1;c.globalAlpha=1-ph;c.fillStyle=k%2?'#8ad0ff':'#3a7aff';c.beginPath();c.ellipse(f.x-8+k*4,f.y-ph*10,3-ph*2,5-ph*3,0,0,7);c.fill();}c.globalAlpha=1;
+    cbCyl(x,y,14,10,30,'#3a3448',null,'#1a1626');const top=P(x,y,30),pulse=.6+Math.sin(t*3)*.2;
+    c.fillStyle=`rgba(200,150,255,${pulse})`;c.beginPath();c.ellipse(top.x,top.y,14*1.1,14*.55,0,0,7);c.fill();c.strokeStyle='#1a1626';c.lineWidth=1.4;c.stroke();
+    for(let k=0;k<3;k++){const ph=(t*1.2+k/3)%1;c.globalAlpha=1-ph;c.fillStyle='#f0e0ff';c.beginPath();c.arc(top.x-6+k*6,top.y-2-ph*8,1.6+ph*1.5,0,7);c.fill();}c.globalAlpha=1;
+    // three sigils float over their pedestals and send their light into the pot
+    for(let k=0;k<3;k++){const a=-Math.PI/2+k*Math.PI*2/3+Math.PI/6,px=x+Math.cos(a)*30,py=y+Math.sin(a)*22,s=P(px,py,26+Math.sin(t*2+k*2)*3);
+      const ph=(t*.8+k/3)%1;c.strokeStyle=CB_SIGC[k];c.globalAlpha=.35+Math.sin(t*3+k)*.2;c.lineWidth=2;c.beginPath();c.moveTo(s.x,s.y);c.lineTo(top.x,top.y);c.stroke();
+      c.globalAlpha=1;const q={x:s.x+(top.x-s.x)*ph,y:s.y+(top.y-s.y)*ph};c.fillStyle=CB_SIGC[k];c.beginPath();c.arc(q.x,q.y,1.8,0,7);c.fill();
+      c.save();c.translate(s.x,s.y);c.scale(Math.cos(t*1.4+k),1);cbSigil(0,0,7,CB_SIGC[k]);c.restore();}}
+  // the star window glows
+  {const p=tbF(bx0,byF)(W*.5,46),pulse=.65+Math.sin(t*1.7)*.25;const g=c.createRadialGradient(p.x,p.y,1,p.x,p.y,14);g.addColorStop(0,`rgba(255,220,140,${pulse})`);g.addColorStop(1,'rgba(160,100,255,.3)');
+    c.fillStyle=g;c.beginPath();c.arc(p.x,p.y,11,0,7);c.fill();c.save();c.translate(p.x,p.y);c.rotate(t*.3);cbSigil(0,0,8,'#ffe08a');c.restore();}
+  // coloured sparks from the chimney
+  {const top=P(ch.x,ch.y,H+RH+35);for(let k=0;k<6;k++){const ph=(t*.5+k/6)%1;c.globalAlpha=(1-ph)*.9;c.fillStyle=CB_SIGC[k%3];c.beginPath();c.arc(top.x+Math.sin(t*2+k)*6*ph+ph*10,top.y-ph*46,2-ph,0,7);c.fill();
+      c.globalAlpha=(1-ph)*.3;c.fillStyle='#8a8498';c.beginPath();c.arc(top.x+ph*16,top.y-ph*40,4+ph*8,0,7);c.fill();}c.globalAlpha=1;}
+  c.restore();}
+const cbSigilForgeLights=b=>{const G=cbSfGeo(b);return tbLit([[G.bx0+G.W*.5,G.byF,46],[G.pot.x,G.pot.y,30],[G.bx0+G.W*.5,G.byF,14,1]]);};
+
 const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   gemcut:{body:cbGemcut,live:cbGemcutLive,signAt:b=>{const G=cbGemGeo(b);return[{name:b.name,x:(G.bx0+44)/TILE,w:0,y:(G.byF+12)/TILE,h:0},40];},lights:cbGemcutLights},
   library:{body:cbLib,live:cbLibLive,signAt:b=>{const G=cbLibGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:(G.byF+G.po.d+2)/TILE,h:0},G.po.h+9];},lights:cbLibLights},
@@ -616,6 +662,7 @@ const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   gatetower:{body:cbGateTower,live:cbGateLive,lights:b=>tbLit([[b.x*TILE+18,b.up?(b.y+b.h)*TILE:b.y*TILE+10,58]])},
   stables:{body:cbStables,live:cbStablesLive,signAt:b=>{const G=cbStbGeo(b);return[{name:b.name,x:(G.bx0+G.stall[1]+10)/TILE,w:0,y:G.byF/TILE,h:0},G.H+20];},lights:cbStablesLights},
   awaken:{body:cbAwaken,live:cbAwakenLive,signAt:b=>{const G=cbAwGeo(b);return[{name:b.name,x:G.cx/TILE,w:0,y:(G.cy+G.cr+9)/TILE,h:0},G.ch+4];},lights:cbAwakenLights},
+  fuse:{body:cbSigilForge,live:cbSigilForgeLive,signAt:b=>{const G=cbSfGeo(b);return[{name:b.name,x:(G.bx0+G.W*.5)/TILE,w:0,y:G.byF/TILE,h:0},G.H+2];},lights:cbSigilForgeLights},
   shop:{body:cbMarket,live:cbMarketLive,signAt:b=>{const G=cbMarketGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.byF/TILE,h:0},G.H1+20];},lights:cbMarketLights}};
 // take over the drawing of the capital's pieces that have a design of their own
 {const _prev=drawBuilding;

@@ -8,9 +8,9 @@ module.exports = async t => {
     // tabs in Sela's window
     const tabs = await g.ev(() => { P.gold = 1e6; P.lv = 60; P.inv.push({ id: 'glintstone', n: 20 }, { id: 'pelt', n: 30 }, { id: 'carapace', n: 30 }, { id: 'core', n: 20 });
       P.eq.weapon = { id: 'twinfang', uid: 701, s: [null] }; S = computeStats(); openPanel('gemcut'); const s = document.getElementById('panel').textContent;
-      const sela = { slots: /Sigil slots/.test(s) && !/Awaken/.test(s) && /Fuse sigils/.test(s), cut: !!document.querySelector('[data-act="gemcut"]') };
+      const sela = { slots: /Gemcutter Sela/.test(s) && !/Awaken/.test(s) && !/Fuse sigils/.test(s), cut: !!document.querySelector('[data-act="gemcut"]') };
       openPanel('awaken'); sela.hall = /Hall of Awakening/.test(document.getElementById('panel').textContent) && getZone('capital').npcs.some(n => n.role === 'awaken'); return sela; });
-    t.ok(tabs.slots && tabs.cut && tabs.hall, 'Sela keeps Sigil slots (and Fuse for now); awakening has its own Hall of Awakening');
+    t.ok(tabs.slots && tabs.cut && tabs.hall, 'Sela only cuts sigil slots; awakening has its own Hall of Awakening and fusing its own Sigil Forge');
     // awaken: costs materials + gold, rolls a line, keep-or-throw-back
     const aw = await g.ev(() => { openPanel('awaken'); const g0 = P.gold, gl0 = invFind('glintstone').n, c0 = invFind('carapace').n;
       document.querySelector('[data-act="awaken"][data-arg="701"]').click(); const pd = AWK.pending, txt = document.getElementById('panel').textContent;
@@ -37,7 +37,7 @@ module.exports = async t => {
     t.ok(rs.n === rs.base && rs.stronger, `every sigil has a Radiant twin that is stronger (${rs.n})`);
     t.ok(rs.hop.txt && /Attack speed/.test(rs.hop.txt) && rs.icon, 'Radiant sigils describe themselves and have their own picture: ' + rs.hop.txt);
     // fusion
-    const fu = await g.ev(() => { P.inv.push({ id: 'hopper_sig', n: 2 }, { id: 'greylupe_sig', n: 1 }); openPanel('gemcut'); PANEL_ACTS.gemtab('fuse');
+    const fu = await g.ev(() => { P.inv.push({ id: 'hopper_sig', n: 2 }, { id: 'greylupe_sig', n: 1 }); openPanel('fuse');
       const before = looseSigils().reduce((a, e) => a + e.n, 0), g0 = P.gold;
       document.querySelector('[data-act="fusein"][data-arg="hopper_sig"]').click(); document.querySelector('[data-act="fusein"][data-arg="hopper_sig"]').click();
       const third = document.querySelector('[data-act="fusein"][data-arg="hopper_sig"]').disabled; document.querySelector('[data-act="fusein"][data-arg="greylupe_sig"]').click();

@@ -205,7 +205,7 @@ Object.assign(TH,{
   'Guild':'กิลด์','Points':'แต้ม','(your guild!)':'(กิลด์ของคุณ!)','Held by':'ครองโดย',
   // gemcutter
   '"Every blade has a voice it hasn\'t used yet. Let me wake it. If you don\'t like what it says, I\'ll put it back to sleep and you keep the old one."':'"อาวุธทุกชิ้นมีเสียงที่ยังไม่เคยเปล่ง ให้ข้าปลุกมัน ถ้าเจ้าไม่ชอบสิ่งที่มันพูด ข้าจะให้มันหลับต่อ แล้วเจ้าเก็บอันเดิมไว้"',
-  '"Three sigils into one. The stone decides what it becomes, but now and then it comes out Radiant, and nobody else in Embervale can make those."':'"ซิกิลสามอันรวมเป็นหนึ่ง หินเป็นผู้ตัดสินว่ามันจะกลายเป็นอะไร แต่บางครั้งก็ออกมาเป็นเรเดียนต์ ซึ่งไม่มีใครใน Embervale ทำได้นอกจากที่นี่"',
+  '"Three sigils into one. The stone decides what it becomes, but now and then it comes out Radiant, and nobody else in Embervale can make those." — Sigilwright Dorn':'"ซิกิลสามอันรวมเป็นหนึ่ง หินเป็นผู้ตัดสินว่ามันจะกลายเป็นอะไร แต่บางครั้งก็ออกมาเป็นเรเดียนต์ ซึ่งไม่มีใครใน Embervale ทำได้นอกจากที่นี่" — ช่างซิกิลดอร์น',
   'Cut':'เจาะ','You have no gear that can take a slot.':'คุณไม่มีอุปกรณ์ที่เจาะช่องได้',
   // library
   '"Every sigil ever pressed from a monster\'s essence is catalogued here: what it grants, which gear it suits and who drops it." — Oren':'"ซิกิลทุกอันที่เคยกลั่นจากแก่นของมอนสเตอร์ถูกบันทึกไว้ที่นี่: ให้อะไร เหมาะกับอุปกรณ์แบบไหน และใครดรอป" — Oren',
