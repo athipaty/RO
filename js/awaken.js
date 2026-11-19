@@ -17,7 +17,7 @@ const statLabel=(k,v)=>(typeof bonusLabel==='function'&&bonusLabel(k,v))||`${k.t
 const awText=aw=>aw?`${AW_Q[aw.q||0].name}: ${statLabel(aw.k,aw.v)}`:'';
 function awRoll(e){const pool=awPool(e),[k,lo,hi]=pool[Math.floor(Math.random()*pool.length)],r=Math.random(),q=r>=.95?2:r>=.65?1:0;
   const v=q===2?hi:Math.max(lo,Math.round(lo+(hi-lo)*(q?(.55+Math.random()*.4):Math.random()*.5)));return {k,v,q};}
-const AWK={tab:'slots',pending:null,tray:[]};
+const AWK={tab:'slots',pending:null,tray:[],fk:'all',fs:'lv'};
 function awCan(e){const c=AW_COST[awTier(e)];return P.gold>=c.gold&&Object.entries(c.mats).every(([id,n])=>((invFind(id)||{}).n||0)>=n);}
 function awCostChips(e){const c=AW_COST[awTier(e)];return Object.entries(c.mats).map(([id,n])=>itemChip(id,n)).join('')+goldChip(c.gold);}
 function awCostText(e){const c=AW_COST[awTier(e)];return Object.entries(c.mats).map(([id,n])=>`${n} ${ITEMS[id].name} (${(invFind(id)||{}).n||0})`).join(' + ')+` + ${fmt(c.gold)} gold`;}
@@ -68,9 +68,18 @@ const trayCount=id=>AWK.tray.filter(x=>x===id).length;
   h+=`<div class="tbtns"><button class="btn small" data-act="fusego" ${AWK.tray.length===3&&P.gold>=FUSE_GOLD?'':'disabled'}>Fuse (${fmt(FUSE_GOLD)} gold)</button></div>`;
   h+=`<div class="sub">Radiant chance 12%, +8% for each Radiant sigil you put in. The result is near the level of the three.</div>`;
   if(!loose.length)h+=`<p class="muted">No loose sigils in your bag. Monsters drop them now and then.</p>`;
-  for(const e of loose){const it=ITEMS[e.id],left=e.n-trayCount(e.id);h+=`<div class="row">${icon({id:e.id})}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${esc(it.name)} <span class="muted">×${left}</span></div><div class="ds">${esc(it.txt||(sigMob(e.id)?sigMob(e.id).sig.txt:''))}</div></div>`+
+  // v1.36.6: show only one kind (weapon, armor, accessory) and sort by level, name or how many you hold
+  const kinds=[...new Set(loose.map(e=>ITEMS[e.id].kind))].sort();if(AWK.fk!=='all'&&!kinds.includes(AWK.fk))AWK.fk='all';
+  if(loose.length){h+=`<div class="sigsort"><div class="chips" role="group" aria-label="Kind">`+['all',...kinds].map(k=>`<button class="btn small ${AWK.fk===k?'on':''}" data-act="fusekind" data-arg="${k}">${k==='all'?'All':SIG_KN[k]||k} <span class="cnt">${k==='all'?loose.length:loose.filter(e=>ITEMS[e.id].kind===k).length}</span></button>`).join('')+`</div>`+
+    `<div class="chips" role="group" aria-label="Sort"><span class="muted">Sort</span>`+[['lv','Level'],['name','Name'],['most','Most']].map(([k,l])=>`<button class="btn small ${AWK.fs===k?'on':''}" data-act="fusesort" data-arg="${k}">${l}</button>`).join('')+`</div></div>`;}
+  const sigLv=id=>(sigMob(id)||{}).lv||0,shown=loose.filter(e=>AWK.fk==='all'||ITEMS[e.id].kind===AWK.fk)
+    .sort(AWK.fs==='name'?(a,b)=>ITEMS[a.id].name.localeCompare(ITEMS[b.id].name):AWK.fs==='most'?(a,b)=>b.n-a.n||sigLv(b.id)-sigLv(a.id):(a,b)=>sigLv(b.id)-sigLv(a.id)||(ITEMS[b.id].radiant?1:0)-(ITEMS[a.id].radiant?1:0));
+  for(const e of shown){const it=ITEMS[e.id],left=e.n-trayCount(e.id);h+=`<div class="row">${icon({id:e.id})}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${esc(it.name)} <span class="muted">×${left}</span></div><div class="ds">${SIG_KN[it.kind]||it.kind} · Lv ${sigLv(e.id)} · ${esc(it.txt||(sigMob(e.id)?sigMob(e.id).sig.txt:''))}</div></div>`+
     `<button class="btn small" data-act="fusein" data-arg="${e.id}" ${left>0&&AWK.tray.length<3?'':'disabled'}>Add</button></div>`;}
   return h;};}
+const SIG_KN={weapon:'Weapon',armor:'Armor',accessory:'Accessory'};
+PANEL_ACTS.fusekind=k=>{AWK.fk=k;sfx('click');refreshPanel();};
+PANEL_ACTS.fusesort=k=>{AWK.fs=k;sfx('click');refreshPanel();};
 PANEL_ACTS.gemtab=k=>{AWK.tab=k;AWK.pending=null;sfx('click');refreshPanel();};
 PANEL_ACTS.awaken=uid=>{const found=gemList().find(x=>String(x.e.uid)===String(uid));if(!found)return;const e=found.e;if(!awCan(e)){refreshPanel();return;}
   const c=AW_COST[awTier(e)];for(const [id,n] of Object.entries(c.mats))takeItem(id,n);P.gold-=c.gold;
@@ -90,3 +99,5 @@ PANEL_ACTS.fusego=()=>{if(AWK.tray.length!==3||P.gold<FUSE_GOLD)return;const nee
 
 // show the awakened line wherever gear is described
 {const _idA=itemDesc;itemDesc=function(e){const d=_idA.apply(this,arguments);return e&&e.aw?`${d} · ✧ ${awText(e.aw)}`:d;};}
+// Thai labels for the Fuse tab's kind and sort buttons (v1.36.6)
+if(typeof TH!=='undefined')for(const [k,v] of [['Weapon','อาวุธ'],['Armor','เกราะ'],['Accessory','เครื่องประดับ'],['Level','เลเวล'],['Most','มากสุด'],['Sort','เรียง']])if(!TH[k])TH[k]=v;

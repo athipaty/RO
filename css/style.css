@@ -1495,3 +1495,19 @@ body.touchui #panel.npcsheet .btn{background:linear-gradient(180deg,#34477a,#1c2
 body.touchui #panel.npcsheet .btn:disabled{opacity:.55;border-color:#4a5a86;color:#aab4cc}
 body.touchui #panel.npcsheet .tbtns .btn:last-child:not(:disabled),body.touchui #panel.npcsheet .btn.primary{color:#2a1a04;background:linear-gradient(180deg,#ffe08a,#e0a83a);border-color:#fff0b8;box-shadow:0 2px 0 #6a4a10,0 0 10px rgba(255,200,90,.3)}
 body.touchui #panel.npcsheet .x{border-radius:50%!important}
+/* Sela's Fuse tab: pick a kind of sigil and how to sort them (js/awaken.js, v1.36.6) */
+#panel .sigsort{display:flex;flex-direction:column;gap:6px;margin:8px 0 4px}
+#panel .sigsort .chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+#panel .sigsort .btn.small{min-height:32px;padding:4px 12px;border-radius:16px}
+#panel .sigsort .btn.on{color:#2a1a04;background:linear-gradient(180deg,#ffe08a,#e0a83a);border-color:#fff0b8}
+#panel .sigsort .cnt{opacity:.7;font-size:11px;margin-left:2px}
+#panel .sigsort .muted{font-size:12px;margin-right:2px}
+/* the Bestiary at the Grand Library: a card with the monster's picture (a silhouette until recorded) (js/capital.js, v1.36.7) */
+#panel .bxlist{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+#panel .bxcard{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.045);border:1px solid rgba(160,180,230,.16)}
+#panel .bxcard.boss{border-color:rgba(232,90,90,.45)}
+#panel .bxpic{width:56px;height:56px;flex:none;border-radius:10px;background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.1),rgba(0,0,0,.2));border:1px solid rgba(201,162,74,.35)}
+#panel .bxcard.unseen .bxpic{filter:brightness(0) opacity(.45)}
+#panel .bxcard.unseen .nm{color:var(--muted)}
+#panel .bxcard .grow{min-width:0}#panel .bxcard .ds{line-height:1.35}
+#panel .bxboss{font-size:10px;font-weight:800;color:#ffb0a0;background:rgba(200,60,60,.25);border:1px solid rgba(232,90,90,.5);border-radius:6px;padding:0 5px;vertical-align:1px}
