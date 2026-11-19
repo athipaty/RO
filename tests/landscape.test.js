@@ -24,7 +24,7 @@ module.exports = async t => {
       L.querySelector('[data-open="skills"]').click(); const k = panelKind; closePanel();
       return { left: [...L.children].map(c => c.dataset.open || c.id).join(','), rest: [...q.querySelectorAll('.qk')].map(c => c.dataset.open).join(','), beside: r.right <= mb.left + 2 && r.top < 60, onLeft: lr.left <= h.left + 1 && lr.top > h.bottom, k }; });
     t.ok(quick.left === 'status,skills,equip,items,rideBtn' && quick.onLeft && quick.k === 'skills', `Stats, Skills, Equip, Items and Ride sit in a row on the left under the status box and open their windows (${quick.left})`);
-    t.ok(quick.rest === 'quests' && quick.beside, 'Quests stays beside the minimap');
+    t.ok(quick.rest === '', 'there is no Quests quick button any more (J, the menu and the quest tracker open quests)');
     const auto = await ev(() => { const a = document.getElementById('autoBtn').getBoundingClientRect(), atk = document.getElementById('atkBtn').getBoundingClientRect(); return { right: a.left > innerWidth * .7, above: a.bottom < atk.top }; });
     t.ok(auto.right && auto.above, 'Auto sits on the right, above the shortcuts');
     await wait(700);

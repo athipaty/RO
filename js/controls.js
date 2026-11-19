@@ -113,7 +113,7 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
 (()=>{if($('#quick'))return;const q=document.createElement('div');q.id='quick';q.setAttribute('role','toolbar');q.setAttribute('aria-label','Quick windows');
   const I={status:['Stats (C)','<path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/>'],skills:['Skills (K)','<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>'],
     equip:['Equipment','<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>'],
-    items:['Items (I)','<path d="M5.5 9h13l-1.2 11.5H6.7z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/>'],quests:['Quests (J)','<path d="M7 3h10v18l-5-3-5 3z"/><path d="M10 8h4M10 11h4"/>']};
+    items:['Items (I)','<path d="M5.5 9h13l-1.2 11.5H6.7z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/>']}; // v1.39.2 no Quests button here any more: J, the menu and the quest tracker open it
   for(const [k,[t,p]] of Object.entries(I)){const b=document.createElement('button');b.type='button';b.className='qk';b.dataset.open=k;b.setAttribute('aria-label',t);b.title=t;
     b.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;b.addEventListener('click',ev=>{ev.stopPropagation();if(!P||!running)return;sfx('click');togglePanel(k);});q.appendChild(b);}
   document.body.appendChild(q);
