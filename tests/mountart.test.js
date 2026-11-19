@@ -13,8 +13,8 @@ module.exports = async t => {
     t.ok(r.stride > 3 && r.still < .5, `the stride follows real movement and settles when you stop (${r.stride.toFixed(1)} vs ${r.still.toFixed(2)})`);
     t.ok(r.dust > 0, 'running kicks up dust');
     t.ok(r.icon > 1000, 'the stable shows the new artwork');
-    const b = await A.ev(async () => { enterZone('town'); let n = 0; const roles = new Set(); const o = dressBuilding; dressBuilding = bb => { n++; roles.add(bb.npc && bb.npc.role); return o(bb); }; await new Promise(r => setTimeout(r, 400)); dressBuilding = o; return { n, roles: [...roles].sort().join() }; });
-    t.ok(b.n > 3 && ['shop', 'smith', 'heal', 'warp', 'storage', 'job'].every(x => b.roles.includes(x)), 'every town building is dressed for its trade: ' + b.roles);
+    const b = await A.ev(async () => { enterZone('capital'); let n = 0; const roles = new Set(); const o = dressBuilding; dressBuilding = bb => { n++; roles.add(bb.npc && bb.npc.role); return o(bb); }; await new Promise(r => setTimeout(r, 400)); dressBuilding = o; return { n, roles: [...roles].sort().join() }; });
+    t.ok(b.n > 3 && ['shop', 'smith', 'heal', 'warp', 'storage', 'job'].every(x => b.roles.includes(x)), 'every capital building is dressed for its trade: ' + b.roles);
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));
   } finally { await A.close(); }
 };

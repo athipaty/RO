@@ -25,25 +25,33 @@ function getZone(id){
   const zone={id,D,w:W,h:H,t,portals:[],npcs:[],buildings:[],spawn:null};
   for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(x===0||y===0||x===W-1||y===H-1)set(x,y,obst);
   if(D.theme==='town'&&id==='capital'){
-    // #32 Aurelmark: four districts around a central plaza; the avenue runs east to Hearthvale
-    for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(x===1||y===1||x===W-2||y===H-2){if(r()<.7)set(x,y,2);}else if(x>2&&y>2&&x<W-3&&y<H-3)set(x,y,6);else if(r()<.15)set(x,y,7);}
-    // Noble Gardens (south-west): grass, flower beds and a pond instead of cobbles
-    for(let y=24;y<H-4;y++)for(let x=4;x<26;x++)set(x,y,r()<.18?7:0);
-    for(let y=33;y<37;y++)for(let x=14;x<20;x++)set(x,y,3);
-    for(let x=3;x<W;x++)for(const y of [20,21])set(x,y,1);for(let y=3;y<H-3;y++)for(const x of [27,28])set(x,y,1);
-    for(let y=19;y<=22;y++)for(let x=W-4;x<W;x++)set(x,y,1);
+    // v1.35.0 Aurelmark: four districts on green lawns, two broad paved avenues crossing at a round royal plaza with the
+    // great fountain in the middle; paved forecourts and walks to every door; flower hedges between district and avenue.
+    // Trees only on the far (north and west) edges, so nothing stands between the camera and the people.
+    const fill=(x0,y0,x1,y1,v)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)set(x,y,v);};
+    for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(x===1||y===1){if(r()<.7)set(x,y,2);}else if(x===W-2||y===H-2){}else set(x,y,r()<.05?7:0);}
+    for(let y=24;y<=38;y++)for(let x=3;x<=24;x++)if(r()<.12)set(x,y,7);          // Noble Gardens: more flowers
+    for(let y=3;y<=H-4;y++)for(let x=3;x<=W-4;x++)if(Math.hypot(x+.5-16.5,(y+.5-35)*1.3)<2.9)set(x,y,3); // the garden pond
+    for(let k=3;k<=W-4;k++){if(k<23||k>32){set(k,18,7);set(k,23,7);}}for(let k=3;k<=H-4;k++)if(k<16||k>25){set(25,k,7);set(30,k,7);} // hedges
+    fill(2,19,W-1,22,6);fill(26,2,29,H-3,6);                                     // the two avenues (the east one runs out of the gate)
+    for(let y=12;y<=30;y++)for(let x=19;x<=37;x++)if(Math.hypot(x+.5-28,y+.5-21)<7.2)set(x,y,6); // the royal plaza
     const B=[{x:5,y:5,w:8,h:5,name:'Aurel Market',roof:'#a8452e',npc:{name:'Merchant Tavi',role:'shop',col:'#c86a3a',hair:'#3a2a1a'}},
              {x:15,y:5,w:7,h:5,name:'Gemcutter',roof:'#5a3a8a',npc:{name:'Gemcutter Sela',role:'gemcut',col:'#7a5ac0',hair:'#e8e4f0'}},
              {x:33,y:4,w:10,h:6,name:'Grand Library',roof:'#2e4f6e',npc:{name:'Librarian Oren',role:'library',col:'#3b5a7a',hair:'#c8c8c8'}},
              {x:45,y:5,w:7,h:5,name:'Hall of Callings',roof:'#2e4f8e',npc:{name:'Mentor Ansel',role:'job',col:'#3b5ea8',hair:'#5a3a22'}},
              {x:14,y:25,w:8,h:5,name:'Royal Bank',roof:'#7a6a3a',npc:{name:'Banker Ivo',role:'storage',col:'#8a7a4a',hair:'#2b1d16'}},
-             {x:5,y:24,w:7,h:5,name:'Chapel of Dawn',roof:'#d8d0c0',npc:{name:'Sister Ada',role:'heal',col:'#efe7d6',hair:'#b8473a'}},
-             {x:34,y:27,w:8,h:5,name:'Grand Waystation',roof:'#3e7a4a',npc:{name:'Wayfarer Mira',role:'warp',col:'#4f8a4a',hair:'#d8b060'}},
-             {x:44,y:30,w:7,h:5,name:'Forge Royal',roof:'#5a4a42',npc:{name:'Smith Garrow',role:'smith',col:'#6a5040',hair:'#8a5a2b'}}];
-    for(const b of B){for(let y=b.y;y<b.y+b.h;y++)for(let x=b.x;x<b.x+b.w;x++)set(x,y,5);zone.buildings.push(b);
+             {x:4,y:25,w:7,h:5,name:'Chapel of Dawn',roof:'#d8d0c0',npc:{name:'Sister Ada',role:'heal',col:'#efe7d6',hair:'#b8473a'}},
+             {x:34,y:26,w:8,h:5,name:'Grand Waystation',roof:'#3e7a4a',npc:{name:'Wayfarer Mira',role:'warp',col:'#4f8a4a',hair:'#d8b060'}},
+             {x:44,y:26,w:7,h:5,name:'Forge Royal',roof:'#5a4a42',npc:{name:'Smith Garrow',role:'smith',col:'#6a5040',hair:'#8a5a2b'}}];
+    for(const b of B){const fy=b.y+b.h,cx=Math.floor(b.x+b.w/2);
+      fill(b.x,fy,b.x+b.w-1,fy+1,6);                                             // a paved forecourt along the front
+      if(fy<19)fill(cx-1,fy,cx,18,6);else fill(cx-1,23,cx,b.y-1,6);              // and a walk to the avenue
+      fill(b.x,b.y,b.x+b.w-1,fy-1,5);zone.buildings.push(b);
       zone.npcs.push({...b.npc,x:(b.x+b.w/2+NPC_BESIDE)*TILE,y:(b.y+b.h)*TILE+20});}
-    for(let y=14;y<18;y++)for(let x=25;x<31;x++)set(x,y,3); // the plaza pool around the great fountain
-    zone.npcs.push({name:'Seer Valen',role:'rebirth',col:'#e8c25a',hair:'#f4efe2',x:38.5*TILE,y:15*TILE});
+    // the great fountain stands in the middle of the plaza (drawn by capbldg.js; a building so it blocks and sorts right)
+    {const f={x:26,y:19,w:4,h:4,name:'',roof:'#cfc6b4',kind:'fountain'};fill(f.x,f.y,f.x+f.w-1,f.y+f.h-1,5);zone.buildings.push(f);}
+    zone.signs=[{x:23.4,y:16.4,name:'Market Row'},{x:32.6,y:16.4,name:"Scholars' Quarter"},{x:23.4,y:25.6,name:'Noble Gardens'},{x:32.6,y:25.6,name:'Grand Gate'}];
+    zone.npcs.push({name:'Seer Valen',role:'rebirth',col:'#e8c25a',hair:'#f4efe2',x:33.5*TILE,y:14.2*TILE});
     zone.portals.push({x:(W-2+.5)*TILE,y:21*TILE,to:'town',side:'east'});
     zone.spawn={x:(W-6)*TILE,y:21*TILE};
   } else if(D.theme==='town'){
@@ -173,7 +181,6 @@ function renderZone(z, r){
     if(kind==='rock')k=th2==='crypt'||th2==='arena'||th2==='keep'?'pillar':th2==='cave'?'rock':th2==='heights'?(R()<.35?'crag':'rock'):(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':th2==='farms'&&R()<.3?'hay':'tree';
     z.objs.push({x:px+16,y:py+16,kind:k,v:Math.floor(R()*3),sc:.85+R()*.3});}
   for(const b of z.buildings){mg.fillStyle=b.roof;mg.fillRect(b.x,b.y,b.w,b.h);}
-  if(z.id==='capital')z.objs.push({x:28*TILE,y:16*TILE,kind:'fountain',v:0,sc:1.5}); // Hearthvale's plaza is open, no fountain (v1.28.1)
   for(const s of z.signs||[])z.objs.push({x:s.x*TILE,y:s.y*TILE,kind:'dsign',name:s.name,v:0,sc:1});
   if(z.D.theme==='keep'){const [cx,cy]=KEEP_C;z.objs=z.objs.filter(o=>!(Math.abs(o.x-(cx*TILE+16))<1&&Math.abs(o.y-(cy*TILE+16))<1));z.objs.push({x:(cx+.5)*TILE,y:(cy+.5)*TILE,kind:'crystal',v:0,sc:1});}
   z.img=c; z.mini=mini;

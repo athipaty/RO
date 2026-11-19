@@ -64,7 +64,7 @@ function drawObj(o){
   const sp=sprite(Z.D.theme,o.kind,o.v),p=proj(o.x,o.y),w=sp.c.width*o.sc,h=sp.c.height*o.sc;
   ctx.drawImage(sp.c,p.x-sp.ax*o.sc,p.y-sp.ay*o.sc,w,h);}
 // v1.27.0 a district signpost in Hearthvale: a wooden post with a painted board and the district's name
-const DSIGN_TH={'Market Row':'ย่านตลาด',"Adventurers' Yard":'ลานนักผจญภัย','Chapel Close':'ย่านโบสถ์',"Travellers' Green":'ลานนักเดินทาง'};
+const DSIGN_TH={'Market Row':'ย่านตลาด',"Adventurers' Yard":'ลานนักผจญภัย','Chapel Close':'ย่านโบสถ์',"Travellers' Green":'ลานนักเดินทาง',"Scholars' Quarter":'ย่านปราชญ์','Noble Gardens':'สวนขุนนาง','Grand Gate':'ประตูใหญ่'};
 function drawDistrictSign(o){const p=proj(o.x,o.y),name=typeof LANG!=='undefined'&&LANG==='th'&&DSIGN_TH[o.name]||o.name;
   ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(p.x,p.y,10,4,0,0,7);ctx.fill();
   ctx.fillStyle='#6a4a2a';ctx.fillRect(p.x-3,p.y-44,6,44);ctx.fillStyle='#4a3220';ctx.fillRect(p.x+1,p.y-44,2,44);
