@@ -66,7 +66,7 @@ function drawRoyalMount(p,k){const L=MOUNT_LOOK[k],key=p===P?'me':(p.name||'?'),
   c.restore();c.restore();return (stag?31:24)-bob+10;}
 // draw the prestige mounts with their own art, and every mount a third bigger
 {const _dma=drawMountArt;drawMountArt=function(p,k){if(!(MOUNTS[k]&&MOUNTS[k].royal))return _dma.apply(this,arguments);
-  const key=p===P?'me':(p.name||'?');if(typeof heroDir4==='function'&&!String(key).startsWith('icon:')){const d=heroDir4(p);MART.turn.set(key,d===1||d===3?.5:-.5);}return drawRoyalMount(p,k);};}
+  const key=p===P?'me':(p.name||'?');if(!String(key).startsWith('icon:'))MART.turn.set(key,0);return drawRoyalMount(p,k);};}
 drawMount=function(p,k){if(!MOUNT_LOOK[k])return 0;const c=ctx;c.save();c.translate(p.x,p.y);c.scale(MOUNT_SCALE,MOUNT_SCALE);c.translate(-p.x,-p.y);
   let lift=0;try{lift=drawMountArt(p,k);}finally{c.restore();}return lift*MOUNT_SCALE;};
 // the trails, drawn on the ground pass with the dust

@@ -8,6 +8,6 @@ function heroDir4(p){const f=p&&p.face<0?-1:1,b=!!(p&&p.back);return b?(f>0?7:5)
 const _drawMountArt4=drawMountArt;
 drawMountArt=function(p,k){if(!MOUNT_LOOK[k])return 0;const key=p===P?'me':(p.name||'?');
   if(String(key).startsWith('icon:'))return _drawMountArt4(p,k);
-  const d=heroDir4(p);p._m8=d;MART.turn.set(key,d===1||d===3?.5:-.5);return _drawMountArt4(p,k);};
+  const d=heroDir4(p);p._m8=d;MART.turn.set(key,0);return _drawMountArt4(p,k);}; // v1.38.6 level: no nose-up or nose-down tilt under an upright rider
 // the turn comes from the hero's direction, not from the path
 mountTurn=function(key){return MART.turn.get(key)||0;};
