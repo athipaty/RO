@@ -1511,3 +1511,13 @@ body.touchui #panel.npcsheet .x{border-radius:50%!important}
 #panel .bxcard.unseen .nm{color:var(--muted)}
 #panel .bxcard .grow{min-width:0}#panel .bxcard .ds{line-height:1.35}
 #panel .bxboss{font-size:10px;font-weight:800;color:#ffb0a0;background:rgba(200,60,60,.25);border:1px solid rgba(232,90,90,.5);border-radius:6px;padding:0 5px;vertical-align:1px}
+/* Sela's fusion preview (js/awaken.js, v1.36.9) */
+#panel .fuseprev{margin:8px 0;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(201,162,74,.4)}
+#panel .fuseprev .fpt{font-weight:800;color:#ffe6a0;margin-bottom:4px}
+#panel .fuseprev .fpr{display:flex;justify-content:space-between;gap:8px;padding:2px 0;font-size:13px}
+#panel .fuseprev .fpr>span{color:var(--muted)}#panel .fuseprev .fprad{color:#ffd76a}
+#panel .fuseprev .fpmobs{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+#panel .fuseprev .fpmobs .ico{width:30px;height:30px}
+#panel .fuseprev .fpmobs{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}
+#panel .fuseprev .fpmobs figure{margin:0;text-align:center;font-size:10.5px;line-height:1.2}
+#panel .fuseprev .fpmobs img{width:44px;height:44px;border-radius:8px;background:rgba(0,0,0,.2);border:1px solid rgba(201,162,74,.3)}

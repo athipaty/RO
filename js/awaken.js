@@ -36,9 +36,13 @@ for(const id in ITEMS)if(!ITEMS[id].id)ITEMS[id].id=id;
   for(let i=0;i<8;i++){const a=i*Math.PI/4;g.beginPath();g.moveTo(16+Math.cos(a)*14,16+Math.sin(a)*14);g.lineTo(16+Math.cos(a)*16.5,16+Math.sin(a)*16.5);g.stroke();}g.restore();};}
 const sigMob=id=>MOBS[(ITEMS[id]&&ITEMS[id].base||id).replace(/_sig$/,'')];
 // fusion: three sigils -> one near their level; radiant odds 12% (+8% for each radiant you put in)
-function fuseResult(ins){const lv=ins.reduce((a,id)=>a+((sigMob(id)||{}).lv||10),0)/ins.length;
-  let pool=Object.values(MOBS).filter(m=>m.sig&&ITEMS[m.id+'_sig']&&m.lv>=lv-8&&m.lv<=lv+12);if(pool.length<3)pool=Object.values(MOBS).filter(m=>m.sig&&ITEMS[m.id+'_sig']);
-  const m=pool[Math.floor(Math.random()*pool.length)],rad=Math.random()<.12+.08*ins.filter(id=>ITEMS[id].radiant).length;return rad?radId(m.id+'_sig'):m.id+'_sig';}
+// v1.36.9: three sigils of the same kind (all weapon, all armor or all accessory) always give that kind back
+function fusePool(ins){const lv=ins.reduce((a,id)=>a+((sigMob(id)||{}).lv||10),0)/ins.length,kinds=new Set(ins.map(id=>ITEMS[id].kind)),kind=kinds.size===1?[...kinds][0]:null;
+  const base=Object.values(MOBS).filter(m=>m.sig&&ITEMS[m.id+'_sig']&&(!kind||m.sig.kind===kind));
+  let pool=base.filter(m=>m.lv>=lv-8&&m.lv<=lv+12);if(pool.length<3)pool=base.slice().sort((a,b)=>Math.abs(a.lv-lv)-Math.abs(b.lv-lv)).slice(0,Math.min(6,base.length));
+  return {lv,kind,pool,lo:Math.min(...pool.map(m=>m.lv)),hi:Math.max(...pool.map(m=>m.lv))};}
+const fuseRadChance=ins=>.12+.08*ins.filter(id=>ITEMS[id].radiant).length;
+function fuseResult(ins){const {pool}=fusePool(ins),m=pool[Math.floor(Math.random()*pool.length)],rad=Math.random()<fuseRadChance(ins);return rad?radId(m.id+'_sig'):m.id+'_sig';}
 const FUSE_GOLD=2000;
 const looseSigils=()=>P.inv.filter(e=>ITEMS[e.id]&&ITEMS[e.id].type==='sigil'&&e.n>0);
 const trayCount=id=>AWK.tray.filter(x=>x===id).length;
@@ -65,8 +69,17 @@ const trayCount=id=>AWK.tray.filter(x=>x===id).length;
   h+=`<div class="say">"Three sigils into one. The stone decides what it becomes, but now and then it comes out Radiant, and nobody else in Embervale can make those."</div>`+tabs;
   const loose=looseSigils();
   h+=`<div class="fusetray">`+[0,1,2].map(i=>{const id=AWK.tray[i];return id?`<button class="fuseslot full" data-act="fuseout" data-arg="${i}" title="${esc(ITEMS[id].name)}">${icon({id})}<span>${esc(ITEMS[id].name.replace(' Sigil',''))}</span></button>`:`<div class="fuseslot"><span class="muted">empty</span></div>`;}).join('')+`</div>`;
+  // the preview: what can come out of the three in the tray
+  if(AWK.tray.length===3){const fp=fusePool(AWK.tray),rc=Math.round(fuseRadChance(AWK.tray)*100);
+    h+=`<div class="fuseprev"><div class="fpt">What can come out</div>`+
+      `<div class="fpr"><span>Level</span><b>Lv ${fp.lo}–${fp.hi}</b></div>`+
+      `<div class="fpr"><span>Kind</span><b>${fp.kind?`${SIG_KN[fp.kind]||fp.kind} <span class="muted">(all three are ${(SIG_KN[fp.kind]||fp.kind).toLowerCase()})</span>`:`Any kind <span class="muted">(mix of kinds)</span>`}</b></div>`+
+      `<div class="fpr"><span>Radiant</span><b class="${rc>12?'fprad':''}">${rc}%</b></div>`+
+      `<div class="fpr"><span>Possible sigils</span><b>${fp.pool.length}</b></div>`+
+      `<div class="fpmobs">${fp.pool.slice().sort((a,b)=>a.lv-b.lv).map(m=>`<figure><img src="${typeof mobPicURL==='function'?mobPicURL(m.id):''}" alt="" loading="lazy"><figcaption>${esc(m.name)}<br><span class="muted">Lv ${m.lv}</span></figcaption></figure>`).join('')}</div></div>`;}
+  else h+=`<div class="sub">Add ${3-AWK.tray.length} more sigil${3-AWK.tray.length>1?'s':''}. Three of the same kind always give that kind back.</div>`;
   h+=`<div class="tbtns"><button class="btn small" data-act="fusego" ${AWK.tray.length===3&&P.gold>=FUSE_GOLD?'':'disabled'}>Fuse (${fmt(FUSE_GOLD)} gold)</button></div>`;
-  h+=`<div class="sub">Radiant chance 12%, +8% for each Radiant sigil you put in. The result is near the level of the three.</div>`;
+  h+=`<div class="sub">Radiant chance 12%, +8% for each Radiant sigil you put in. The result is near the level of the three; three of the same kind give that kind.</div>`;
   if(!loose.length)h+=`<p class="muted">No loose sigils in your bag. Monsters drop them now and then.</p>`;
   // v1.36.6: show only one kind (weapon, armor, accessory) and sort by level, name or how many you hold
   const kinds=[...new Set(loose.map(e=>ITEMS[e.id].kind))].sort();if(AWK.fk!=='all'&&!kinds.includes(AWK.fk))AWK.fk='all';
@@ -77,7 +90,7 @@ const trayCount=id=>AWK.tray.filter(x=>x===id).length;
   for(const e of shown){const it=ITEMS[e.id],left=e.n-trayCount(e.id);h+=`<div class="row">${icon({id:e.id})}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${esc(it.name)} <span class="muted">×${left}</span></div><div class="ds">${SIG_KN[it.kind]||it.kind} · Lv ${sigLv(e.id)} · ${esc(it.txt||(sigMob(e.id)?sigMob(e.id).sig.txt:''))}</div></div>`+
     `<button class="btn small" data-act="fusein" data-arg="${e.id}" ${left>0&&AWK.tray.length<3?'':'disabled'}>Add</button></div>`;}
   return h;};}
-const SIG_KN={weapon:'Weapon',armor:'Armor',accessory:'Accessory'};
+const SIG_KN={weapon:'Weapon',armor:'Armor',head:'Head',accessory:'Accessory'};
 PANEL_ACTS.fusekind=k=>{AWK.fk=k;sfx('click');refreshPanel();};
 PANEL_ACTS.fusesort=k=>{AWK.fs=k;sfx('click');refreshPanel();};
 PANEL_ACTS.gemtab=k=>{AWK.tab=k;AWK.pending=null;sfx('click');refreshPanel();};
@@ -101,3 +114,4 @@ PANEL_ACTS.fusego=()=>{if(AWK.tray.length!==3||P.gold<FUSE_GOLD)return;const nee
 {const _idA=itemDesc;itemDesc=function(e){const d=_idA.apply(this,arguments);return e&&e.aw?`${d} · ✧ ${awText(e.aw)}`:d;};}
 // Thai labels for the Fuse tab's kind and sort buttons (v1.36.6)
 if(typeof TH!=='undefined')for(const [k,v] of [['Weapon','อาวุธ'],['Armor','เกราะ'],['Accessory','เครื่องประดับ'],['Level','เลเวล'],['Most','มากสุด'],['Sort','เรียง']])if(!TH[k])TH[k]=v;
+if(typeof TH!=='undefined')for(const [k,v] of [['What can come out','ผลที่อาจได้'],['Kind','ชนิด'],['Radiant','เรเดียนต์'],['Possible sigils','ซิกิลที่เป็นไปได้'],['Any kind','ชนิดใดก็ได้'],['(mix of kinds)','(ผสมหลายชนิด)']])if(!TH[k])TH[k]=v;
