@@ -294,10 +294,14 @@ function tbChapel(b){const G=tbChapelGeo(b),{X0,Y0,X1,Y1,nx0,nx1,ny0,nyF,H,RH,tx
   // the door: arched, double, studded, with a stone step
   tbBox(nx0+W/2-20,nyF,nx0+W/2+20,nyF+6,0,4,'#c8c0b0','#b0a898','#d8d0c0');
   tbArchWin(F,W/2,13,0,22,'#6a4426');tbSeg(F(W/2,0),F(W/2,34),'#3a2410',1.6);for(const h of [8,18])for(const u of [-8,-4,4,8]){const p=F(W/2+u,h);c.fillStyle='#d8b060';c.fillRect(p.x-.8,p.y-.8,1.6,1.6);}
+  // the bell tower stands on a stone plinth with its shadow on the ground, joined to the nave by a low wall
+  poly([P(tx0,ty1+4),P(tx1+40,ty1+4),P(tx1+40,ty0+10),P(tx1,ty0-4)],'rgba(0,0,0,.22)');
+  tbBox(tx1,ty0+8,nx0,ty0+20,0,22,'#d8d0c0','#c0b8a8','#e2dccf');
+  tbBox(tx0-4,ty0-4,tx1+4,ty1+4,0,10,'#b8b0a0','#a09888','#c8c0b0');
   // the bell tower: a stone shaft, an open belfry (the bell is drawn live), a slate spire with a golden sun
-  tbBox(tx0,ty0,tx1,ty1,0,TH,wall,wallR);
+  tbBox(tx0,ty0,tx1,ty1,10,TH,wall,wallR);
   {const TF=tbF(tx0,ty1),TR=tbR(tx1,ty1),tw=tx1-tx0,td=ty1-ty0;for(const [S,L] of [[TF,tw],[TR,td]]){tbArchWin(S,L/2,5,30,48,'#3a5a8a');tbQuad(S,0,TH-4,L,TH,'#c8c0b0');}
-    tbArchWin(TF,tw/2,8,0,18,'#6a4426');
+    tbArchWin(TF,tw/2,8,10,26,'#6a4426');
     // the belfry: the back of the opening dark, then four corner piers
     poly([P(tx0,ty0,TH),P(tx1,ty0,TH),P(tx1,ty1,TH),P(tx0,ty1,TH)],'#2e2a26');
     tbBox(tx0,ty0,tx1,ty0+4,TH,TH+BH,'#3a3430','#3a3430');
@@ -319,7 +323,7 @@ function tbChapelLive(b){const G=tbChapelGeo(b),P=TB_P,c=ctx,t=now;c.save();
   for(const [x,y] of [[G.tx0,G.ty1-6],[G.tx1-6,G.ty0],[G.tx1-6,G.ty1-6]])tbBox(x,y,x+6,y+6,G.TH,G.TH+G.BH,'#f2ede2','#d4cdbe');
   // the healing water glows and sends up motes of light
   const w=P(G.well.x,G.well.y,12),pl=.6+Math.sin(t*2)*.15;
-  c.globalCompositeOperation='lighter';const g=c.createRadialGradient(w.x,w.y,2,w.x,w.y,46);g.addColorStop(0,`rgba(140,230,200,${.55*pl})`);g.addColorStop(1,'rgba(100,200,255,0)');c.fillStyle=g;c.beginPath();c.ellipse(w.x,w.y,46,30,0,0,7);c.fill();c.globalCompositeOperation='source-over';
+  c.globalCompositeOperation='lighter';const g=c.createRadialGradient(w.x,w.y,2,w.x,w.y,26);g.addColorStop(0,`rgba(140,230,200,${.45*pl})`);g.addColorStop(1,'rgba(100,200,255,0)');c.fillStyle=g;c.beginPath();c.ellipse(w.x,w.y,28,14,0,0,7);c.fill();c.globalCompositeOperation='source-over';
   tbDisc(w.x,w.y,15,7,'#7ad8d0');for(let k=0;k<2;k++){const ph=(t*.6+k/2)%1;c.strokeStyle=`rgba(255,255,255,${.7*(1-ph)})`;c.lineWidth=1;c.beginPath();c.ellipse(w.x,w.y,15*ph,7*ph,0,0,7);c.stroke();}
   for(let k=0;k<6;k++){const ph=(t*.35+k/6)%1,x=w.x+Math.sin(k*2.1+t*.8)*12;c.fillStyle=`rgba(220,255,240,${1-ph})`;c.beginPath();c.arc(x,w.y-ph*44,1.8,0,7);c.fill();}
   // a dove circling over the chapel
