@@ -24,7 +24,7 @@ function hurtMob(m,dmg,crit,kind){m.hitF=now;m.myDmg=(m.myDmg||0)+dmg;const clie
     // our hits finished it: stop swinging now instead of waiting for the server to say so
     if(left<=0&&!m.dying){m.dying=now;killFx(m);if(P.target===m){P.target=null;P.queued=null;}}}else{m.hp-=dmg;provoke(m);showHit(m,dmg);}
   if(crit){sfx('crit');hitStop(.09);shakeUntil=now+.2;fx.push({k:'critburst',x:m.x,y:m.y-m.d.size,t0:now,dur:.35});
-    texts.push({x:m.x,y:m.y-m.d.size-12,txt:fmt(dmg),col:'#fff2c0',size:26,t0:now,dur:1,burst:1});}
+    texts.push({x:m.x,y:m.y-m.d.size-12,txt:fmt(dmg),col:'#fff2c0',size:26,t0:now,dur:1,burst:1,vx:(Math.random()<.5?-1:1)*rnd(40,95),vy:rnd(105,175)});} // each crit flies off its own way (v1.35.2)
   // a hit that takes a bigger share of the monster's health shows a bigger, warmer number (v1.20.4)
   else{sfx(kind==='mag'?'zap':hitSound());const sh=m.d&&m.d.hp?dmg/m.d.hp:0;floatT(m.x,m.y-m.d.size-8,fmt(dmg),sh>.25?'#ffe6a0':'#ffffff',15+Math.min(9,Math.round(sh*36)));}
   if(!client&&m.hp<=0){hitStop(.05);killMob(m);}}

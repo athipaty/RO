@@ -212,7 +212,7 @@ function render(){
     if(P.bubble&&now<P.bubble.until)bubble(P.bubble.txt,P.x,P.y-58);
     if(P.emote&&now-P.emote.start<3)drawEmote(P.emote.k,P.x+20,P.y-52,now-P.emote.start);});
   for(const t of texts)at(t.x,t.y,()=>{const e=now-t.t0,a=e/t.dur;ctx.globalAlpha=a<.65?1:Math.max(0,1-(a-.65)/.35);
-    const pop=e<.1?1.8-8*e:1,x=t.x+(t.vx||0)*e,y=t.y-120*e+125*e*e;
+    const pop=e<.1?1.8-8*e:1,x=t.x+(t.vx||0)*e,y=t.y-(t.vy||120)*e+125*e*e;
     // each floating number is drawn once into a small picture and reused (outlined text every frame is slow)
     if(!t.img)t.img=floatImg(t.txt,t.col,t.size);const im=t.img;
     // critical hits (v1.21.6): a spiky gold-and-red starburst behind the number, turning slowly
