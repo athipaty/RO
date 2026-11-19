@@ -115,3 +115,6 @@ PANEL_ACTS.fusego=()=>{if(AWK.tray.length!==3||P.gold<FUSE_GOLD)return;const nee
 // Thai labels for the Fuse tab's kind and sort buttons (v1.36.6)
 if(typeof TH!=='undefined')for(const [k,v] of [['Weapon','อาวุธ'],['Armor','เกราะ'],['Accessory','เครื่องประดับ'],['Level','เลเวล'],['Most','มากสุด'],['Sort','เรียง']])if(!TH[k])TH[k]=v;
 if(typeof TH!=='undefined')for(const [k,v] of [['What can come out','ผลที่อาจได้'],['Kind','ชนิด'],['Radiant','เรเดียนต์'],['Possible sigils','ซิกิลที่เป็นไปได้'],['Any kind','ชนิดใดก็ได้'],['(mix of kinds)','(ผสมหลายชนิด)']])if(!TH[k])TH[k]=v;
+if(typeof TH!=='undefined'){for(const [k,v] of [['Radiant chance 12%, +8% for each Radiant sigil you put in. The result is near the level of the three; three of the same kind give that kind.','โอกาสเรเดียนต์ 12% และ +8% ต่อซิกิลเรเดียนต์ที่ใส่ ผลจะใกล้เลเวลของทั้งสาม ถ้าทั้งสามเป็นชนิดเดียวกันจะได้ชนิดนั้น'],['Head','หัว']])if(!TH[k])TH[k]=v;
+  if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^Add (\d) more sigils?\. Three of the same kind always give that kind back\.$/,'ใส่ซิกิลอีก $1 อัน ถ้าทั้งสามเป็นชนิดเดียวกันจะได้ชนิดนั้นเสมอ'],
+    [/^\(all three are (.+)\)$/,(m,a)=>`(ทั้งสามเป็น${{weapon:'อาวุธ',armor:'เกราะ',head:'หัว',accessory:'เครื่องประดับ'}[a]||a})`]);}

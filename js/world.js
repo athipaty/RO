@@ -50,6 +50,20 @@ function getZone(id){
     {const f={x:26,y:19,w:4,h:4,name:'',roof:'#cfc6b4',kind:'fountain'};fill(f.x,f.y,f.x+f.w-1,f.y+f.h-1,5);zone.buildings.push(f);}
     zone.signs=[{x:23.4,y:16.4,name:'Market Row'},{x:32.6,y:16.4,name:"Scholars' Quarter"},{x:23.4,y:25.6,name:'Noble Gardens'},{x:32.6,y:25.6,name:'Grand Gate'}];
     zone.npcs.push({name:'Seer Valen',role:'rebirth',col:'#e8c25a',hair:'#f4efe2',x:33.5*TILE,y:14.2*TILE});
+    // v1.37.1 the city wall instead of the ring of trees: a tall crenellated wall with watchtowers on the far (north and
+    // west) sides, a low parapet on the near (south and east) sides so it never hides anyone, and the east gate's two
+    // towers either side of the road to Hearthvale. Drawn in sections by capbldg.js (only those on screen).
+    for(let x=0;x<W;x++){set(x,0,5);set(x,1,5);set(x,H-1,5);}for(let y=0;y<H;y++){set(0,y,5);set(1,y,5);if(y<19||y>22)set(W-1,y,5);}
+    for(let y=2;y<H-1;y++)if(get(2,y)===2)set(2,y,0);for(let x=2;x<W-1;x++)if(get(x,2)===2)set(x,2,0);
+    fill(W-2,17,W-1,18,5);fill(W-2,23,W-1,24,5);
+    const wall=(x,y,w,h,side,tower)=>zone.buildings.push({x,y,w,h,name:'',roof:'#c8c0b0',kind:'wall',side,tower});
+    for(let x=0;x<W;x+=8)wall(x,0,Math.min(8,W-x),2,'n',x%16===0);
+    zone.buildings[zone.buildings.length-1].towerEnd=1;                                  // the north-east corner tower
+    for(let y=2;y<H;y+=8)wall(0,y,2,Math.min(8,H-y),'w',y>2&&(y-2)%16===0);
+    zone.buildings[zone.buildings.length-1].towerEnd=1;                                  // the south-west corner tower
+    for(let x=2;x<W;x+=8)wall(x,H-1,Math.min(8,W-x),1,'s',false);
+    for(const [y0,y1] of [[2,17],[25,H-1]])for(let y=y0;y<y1;y+=8)wall(W-1,y,1,Math.min(8,y1-y),'e',false);
+    for(const y of [17,23])zone.buildings.push({x:W-2,y,w:2,h:2,name:'',roof:'#c8c0b0',kind:'gatetower',up:y<20});
     zone.portals.push({x:(W-2+.5)*TILE,y:21*TILE,to:'town',side:'east'});
     zone.spawn={x:(W-6)*TILE,y:21*TILE};
   } else if(D.theme==='town'){

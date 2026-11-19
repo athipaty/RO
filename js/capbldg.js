@@ -440,16 +440,73 @@ function cbPalaceLive(b){const G=cbPalGeo(b),P=TB_P,c=ctx,t=now;c.save();
 const cbPalaceLights=b=>{const G=cbPalGeo(b),out=[];for(const u of [24,50,G.W-50,G.W-24])for(const h of [23,63])out.push([G.bx0+u,G.byF,h]);
   for(const u of [.25,.5,.75])out.push([G.bx1,G.byF-G.D*u,63]);for(const t of G.tw.slice(0,2))out.push([t.x,t.y+t.r,82]);out.push([G.xc,G.gate.y1,20,1]);for(const r of G.br)out.push([r.x,r.y,34]);return tbLit(out);};
 
+/* ---------------- the city wall (v1.37.1) ---------------- */
+// far sides (north, west): a tall wall of pale dressed stone with a walk and merlons along the city side, arrow slits,
+// round watchtowers with blue cones and pennants. Near sides (south, east): a knee-high parapet with gold-capped posts.
+// The wall is long, so it is not cached: each section is drawn only when it is on screen.
+const CB_WALL={stone:'#e4dccb',stoneR:'#c4baa6',top:'#d2c9b6',gold:'#e8c25a',roof:'#2a4a8a'};
+function cbOnScreen(b,up){const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,ps=[proj(X0,Y0),proj(X1,Y0),proj(X1,Y1),proj(X0,Y1)];
+  const x0=Math.min(...ps.map(p=>p.x)),x1=Math.max(...ps.map(p=>p.x)),y0=Math.min(...ps.map(p=>p.y))-(up||0),y1=Math.max(...ps.map(p=>p.y));
+  return x1>camX-60&&x0<camX+VW+60&&y1>camY-60&&y0<camY+VH+60;}
+function cbWallTower(x,y,r,h){const W=CB_WALL;cbConeTower({x,y,r,h},W.stone,W.stoneR,W.roof,W.gold);}
+function cbWall(b){const W=CB_WALL,P=TB_P,c=ctx,X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE;
+  if(b.side==='n'||b.side==='w'){const H=74,n=b.side==='n';
+    // the wall: n runs along x with its face to +y; w runs along y with its face to +x
+    const a0=n?X0:Y0,a1=n?X1:Y1,f=n?Y0+50:X0+50,bk=n?Y0+10:X0+10;
+    const pt=(u,d,h)=>n?P(u,d,h):P(d,u,h); // u along the wall, d across it
+    if(n)poly([pt(a0,f,0),pt(a1,f,0),pt(a1,f,H),pt(a0,f,H)],W.stone,TB_OL);else poly([pt(a0,f,0),pt(a1,f,0),pt(a1,f,H),pt(a0,f,H)],W.stoneR,TB_OL);
+    poly([pt(a0,bk,H),pt(a1,bk,H),pt(a1,f,H),pt(a0,f,H)],W.top,TB_OL);
+    c.globalAlpha=.28;for(let h=12;h<H;h+=12)tbSeg(pt(a0,f,h),pt(a1,f,h),'#8a8070',.8);
+    for(let h=0;h<H;h+=12)for(let u=a0+((h/12)%2)*14+7;u<a1;u+=28)tbSeg(pt(u,f,h),pt(u,f,h+12),'#8a8070',.8);c.globalAlpha=1;
+    poly([pt(a0,f,0),pt(a1,f,0),pt(a1,f,8),pt(a0,f,8)],'#b8ae9a',null);
+    // arrow slits and a gold band under the walk
+    for(let u=a0+18;u<a1-8;u+=40){const p=pt(u,f,40);c.fillStyle='#2a2620';c.fillRect(p.x-1.6,p.y-12,3.2,12);}
+    poly([pt(a0,f,H-6),pt(a1,f,H-6),pt(a1,f,H-3),pt(a0,f,H-3)],W.gold,null);
+    // merlons on the city side
+    for(let u=a0;u<a1-4;u+=14){const m0=u,m1=u+8;if(n)tbBox(m0,f-6,m1,f,H,H+10,W.stone,W.stoneR,W.top);else tbBox(f-6,m0,f,m1,H,H+10,W.stone,W.stoneR,W.top);}
+    if(b.tower)cbWallTower(n?X0:X0+30,n?Y0+30:Y0,26,112);
+    if(b.towerEnd)cbWallTower(n?X1-6:X0+30,n?Y0+30:Y1-6,30,124);
+    if(n&&b.x===0)cbWallTower(X0+30,Y0+30,32,128); // the north-west corner
+  }else{const H=20,n=b.side==='s';const a0=n?X0:Y0,a1=n?X1:Y1,f=n?Y0+22:X0+22,bk=n?Y0+8:X0+8,pt=(u,d,h)=>n?P(u,d,h):P(d,u,h);
+    poly([pt(a0,f,0),pt(a1,f,0),pt(a1,f,H),pt(a0,f,H)],n?W.stone:W.stoneR,TB_OL);poly([pt(a0,bk,H),pt(a1,bk,H),pt(a1,f,H),pt(a0,f,H)],W.top,TB_OL);
+    c.globalAlpha=.28;tbSeg(pt(a0,f,10),pt(a1,f,10),'#8a8070',.8);c.globalAlpha=1;
+    // posts with gold caps every four tiles
+    for(let u=a0;u<=a1;u+=TILE*4){const x=n?u:(X0+15),y=n?(Y0+15):u;tbBox(x-6,y-6,x+6,y+6,0,30,W.stone,W.stoneR,W.top);const p=P(x,y,30);c.fillStyle=W.gold;c.strokeStyle='#8a6a1a';c.lineWidth=1;c.beginPath();c.arc(p.x,p.y-3,3.4,0,7);c.fill();c.stroke();}}
+}
+function cbWallDraw(b){if(!cbOnScreen(b,b.side==='n'||b.side==='w'?220:60))return;cbWall(b);
+  // pennants on the watchtowers
+  const t=now,c=ctx,pen=(x,y,h,i)=>{const top=TB_P(x,y,h),px=top.x,py=top.y-16,ph=t*4+i;c.fillStyle='#a8283a';c.strokeStyle='#3a1a10';c.lineWidth=.8;c.beginPath();c.moveTo(px,py);
+    for(let k=1;k<=5;k++){const u=k/5;c.lineTo(px+u*15,py+2.4*u+Math.sin(ph-u*3)*2*u);}for(let k=5;k>=0;k--){const u=k/5;c.lineTo(px+u*15,py+7-2.4*u+Math.sin(ph-u*3)*2*u);}c.closePath();c.fill();c.stroke();};
+  const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,n=b.side==='n';
+  if(b.tower)pen(n?X0:X0+30,n?Y0+30:Y0,112+26*2.4,b.x+b.y);if(b.towerEnd)pen(n?X1-6:X0+30,n?Y0+30:Y1-6,124+30*2.4,b.x+b.y+1);if(n&&b.x===0)pen(X0+30,Y0+30,128+32*2.4,0);}
+// the east gate: two square towers either side of the road, blue pyramid roofs, a long banner and a torch each
+function cbGateTower(b){const W=CB_WALL,P=TB_P,c=ctx,X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,x0=X0+6,x1=X1-6,y0=Y0+6,y1=Y1-6,H=104;
+  tbBox(x0,y0,x1,y1,0,H,W.stone,W.stoneR);const F=tbF(x0,y1),R=tbR(x1,y1),L=x1-x0,D=y1-y0;
+  for(const [S,l] of [[F,L],[R,D]]){c.globalAlpha=.28;for(let h=12;h<H;h+=12)tbSeg(S(0,h),S(l,h),'#8a8070',.8);c.globalAlpha=1;tbQuad(S,0,0,l,8,'#b8ae9a',null);tbQuad(S,0,H-8,l,H-4,W.gold,'#8a6a1a');}
+  for(const hh of [40,72]){const p=F(L/2,hh);c.fillStyle='#22344a';c.beginPath();c.roundRect(p.x-3.5,p.y-14,7,14,[3.5,3.5,0,0]);c.fill();}
+  // the side that faces the road carries a long crimson banner with the crown
+  const S=b.up?F:F;{const u=L/2,top=H-12;poly([S(u-8,top),S(u+8,top),S(u+8,24),S(u,18),S(u-8,24)],'#a8283a','#5a1018');
+    const p=S(u,top-14);c.fillStyle=W.gold;c.beginPath();c.moveTo(p.x-4,p.y+2);c.lineTo(p.x-5,p.y-4);c.lineTo(p.x-2,p.y-1);c.lineTo(p.x,p.y-5);c.lineTo(p.x+2,p.y-1);c.lineTo(p.x+5,p.y-4);c.lineTo(p.x+4,p.y+2);c.closePath();c.fill();}
+  const ap=P((x0+x1)/2,(y0+y1)/2,H+42);poly([P(x0-4,y1+4,H),P(x1+4,y1+4,H),ap],W.roof,TB_OL);poly([P(x1+4,y1+4,H),P(x1+4,y0-4,H),ap],shade(W.roof,-25),TB_OL);
+  c.fillStyle=W.gold;c.beginPath();c.arc(ap.x,ap.y-3,3,0,7);c.fill();}
+function cbGateLive(b){const P=TB_P,c=ctx,t=now,X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE;
+  // a torch on the road side
+  const p=P(X0+18,b.up?Y1:Y0+10,58);tbSeg({x:p.x,y:p.y+10},p,'#5a3a1c',2.4);
+  for(let k=0;k<4;k++){const ph=(t*2+k*.25)%1;c.globalAlpha=1-ph;c.fillStyle=k%2?'#ffd060':'#ff7a2a';c.beginPath();c.ellipse(p.x+Math.sin(t*6+k)*2*(1-ph),p.y-2-ph*12,3.5-ph*2,5.5-ph*3,0,0,7);c.fill();}c.globalAlpha=1;}
+
 const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   gemcut:{body:cbGemcut,live:cbGemcutLive,signAt:b=>{const G=cbGemGeo(b);return[{name:b.name,x:(G.bx0+44)/TILE,w:0,y:(G.byF+12)/TILE,h:0},40];},lights:cbGemcutLights},
   library:{body:cbLib,live:cbLibLive,signAt:b=>{const G=cbLibGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:(G.byF+G.po.d+2)/TILE,h:0},G.po.h+9];},lights:cbLibLights},
   smith:{body:cbForge,live:cbForgeLive,signAt:b=>{const G=cbForgeGeo(b);return[{name:b.name,x:(G.bx0+G.W/2)/TILE,w:0,y:G.byF/TILE,h:0},G.H-4];},lights:cbForgeLights},
   palace:{body:cbPalace,live:cbPalaceLive,signAt:b=>{const G=cbPalGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.gate.y1/TILE,h:0},58];},lights:cbPalaceLights},
+  wall:{draw:cbWallDraw,lights:()=>[]},
+  gatetower:{body:cbGateTower,live:cbGateLive,lights:b=>tbLit([[b.x*TILE+18,b.up?(b.y+b.h)*TILE:b.y*TILE+10,58]])},
   shop:{body:cbMarket,live:cbMarketLive,signAt:b=>{const G=cbMarketGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.byF/TILE,h:0},G.H1+20];},lights:cbMarketLights}};
 // take over the drawing of the capital's pieces that have a design of their own
 {const _prev=drawBuilding;
   drawBuilding=function(b){const T=typeof zoneId!=='undefined'&&zoneId==='capital'&&CAP_BLD[b.kind||(b.npc&&b.npc.role)];if(!T)return _prev.apply(this,arguments);
     if(T.lights&&!b._cbl){b._nl=T.lights(b);b._cbl=1;}
+    if(T.draw){T.draw(b);return;} // drawn straight to the screen, not cached (the long city wall)
     if(!bldCacheBlit(b,()=>T.body(b)))T.body(b);
     if(T.live)try{T.live(b);}catch(e){}
     if(b.name)try{const sa=T.signAt?T.signAt(b):[b,T.sign||54];drawSign(sa[0],sa[1]);}catch(e){}};}

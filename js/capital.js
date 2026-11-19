@@ -70,3 +70,6 @@ PANEL_ACTS.bxsort=v=>{const st=bxState();st.bsort=v;if(typeof saveCodex==='funct
 if(typeof TH!=='undefined')for(const [k,v] of [['Type','ประเภท'],['Size','ขนาด'],['Element','ธาตุ'],['Show','แสดง'],['Recorded','บันทึกแล้ว'],['Not yet','ยังไม่บันทึก'],['Most defeated','ล้มมากสุด'],
   ['No monsters match. Try another type, size or element.','ไม่มีมอนสเตอร์ที่ตรงกัน ลองเลือกประเภท ขนาด หรือธาตุอื่น']])if(!TH[k])TH[k]=v;
 PANEL_ACTS.libinfo=id=>{if(MOBS[id])openPanel('mob',id);};
+// Thai for the Bestiary's type, size and element names
+if(typeof TH!=='undefined')for(const [k,v] of [['Beast','สัตว์'],['Insect','แมลง'],['Plant','พืช'],['Spirit','วิญญาณ'],['Undead','อันเดด'],['Fiend','ปีศาจ'],['Construct','หุ่นศิลา'],['Dragon','มังกร'],['Human','มนุษย์'],
+  ['Small','เล็ก'],['Medium','กลาง'],['Large','ใหญ่'],['Neutral','ไร้ธาตุ'],['Fire','ไฟ'],['Water','น้ำ'],['Wind','ลม'],['Earth','ดิน'],['Shadow','มืด'],['Holy','ศักดิ์สิทธิ์'],['Ghost','ผี'],['Poison','พิษ']])if(!TH[k])TH[k]=v;
