@@ -1464,3 +1464,34 @@ body.touchui #panel.npcsheet h2{padding-right:52px;font-size:22px}
 body.touchui #panel.npcsheet .x{position:absolute;top:10px;right:max(12px,env(safe-area-inset-right));width:40px;height:40px;min-height:40px;padding:0!important;border-radius:50%}
 body.touchui #panel.npcsheet .row{padding:9px 0}
 body.touchui #panel.npcsheet .btn.small{min-height:36px;padding:6px 12px}
+/* ===== phones: the dialogue box wears the same royal blue and gold as the game's other windows (v1.36.2) ===== */
+body.touchui #panel.npcsheet{background:
+    radial-gradient(ellipse at 50% -10%,rgba(255,207,90,.18),transparent 55%),
+    repeating-linear-gradient(45deg,rgba(255,255,255,.018) 0 2px,transparent 2px 14px),
+    repeating-linear-gradient(-45deg,rgba(255,255,255,.018) 0 2px,transparent 2px 14px),
+    linear-gradient(180deg,#22325a 0%,#172546 45%,#0f1a33 100%)!important;
+  border-top:3px solid #c9a24a!important;
+  box-shadow:inset 0 2px 0 #6a5020,inset 0 3px 0 rgba(255,240,190,.25),inset 0 0 40px rgba(0,0,0,.4),0 -10px 30px rgba(0,0,0,.5)!important}
+/* a gold ornament on the top edge, in the middle */
+body.touchui #panel.npcsheet::before{content:'';position:sticky;display:block;top:-8px;width:72px;height:6px;margin:-6px auto 6px!important;border-radius:0 0 6px 6px;
+  background:linear-gradient(180deg,#ffe08a,#c9a24a);box-shadow:0 1px 0 #6a5020;z-index:2}
+body.touchui #panel.npcsheet h2{color:#ffe6a0;text-shadow:0 2px 0 #3a2a0a,0 0 12px rgba(255,200,90,.35);letter-spacing:.3px}
+body.touchui #panel.npcsheet h3{color:#f0cf7a;border-bottom:1px solid rgba(201,162,74,.35);padding-bottom:3px}
+body.touchui #panel.npcsheet .x{background:radial-gradient(circle at 35% 30%,#3a4a72,#141d36 70%)!important;border:2px solid #c9a24a!important;color:#ffe6a0!important;box-shadow:0 0 0 1px #000,0 4px 10px rgba(0,0,0,.5)}
+/* the speaker's portrait in a gold ring */
+body.touchui #panel.npcsheet #talkCv{border:2px solid #c9a24a;box-shadow:0 0 0 2px #0a1020,0 0 14px rgba(255,200,90,.3);background:radial-gradient(circle at 50% 35%,#3a4a72,#141d36 75%)}
+/* what they say sits on a soft parchment-tinted panel with a gold edge, so it reads as speech */
+body.touchui #panel.npcsheet .say{background:linear-gradient(180deg,rgba(255,240,200,.07),rgba(255,240,200,.03));border:1px solid rgba(201,162,74,.28);border-left:3px solid #c9a24a;
+  border-radius:4px 12px 12px 12px;padding:9px 12px;color:#f0e6cc;font-size:15px;line-height:1.5}
+/* rows are soft blue cards, like the Equipment slots */
+body.touchui #panel.npcsheet .row{background:rgba(255,255,255,.045);border:1px solid rgba(160,180,230,.16);border-radius:10px;padding:9px 10px;margin:6px 0}
+body.touchui #panel.npcsheet .row+.row{border-top:1px solid rgba(160,180,230,.16)}
+/* the quest choices and buttons in the dialogue box match: blue cards with a gold edge, gold buttons for the main action */
+body.touchui #panel.npcsheet .tq{background:linear-gradient(180deg,#2a3b66,#1a2850);border:1.5px solid rgba(201,162,74,.55);border-radius:10px;padding:10px 12px;min-height:46px;box-shadow:0 2px 0 #0a1020;color:#f4ecd6;font-weight:600}
+body.touchui #panel.npcsheet .tq:active{transform:translateY(1px)}
+body.touchui #panel.npcsheet .tq.ready{border-color:#ffe08a;box-shadow:0 2px 0 #0a1020,0 0 12px rgba(255,200,90,.35)}
+body.touchui #panel.npcsheet .qbox{background:rgba(255,255,255,.045);border:1px solid rgba(160,180,230,.18);border-radius:10px;padding:8px 10px}
+body.touchui #panel.npcsheet .btn{background:linear-gradient(180deg,#34477a,#1c2a52);border:1.5px solid #c9a24a;border-radius:10px;color:#ffe6a0;box-shadow:0 2px 0 #0a1020}
+body.touchui #panel.npcsheet .btn:disabled{opacity:.55;border-color:#4a5a86;color:#aab4cc}
+body.touchui #panel.npcsheet .tbtns .btn:last-child:not(:disabled),body.touchui #panel.npcsheet .btn.primary{color:#2a1a04;background:linear-gradient(180deg,#ffe08a,#e0a83a);border-color:#fff0b8;box-shadow:0 2px 0 #6a4a10,0 0 10px rgba(255,200,90,.3)}
+body.touchui #panel.npcsheet .x{border-radius:50%!important}
