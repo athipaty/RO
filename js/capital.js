@@ -12,7 +12,7 @@ if(!ZONE_ORDER.includes('capital'))ZONE_ORDER.push('capital');
 if(typeof WORLD_ROAD!=='undefined'&&!WORLD_ROAD.includes('capital'))WORLD_ROAD.unshift('capital');
 const DISTRICTS=[{name:'Market Row',sub:'Shops and the Gemcutter',x0:3,y0:3,x1:26,y1:19},
   {name:"Scholars' Quarter",sub:'The Grand Library',x0:29,y0:3,x1:53,y1:19},
-  {name:'Noble Gardens',sub:'The royal garden and the Hall of Awakening',x0:3,y0:22,x1:26,y1:39},
+  {name:'Noble Gardens',sub:'The Hall of Awakening and the Sigil Forge',x0:3,y0:22,x1:26,y1:39},
   {name:'Grand Gate',sub:'The Forge Royal and the road east to Hearthvale',x0:29,y0:22,x1:53,y1:39}];
 let districtNow=null;
 function districtAt(x,y){const tx=x/TILE,ty=y/TILE;return DISTRICTS.find(d=>tx>=d.x0&&tx<=d.x1&&ty>=d.y0&&ty<=d.y1)||null;}

@@ -611,45 +611,72 @@ const cbAwakenLights=b=>{const G=cbAwGeo(b);return tbLit([[G.cx,G.cy,46],...G.br
 // an arcane workshop of dark stone under a teal roof: a round window with a glowing star sigil, racks of sigil moulds,
 // a chimney throwing coloured sparks; out front a crucible bubbles over blue fire with three sigils floating over
 // pedestals around it, each sending its light into the pot (three in, one out)
-const cbSfGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,bx0=X0+62,bx1=X1-10,by0=Y0+10,byF=Y1-58;
-  return{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W:bx1-bx0,D:byF-by0,H:64,RH:34,pot:{x:X0+38,y:Y1-40},ch:{x:bx1-26,y:by0+18}};};
+const cbSfGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,bx0=X0+66,bx1=X1-34,by0=Y0+12,byF=Y1-60;
+  return{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W:bx1-bx0,D:byF-by0,H:70,RH:36,pot:{x:X0+36,y:Y1-42},tw:{x:X1-22,y:Y0+40,r:20,h:142}};};
 const CB_SIGC=['#ff7a5a','#5ab0ff','#7ae07a'];
 function cbSigil(x,y,r,col){const c=ctx;c.fillStyle='#2a2440';c.strokeStyle=col;c.lineWidth=1.6;c.beginPath();c.arc(x,y,r,0,7);c.fill();c.stroke();
   c.fillStyle=col;c.beginPath();for(let k=0;k<10;k++){const a=k*Math.PI/5-Math.PI/2,rr=k%2?r*.35:r*.75;c.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);}c.closePath();c.fill();}
-function cbSigilForge(b){const G=cbSfGeo(b),{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W,D,H,RH,pot,ch}=G,P=TB_P,c=ctx;const stone='#7a7488',stoneR='#5e586c',roof=b.roof||'#2e6e6a',gold='#e8c25a';
-  poly([P(bx0,Y1),P(X1+22,Y1),P(X1+22,Y0+22),P(bx1,Y0)],'rgba(0,0,0,.2)');
-  // the chimney
-  tbBox(ch.x-10,ch.y-10,ch.x+10,ch.y+10,0,H+RH+30,'#5a5468','#48425a','#3a3448');
+// v1.38.5 the forge made grander: an arcane tower with sigils orbiting its top, buttresses and a glowing rune band,
+// a tall gold-framed door with pulsing runes, two sigil banners, the crucible on a stepped dais inside a rune circle,
+// three obelisk pedestals, and a copper pipe carrying light from the workshop to the crucible
+function cbSigilForge(b){const G=cbSfGeo(b),{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W,D,H,RH,pot,tw}=G,P=TB_P,c=ctx;
+  const stone='#6e6880',stoneR='#544e66',trim='#8a84a0',roof=b.roof||'#2e6e6a',gold='#e8c25a',rune='#5ae0d0';
+  poly([P(bx0-20,Y1),P(X1+22,Y1),P(X1+22,Y0+22),P(bx1,Y0)],'rgba(0,0,0,.2)');
+  // the arcane tower behind the workshop's right end
+  {const {x,y,r,h}=tw;cbCyl(x,y,r,0,h,stoneR,null);poly([...cbRing(x,y,r,h,Math.PI*.35,Math.PI*.75,10),...cbRing(x,y,r,0,Math.PI*.75,Math.PI*.35,10)],stone,null);
+    c.globalAlpha=.3;for(let k=12;k<h;k+=12)poly(cbRing(x,y,r,k,-Math.PI/4,Math.PI*.75,16),null,'#2a2638');c.globalAlpha=1;
+    for(const hh of [56,104])poly(cbRing(x,y,r,hh,-Math.PI/4,Math.PI*.75,16),null,rune);
+    for(const hh of [74,120]){const a=Math.PI*.45,p=TB_P(x+Math.cos(a)*r,y+Math.sin(a)*r,hh);c.fillStyle='#1a1428';c.beginPath();c.roundRect(p.x-3,p.y-12,6,12,[3,3,0,0]);c.fill();c.strokeStyle=gold;c.lineWidth=1;c.stroke();}
+    cbCyl(x,y,r+4,h-4,h+2,trim,'#3a3448');const ap=TB_P(x,y,h+52);poly([...cbRing(x,y,r+6,h+2,-Math.PI/4,Math.PI*.75,16),ap],roof,shade(roof,-45));
+    poly([...cbRing(x,y,r+6,h+2,Math.PI*.4,Math.PI*.75,8),ap],shade(roof,25),null);c.fillStyle=gold;c.beginPath();for(let k=0;k<8;k++){const a=k*Math.PI/4-Math.PI/2,rr=k%2?2.5:6;c.lineTo(ap.x+Math.cos(a)*rr,ap.y-6+Math.sin(a)*rr);}c.closePath();c.fill();}
+  // the workshop: dark stone, a glowing rune band
   tbBox(bx0,by0,bx1,byF,0,H,stone,stoneR);const F=tbF(bx0,byF),R=tbR(bx1,byF);
-  for(const [S,L] of [[F,W],[R,D]]){c.globalAlpha=.35;for(let h=10;h<H;h+=10){tbSeg(S(0,h),S(L,h),'#3a3448',.8);for(let u=((h/10)%2)*10+5;u<L;u+=20)tbSeg(S(u,h-10),S(u,h),'#3a3448',.8);}c.globalAlpha=1;tbQuad(S,0,0,L,6,'#4a4458');}
-  // the round window with a star sigil (it glows, live); racks of sigil moulds either side of the door
-  {const p=F(W*.5,46);tbDisc(p.x,p.y,13,13,'#1a1428',gold);}
-  for(const u0 of [10,W-34]){tbQuad(F,u0,18,u0+24,40,'#5a3a1c');for(const [du,h] of [[6,34],[18,34],[6,24],[18,24]]){const p=F(u0+du,h);cbSigil(p.x,p.y,3.6,CB_SIGC[(du+h)%3]);}}
-  {const u=W*.5;tbQuad(F,u-11,0,u+11,30,'#3a2a3a');cbArch(F,u-11,u+11,0,24,'#4a3048');tbSeg(F(u,0),F(u,30),'#2a1a2a',1.2);}
-  for(const u of [D*.3,D*.7]){const p=R(u,40);c.fillStyle='#1a1428';c.beginPath();c.arc(p.x,p.y-4,5,0,7);c.fill();c.strokeStyle=gold;c.lineWidth=1.2;c.stroke();}
+  for(const [S,L] of [[F,W],[R,D]]){c.globalAlpha=.35;for(let h=10;h<H;h+=10){tbSeg(S(0,h),S(L,h),'#2a2638',.8);for(let u=((h/10)%2)*10+5;u<L;u+=20)tbSeg(S(u,h-10),S(u,h),'#2a2638',.8);}c.globalAlpha=1;
+    tbQuad(S,0,0,L,7,'#4a4458');tbQuad(S,0,50,L,53,rune,null);tbQuad(S,0,H-6,L,H,trim);}
+  // buttresses down the front
+  for(const u of [0,W*.5-26,W*.5+22,W-4]){const x=bx0+u;tbBox(x-2,byF,x+6,byF+8,0,H-14,trim,stoneR,'#9a94b0');}
+  // the tall arched door in a gold frame
+  {const u=W*.5;cbArch(F,u-16,u+16,0,34,'#2a2a3a');cbArch(F,u-13,u+13,0,32,'#4a3048');tbSeg(F(u,0),F(u,46),'#2a1a2a',1.4);cbArch(F,u-16,u+16,0,34,null,gold);
+    for(const hh of [10,22])for(const du of [-7,7]){const p=F(u+du,hh);c.fillStyle=gold;c.beginPath();c.arc(p.x,p.y,1.3,0,7);c.fill();}}
+  // banners with a sigil either side of the door
+  for(const u of [W*.5-36,W*.5+32]){poly([F(u-7,H-8),F(u+7,H-8),F(u+7,22),F(u,16),F(u-7,22)],'#3a1a5a','#1a0a2a');tbSeg(F(u-5,H-10),F(u-5,24),gold,1);tbSeg(F(u+5,H-10),F(u+5,24),gold,1);
+    const p=F(u,44);cbSigil(p.x,p.y,5,'#e8c25a');}
+  // racks of sigil moulds on the side wall
+  for(const u0 of [10,D-36]){tbQuad(R,u0,16,u0+26,42,'#5a3a1c');for(const [du,h] of [[6,36],[19,36],[6,24],[19,24]]){const p=R(u0+du,h);cbSigil(p.x,p.y,3.6,CB_SIGC[(du+h)%3]);}}
   tbGableX(bx0,by0,bx1,byF,H,RH,roof,stoneR);
-  {const top=H+RH+30;const F2=tbF(ch.x-10,ch.y+10),R2=tbR(ch.x+10,ch.y+10);tbQuad(F2,0,H+RH*.5,20,top,'#5a5468');tbQuad(R2,0,H+RH*.5,20,top,'#48425a');tbBox(ch.x-12,ch.y-12,ch.x+12,ch.y+12,top,top+5,'#3a3448','#2e2a3a','#1a1626');}
-  // the crucible's stand, the three pedestals
-  {const {x,y}=pot;for(let k=0;k<3;k++){const a=-Math.PI/2+k*Math.PI*2/3+Math.PI/6,px=x+Math.cos(a)*30,py=y+Math.sin(a)*22;cbCyl(px,py,5,0,16,'#8a8498','#a8a2b8');}
-    for(const dx of [-10,10])tbSeg(P(x+dx,y+4,0),P(x+dx*.6,y+2,14),'#3a3448',2.4);cbCyl(x,y,12,0,4,'#3a3448','#2a2438');}
+  // the rune circle on the ground, the stepped dais, the three obelisk pedestals
+  {const {x,y}=pot;poly(cbRing(x,y,40,0),'#3a3448','#1a1626');poly(cbRing(x,y,36,0),null,rune);poly(cbRing(x,y,28,0),null,'rgba(90,224,208,.5)');
+    cbCyl(x,y,22,0,4,'#8a84a0','#a8a2b8');cbCyl(x,y,17,4,8,'#9a94b0','#b8b2c8');
+    for(let k=0;k<3;k++){const a=-Math.PI/2+k*Math.PI*2/3+Math.PI/6,px=x+Math.cos(a)*32,py=y+Math.sin(a)*24;tbBox(px-4,py-4,px+4,py+4,0,20,'#8a84a0','#6e6880','#a8a2b8');
+      const tp=P(px,py,20);c.fillStyle='#a8a2b8';c.strokeStyle=TB_OL;c.lineWidth=1;c.beginPath();c.moveTo(tp.x-5,tp.y);c.lineTo(tp.x,tp.y-6);c.lineTo(tp.x+5,tp.y);c.closePath();c.fill();c.stroke();}}
+  // the copper pipe from the workshop's corner over to the crucible
+  {const a=P(bx0,byF-6,40),m=P((bx0+pot.x)/2,(byF+pot.y)/2,58),z=P(pot.x+8,pot.y,36);c.strokeStyle='#8a5a2a';c.lineWidth=5;c.beginPath();c.moveTo(a.x,a.y);c.quadraticCurveTo(m.x,m.y,z.x,z.y);c.stroke();
+    c.strokeStyle='#d8964a';c.lineWidth=1.6;c.beginPath();c.moveTo(a.x,a.y-1.5);c.quadraticCurveTo(m.x,m.y-1.5,z.x,z.y-1.5);c.stroke();
+    for(const t of [.25,.6]){const q={x:(1-t)*(1-t)*a.x+2*(1-t)*t*m.x+t*t*z.x,y:(1-t)*(1-t)*a.y+2*(1-t)*t*m.y+t*t*z.y};tbDisc(q.x,q.y,3.5,3.5,'#b87a3a',TB_OL);}}
 }
-function cbSigilForgeLive(b){const G=cbSfGeo(b),{pot,ch,bx0,byF,W,H,RH}=G,P=TB_P,c=ctx,t=now;c.save();
-  // blue fire under the crucible, the crucible, its glowing bubbling top
-  {const {x,y}=pot;const f=P(x,y,4);for(let k=0;k<5;k++){const ph=(t*2.2+k*.2)%1;c.globalAlpha=1-ph;c.fillStyle=k%2?'#8ad0ff':'#3a7aff';c.beginPath();c.ellipse(f.x-8+k*4,f.y-ph*10,3-ph*2,5-ph*3,0,0,7);c.fill();}c.globalAlpha=1;
-    cbCyl(x,y,14,10,30,'#3a3448',null,'#1a1626');const top=P(x,y,30),pulse=.6+Math.sin(t*3)*.2;
-    c.fillStyle=`rgba(200,150,255,${pulse})`;c.beginPath();c.ellipse(top.x,top.y,14*1.1,14*.55,0,0,7);c.fill();c.strokeStyle='#1a1626';c.lineWidth=1.4;c.stroke();
-    for(let k=0;k<3;k++){const ph=(t*1.2+k/3)%1;c.globalAlpha=1-ph;c.fillStyle='#f0e0ff';c.beginPath();c.arc(top.x-6+k*6,top.y-2-ph*8,1.6+ph*1.5,0,7);c.fill();}c.globalAlpha=1;
-    // three sigils float over their pedestals and send their light into the pot
-    for(let k=0;k<3;k++){const a=-Math.PI/2+k*Math.PI*2/3+Math.PI/6,px=x+Math.cos(a)*30,py=y+Math.sin(a)*22,s=P(px,py,26+Math.sin(t*2+k*2)*3);
+function cbSfPipe(G){const a=TB_P(G.bx0,G.byF-6,40),m=TB_P((G.bx0+G.pot.x)/2,(G.byF+G.pot.y)/2,58),z=TB_P(G.pot.x+8,G.pot.y,36);return t=>({x:(1-t)*(1-t)*a.x+2*(1-t)*t*m.x+t*t*z.x,y:(1-t)*(1-t)*a.y+2*(1-t)*t*m.y+t*t*z.y});}
+function cbSigilForgeLive(b){const G=cbSfGeo(b),{pot,tw,bx0,byF,W}=G,P=TB_P,c=ctx,t=now;c.save();
+  // the rune circle pulses and its runes turn
+  {c.globalAlpha=.35+Math.sin(t*2)*.2;poly(cbRing(pot.x,pot.y,36,0),null,'#a8fff0');
+    c.font='bold 8px serif';c.textAlign='center';c.fillStyle='#a8fff0';c.globalAlpha=.7;const gl='ᚨᛒᛞᛖᚠᛟ';for(let k=0;k<6;k++){const a=t*.4+k*Math.PI/3,p=P(pot.x+Math.cos(a)*32,pot.y+Math.sin(a)*32,0);c.fillText(gl[k],p.x,p.y+3);}c.globalAlpha=1;}
+  // blue fire, the crucible with a gold rim, its bubbling top
+  {const {x,y}=pot,f=P(x,y,8);for(let k=0;k<5;k++){const ph=(t*2.2+k*.2)%1;c.globalAlpha=1-ph;c.fillStyle=k%2?'#8ad0ff':'#3a7aff';c.beginPath();c.ellipse(f.x-10+k*5,f.y-ph*10,3.4-ph*2,5.5-ph*3,0,0,7);c.fill();}c.globalAlpha=1;
+    cbCyl(x,y,16,12,34,'#3a3448',null,'#1a1626');cbCyl(x,y,18,32,36,'#e8c25a',null,'#8a6a1a');const top=P(x,y,36),pulse=.6+Math.sin(t*3)*.2;
+    c.fillStyle=`rgba(200,150,255,${pulse})`;c.beginPath();c.ellipse(top.x,top.y,15*1.1,15*.55,0,0,7);c.fill();
+    for(let k=0;k<3;k++){const ph=(t*1.2+k/3)%1;c.globalAlpha=1-ph;c.fillStyle='#f0e0ff';c.beginPath();c.arc(top.x-6+k*6,top.y-2-ph*10,1.6+ph*1.5,0,7);c.fill();}c.globalAlpha=1;
+    // three sigils float over the obelisks and send their light into the pot
+    for(let k=0;k<3;k++){const a=-Math.PI/2+k*Math.PI*2/3+Math.PI/6,px=x+Math.cos(a)*32,py=y+Math.sin(a)*24,s=P(px,py,36+Math.sin(t*2+k*2)*3);
       const ph=(t*.8+k/3)%1;c.strokeStyle=CB_SIGC[k];c.globalAlpha=.35+Math.sin(t*3+k)*.2;c.lineWidth=2;c.beginPath();c.moveTo(s.x,s.y);c.lineTo(top.x,top.y);c.stroke();
       c.globalAlpha=1;const q={x:s.x+(top.x-s.x)*ph,y:s.y+(top.y-s.y)*ph};c.fillStyle=CB_SIGC[k];c.beginPath();c.arc(q.x,q.y,1.8,0,7);c.fill();
       c.save();c.translate(s.x,s.y);c.scale(Math.cos(t*1.4+k),1);cbSigil(0,0,7,CB_SIGC[k]);c.restore();}}
-  // the star window glows
-  {const p=tbF(bx0,byF)(W*.5,46),pulse=.65+Math.sin(t*1.7)*.25;const g=c.createRadialGradient(p.x,p.y,1,p.x,p.y,14);g.addColorStop(0,`rgba(255,220,140,${pulse})`);g.addColorStop(1,'rgba(160,100,255,.3)');
-    c.fillStyle=g;c.beginPath();c.arc(p.x,p.y,11,0,7);c.fill();c.save();c.translate(p.x,p.y);c.rotate(t*.3);cbSigil(0,0,8,'#ffe08a');c.restore();}
-  // coloured sparks from the chimney
-  {const top=P(ch.x,ch.y,H+RH+35);for(let k=0;k<6;k++){const ph=(t*.5+k/6)%1;c.globalAlpha=(1-ph)*.9;c.fillStyle=CB_SIGC[k%3];c.beginPath();c.arc(top.x+Math.sin(t*2+k)*6*ph+ph*10,top.y-ph*46,2-ph,0,7);c.fill();
-      c.globalAlpha=(1-ph)*.3;c.fillStyle='#8a8498';c.beginPath();c.arc(top.x+ph*16,top.y-ph*40,4+ph*8,0,7);c.fill();}c.globalAlpha=1;}
+  // light running down the copper pipe
+  {const at=cbSfPipe(G);c.fillStyle='#a8fff0';for(let k=0;k<3;k++){const q=at((t*.7+k/3)%1);c.beginPath();c.arc(q.x,q.y-1.5,2,0,7);c.fill();}}
+  // the runes round the door pulse
+  {const F=tbF(bx0,byF),u=W*.5,pts=[];for(let i=0;i<=12;i++){const a=Math.PI-i*Math.PI/12;pts.push(F(u+Math.cos(a)*18,34+Math.sin(a)*18*1.1));}
+    c.globalAlpha=.4+Math.sin(t*2.4)*.35;c.strokeStyle='#a8fff0';c.lineWidth=2;c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(const p of pts)c.lineTo(p.x,p.y);c.stroke();c.globalAlpha=1;}
+  // sigils orbit the top of the tower (only the ones on the near side show)
+  {const {x,y,r,h}=tw;for(let k=0;k<5;k++){const a=t*.6+k*Math.PI*2/5;if(Math.sin(a+Math.PI/4)<-.2)continue;const p=P(x+Math.cos(a)*(r+16),y+Math.sin(a)*(r+16),h+18+Math.sin(t*2+k)*3);
+    c.save();c.translate(p.x,p.y);c.scale(.8,.8);cbSigil(0,0,6,CB_SIGC[k%3]);c.restore();}}
   c.restore();}
 const cbSigilForgeLights=b=>{const G=cbSfGeo(b);return tbLit([[G.bx0+G.W*.5,G.byF,46],[G.pot.x,G.pot.y,30],[G.bx0+G.W*.5,G.byF,14,1]]);};
 

@@ -31,7 +31,7 @@ function getZone(id){
     const fill=(x0,y0,x1,y1,v)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)set(x,y,v);};
     for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(x===1||y===1){if(r()<.7)set(x,y,2);}else if(x===W-2||y===H-2){}else set(x,y,r()<.05?7:0);}
     for(let y=24;y<=38;y++)for(let x=3;x<=24;x++)if(r()<.14)set(x,y,7);          // Noble Gardens: a royal garden, no buildings (v1.35.1)
-    for(let y=3;y<=H-4;y++)for(let x=3;x<=W-4;x++)if(Math.hypot(x+.5-13,(y+.5-31)*1.2)<3.6)set(x,y,3); // the garden pond
+    for(let y=3;y<=H-4;y++)for(let x=3;x<=W-4;x++)if(Math.hypot(x+.5-15,(y+.5-35)*1.2)<3.4)set(x,y,3); // the garden pond (south of the Hall and the Forge, v1.38.5)
     for(let k=3;k<=W-4;k++){if(k<23||k>32){set(k,18,7);set(k,23,7);}}for(let k=3;k<=H-4;k++)if(k<16||k>25){set(25,k,7);set(30,k,7);} // hedges
     fill(2,19,W-1,22,6);fill(26,2,29,H-3,6);                                     // the two avenues (the east one runs out of the gate)
     fill(18,30,25,31,6);                                                          // a walk in from the plaza
@@ -40,7 +40,7 @@ function getZone(id){
              {x:5,y:5,w:8,h:5,name:'Aurel Market',roof:'#a8452e',npc:{name:'Merchant Tavi',role:'shop',col:'#c86a3a',hair:'#3a2a1a'}},
              {x:15,y:5,w:7,h:5,name:'Gemcutter',roof:'#5a3a8a',npc:{name:'Gemcutter Sela',role:'gemcut',col:'#7a5ac0',hair:'#e8e4f0'}},
              {x:37,y:4,w:10,h:6,name:'Grand Library',roof:'#2e4f6e',npc:{name:'Librarian Oren',role:'library',col:'#3b5a7a',hair:'#c8c8c8'}},
-             {x:48,y:5,w:6,h:5,name:'Sigil Forge',roof:'#2e6e6a',npc:{name:'Sigilwright Dorn',role:'fuse',col:'#4a5a6a',hair:'#e8e8e8'}}, // v1.38.3 Scholars' Quarter
+             {x:12,y:24,w:6,h:5,name:'Sigil Forge',roof:'#2e6e6a',npc:{name:'Sigilwright Dorn',role:'fuse',col:'#4a5a6a',hair:'#e8e8e8'}}, // v1.38.5 beside the Hall of Awakening in Noble Gardens
              {x:4,y:24,w:7,h:5,name:'Hall of Awakening',roof:'#6a4aa8',npc:{name:'Awakener Liora',role:'awaken',col:'#e8e0f4',hair:'#c8b0ff'}}, // v1.37.4 in Noble Gardens
              {x:46,y:27,w:7,h:5,name:'Royal Stables',roof:'#2a4a8a',npc:{name:'Stablemaster Rowan',role:'stables',col:'#6a4a2a',hair:'#c86a2a'}}, // v1.37.2
              {x:38,y:26,w:7,h:5,name:'Forge Royal',roof:'#5a4a42',npc:{name:'Smith Garrow',role:'smith',col:'#6a5040',hair:'#8a5a2b'}}];
