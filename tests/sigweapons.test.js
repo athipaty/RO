@@ -44,10 +44,16 @@ module.exports = async t => {
       const db = P.inv.find(x => x.id === 'dawnbell1'); P.inv.push(P.eq.weapon); P.eq.weapon = db; P.inv.splice(P.inv.indexOf(db), 1); closePanel();
       enterZone('meadow'); await w(300); S = computeStats(); const mb = mobs.find(m => !m.dead); mb.hp = mb.d.hp * 50; P.hp = Math.round(S.maxhp / 2); const hp0 = P.hp;
       bellAt = -9; dealPhys(mb, 1); o.cler = { gain: P.hp - hp0, want: Math.round(S.maxhp * .02) };
+      // the Shade's Veilfang: a hit poisons, the poison ticks, poisoned monsters take more
+      P.cls = 'shade'; enterZone('town'); await w(200); openPanel('smith'); for (const [id, n] of [['spore', 20], ['pelt', 20], ['emberore', 20]]) giveItem(id, n); refreshPanel(); PANEL_ACTS.sigwforge('shade');
+      const vf = P.inv.find(x => x.id === 'veilfang1'); P.inv.push(P.eq.weapon); P.eq.weapon = vf; P.inv.splice(P.inv.indexOf(vf), 1); closePanel();
+      enterZone('meadow'); await w(300); S = computeStats(); const sm = mobs.find(m => !m.dead); sm.hp = sm.d.hp * 50; const rr2 = Math.random; Math.random = () => 0;
+      dealPhys(sm, 1); Math.random = rr2; const poisoned = sm.sigPoisonUntil > now, hpA = sm.hp; await w(1250); o.shade = { poisoned, ticked: sm.hp < hpA };
       closePanel(); return o; });
     t.ok(r.arcOffered && r.arc.durs.slice(0, 4).every(d => d === 1) && Math.abs(r.arc.durs[4] - .7) < .01, `the Arcanist's Starweave Staff: every 5th spell casts 30% faster (${r.arc.durs.join(', ')})`);
     t.ok(r.rng.toFirst && r.rng.toSecond, `the Ranger's Windstring Bow looses an extra arrow at a second monster nearby (${JSON.stringify(r.rng)})`);
     t.ok(r.cler.gain >= r.cler.want && r.cler.want > 0, `the Cleric's Dawnbell Mace heals you when you hit (+${r.cler.gain} HP, 2% of max is ${r.cler.want})`);
+    t.ok(r.shade.poisoned && r.shade.ticked, `the Shade's Veilfang poisons on a hit and the poison ticks (${JSON.stringify(r.shade)})`);
     t.ok(r.offered && r.forged, 'a Warden can have Brannoc forge the Oathbound Blade (with one sigil slot)');
     t.ok(r.bonus[0] === 1 && r.bonus[1] > 1.14, `the lower the HP, the harder it hits (x${r.bonus[0]} at full, x${r.bonus[1].toFixed(2)} nearly fallen)`);
     t.ok(r.lockedTown, 'the next stage waits for the advanced calling and Smith Garrow');

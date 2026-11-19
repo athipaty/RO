@@ -6,7 +6,11 @@
    and the awakened line. Each line has a special of its own:
      Warden   Oathbound Blade → Sworn Oathblade → Oathkeeper: the lower your HP, the harder you hit
               (up to +15% / +25% / +40% at the last sliver of HP); the blade glows brighter as you are hurt.
-   The other callings' lines come next (Arcanist, Ranger, Cleric, Shade). Drawn in code, original art. */
+     Arcanist Starweave Staff → Nightweave Staff → Astral Loom: every 5th/4th/3rd spell is free and casts faster.
+     Ranger   Windstring Bow → Galestring Bow → Skyreaver: some shots loose extra arrows at monsters nearby.
+     Cleric   Dawnbell Mace → Sunpeal Mace → Dawnchime: hits heal you (and party members nearby, later).
+     Shade    Veilfang → Duskfang → Eclipse Fang: hits may poison; poisoned monsters take more from you.
+   Drawn in code, original art. */
 const SIGW={
   warden:{fam:'Warden',stages:[
     {id:'oathblade1',name:'Oathbound Blade',atk:72,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{pelt:10,ramhorn:6,emberore:3},bonus:.15},
@@ -30,7 +34,13 @@ const SIGW={
     {id:'dawnbell1',name:'Dawnbell Mace',atk:66,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{sap:15,shell:10,emberore:3},heal:.02,party:false},
     {id:'dawnbell2',name:'Sunpeal Mace',atk:140,lv:45,slots:2,tier:2,smith:'garrow',gold:20000,mats:{carapace:10,glowsilk:10,crabshell:6,emberore:5},heal:.03,party:true},
     {id:'dawnbell3',name:'Dawnchime',atk:200,lv:75,slots:3,tier:3,smith:'garrow',gold:80000,mats:{wispglow:10,bogmoss:12,fur:8,emberore:10},heal:.04,party:true}],
-    wt:'mace',special:s=>`Your hits heal you for ${Math.round(s.heal*100)}% of your max HP${s.party?', and party members nearby too':''} (at most every 0.6 s).`}};
+    wt:'mace',special:s=>`Your hits heal you for ${Math.round(s.heal*100)}% of your max HP${s.party?', and party members nearby too':''} (at most every 0.6 s).`},
+  // v1.39.7 the Shade's Veilfang: hits may poison, and poisoned monsters take more from you
+  shade:{fam:'Shade',stages:[
+    {id:'veilfang1',name:'Veilfang',atk:58,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{spore:8,pelt:6,emberore:3},chance:.2,pois:.25,vs:.15},
+    {id:'veilfang2',name:'Duskfang',atk:118,lv:45,slots:2,tier:2,smith:'garrow',gold:20000,mats:{shadeveil:10,dust:10,needle:6,emberore:5},chance:.3,pois:.35,vs:.25},
+    {id:'veilfang3',name:'Eclipse Fang',atk:178,lv:75,slots:3,tier:3,smith:'garrow',gold:80000,mats:{rotspore:12,gloomspore:10,mantisblade:6,emberore:10},chance:.4,pois:.5,vs:.35}],
+    wt:'dagger',special:s=>`${Math.round(s.chance*100)}% of your hits poison (${Math.round(s.pois*100)}% ATK every second for 4 s), and poisoned monsters take ${Math.round(s.vs*100)}% more damage from you.`}};
 const SIGW_BY={};for(const [fam,L] of Object.entries(SIGW))L.stages.forEach((s,i)=>{SIGW_BY[s.id]={fam,i,s,L};
   ITEMS[s.id]={name:s.name,type:'weapon',wt:L.wt,atk:s.atk,...(s.matk?{matk:s.matk}:{}),lv:s.lv,slots:s.slots,price:0,col:'#e8c25a',g:'W',sigw:fam,stage:i+1,
     desc:`${L.fam} signature weapon, stage ${i+1} of 3. ${L.special(s)} Only the ${L.fam} family can wield it.`};});
@@ -66,6 +76,13 @@ function bellHit(){const sw=sigwNow();if(!sw||sw.fam!=='cleric'||!S||now-bellAt<
 if(typeof supportRecv==='function'){const _sr=supportRecv;supportRecv=function(o,arr,fresh){try{if(Array.isArray(arr)&&!fresh&&P&&!P.dead)for(const e of arr.slice(-12)){
     if(!e||e.k!=='dawnbell'||e.to!==NET.myId||fin(e.i)<=(o.spSeen||0)||!inParty(o.peer)||o.z!==zoneId||Math.hypot(o.x-P.x,o.y-P.y)>350)continue;healP(clamp(Math.round(fin(e.v)),0,50000));}}catch(err){}
   return _sr.apply(this,arguments);};}
+// the Shade's special: hits may poison; poisoned monsters take more damage from you
+let veilTick=false;
+{const _dp3=dealPhys;dealPhys=function(m,mult,o){const sw=sigwNow();if(!sw||sw.fam!=='shade'||!m)return _dp3.apply(this,arguments);
+  const k=m.sigPoisonUntil>now?1+sw.s.vs:1;const r=_dp3.call(this,m,(mult||1)*k,o);
+  try{if(!veilTick&&!m.dead&&Math.random()<sw.s.chance){m.sigPoisonUntil=now+4.2;const p=sw.s.pois;floatT(m.x,m.y-m.d.size-18,'Poisoned','#9be35a',12);
+    for(let i=1;i<=4;i++)setTimeout(()=>{if(!m||m.dead||!mobs.includes(m)||!P||P.dead)return;veilTick=true;try{dealPhys(m,p,{sure:true,el:'earth'});}finally{veilTick=false;}
+      fx.push({k:'ring',x:m.x,y:m.y,r:16,col:'#9be35a',t0:now,dur:.35});},i*1000);}}catch(e){}return r;};}
 // where your line stands: the piece you own (worn or in the bag), and the next stage you can reach
 function sigwOwned(fam){const L=SIGW[fam];if(!L)return null;let best=null;
   const consider=(e,where)=>{const b=e&&SIGW_BY[e.id];if(b&&b.fam===fam&&(!best||b.i>best.i))best={e,where,i:b.i};};
@@ -176,3 +193,18 @@ function waDawnbell(stage){const c=ctx,t=typeof now==='number'?now:0,L=[16,18,20
 if(typeof WA!=='undefined'){WA.dawnbell1=()=>waDawnbell(0);WA.dawnbell2=()=>waDawnbell(1);WA.dawnbell3=()=>waDawnbell(2);}
 if(typeof TH!=='undefined'){for(const [k,v] of [['Dawnbell Mace','กระบองระฆังอรุณ'],['Sunpeal Mace','กระบองเสียงตะวัน'],['Dawnchime','ระฆังรุ่งอรุณ'],['Cleric signature weapon','อาวุธประจำสายเคลอริก']])if(!TH[k])TH[k]=v;
   if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^Your hits heal you for (\d+)% of your max HP(, and party members nearby too)? \(at most every 0\.6 s\)\.( Keeps its refine, sigils and awakened line\.)?$/,(m,h,p,k)=>`การโจมตีฟื้นฟู HP ให้คุณ ${h}% ของ HP สูงสุด${p?' และเพื่อนในปาร์ตี้ที่อยู่ใกล้ ๆ ด้วย':''} (สูงสุดทุก 0.6 วินาที)${k?' คงระดับตีบวก ซิกิล และพลังที่ปลุกไว้':''}`]);}
+/* ---- the Veilfang line: a curved dark dagger with a green venom edge and a drip; serrated at stage 2; a black blade with an
+   eclipse disc on the guard and a violet glow at stage 3 ---- */
+function waVeilfang(stage){const c=ctx,t=typeof now==='number'?now:0,L=[15,17,19][stage],tip=-3-L,blade=['#4a4060','#3a2a4a','#1a1424'][stage];
+  waGrip(5,-1,2.4,'#2a1a2a','#9be35a','#5a4e78');
+  c.beginPath();c.moveTo(-4-stage,-1.6);c.quadraticCurveTo(0,-4.4,4+stage,-1.6);c.lineTo(3,-.6);c.lineTo(-3,-.6);c.closePath();waFS(stage>=2?'#2a2438':'#8a84a0');
+  if(stage>=2){c.beginPath();c.arc(0,-2.6,2.4,0,7);waFS('#1a1424');c.strokeStyle='#e8c25a';c.lineWidth=.8;c.beginPath();c.arc(0,-2.6,2.4,-.8,2.4);c.stroke();}
+  c.beginPath();c.moveTo(-1.8,-3.2);c.quadraticCurveTo(-3.4,tip*.5,2.6,tip);
+  if(stage>=1){const n=4;let y0=-3.2;for(let i=0;i<n;i++){const y=y0+(tip+2-y0)*(i+1)/n;c.lineTo(2.4+(i%2?1.2:0),y);}}
+  c.quadraticCurveTo(2.6,tip*.45,1.8,-3.2);c.closePath();waFS(blade);
+  c.strokeStyle='#9be35a';c.lineWidth=.9;c.beginPath();c.moveTo(-1.6,-4);c.quadraticCurveTo(-3,tip*.5,2.4,tip+.5);c.stroke();
+  const ph=(t*.8)%1;c.fillStyle='#9be35a';c.globalAlpha=1-ph;c.beginPath();c.ellipse(-2.4,tip*.4+ph*6,.9,1.3,0,0,7);c.fill();c.globalAlpha=1;
+  if(stage>=2)waGlow(0,tip*.5,9,'#a070e0',.4+.1*Math.sin(t*3));else if(stage===1)waGlow(0,tip*.5,6,'#9be35a',.25);}
+if(typeof WA!=='undefined'){WA.veilfang1=()=>waVeilfang(0);WA.veilfang2=()=>waVeilfang(1);WA.veilfang3=()=>waVeilfang(2);}
+if(typeof TH!=='undefined'){for(const [k,v] of [['Veilfang','เขี้ยวม่าน'],['Duskfang','เขี้ยวสนธยา'],['Eclipse Fang','เขี้ยวสุริยคราส'],['Shade signature weapon','อาวุธประจำสายเชด'],['Poisoned','ติดพิษ']])if(!TH[k])TH[k]=v;
+  if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(\d+)% of your hits poison \((\d+)% ATK every second for 4 s\), and poisoned monsters take (\d+)% more damage from you\.( Keeps its refine, sigils and awakened line\.)?$/,(m,c,p,v,k)=>`การโจมตี ${c}% จะทำให้ติดพิษ (${p}% ATK ทุกวินาที 4 วินาที) และมอนสเตอร์ที่ติดพิษได้รับความเสียหายจากคุณเพิ่ม ${v}%${k?' คงระดับตีบวก ซิกิล และพลังที่ปลุกไว้':''}`]);}
