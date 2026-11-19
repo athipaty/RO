@@ -147,7 +147,10 @@ function potCd(it){if(it.cure)return 2.5;if(it.sp&&!it.heal)return 1.2;
   if(!it.heal)return .25;const base=it.heal>=150?.8:.5,agi=(typeof S!=='undefined'&&S&&S.agi)||0;
   return +(base*((typeof S!=='undefined'&&S&&S.ranged)?1.6:1)*Math.max(.6,1-agi/200)).toFixed(2);}
 // monster materials sell for 2.5x their listed price (they replace the gold monsters used to drop)
-const sellValue=id=>{const it=ITEMS[id];return it.type==='etc'?Math.round(it.price*2.5):it.type==='sigil'?Math.floor(it.price/2):Math.floor(it.price/2);};
+// v1.40.6 anything a shop sells (the stores and the smith's ore and stone) sells back for half its price, so buying
+// and selling again never makes gold; monster loot no shop sells keeps its higher value
+const shopSells=id=>(typeof SHOP!=='undefined'&&SHOP.includes(id))||(typeof ROYAL_SHOP!=='undefined'&&ROYAL_SHOP.includes(id))||id==='emberore'||id==='glintstone';
+const sellValue=id=>{const it=ITEMS[id];if(shopSells(id))return Math.floor(it.price/2);return it.type==='etc'?Math.round(it.price*2.5):Math.floor(it.price/2);};
 
 /* ================= skills use ================= */
 function skillReady(id){return (P.cd[id]||0)<=now;}
