@@ -32,8 +32,16 @@ module.exports = async t => {
       const costs = [], durs = [], rc = castNow; castNow = (id, l, cost) => costs.push(cost); const rt = castTime; castTime = () => 1;
       for (let k = 0; k < 5; k++) { P.casting = null; beginCast('emberbolt', 1, 10, () => {}); durs.push(P.casting ? P.casting.dur : 0); P.casting = null; }
       castNow = rc; castTime = rt; o.arc = { durs, matk: S.matk };
+      // the Ranger's Windstring Bow: an extra arrow at another monster near the target
+      P.cls = 'ranger'; openPanel('smith'); for (const [id, n] of [['thorn', 20], ['tuft', 20], ['emberore', 20]]) giveItem(id, n); refreshPanel(); PANEL_ACTS.sigwforge('ranger');
+      const wb = P.inv.find(x => x.id === 'windstring1'); P.inv.push(P.eq.weapon); P.eq.weapon = wb; P.inv.splice(P.inv.indexOf(wb), 1); closePanel();
+      enterZone('meadow'); await w(300); S = computeStats(); const live = mobs.filter(m => !m.dead); const t1 = live[0], t2 = live[1];
+      P.x = t1.x + 60; P.y = t1.y; t2.x = t1.x + 20; t2.y = t1.y + 20; const shots = [], rs = shoot, rr = Math.random;
+      shoot = (from, to) => shots.push(to); Math.random = () => 0; basicAttack(t1); await w(900); shoot = rs; Math.random = rr;
+      o.rng = { range: S.range, toFirst: shots.includes(t1), toSecond: shots.includes(t2) };
       closePanel(); return o; });
     t.ok(r.arcOffered && r.arc.durs.slice(0, 4).every(d => d === 1) && Math.abs(r.arc.durs[4] - .7) < .01, `the Arcanist's Starweave Staff: every 5th spell casts 30% faster (${r.arc.durs.join(', ')})`);
+    t.ok(r.rng.toFirst && r.rng.toSecond, `the Ranger's Windstring Bow looses an extra arrow at a second monster nearby (${JSON.stringify(r.rng)})`);
     t.ok(r.offered && r.forged, 'a Warden can have Brannoc forge the Oathbound Blade (with one sigil slot)');
     t.ok(r.bonus[0] === 1 && r.bonus[1] > 1.14, `the lower the HP, the harder it hits (x${r.bonus[0]} at full, x${r.bonus[1].toFixed(2)} nearly fallen)`);
     t.ok(r.lockedTown, 'the next stage waits for the advanced calling and Smith Garrow');

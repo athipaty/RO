@@ -18,7 +18,13 @@ const SIGW={
     {id:'starweave1',name:'Starweave Staff',atk:12,matk:72,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{spore:10,wispbreath:8,glintstone:3},every:5,fast:.3},
     {id:'starweave2',name:'Nightweave Staff',atk:18,matk:142,lv:45,slots:2,tier:2,smith:'garrow',gold:20000,mats:{dust:10,gloomspore:8,shard:6,glintstone:5},every:4,fast:.5},
     {id:'starweave3',name:'Astral Loom',atk:26,matk:208,lv:75,slots:3,tier:3,smith:'garrow',gold:80000,mats:{wispglow:12,rotspore:10,shadeveil:8,glintstone:10},every:3,fast:.7}],
-    wt:'wand',special:s=>`Every ${['','','2nd','3rd','4th','5th'][s.every]} spell costs no SP and casts ${Math.round(s.fast*100)}% faster.`}};
+    wt:'wand',special:s=>`Every ${['','','2nd','3rd','4th','5th'][s.every]} spell costs no SP and casts ${Math.round(s.fast*100)}% faster.`},
+  // v1.39.5 the Ranger's Windstring Bow: some shots loose extra arrows at other monsters nearby
+  ranger:{fam:'Ranger',stages:[
+    {id:'windstring1',name:'Windstring Bow',atk:50,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{thorn:8,tuft:12,emberore:3},chance:.25,extra:1,dmg:.7},
+    {id:'windstring2',name:'Galestring Bow',atk:110,lv:45,slots:2,tier:2,smith:'garrow',gold:20000,mats:{needle:10,batwing:10,crabshell:6,emberore:5},chance:.35,extra:1,dmg:.85},
+    {id:'windstring3',name:'Skyreaver',atk:162,lv:75,slots:3,tier:3,smith:'garrow',gold:80000,mats:{lurkerscale:10,mantisblade:6,fur:10,emberore:10},chance:.45,extra:2,dmg:1}],
+    wt:'bow',special:s=>`${Math.round(s.chance*100)}% of your shots loose ${s.extra>1?'two more arrows':'a second arrow'} at other monsters nearby (${Math.round(s.dmg*100)}% damage).`}};
 const SIGW_BY={};for(const [fam,L] of Object.entries(SIGW))L.stages.forEach((s,i)=>{SIGW_BY[s.id]={fam,i,s,L};
   ITEMS[s.id]={name:s.name,type:'weapon',wt:L.wt,atk:s.atk,...(s.matk?{matk:s.matk}:{}),lv:s.lv,slots:s.slots,price:0,col:'#e8c25a',g:'W',sigw:fam,stage:i+1,
     desc:`${L.fam} signature weapon, stage ${i+1} of 3. ${L.special(s)} Only the ${L.fam} family can wield it.`};});
@@ -36,6 +42,12 @@ function starCharge(){const sw=sigwNow();return sw&&sw.fam==='arcanist'?{n:(P.st
   P.starN=(P.starN||0)+1;const emp=ch.n===ch.every-1;if(!emp)return _bc.apply(this,arguments);
   const r=_bc.call(this,id,l,0,fn);if(P.casting&&P.casting.id===id)P.casting.dur*=1-ch.fast;
   floatT(P.x,P.y-62,'Starweave!','#c8b0ff',14);fx.push({k:'ring',x:P.x,y:P.y,r:34,col:'#c8b0ff',t0:now,dur:.5});return r;};}
+// the Ranger's special: extra arrows at other monsters near the target
+{const _ba=basicAttack;basicAttack=function(t){const r=_ba.apply(this,arguments);try{const sw=sigwNow();
+  if(sw&&sw.fam==='ranger'&&t&&S.range>100&&Math.random()<sw.s.chance){const others=mobs.filter(m=>m!==t&&!m.dead&&dist(P,m)<=S.range+m.d.size&&Math.hypot(m.x-t.x,m.y-t.y)<260).sort((a,b)=>Math.hypot(a.x-t.x,a.y-t.y)-Math.hypot(b.x-t.x,b.y-t.y)).slice(0,sw.s.extra);
+    const rel=(P.bowDur||.4)*(typeof BOW_RELEASE==='number'?BOW_RELEASE:.5)*1000+60;
+    others.forEach((m,k)=>setTimeout(()=>{if(!P||P.dead||m.dead)return;shoot(P,m,'arrow','#9fe8c8',()=>dealPhys(m,sw.s.dmg));},rel+k*70));
+    if(others.length)floatT(P.x,P.y-58,others.length>1?'Triple shot!':'Double shot!','#9fe8c8',13);}}catch(e){}return r;};}
 // where your line stands: the piece you own (worn or in the bag), and the next stage you can reach
 function sigwOwned(fam){const L=SIGW[fam];if(!L)return null;let best=null;
   const consider=(e,where)=>{const b=e&&SIGW_BY[e.id];if(b&&b.fam===fam&&(!best||b.i>best.i))best={e,where,i:b.i};};
@@ -85,7 +97,7 @@ function waOath(stage){const hurt=sigwNow()&&sigwNow().fam==='warden'&&S&&S.maxh
   else if(hurt>.3)waGlow(0,tip*.5,W*2.6,'#ff7a3a',hurt*.5);}
 if(typeof WA!=='undefined'){WA.oathblade1=()=>waOath(0);WA.oathblade2=()=>waOath(1);WA.oathblade3=()=>waOath(2);}
 // the bag picture uses the same drawing, laid diagonally
-{const _dii=drawItemIcon;drawItemIcon=function(g,id){const it=ITEMS[id];if(!it||!it.sigw||typeof WA==='undefined'||!WA[id])return _dii.apply(this,arguments);
+{const _dii=drawItemIcon;drawItemIcon=function(g,id){const it=ITEMS[id];if(!it||!it.sigw||typeof WA==='undefined'||!WA[id])return _dii.apply(this,arguments); // bows keep the usual bow picture, in their own colours
   const main=ctx;g.save();g.translate(7,27);g.rotate(Math.PI/4);g.scale(1.08,1.08);ctx=g;try{WA[id]();}finally{ctx=main;g.restore();}};}
 if(typeof TH!=='undefined'){for(const [k,v] of [['Oathbound Blade','ดาบแห่งคำสัตย์'],['Sworn Oathblade','ดาบปฏิญาณ'],['Oathkeeper','ผู้รักษาคำสัตย์'],['final form','ร่างสุดท้าย'],['Forge','ตีขึ้น'],['Re-forge','ตีใหม่'],
   ['Warden signature weapon','อาวุธประจำสายวอร์เดน'],['Brannoc the Smith in Hearthvale forges this stage.','ขั้นนี้แบรนน็อคในฮาร์ธเวลเป็นผู้ตี'],['Smith Garrow at the Forge Royal in Aurelmark forges this stage.','ขั้นนี้ช่างแกร์โรว์ที่โรงตีหลวงในออเรลมาร์กเป็นผู้ตี'],
@@ -122,3 +134,12 @@ function waStarweave(stage){const c=ctx,t=typeof now==='number'?now:0,L=[20,23,2
 if(typeof WA!=='undefined'){WA.starweave1=()=>waStarweave(0);WA.starweave2=()=>waStarweave(1);WA.starweave3=()=>waStarweave(2);}
 if(typeof TH!=='undefined'){for(const [k,v] of [['Starweave Staff','ไม้เท้าถักดาว'],['Nightweave Staff','ไม้เท้าถักราตรี'],['Astral Loom','กี่ทอดารา'],['Arcanist signature weapon','อาวุธประจำสายอาร์คานิสต์']])if(!TH[k])TH[k]=v;
   if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^Every (\d)(?:st|nd|rd|th) spell costs no SP and casts (\d+)% faster\.( Keeps its refine, sigils and awakened line\.)?$/,(m,n,f,k)=>`ทุกคาถาที่ ${n} ไม่ใช้ SP และร่ายเร็วขึ้น ${f}%${k?' คงระดับตีบวก ซิกิล และพลังที่ปลุกไว้':''}`]);}
+// the Windstring line's look: pale green-silver limbs that grow longer and brighter, white and gold tips
+if(typeof WA_BOW!=='undefined')Object.assign(WA_BOW,{windstring1:{wood:'#7ab08a',grip:'#3a5a3a',scale:1.05,tip:'#e8f0ff',feather:'#b8f0d0'},
+  windstring2:{wood:'#a8d8c0',grip:'#2a4a3a',scale:1.12,tip:'#e8c25a',feather:'#e8fff0',ribbon:'#9fe8c8'},windstring3:{wood:'#e8f8f0',grip:'#2a4a8a',scale:1.2,tip:'#e8c25a',feather:'#ffffff',ribbon:'#e8c25a',thick:true}});
+for(const [id,col] of [['windstring1','#7ab08a'],['windstring2','#a8d8c0'],['windstring3','#e8f8f0']])if(ITEMS[id])ITEMS[id].col=col;
+if(typeof TH!=='undefined'){for(const [k,v] of [['Windstring Bow','ธนูสายลม'],['Galestring Bow','ธนูสายพายุ'],['Skyreaver','ผู้ฉีกฟ้า'],['Ranger signature weapon','อาวุธประจำสายเรนเจอร์'],['Double shot!','ยิงคู่!'],['Triple shot!','ยิงสาม!']])if(!TH[k])TH[k]=v;
+  if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(\d+)% of your shots loose (a second arrow|two more arrows) at other monsters nearby \((\d+)% damage\)\.( Keeps its refine, sigils and awakened line\.)?$/,(m,c,a,d,k)=>`${c}% ของการยิงจะปล่อย${a==='a second arrow'?'ลูกธนูอีกดอก':'ลูกธนูอีกสองดอก'}ใส่มอนสเตอร์อื่นใกล้ ๆ (ความเสียหาย ${d}%)${k?' คงระดับตีบวก ซิกิล และพลังที่ปลุกไว้':''}`]);}
+// the Windstring bows' bag pictures use their own bow drawing
+{const _dib=drawItemIcon;drawItemIcon=function(g,id){if(!(ITEMS[id]&&ITEMS[id].sigw&&typeof WA_BOW!=='undefined'&&WA_BOW[id]))return _dib.apply(this,arguments);
+  const main=ctx;g.save();g.translate(12,17);g.rotate(-Math.PI/4);g.scale(1.05,1.05);ctx=g;try{drawWeaponShape(ITEMS[id],0);}finally{ctx=main;g.restore();}};}
