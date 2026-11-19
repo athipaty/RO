@@ -1562,3 +1562,18 @@ body.touchui #panel.npcsheet .x{border-radius:50%!important}
 #panel .iup{width:24px;height:24px;display:inline-grid;place-items:center;border-radius:6px;background:rgba(0,0,0,.28);border:1px solid rgba(160,220,190,.35);cursor:pointer;font-size:14px;font-weight:800;line-height:1}
 #panel .iup img{width:22px;height:22px}#panel .iup.need{border:1.5px solid #ffcf5a;box-shadow:0 0 6px rgba(255,200,90,.55);background:rgba(90,60,10,.5)}
 #panel .iumore{font-size:11px;color:var(--muted);margin-left:2px}
+/* the Waystation's picture cards (js/travelcards.js, v1.40.4) */
+#panel .tclist{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+#panel .tccard{border-radius:12px;overflow:hidden;background:rgba(255,255,255,.045);border:1px solid rgba(160,180,230,.2)}
+#panel .tccard.best{border:1.5px solid #ffd76a;box-shadow:0 0 12px rgba(255,200,90,.3)}#panel .tccard.locked{opacity:.55}
+#panel .tcban{height:52px;background-size:cover;background-position:center;display:flex;align-items:flex-end;justify-content:space-between;gap:6px;padding:4px 10px;box-shadow:inset 0 -26px 22px -10px rgba(0,0,0,.65)}
+#panel .tcban b{color:#fff;font-size:15px;text-shadow:0 1px 2px #000,0 0 6px #000}
+#panel .tcbadge{font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:9px;white-space:nowrap}
+#panel .tcbadge.right{background:#2f8a4a;color:#eaffea}#panel .tcbadge.easy{background:#2a5a9a;color:#e0ecff}#panel .tcbadge.danger{background:#a83a2a;color:#ffe8e0}
+#panel .tcbody{display:flex;align-items:center;gap:8px;padding:6px 10px 8px}#panel .tcbody .grow{min-width:0}
+#panel .tcmobs{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap}
+#panel .tcmob{width:30px;height:30px;border-radius:7px;background:rgba(0,0,0,.25);border:1px solid rgba(160,180,230,.25)}#panel .tcmob.boss{border-color:#e85a5a;box-shadow:0 0 6px rgba(232,90,90,.5)}
+#panel .tcmarks{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+#panel .tcmk{display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:1px 7px;border-radius:9px;background:rgba(255,255,255,.07);border:1px solid rgba(160,180,230,.2)}
+#panel .tcmk i{font-style:normal}#panel .tcmk.q{border-color:#ffe08a;color:#ffe6a0}#panel .tcmk.b{border-color:#ffcf5a;color:#ffd98a}#panel .tcmk.w{border-color:#ff8a7a;color:#ffb0a0}
+#panel .tcgo{display:flex;flex-direction:column;align-items:center;gap:4px}
