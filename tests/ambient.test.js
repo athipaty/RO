@@ -9,7 +9,7 @@ module.exports = async t => {
     const ground = await g.ev(() => { const r = {}; enterZone('town'); r.town = groundAt(20 * TILE + 5, 19 * TILE + 5);
       enterZone('meadow'); const road = Z.portals[0]; r.meadowRoad = groundAt(road.x + 3 * TILE, road.y); r.meadowGrass = groundAt(Z.spawnTiles[0] % Z.w * TILE + 16, Math.floor(Z.spawnTiles[0] / Z.w) * TILE + 16);
       enterZone('dunes'); r.dunes = groundAt(Z.spawn.x, Z.spawn.y); enterZone('frost'); r.frost = groundAt(Z.spawn.x, Z.spawn.y); enterZone('deep1'); r.cave = groundAt(Z.spawn.x, Z.spawn.y); return r; });
-    t.ok(ground.town === 'stone' && ground.meadowRoad === 'dirt' && ground.meadowGrass === 'grass' && ground.dunes === 'sand' && ground.frost === 'snow' && ['cave', 'stone'].includes(ground.cave),
+    t.ok(ground.town === 'dirt' && ground.meadowRoad === 'dirt' && ground.meadowGrass === 'grass' && ground.dunes === 'sand' && ground.frost === 'snow' && ['cave', 'stone'].includes(ground.cave),
       `the ground is told apart (${Object.entries(ground).map(([k, v]) => k + ': ' + v).join(', ')})`);
     // footsteps while walking
     const steps = await g.ev(async () => { audioInit(); enterZone('meadow'); const kinds = []; const orig = footstep; footstep = k => { kinds.push(k); return orig(k); };

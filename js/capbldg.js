@@ -572,7 +572,7 @@ const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   shop:{body:cbMarket,live:cbMarketLive,signAt:b=>{const G=cbMarketGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.byF/TILE,h:0},G.H1+20];},lights:cbMarketLights}};
 // take over the drawing of the capital's pieces that have a design of their own
 {const _prev=drawBuilding;
-  drawBuilding=function(b){const T=typeof zoneId!=='undefined'&&zoneId==='capital'&&CAP_BLD[b.kind||(b.npc&&b.npc.role)];if(!T)return _prev.apply(this,arguments);
+  drawBuilding=function(b){const T=typeof zoneId!=='undefined'&&(zoneId==='capital'||b.kind==='wall'||b.kind==='gatetower')&&CAP_BLD[b.kind||(b.npc&&b.npc.role)];if(!T)return _prev.apply(this,arguments);
     if(T.lights&&!b._cbl){b._nl=T.lights(b);b._cbl=1;}
     if(T.draw){T.draw(b);return;} // drawn straight to the screen, not cached (the long city wall)
     if(!bldCacheBlit(b,()=>T.body(b)))T.body(b);

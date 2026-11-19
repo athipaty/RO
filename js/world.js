@@ -80,8 +80,8 @@ function getZone(id){
     for(let k=2;k<=37;k++){if(k<17||k>22){set(k,12,7);set(k,17,7);}}for(let k=2;k<=27;k++)if(k<12||k>17){set(17,k,7);set(22,k,7);}
     fill(17,24,17,25,1);fill(22,24,22,25,1);fill(6,12,7,12,1);fill(27,12,28,12,1); // every walk runs through the hedges to the road // flower hedges between districts
     fill(6,7,7,12,1);fill(27,8,28,12,1);                 // (v1.32.1)
-    fill(0,13,W-1,16,6);fill(18,0,21,H-1,6);             // the two stone roads, gate to gate (v1.31.1)
-    for(let y=8;y<=22;y++)for(let x=13;x<=26;x++)if(Math.hypot(x+.5-20,y+.5-15)<6)set(x,y,6); // the round plaza
+    fill(0,13,W-1,16,1);fill(18,0,21,H-1,1);             // the two roads, gate to gate: plain dirt paths again (v1.37.3)
+    for(let y=8;y<=22;y++)for(let x=13;x<=26;x++)if(Math.hypot(x+.5-20,y+.5-15)<6)set(x,y,1); // the round plaza
     for(const [x,y] of [[17,2],[22,2],[2,12],[2,17],[2,23],[2,24],[2,25]])set(x,y,2); // trees framing the roads; a dark corner for Nyx
     const B=[{x:3,y:3,w:7,h:4,name:'General Store',roof:'#8e3b2e',npc:{name:'Ilsa the Merchant',role:'shop',col:'#c86a3a',hair:'#8a3b1a'}},
              {x:11,y:3,w:6,h:4,name:'Smithy',roof:'#5a4a42',npc:{name:'Brannoc the Smith',role:'smith',col:'#6a5040',hair:'#2b1d16'}},
@@ -94,7 +94,12 @@ function getZone(id){
       const nx=(b.x+b.w/2+NPC_BESIDE)*TILE, ny=(b.y+b.h)*TILE+20;
       zone.npcs.push({...b.npc,x:nx,y:ny});}
     zone.portals.push({x:(W-1.5)*TILE,y:15*TILE,to:'meadow',side:'east'});
-    zone.portals.push({x:1.5*TILE,y:15*TILE,to:'capital',side:'west'});   // #32 the west gate leads to the capital, Aurelmark
+    zone.portals.push({x:1.5*TILE,y:15*TILE,to:'capital',side:'west'});
+    // v1.37.3 the west side, toward the capital, is walled like Aurelmark, with gate towers either side of the road
+    for(let y=0;y<H;y++)if(y<13||y>16){set(0,y,5);set(1,y,5);}
+    {const wall=(x,y,w,h,tower,end)=>zone.buildings.push({x,y,w,h,name:'',roof:'#c8c0b0',kind:'wall',side:'w',tower,towerEnd:end});
+      wall(0,0,2,6,true,false);wall(0,6,2,5,false,false);wall(0,19,2,6,false,false);wall(0,25,2,H-25,false,true);
+      for(const y of [11,17])zone.buildings.push({x:0,y,w:2,h:2,name:'',roof:'#c8c0b0',kind:'gatetower',up:y<13});}   // #32 the west gate leads to the capital, Aurelmark
     zone.portals.push({x:20*TILE,y:1.5*TILE,to:'heights',side:'north'});   // v1.17.0 Windwhistle Heights
     zone.portals.push({x:20*TILE,y:(H-1.5)*TILE,to:'farms',side:'south'}); // and Willowmere Farms
     zone.npcs.push({name:'Arena Master Vexa',role:'arena',col:'#a8323a',hair:'#1c1c1c',x:26.8*TILE,y:10.4*TILE});

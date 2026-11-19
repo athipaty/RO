@@ -63,7 +63,7 @@ PANELS.palace=()=>{const s=palState();
     h+=`<div class="palkeep">${own?`<b>${esc(own.name)}</b> holds Emberkeep: their colours fly from the palace keep.`:'Nobody holds Emberkeep. The palace keep flies the Crown\'s own colours.'}</div>`;
     h+=`<div class="sub">The heroes in the realm right now, strongest first.</div><div class="pallist">`;
     palHeroes().forEach((p,i)=>{h+=`<div class="row palhero${p.me?' me':''}"><span class="palrank">${i+1}</span><div class="grow"><div class="nm">${p.rb?'✦ ':''}${esc(p.n)}${p.me?' <span class="muted">(you)</span>':''}</div>`+
-      `<div class="ds">Lv ${p.lv} · ${esc((CLASSES[p.cls]||{}).name||'')}${p.g?' · '+esc(p.g):''}</div></div></div>`;});
+      `<div class="ds">Lv ${p.lv} · <span>${esc((CLASSES[p.cls]||{}).name||'')}</span>${p.g?` · <span>${esc(p.g)}</span>`:''}</div></div></div>`;});
     h+=`</div>`;}
   return h;};
 PANEL_ACTS.paltab=k=>{PAL.tab=k;sfx('click');refreshPanel();panel.scrollTop=0;};
