@@ -125,7 +125,86 @@ function cbMarketLive(b){const G=cbMarketGeo(b),P=TB_P,c=ctx,t=now;c.save();
 const cbMarketLights=b=>{const G=cbMarketGeo(b),W=G.bx1-G.bx0,aw=(W-24)/5,out=[];for(let i=0;i<5;i++)out.push([G.bx0+12+i*aw+aw/2,G.byF,18]);
   for(let i=1;i<5;i++)out.push([G.bx0+12+i*aw,G.byF,G.H1+22]);out.push([G.xc,G.yc+15,G.H2+G.RH+7]);return tbLit(out);};
 
+/* ---------------- the Gemcutter ---------------- */
+// a jeweller's house of grey-violet stone with a round tower; over the tower's spire a great crystal floats and turns;
+// a bay window of gems on velvet, a cutting wheel that spins and throws sparks, a split geode by the door, a gem sign
+const cbGemGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,bx0=X0+10,bx1=X0+140,by0=Y0+34,byF=Y1-42;
+  return{X0,Y0,X1,Y1,bx0,bx1,by0,byF,H:74,RH:36,tw:{x:X1-50,y:Y0+52,r:28,h:118,rh:58},wheel:{x:X0+26,y:Y1-16},geode:{x:X1-26,y:Y1-30}};};
+const CB_GEMS=['#e83a5a','#3a8ae8','#3ac88a','#b05ae8','#f0c040','#e8e8f8'];
+// a cut gem seen from the side: a flat table, a crown and a pointed pavilion
+function cbGem(x,y,s,col){const c=ctx;c.fillStyle=col;c.strokeStyle=shade(col,-50);c.lineWidth=Math.max(.8,s*.12);
+  c.beginPath();c.moveTo(x-s*.5,y-s*.9);c.lineTo(x+s*.5,y-s*.9);c.lineTo(x+s,y-s*.5);c.lineTo(x,y+s*.6);c.lineTo(x-s,y-s*.5);c.closePath();c.fill();c.stroke();
+  c.fillStyle='rgba(255,255,255,.55)';c.beginPath();c.moveTo(x-s*.5,y-s*.9);c.lineTo(x,y-s*.9);c.lineTo(x-s*.2,y-s*.5);c.lineTo(x-s,y-s*.5);c.closePath();c.fill();
+  c.fillStyle='rgba(0,0,0,.18)';c.beginPath();c.moveTo(x+s,y-s*.5);c.lineTo(x,y+s*.6);c.lineTo(x+s*.15,y-s*.5);c.closePath();c.fill();}
+function cbGemcut(b){const G=cbGemGeo(b),{X0,Y0,X1,Y1,bx0,bx1,by0,byF,H,RH,tw}=G,P=TB_P,c=ctx;
+  const stone='#ddd6e4',stoneR='#b8b0c4',trim='#9a8ab0',roof=b.roof||'#5a3a8a',wood='#4a3048';
+  poly([P(bx0,Y1),P(X1+24,Y1),P(X1+24,Y0+24),P(bx1,Y0)],'rgba(0,0,0,.2)');
+  // the round tower behind the house's right end: grey-violet stone, slit windows, a cone of violet slate
+  {const {x,y,r,h,rh}=tw;cbCyl(x,y,r,0,h,stoneR,null);
+    c.globalAlpha=.35;for(let k=14;k<h;k+=14)poly(cbRing(x,y,r,k,-Math.PI/4,Math.PI*.75,20),null,'#7a7088');c.globalAlpha=1;
+    // light on the left of the drum, shade on the right
+    poly([...cbRing(x,y,r,h,Math.PI*.35,Math.PI*.75,10),...cbRing(x,y,r,0,Math.PI*.75,Math.PI*.35,10)],stone,null);
+    for(const [a,hh] of [[Math.PI*.5,40],[Math.PI*.3,76],[Math.PI*.55,96]]){const p=TB_P(x+Math.cos(a)*r,y+Math.sin(a)*r,hh);c.fillStyle='#2a2238';c.beginPath();c.roundRect(p.x-3.5,p.y-14,7,14,[3.5,3.5,0,0]);c.fill();c.strokeStyle=trim;c.lineWidth=1.4;c.stroke();}
+    cbCyl(x,y,r+3,h-4,h,trim,null);
+    const ap=TB_P(x,y,h+rh),ring=cbRing(x,y,r+7,h,-Math.PI/4,Math.PI*.75,20);poly([...ring,ap],roof,shade(roof,-50));
+    poly([...cbRing(x,y,r+7,h,Math.PI*.4,Math.PI*.75,8),ap],shade(roof,18),null);
+    c.globalAlpha=.3;for(let k=1;k<4;k++){const t=k/4;poly(cbRing(x,y,(r+7)*(1-t),h+rh*t,-Math.PI/4,Math.PI*.75,16),null,shade(roof,-60));}c.globalAlpha=1;
+    tbSeg(ap,{x:ap.x,y:ap.y-10},'#c8b070',2);}
+  // the house: two floors under a slate gable, the ridge along the street
+  tbBox(bx0,by0,bx1,byF,0,H,stone,stoneR);
+  const F=tbF(bx0,byF),R=tbR(bx1,byF),W=bx1-bx0,D=byF-by0;
+  for(const [S,L] of [[F,W],[R,D]]){c.globalAlpha=.3;for(let h=10;h<H;h+=10)tbSeg(S(0,h),S(L,h),'#7a7088',.8);c.globalAlpha=1;tbQuad(S,0,0,L,6,trim);}
+  // upper windows with violet shutters
+  for(const u of [W*.24,W*.56,W*.84]){tbQuad(F,u-7,48,u+7,64,'#2a2238');tbQuad(F,u-12,48,u-7,64,'#6a4a9a');tbQuad(F,u+7,48,u+12,64,'#6a4a9a');tbQuad(F,u-8,46,u+8,48,trim);tbQuad(F,u-8,64,u+8,66,trim);}
+  tbQuad(F,0,40,W,43,trim);
+  tbGableX(bx0,by0,bx1,byF,H,RH,roof,stoneR);
+  // the bay window: it stands out from the wall; behind the glass, gems on dark velvet
+  {const u0=14,u1=74,x0=bx0+u0,x1=bx0+u1,y1=byF+12;tbBox(x0,byF,x1,y1,0,8,trim,shade(trim,-15),shade(trim,10));
+    tbBox(x0,byF,x1,y1,8,32,'#3a1a40','#2a1230');const BF=tbF(x0,y1);
+    for(let i=0;i<9;i++){const p=BF(5+i*6.2,i%2?20:14);cbGem(p.x,p.y,3.2,CB_GEMS[i%6]);}
+    for(let k=1;k<4;k++)tbSeg(BF((u1-u0)*k/4,8),BF((u1-u0)*k/4,32),'#c8b070',1.4);tbQuad(BF,0,30,u1-u0,32,'#c8b070',null);
+    tbBox(x0-2,byF,x1+2,y1+3,32,37,roof,shade(roof,-20),shade(roof,15));}
+  // the door: a violet door with a gem-shaped light, a lamp beside it
+  {const u=W-28;tbQuad(F,u-11,0,u+11,30,wood);tbQuad(F,u-12,30,u+12,34,trim);const p=F(u,20);cbGem(p.x,p.y,3.6,'#b8e0ff');
+    const k=F(u,2);c.fillStyle='#c8b070';c.beginPath();c.arc(k.x+7,k.y-14,1.4,0,7);c.fill();}
+  // a split geode by the door, crystals inside
+  {const {x,y}=G.geode,p=P(x,y);c.fillStyle='#7a7480';c.strokeStyle=TB_OL;c.lineWidth=1.2;c.beginPath();c.ellipse(p.x,p.y-8,15,11,0,0,7);c.fill();c.stroke();
+    c.fillStyle='#3a2050';c.beginPath();c.ellipse(p.x,p.y-9,11,8,0,0,7);c.fill();
+    for(const [dx,dy,s] of [[-5,-6,4],[0,-10,5],[5,-6,4],[-2,-3,3],[4,-2,3]]){const q={x:p.x+dx,y:p.y+dy};c.fillStyle='#c88af0';c.beginPath();c.moveTo(q.x,q.y-s*1.6);c.lineTo(q.x+s*.6,q.y);c.lineTo(q.x-s*.6,q.y);c.closePath();c.fill();
+      c.fillStyle='rgba(255,255,255,.5)';c.beginPath();c.moveTo(q.x,q.y-s*1.6);c.lineTo(q.x-s*.6,q.y);c.lineTo(q.x-s*.1,q.y);c.closePath();c.fill();}}
+  // the cutting wheel's bench (the wheel itself turns, drawn live)
+  {const {x,y}=G.wheel;tbBox(x-14,y-8,x+14,y+6,0,16,'#7a5232','#5a3a1c','#9a7050');const a=P(x+2,y,16),z=P(x+2,y,28);tbSeg(a,z,'#5a5652',2.4);
+    const p=P(x-8,y+8);c.fillStyle='#5a3a1c';c.fillRect(p.x-6,p.y-3,12,3);}
+  // the hanging sign: a blue gem on a board under an iron arm off the tower
+  {const a=P(bx1+4,byF,72),z=P(bx1+4,byF+22,72);tbSeg(a,z,'#3a3632',2.2);}
+}
+function cbGemcutLive(b){const G=cbGemGeo(b),P=TB_P,c=ctx,t=now;c.save();
+  // the great crystal over the spire: it bobs, turns and glows
+  {const {x,y,h,rh}=G.tw,top=P(x,y,h+rh+30+Math.sin(t*1.6)*4),s=13,turn=Math.cos(t*.9),w=Math.max(.25,Math.abs(turn));
+    const gl=c.createRadialGradient(top.x,top.y,2,top.x,top.y,34);gl.addColorStop(0,'rgba(200,150,255,.55)');gl.addColorStop(1,'rgba(200,150,255,0)');c.fillStyle=gl;c.beginPath();c.arc(top.x,top.y,34,0,7);c.fill();
+    const L=s*w;c.fillStyle='#b070f0';c.strokeStyle='#4a1a7a';c.lineWidth=1.4;c.beginPath();c.moveTo(top.x,top.y-s*1.7);c.lineTo(top.x+L,top.y-s*.3);c.lineTo(top.x,top.y+s*1.5);c.lineTo(top.x-L,top.y-s*.3);c.closePath();c.fill();c.stroke();
+    c.fillStyle=turn>0?'rgba(255,255,255,.5)':'rgba(60,20,110,.35)';c.beginPath();c.moveTo(top.x,top.y-s*1.7);c.lineTo(top.x-L,top.y-s*.3);c.lineTo(top.x,top.y-s*.1);c.closePath();c.fill();
+    c.fillStyle='rgba(255,255,255,.3)';c.beginPath();c.moveTo(top.x,top.y-s*.1);c.lineTo(top.x+L,top.y-s*.3);c.lineTo(top.x,top.y+s*1.5);c.closePath();c.fill();
+    tbSeg({x:top.x-L,y:top.y-s*.3},{x:top.x+L,y:top.y-s*.3},'#4a1a7a',1);
+    for(let k=0;k<4;k++){const a=t*1.2+k*Math.PI/2,px=top.x+Math.cos(a)*22,py=top.y+Math.sin(a)*8;c.globalAlpha=Math.sin(a)>0?1:.4;c.fillStyle='#f0e0ff';c.fillRect(px-1.2,py-1.2,2.4,2.4);}c.globalAlpha=1;}
+  // the cutting wheel spins; now and then sparks fly off it
+  {const {x,y}=G.wheel,p=P(x+2,y,34),sp=t*9;c.fillStyle='#8a8692';c.strokeStyle='#3a3632';c.lineWidth=1.4;c.beginPath();c.ellipse(p.x,p.y,10,10,0,0,7);c.fill();c.stroke();
+    c.fillStyle='#b8b4c0';c.beginPath();c.ellipse(p.x,p.y,6,6,0,0,7);c.fill();
+    for(let k=0;k<4;k++){const a=sp+k*Math.PI/2;tbSeg(p,{x:p.x+Math.cos(a)*9,y:p.y+Math.sin(a)*9},'#4a4652',1.2);}
+    if((t%2.4)<1.2)for(let k=0;k<6;k++){const ph=((t*3+k/6)%1),a=-.4-k*.12;c.globalAlpha=1-ph;c.fillStyle=k%2?'#ffe08a':'#fff6d0';c.fillRect(p.x+10+Math.cos(a)*ph*24,p.y-2+Math.sin(a)*ph*14+ph*ph*14,2,2);}
+    c.globalAlpha=1;}
+  // gems in the window wink in turn
+  {const x0=G.bx0+14,y1=G.byF+12,BF=tbF(x0,y1),i=Math.floor(t*1.3)%9,ph=(t*1.3)%1,p=BF(5+i*6.2,(i%2?20:14)+1);
+    c.globalAlpha=Math.sin(ph*Math.PI);c.strokeStyle='#ffffff';c.lineWidth=1.2;c.beginPath();c.moveTo(p.x-5,p.y-3);c.lineTo(p.x+5,p.y-3);c.moveTo(p.x,p.y-8);c.lineTo(p.x,p.y+2);c.stroke();c.globalAlpha=1;}
+  // the sign swings: a dark board with a blue gem
+  {const a=P(G.bx1+4,G.byF+18,72),sw=Math.sin(t*1.2+1)*.1;c.translate(a.x,a.y);c.rotate(sw);
+    tbSeg({x:-6,y:0},{x:-6,y:5},'#3a3632',1);tbSeg({x:6,y:0},{x:6,y:5},'#3a3632',1);c.fillStyle='#2e2440';c.strokeStyle='#c8b070';c.lineWidth=1.4;c.beginPath();c.roundRect(-11,5,22,20,3);c.fill();c.stroke();
+    cbGem(0,17,6,'#4a9ae8');}
+  c.restore();}
+const cbGemcutLights=b=>{const G=cbGemGeo(b),W=G.bx1-G.bx0;return tbLit([[G.bx0+44,G.byF+12,20],[G.bx0+W*.24,G.byF,56],[G.bx0+W*.56,G.byF,56],[G.bx0+W*.84,G.byF,56],[G.tw.x,G.tw.y+G.tw.r,76],[G.bx0+W-28,G.byF,14,1]]);};
+
 const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
+  gemcut:{body:cbGemcut,live:cbGemcutLive,signAt:b=>{const G=cbGemGeo(b);return[{name:b.name,x:(G.bx0+44)/TILE,w:0,y:(G.byF+12)/TILE,h:0},40];},lights:cbGemcutLights},
   shop:{body:cbMarket,live:cbMarketLive,signAt:b=>{const G=cbMarketGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.byF/TILE,h:0},G.H1+20];},lights:cbMarketLights}};
 // take over the drawing of the capital's pieces that have a design of their own
 {const _prev=drawBuilding;
