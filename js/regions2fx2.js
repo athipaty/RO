@@ -85,7 +85,7 @@ if(typeof TC_BAN!=='undefined'){const _tb2=tcBanner;tcBanner=function(id){if(ZON
   g.fillStyle='#3a3236';g.fillRect(0,44,240,12);g.fillStyle='#e8541a';g.beginPath();g.ellipse(60,50,24,3,0,0,7);g.fill();g.beginPath();g.ellipse(190,52,18,2.5,0,0,7);g.fill();
   TC_BAN[id]=c.toDataURL();}return _tb2.apply(this,arguments);};}
 // ---- the Caldera's own rocks: jagged black basalt with glowing lava cracks (no moss or grass) ----
-{const _sp2=sprite;sprite=function(theme,kind,v){if(theme!=='caldera'||(kind!=='rock'&&kind!=='crag'))return _sp2.apply(this,arguments);const key='calrock'+kind+v;if(SPR[key])return SPR[key];
+{const _sp2=sprite;sprite=function(theme,kind,v){if((theme!=='caldera'&&theme!=='molten')||(kind!=='rock'&&kind!=='crag'))return _sp2.apply(this,arguments);const key='calrock'+kind+v;if(SPR[key])return SPR[key];
   const c=document.createElement('canvas');c.width=80;c.height=110;const g=c.getContext('2d'),ax=40,ay=100,tall=kind==='crag'?60+v*8:26+v*6,w=kind==='crag'?22:26;
   g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(ax,ay,w+4,8,0,0,7);g.fill();
   const pts=kind==='crag'?[[-w,0],[-w*.7,-tall*.45],[-w*.35,-tall*.8],[0,-tall],[w*.3,-tall*.7],[w*.6,-tall*.85],[w,-tall*.3],[w*.9,0]]:[[-w,0],[-w*.85,-tall*.6],[-w*.3,-tall],[w*.4,-tall*.9],[w,-tall*.4],[w*.95,0]];

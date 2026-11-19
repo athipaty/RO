@@ -17,7 +17,7 @@ module.exports = async t => {
         branch = [...panel.querySelectorAll('.wbranch .wnode')].map(n => n.dataset.zone);
       return { kind, nodes, here, unseen, txt, branch, btn: !!document.querySelector('[data-open="worldmap"]') }; });
     t.ok(map.kind === 'worldmap' && map.btn, 'M (or the Map button) opens the world map');
-    t.ok(map.nodes.length === 15 && ['deep1', 'deep2', 'deep3', 'heights', 'farms'].every(z => map.branch.includes(z)), `it shows all 12 regions (with the capital, Saltspray Coast and Cinderpeak Caldera), the north and south gates' regions and the 3 dungeon floors under the woods (${map.nodes.length}: ${map.branch})`);
+    t.ok(map.nodes.length === 18 && ['deep1', 'deep2', 'deep3', 'heights', 'farms'].every(z => map.branch.includes(z)), `it shows all 12 regions (with the capital, Saltspray Coast and Cinderpeak Caldera), the north and south gates' regions and the 3 dungeon floors under the woods (${map.nodes.length}: ${map.branch})`);
     t.ok(map.here === 'meadow' && /You are here/.test(map.txt), 'it marks where you are');
     t.ok(map.unseen.includes('frost') && !map.unseen.includes('woods') && /Sproutling/.test(map.txt) && !/Rime Stalker/.test(map.txt), 'unvisited regions are dimmed and keep their monsters secret');
     t.ok(/World boss: Ashen Warlord/.test(map.txt), 'it shows where a world boss is out');
