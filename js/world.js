@@ -54,9 +54,10 @@ function getZone(id){
     for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(x===1||y===1){if(r()<.6)set(x,y,2);}else if(x===W-2||y===H-2){}else set(x,y,r()<.05?7:0);}
     const fill=(x0,y0,x1,y1,v)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)set(x,y,v);};
     // Market Row and Adventurers' Yard stay green: one dirt path from the General Store's door and one from the Guild Hall's
-    for(let y=18;y<=27;y++)for(let x=2;x<=16;x++)if(r()<.12)set(x,y,7);fill(3,24,16,25,1); // Chapel Close: a flowered green, a dirt walk
-    fill(23,24,37,25,1);fill(32,26,35,27,3);             // Travellers' Green: a dirt lane past the doors, a duck pond
-    for(let k=2;k<=37;k++){if(k<17||k>22){set(k,12,7);set(k,17,7);}}for(let k=2;k<=27;k++)if(k<12||k>17){set(17,k,7);set(22,k,7);} // flower hedges between districts
+    for(let y=18;y<=27;y++)for(let x=2;x<=16;x++)if(r()<.12)set(x,y,7);fill(3,24,17,25,1); // Chapel Close: a flowered green, a dirt walk
+    fill(22,24,37,25,1);fill(32,26,35,27,3);             // Travellers' Green: a dirt lane past the doors, a duck pond
+    for(let k=2;k<=37;k++){if(k<17||k>22){set(k,12,7);set(k,17,7);}}for(let k=2;k<=27;k++)if(k<12||k>17){set(17,k,7);set(22,k,7);}
+    fill(17,24,17,25,1);fill(22,24,22,25,1);fill(6,12,7,12,1);fill(27,12,28,12,1); // every walk runs through the hedges to the road // flower hedges between districts
     fill(6,7,7,12,1);fill(27,8,28,12,1);                 // (v1.32.1)
     fill(0,13,W-1,16,6);fill(18,0,21,H-1,6);             // the two stone roads, gate to gate (v1.31.1)
     for(let y=8;y<=22;y++)for(let x=13;x<=26;x++)if(Math.hypot(x+.5-20,y+.5-15)<6)set(x,y,6); // the round plaza
