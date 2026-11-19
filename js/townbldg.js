@@ -8,6 +8,9 @@
      smith  Smithy: an open forge shed under a high slate roof, stone back walls hung with tongs and hammers, a stone
             hearth with a live fire, bellows and coal, the chimney through the roof (smoke), an anvil on a stump
             (sparks with every strike), a quench barrel (steam), a rack of swords, an axe and shields, a horseshoe sign
+     job    Guild Hall: an adventurers' longhall, low plank walls under a steep mossy shingle roof with crossed dragon
+            heads at both ends, a porch with the guild crest (a shield on crossed swords), blue star banners, a quest
+            board of notices and a WANTED poster, two braziers burning by the door, smoke from the roof's smoke hole
    The body is drawn once into a cached picture (js/archi.js bldCacheBlit); anything that moves is drawn live on top.
    Buildings not listed here keep the shared styles from js/archi.js. All drawn in code, original art. */
 const TB_P=(x,y,h=0)=>{const p=proj(x,y);return{x:p.x,y:p.y-h};};
@@ -175,7 +178,76 @@ function tbSmithLive(b){const G=tbSmithGeo(b),P=TB_P,c=ctx,t=now;c.save();
 const tbLit=(pts)=>pts.map(([x,y,h,door])=>{const p=proj(x,y);return{x:p.x,y:p.y-h,door:door?1:0};});
 const tbStoreLights=b=>{const X0=b.x*TILE,X1=(b.x+b.w)*TILE,Y0=b.y*TILE,Y1=(b.y+b.h)*TILE;return tbLit([[X0+60,Y1-50,20],[X0+150,Y1-50,20],[(X0+X1)/2-24,Y1-30,66],[X1-46,Y0+40,66]]);};
 const tbSmithLights=b=>{const G=tbSmithGeo(b);return tbLit([[(G.hx0+G.hx1)/2,G.hy1,34],[(G.hx0+G.hx1)/2,G.hy1+20,10,1],[G.anv.x,G.anv.y,30]]);};
-const TOWN_BLD={shop:{body:tbStore,sign:96,lights:tbStoreLights},smith:{body:tbSmith,live:tbSmithLive,sign:60,lights:tbSmithLights}};
+/* ---------------- the Guild Hall ---------------- */
+// an adventurers' longhall: low plank walls under a steep shingle roof with crossed dragon heads, a porch with the guild
+// shield, banners, a quest board out front and two braziers by the door
+const tbGuildGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,bx0=X0+8,bx1=X1-8,by0=Y0+8,byF=Y1-52,Xc=(bx0+bx1)/2;
+  return{X0,Y0,X1,Y1,bx0,bx1,by0,byF,Xc,H:42,RH:86,pd:26,brz:[{x:Xc-44,y:Y1-12},{x:Xc+44,y:Y1-12}],vent:{x:bx0+70,y:(by0+byF)/2}};};
+// a dragon head at the end of a carved beam: the beam rises from (a) towards (z) and curls into a head facing out
+function tbDragon(a,z,dir,col){const c=ctx;c.save();c.translate(z.x,z.y);c.scale(1.5,1.5);c.translate(-z.x,-z.y);c.strokeStyle=col;c.lineWidth=3.6;c.lineCap='round';c.beginPath();c.moveTo(a.x,a.y);c.quadraticCurveTo((a.x+z.x)/2+dir*2,(a.y+z.y)/2-6,z.x,z.y);c.stroke();
+  c.fillStyle=col;c.beginPath();c.ellipse(z.x+dir*3,z.y-3,6,4.5,dir*.3,0,7);c.fill();
+  c.beginPath();c.moveTo(z.x+dir*6,z.y-6);c.lineTo(z.x+dir*16,z.y-2);c.lineTo(z.x+dir*6,z.y+1);c.closePath();c.fill();
+  c.beginPath();c.moveTo(z.x-dir*1,z.y-6);c.lineTo(z.x-dir*5,z.y-14);c.lineTo(z.x+dir*3,z.y-7);c.closePath();c.fill();
+  c.fillStyle='#ffcf4a';c.beginPath();c.arc(z.x+dir*5,z.y-4.5,1.4,0,7);c.fill();c.lineCap='butt';c.restore();}
+function tbGuild(b){const G=tbGuildGeo(b),{X0,Y0,X1,Y1,bx0,bx1,by0,byF,Xc,H,RH,pd}=G,P=TB_P,c=ctx,wood='#7a5232',woodR='#5e3e24',shingle='#5e4630',ban=b.roof||'#2e4f8e',gold='#e8c25a';
+  poly([P(bx0,Y1),P(X1+26,Y1),P(X1+26,Y0+26),P(bx1,Y0)],'rgba(0,0,0,.2)');
+  // a plank boardwalk in front
+  poly([P(bx0,byF),P(bx1,byF),P(bx1,Y1-2),P(bx0,Y1-2)],'#9a7a52',TB_OL);ctx.globalAlpha=.4;for(let y=byF+8;y<Y1;y+=8)tbSeg(P(bx0,y),P(bx1,y),'#5a3a1c',1);ctx.globalAlpha=1;
+  // plank walls on a stone footing
+  tbBox(bx0,by0,bx1,byF,0,H,wood,woodR);
+  const F=tbF(bx0,byF),R=tbR(bx1,byF),W=bx1-bx0,D=byF-by0;
+  for(const [S,L,col] of [[F,W,'#4a3018'],[R,D,'#3e2814']]){ctx.globalAlpha=.55;for(let u=7;u<L;u+=7)tbSeg(S(u,8),S(u,H),col,1);ctx.globalAlpha=1;tbQuad(S,0,0,L,8,'#857e72');tbSeg(S(0,H-3),S(L,H-3),'#3a2410',3);}
+  // small shuttered windows
+  for(const [S,u] of [[F,22],[F,W-44],[R,D/2-11]]){tbQuad(S,u,16,u+22,32,'#e8c878');tbSeg(S(u+11,16),S(u+11,32),'#3a2410',1.6);tbSeg(S(u,24),S(u+22,24),'#3a2410',1.6);
+    tbQuad(S,u-7,15,u,33,'#3e5a8a');tbQuad(S,u+22,15,u+29,33,'#3e5a8a');}
+  // the steep shingle roof, and a log pile against the gable end
+  tbGableX(bx0,by0,bx1,byF,H,RH,shingle,woodR);
+  {const yc=(by0+byF)/2;ctx.globalAlpha=.25;for(let k=0;k<40;k++){const t=(k*.618)%1,s=((k*.381)%1),p=P(bx0+(bx1-bx0)*t,byF+10-(byF+10-yc)*s,H+RH*s);tbDisc(p.x,p.y,5,2.5,'#6a8a3a');}ctx.globalAlpha=1;
+    // a round window high in the gable
+    const gw=P(bx1,yc,H+RH*.42);tbDisc(gw.x,gw.y,7,9,'#e8c878',TB_OL);tbSeg({x:gw.x,y:gw.y-9},{x:gw.x,y:gw.y+9},'#3a2410',1.2);
+    // crossed dragon heads at both ends of the ridge
+    const e=10,rR=P(bx1+e,yc,H+RH),rL=P(bx0-e,yc,H+RH);
+    tbDragon(P(bx1+e,yc+22,H+RH-20),{x:rR.x-14,y:rR.y-24},-1,'#3e2814');tbDragon(P(bx1+e,yc-22,H+RH-20),{x:rR.x+16,y:rR.y-26},1,'#4e3420');
+    tbDragon(P(bx0-e,yc+22,H+RH-20),{x:rL.x-14,y:rL.y-24},-1,'#3e2814');tbDragon(P(bx0-e,yc-22,H+RH-20),{x:rL.x+16,y:rL.y-26},1,'#4e3420');
+    // the smoke hole on the ridge
+    const v=G.vent;tbBox(v.x-8,yc-8,v.x+8,yc+8,H+RH-6,H+RH+10,'#5a4028','#4a3420','#2a1c10');}
+  for(let i=0;i<7;i++){const p=P(bx1+14+(i%3)*8,byF-30+Math.floor(i/3)*9,0);tbDisc(p.x,p.y-4-Math.floor(i/3)*7,4.5,4.5,'#8a6040',TB_OL);tbDisc(p.x,p.y-4-Math.floor(i/3)*7,2,2,'#c8a070');}
+  // banners on the wall either side of the porch
+  for(const u of [W/2-58,W/2+42]){const top=F(u,H-2);c.fillStyle='#3a2410';c.fillRect(top.x-1,top.y-2,18,3);const t0=F(u+1,H-4),t1=F(u+15,H-4),b0=F(u+1,6),b1=F(u+15,6),bm=F(u+8,14);
+    poly([t0,t1,b1,bm,b0],ban,TB_OL);const m=F(u+8,26);c.fillStyle=gold;c.beginPath();for(let k=0;k<10;k++){const a=k*Math.PI/5-Math.PI/2,r=k%2?2.6:6;c.lineTo(m.x+Math.cos(a)*r,m.y+Math.sin(a)*r);}c.closePath();c.fill();}
+  // the porch: two carved posts, a little gable roof facing the street, the guild shield in its gable
+  {const y1=byF+pd,pw=30,ph=40,rh=26;for(const x of [Xc-pw+3,Xc+pw-3])tbBox(x-3,y1-3,x+3,y1+3,0,ph,'#6a4426','#4e3220');
+    // the door under it
+    tbQuad(F,W/2-17,0,W/2+17,32,'#3a2414');tbSeg(F(W/2,0),F(W/2,32),'#24160a',2);for(const h of [8,24]){tbSeg(F(W/2-17,h),F(W/2+17,h),'#8a8a8a',2);}
+    poly([P(Xc-pw-4,byF,ph),P(Xc-pw-4,y1+4,ph),P(Xc,y1+4,ph+rh),P(Xc,byF,ph+rh)],shade(shingle,-30),TB_OL);
+    poly([P(Xc-pw,y1,ph),P(Xc+pw,y1,ph),P(Xc,y1,ph+rh-2)],'#8a6040',TB_OL);
+    poly([P(Xc,byF,ph+rh),P(Xc,y1+4,ph+rh),P(Xc+pw+4,y1+4,ph),P(Xc+pw+4,byF,ph)],shingle,TB_OL);
+    tbSeg(P(Xc-pw-4,y1+4,ph),P(Xc,y1+4,ph+rh),'#3e2814',3);tbSeg(P(Xc+pw+4,y1+4,ph),P(Xc,y1+4,ph+rh),'#3e2814',3);
+    // the guild crest: a round shield, two crossed swords behind it
+    const s=P(Xc,y1+2,ph+9);for(const d of [-1,1]){tbSeg({x:s.x-d*14,y:s.y+12},{x:s.x+d*14,y:s.y-12},'#d8dce4',2.6);tbSeg({x:s.x-d*11,y:s.y+6},{x:s.x-d*15,y:s.y+11},gold,2);}
+    tbDisc(s.x,s.y,9,9,ban,TB_OL);tbDisc(s.x,s.y,6,6,shade(ban,25));tbDisc(s.x,s.y,2.4,2.4,gold,TB_OL);}
+  // the quest board: two posts, a capped board pinned with notices and a WANTED poster
+  {const x0=X0+12,x1=X0+70,y=Y1-16;for(const x of [x0,x1])tbBox(x-2,y-2,x+2,y+2,0,46,'#6a4426','#4e3220');
+    tbBox(x0-2,y-3,x1+2,y,12,42,'#8a6040','#6a4426');poly([P(x0-6,y+4,42),P(x1+6,y+4,42),P(x1+6,y-6,48),P(x0-6,y-6,48)],shingle,TB_OL);
+    const S=tbF(x0-2,y);const notes=[[4,30,12,10,'#f4ead6'],[18,32,10,8,'#f0e0a0'],[30,28,12,12,'#f4ead6'],[45,31,10,9,'#e8d8b8'],[6,16,10,10,'#e8d8b8'],[46,15,12,11,'#f4ead6']];
+    for(const [u,h,w,hh,col] of notes){tbQuad(S,u,h,u+w,h+hh,col,'rgba(60,40,20,.5)');for(let k=2;k<hh-2;k+=3)tbSeg(S(u+2,h+k),S(u+w-2,h+k),'rgba(60,40,20,.5)',.7);const pin=S(u+w/2,h+hh-1);c.fillStyle='#c8382a';c.beginPath();c.arc(pin.x,pin.y,1.2,0,7);c.fill();}
+    // the WANTED poster with a monster's face
+    tbQuad(S,19,13,41,27,'#e8c890','rgba(60,40,20,.6)');tbQuad(S,19,24,41,27,'#a8382a',null);const f=S(30,18);tbDisc(f.x,f.y,4.5,3.8,'#5a3a2a');c.fillStyle='#e8c890';c.fillRect(f.x-2.5,f.y-1.5,1.6,1.6);c.fillRect(f.x+1,f.y-1.5,1.6,1.6);
+    c.fillStyle='#5a3a2a';c.beginPath();c.moveTo(f.x-4,f.y-3);c.lineTo(f.x-6,f.y-7);c.lineTo(f.x-2,f.y-4);c.fill();c.beginPath();c.moveTo(f.x+4,f.y-3);c.lineTo(f.x+6,f.y-7);c.lineTo(f.x+2,f.y-4);c.fill();}
+  // the brazier stands (their fire is drawn live)
+  for(const z of G.brz){const p=P(z.x,z.y);for(const dx of [-6,0,6])tbSeg({x:p.x+dx,y:p.y+(dx?0:3)},{x:p.x+dx*.4,y:p.y-18},'#2a2622',2);
+    c.fillStyle='#3a3632';c.beginPath();c.ellipse(p.x,p.y-20,10,4,0,0,Math.PI);c.lineTo(p.x-8,p.y-26);c.ellipse(p.x,p.y-26,10,4,0,Math.PI,0,true);c.closePath();c.fill();c.strokeStyle=TB_OL;c.lineWidth=1;c.stroke();tbDisc(p.x,p.y-26,9,3.6,'#2a1a10');}
+}
+function tbGuildLive(b){const G=tbGuildGeo(b),P=TB_P,c=ctx,t=now;c.save();
+  for(const [i,z] of G.brz.entries()){const p=P(z.x,z.y,27),fl=.8+Math.sin(t*8+i*2)*.12+Math.sin(t*21+i)*.08;
+    c.globalCompositeOperation='lighter';const g=c.createRadialGradient(p.x,p.y-6,1,p.x,p.y-6,40);g.addColorStop(0,`rgba(255,150,60,${.5*fl})`);g.addColorStop(1,'rgba(255,100,30,0)');c.fillStyle=g;c.beginPath();c.arc(p.x,p.y-6,40,0,7);c.fill();c.globalCompositeOperation='source-over';
+    for(let k=0;k<4;k++){const x=p.x-7+k*4.6+Math.sin(t*6+k+i)*1.5,h=(12+((k*7)%5)*2)*fl;c.fillStyle=k%2?'rgba(255,214,100,.95)':'rgba(255,120,40,.95)';c.beginPath();c.moveTo(x-3.5,p.y);c.quadraticCurveTo(x+Math.sin(t*9+k)*2,p.y-h*1.5,x+3.5,p.y);c.closePath();c.fill();}
+    for(let k=0;k<3;k++){const ph=(t*.9+k/3+i*.2)%1;c.fillStyle=`rgba(255,200,90,${1-ph})`;c.fillRect(p.x+Math.sin(k*3+t)*6,p.y-12-ph*30,1.6,1.6);}}
+  const yc=(G.by0+G.byF)/2,v=P(G.vent.x,yc,G.H+G.RH+12);for(let k=0;k<4;k++){const ph=(t*.2+k/4)%1;tbDisc(v.x+ph*20+Math.sin(t+k)*3,v.y-ph*60,5+ph*12,4+ph*9,`rgba(120,115,110,${.35*(1-ph)})`);}
+  c.restore();}
+const tbGuildLights=b=>{const G=tbGuildGeo(b);return tbLit([[G.bx0+33,G.byF,24],[G.bx1-33,G.byF,24],[G.bx1,(G.by0+G.byF)/2,24],[G.Xc,G.byF,14,1],[G.brz[0].x,G.brz[0].y,34],[G.brz[1].x,G.brz[1].y,34]]);};
+const TOWN_BLD={shop:{body:tbStore,sign:96,lights:tbStoreLights},smith:{body:tbSmith,live:tbSmithLive,sign:60,lights:tbSmithLights},
+  job:{body:tbGuild,live:tbGuildLive,sign:98,lights:tbGuildLights}};
 // take over the drawing of Hearthvale's buildings that have a design of their own
 {const _prev=drawBuilding;
   drawBuilding=function(b){const T=typeof zoneId!=='undefined'&&zoneId==='town'&&b.npc&&TOWN_BLD[b.npc.role];if(!T)return _prev.apply(this,arguments);
