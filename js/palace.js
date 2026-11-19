@@ -101,3 +101,4 @@ if(typeof TH_PAT!=='undefined')TH_PAT.unshift(
   [/^Nobody holds Emberkeep\. The palace keep flies the Crown's own colours\.$/,'ยังไม่มีใครครองป้อมเอมเบอร์ หอคอยวังจึงชักธงของราชบัลลังก์'],
   [/^holds Emberkeep: their colours fly from the palace keep\.$/,'ครองป้อมเอมเบอร์อยู่ ธงของพวกเขาโบกสะบัดบนหอคอยวัง'],
   [/^\(you\)$/,'(คุณ)']);
+if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^Lv (\d+) · ([A-Za-z' ]+)( · .+)?$/,(m,l,c,g)=>`Lv ${l} · ${typeof thText==='function'?thText(c):c}${g||''}`]);

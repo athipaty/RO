@@ -1533,3 +1533,8 @@ body.touchui #panel.npcsheet .x{border-radius:50%!important}
 #panel .palkeep{margin:8px 0;padding:8px 10px;border-radius:10px;border:1px solid rgba(201,162,74,.45);background:rgba(42,74,138,.35)}
 #panel .palhero.me{background:rgba(255,224,138,.08);border-radius:8px}
 #panel .palrank{width:26px;text-align:center;font-weight:800;color:#ffe08a}
+/* Royal Stables (js/stables.js, v1.37.2) */
+#panel .stbrow .pips{display:inline-flex;gap:3px;vertical-align:1px;margin-left:4px}
+#panel .stbrow .pip{width:9px;height:9px;border-radius:50%;border:1.5px solid #c9a24a;background:transparent;display:inline-block}
+#panel .stbrow .pip.full{background:#ffd76a;box-shadow:0 0 6px rgba(255,200,90,.6)}
+#panel .stbpet{width:56px;height:56px;flex:none;border-radius:10px;background:rgba(0,0,0,.2);border:1px solid rgba(201,162,74,.35)}

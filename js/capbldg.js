@@ -494,6 +494,73 @@ function cbGateLive(b){const P=TB_P,c=ctx,t=now,X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+
   const p=P(X0+18,b.up?Y1:Y0+10,58);tbSeg({x:p.x,y:p.y+10},p,'#5a3a1c',2.4);
   for(let k=0;k<4;k++){const ph=(t*2+k*.25)%1;c.globalAlpha=1-ph;c.fillStyle=k%2?'#ffd060':'#ff7a2a';c.beginPath();c.ellipse(p.x+Math.sin(t*6+k)*2*(1-ph),p.y-2-ph*12,3.5-ph*2,5.5-ph*3,0,0,7);c.fill();}c.globalAlpha=1;}
 
+/* ---------------- the Royal Stables & Kennels ---------------- */
+// a long stable of stone below and timber above under blue slate: three half-doors with a Meadow Hopper and a Grey
+// Lupe looking out (ears twitch, heads nod), a hay loft, a cupola with a turning weathervane; a paddock fence with a
+// saddle on the rail, a trough and hay bales; a kennel with a bowl on the side; a horseshoe-and-paw sign
+const cbStbGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,bx0=X0+8,bx1=X1-62,by0=Y0+18,byF=Y1-50;
+  return{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W:bx1-bx0,D:byF-by0,H:60,RH:36,stall:[30,74,118],ken:{x0:bx1+12,y0:by0+30,x1:bx1+46,y1:by0+64}};};
+function cbStables(b){const G=cbStbGeo(b),{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W,D,H,RH,ken}=G,P=TB_P,c=ctx;
+  const stone='#c8bfae',stoneR='#a89e8c',wood='#8a5a32',woodR='#6a4426',roof=b.roof||'#2a4a8a',gold='#e8c25a',hay='#e8c860';
+  poly([P(bx0,Y1),P(X1+24,Y1),P(X1+24,Y0+24),P(bx1,Y0)],'rgba(0,0,0,.2)');
+  // the kennel on the side, behind the stable's corner
+  {const {x0,y0,x1,y1}=ken;tbBox(x0,y0,x1,y1,0,24,'#b8784a','#946038');const kF=tbF(x0,y1);
+    const ap=P((x0+x1)/2,y1+3,40);poly([P(x0-3,y1+3,24),P(x1+3,y1+3,24),ap],'#2a4a8a',TB_OL);poly([P(x1+3,y1+3,24),P(x1+3,y0-3,24),P((x0+x1)/2,y0-3,40),ap],shade(roof,-25),TB_OL);
+    cbArch(kF,(x1-x0)/2-7,(x1-x0)/2+7,0,10,'#2a1a10');const bw=P(x0-8,y1+10);c.fillStyle='#5a8ac8';c.strokeStyle=TB_OL;c.lineWidth=1;c.beginPath();c.ellipse(bw.x,bw.y-2,6,3,0,0,7);c.fill();c.stroke();
+    c.fillStyle='#a87a40';c.beginPath();c.ellipse(bw.x,bw.y-3,4,1.8,0,0,7);c.fill();}
+  // the stable: stone below, timber above
+  tbBox(bx0,by0,bx1,byF,0,H,wood,woodR);const F=tbF(bx0,byF),R=tbR(bx1,byF);
+  for(const [S,L,col,colR] of [[F,W,stone,'#7a7268'],[R,D,stoneR,'#6a6258']]){tbQuad(S,0,0,L,24,col);c.globalAlpha=.4;for(let h=8;h<24;h+=8)tbSeg(S(0,h),S(L,h),colR,.8);c.globalAlpha=1;
+    c.globalAlpha=.35;for(let u=8;u<L;u+=8)tbSeg(S(u,24),S(u,H),'#4a2e14',.8);c.globalAlpha=1;tbQuad(S,0,24,L,27,'#5a3a1c');}
+  // the stalls: half-doors (the lower half shut, the upper open and dark)
+  for(const u of G.stall){tbQuad(F,u-13,0,u+13,44,'#2a1a10');tbQuad(F,u-13,0,u+13,22,'#7a4a26');tbSeg(F(u-13,0),F(u+13,22),'#4a2e14',1.4);tbSeg(F(u-13,22),F(u+13,0),'#4a2e14',1.4);
+    tbQuad(F,u-15,44,u+15,48,'#5a3a1c');tbQuad(F,u-14,21,u+14,24,'#5a3a1c');}
+  // hay in the third stall
+  {const p=F(G.stall[2],24);c.fillStyle=hay;c.beginPath();c.ellipse(p.x,p.y-3,10,5,0,Math.PI,0);c.fill();c.strokeStyle='#a8883a';c.lineWidth=.8;for(let k=-8;k<=8;k+=3){c.beginPath();c.moveTo(p.x+k,p.y-1);c.lineTo(p.x+k*1.2,p.y-7);c.stroke();}}
+  // a window on the side
+  tbQuad(R,D/2-8,32,D/2+8,46,'#2a1a10');tbSeg(R(D/2,32),R(D/2,46),'#5a3a1c',1.2);
+  tbGableX(bx0,by0,bx1,byF,H,RH,roof,woodR);
+  // the hay loft door in the roof's gable side and a bale peeking out; the cupola with a gold ball
+  {const yc=(by0+byF)/2,p0=P(bx1,yc+10,H+4),p1=P(bx1,yc-10,H+4);poly([p0,p1,P(bx1,yc-10,H+22),P(bx1,yc+10,H+22)],'#2a1a10',TB_OL);
+    tbBox(bx1-2,yc-8,bx1+8,yc+8,H+4,H+14,hay,shade(hay,-15),shade(hay,10));
+    const cx=bx0+W*.5;tbBox(cx-10,yc-10,cx+10,yc+10,H+RH-10,H+RH+12,'#f0e8d8','#d4ccbc');const ap=P(cx,yc,H+RH+26);
+    poly([P(cx-13,yc+13,H+RH+12),P(cx+13,yc+13,H+RH+12),ap],roof,TB_OL);poly([P(cx+13,yc+13,H+RH+12),P(cx+13,yc-13,H+RH+12),ap],shade(roof,-25),TB_OL);
+    tbSeg(ap,{x:ap.x,y:ap.y-16},'#3a3632',1.6);c.fillStyle=gold;c.beginPath();c.arc(ap.x,ap.y-2,2.4,0,7);c.fill();}
+  // the paddock: a fence corner in front-left with a saddle on the rail, a trough and two hay bales
+  {const x0=X0+2,y1=Y1-6,xA=X0+2,yA=byF+10;for(const [a,z] of [[[xA,yA],[xA,y1]],[[xA,y1],[bx0+56,y1]]]){const n=4;
+      for(let i=0;i<=n;i++){const x=a[0]+(z[0]-a[0])*i/n,y=a[1]+(z[1]-a[1])*i/n;tbSeg(P(x,y,0),P(x,y,18),'#6a4426',2.4);}
+      for(const h of [8,16])tbSeg(P(a[0],a[1],h),P(z[0],z[1],h),'#8a5a32',2);}
+    const s=P(X0+2,byF+30,18);c.fillStyle='#8e2a22';c.strokeStyle=TB_OL;c.lineWidth=1;c.beginPath();c.ellipse(s.x,s.y-2,7,4,0,Math.PI,0);c.lineTo(s.x+6,s.y+6);c.lineTo(s.x-6,s.y+6);c.closePath();c.fill();c.stroke();
+    c.fillStyle=gold;c.fillRect(s.x-1.5,s.y+1,3,3);
+    tbBox(X0+14,byF+14,X0+44,byF+24,0,9,'#7a5232','#5a3a1c','#5a9ad8');
+    for(const [x,y] of [[bx0+40,Y1-22],[bx0+58,Y1-30]])tbBox(x-9,y-6,x+9,y+6,0,11,hay,shade(hay,-15),shade(hay,8));}
+  // the sign bracket off the front corner
+  tbSeg(P(bx1,byF,54),P(bx1,byF+22,54),'#3a3632',2.2);
+}
+function cbStablesLive(b){const G=cbStbGeo(b),P=TB_P,c=ctx,t=now,F=tbF(G.bx0,G.byF);c.save();
+  // a Meadow Hopper and a Grey Lupe look out over their half-doors
+  {const nod=Math.sin(t*1.6)*1.5,tw=Math.sin(t*3)>0.85?-.35:0,p=F(G.stall[0],30);const y=p.y+nod;
+    c.fillStyle='#d8b48a';c.strokeStyle='#5a3a1c';c.lineWidth=1.2;
+    c.save();c.translate(p.x-4,y-8);c.rotate(-.25+tw);c.beginPath();c.ellipse(0,-9,3.2,10,0,0,7);c.fill();c.stroke();c.fillStyle='#f0c8c0';c.beginPath();c.ellipse(0,-9,1.4,7,0,0,7);c.fill();c.restore();
+    c.save();c.translate(p.x+5,y-8);c.rotate(.25);c.fillStyle='#d8b48a';c.beginPath();c.ellipse(0,-9,3.2,10,0,0,7);c.fill();c.stroke();c.fillStyle='#f0c8c0';c.beginPath();c.ellipse(0,-9,1.4,7,0,0,7);c.fill();c.restore();
+    c.fillStyle='#d8b48a';c.beginPath();c.ellipse(p.x,y,10,8,0,0,7);c.fill();c.stroke();c.fillStyle='#2a1a10';c.beginPath();c.arc(p.x-4,y-1,1.4,0,7);c.arc(p.x+4,y-1,1.4,0,7);c.fill();
+    c.fillStyle='#e88a9a';c.beginPath();c.arc(p.x,y+3,1.4,0,7);c.fill();}
+  {const nod=Math.sin(t*1.3+1)*1.5,p=F(G.stall[1],30),y=p.y+nod,tw=Math.sin(t*2.6+2)>0.85?.3:0;c.fillStyle='#8a909c';c.strokeStyle='#2a2a32';c.lineWidth=1.2;
+    for(const [dx,r] of [[-6,-.3-tw],[6,.3]]){c.save();c.translate(p.x+dx,y-7);c.rotate(r);c.beginPath();c.moveTo(-4,0);c.lineTo(0,-10);c.lineTo(4,0);c.closePath();c.fill();c.stroke();c.restore();}
+    c.beginPath();c.ellipse(p.x,y,10,8,0,0,7);c.fill();c.stroke();c.fillStyle='#b8bcc6';c.beginPath();c.moveTo(p.x-4,y+1);c.lineTo(p.x+4,y+1);c.lineTo(p.x,y+8);c.closePath();c.fill();
+    c.fillStyle='#2a2a32';c.beginPath();c.arc(p.x,y+7,1.6,0,7);c.fill();c.fillStyle='#f0c040';c.beginPath();c.arc(p.x-4,y-2,1.4,0,7);c.arc(p.x+4,y-2,1.4,0,7);c.fill();}
+  // the weathervane turns slowly
+  {const yc=(G.by0+G.byF)/2,cx=G.bx0+G.W*.5,ap=P(cx,yc,G.H+G.RH+26),a=Math.sin(t*.4)*1.2,L=11;c.strokeStyle='#3a3632';c.lineWidth=1.6;
+    c.beginPath();c.moveTo(ap.x-Math.cos(a)*L,ap.y-14-Math.sin(a)*3);c.lineTo(ap.x+Math.cos(a)*L,ap.y-14+Math.sin(a)*3);c.stroke();
+    const hx=ap.x+Math.cos(a)*L,hy=ap.y-14+Math.sin(a)*3;c.fillStyle='#3a3632';c.beginPath();c.moveTo(hx,hy-3);c.lineTo(hx+Math.cos(a)*5,hy);c.lineTo(hx,hy+3);c.closePath();c.fill();}
+  // the sign swings: a horseshoe and a paw
+  {const a=P(G.bx1,G.byF+18,54),sw=Math.sin(t*1.2+3)*.1;c.translate(a.x,a.y);c.rotate(sw);tbSeg({x:-7,y:0},{x:-7,y:5},'#3a3632',1);tbSeg({x:7,y:0},{x:7,y:5},'#3a3632',1);
+    c.fillStyle='#2a4a8a';c.strokeStyle='#e8c25a';c.lineWidth=1.4;c.beginPath();c.roundRect(-15,5,30,20,4);c.fill();c.stroke();
+    c.strokeStyle='#e8c25a';c.lineWidth=2.4;c.beginPath();c.arc(-6,15,5,Math.PI*.15,Math.PI*.85,true);c.stroke();
+    c.fillStyle='#e8c25a';c.beginPath();c.arc(7,17,3,0,7);c.fill();for(const [dx,dy] of [[-3,-4],[0,-6],[3,-6],[6,-4]]){c.beginPath();c.arc(4+dx,17+dy,1.3,0,7);c.fill();}}
+  c.restore();}
+const cbStablesLights=b=>{const G=cbStbGeo(b);return tbLit([...G.stall.map(u=>[G.bx0+u,G.byF,36]),[G.bx1,(G.by0+G.byF)/2,40]]);};
+
 const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   gemcut:{body:cbGemcut,live:cbGemcutLive,signAt:b=>{const G=cbGemGeo(b);return[{name:b.name,x:(G.bx0+44)/TILE,w:0,y:(G.byF+12)/TILE,h:0},40];},lights:cbGemcutLights},
   library:{body:cbLib,live:cbLibLive,signAt:b=>{const G=cbLibGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:(G.byF+G.po.d+2)/TILE,h:0},G.po.h+9];},lights:cbLibLights},
@@ -501,6 +568,7 @@ const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   palace:{body:cbPalace,live:cbPalaceLive,signAt:b=>{const G=cbPalGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.gate.y1/TILE,h:0},58];},lights:cbPalaceLights},
   wall:{draw:cbWallDraw,lights:()=>[]},
   gatetower:{body:cbGateTower,live:cbGateLive,lights:b=>tbLit([[b.x*TILE+18,b.up?(b.y+b.h)*TILE:b.y*TILE+10,58]])},
+  stables:{body:cbStables,live:cbStablesLive,signAt:b=>{const G=cbStbGeo(b);return[{name:b.name,x:(G.bx0+G.stall[1]+10)/TILE,w:0,y:G.byF/TILE,h:0},G.H+20];},lights:cbStablesLights},
   shop:{body:cbMarket,live:cbMarketLive,signAt:b=>{const G=cbMarketGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.byF/TILE,h:0},G.H1+20];},lights:cbMarketLights}};
 // take over the drawing of the capital's pieces that have a design of their own
 {const _prev=drawBuilding;
