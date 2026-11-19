@@ -1,4 +1,4 @@
-// Fighting styles, step 2: the 12 master callings have their own projectile or impact, an outer cast ring and their own finisher
+// Fighting styles, step 2: the 18 master callings have their own projectile or impact, an outer cast ring and their own finisher
 const { player, wait, newRoom } = require('./helpers');
 module.exports = async t => {
   const g = await player('Master', newRoom(), { server: 'http://127.0.0.1:9' });
@@ -24,7 +24,7 @@ module.exports = async t => {
       P.cls = 'warbringer'; S = computeStats(); P.x = m.x + 20; P.y = m.y; fx.length = 0; P.meleeHit = { t: m, at: now }; meleeImpact(true);
       out.war = !fx.some(f => f.k === 'slash') && fx.some(f => f.k === 'quake') && fx.some(f => f.k === 'motes');
       return out; });
-    t.ok(r.n === 12 && r.own, `all 12 master callings have their own style (${r.n})`);
+    t.ok(r.n === 18 && r.own, `all 18 master callings have their own style (${r.n})`);
     t.ok(r.unique, 'all 28 callings have a different finisher and cast circle');
     t.ok(r.thai, 'master finisher names have Thai');
     t.ok(r.void, 'a Voidcaller\'s basic attack flies as a void orb');

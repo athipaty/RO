@@ -15,7 +15,7 @@ module.exports = async t => {
     const start = await A.ev(() => { P.x = Z.spawn.x + 60; P.y = Z.spawn.y; return { x: P.x, y: P.y }; });
     await B.ev(s => { P.x = s.x - 80; P.y = s.y; }, start);
     await wait(1500);
-    t.ok(await B.ev(() => { const b = [...document.querySelectorAll('#partyBox button')].find(b => b.textContent === 'Follow'); if (!b) return false; b.click(); return !!FOL; }), 'the party box has a Follow button that starts following');
+    t.ok(await B.ev(() => { const b = [...document.querySelectorAll('#partyBox button')].find(b => b.textContent === 'Follow'); if (!b) return false; b.click(); const pk = document.getElementById('folPick'); if (!pk || pk.hidden) return false; pk.querySelector('[data-gap="close"]').click(); return !!FOL && pk.hidden; }), 'the party box has a Follow button: it asks how close, then starts following');
     // the leader walks east along the road
     await A.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); pathTo(P.x + 420, P.y, true); for (let i = 0; i < 60 && P.path.length; i++) await w(100); });
     await wait(3500);

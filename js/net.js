@@ -136,7 +136,7 @@ function updateWho(){
       const mk=(label,fn)=>{const b=document.createElement('button');b.className='btn small';b.type='button';b.textContent=label;b.addEventListener('click',ev=>{ev.stopPropagation();fn();});bs.appendChild(b);};
       if(!inParty(peer)&&(!SOC.party||SOC.party.leader===selfPeer()))mk('Invite',()=>soc('partyInvite',{peer}));
       if(typeof canInvite==='function'&&canInvite()&&!o.guild&&!o.guest)mk('Guild',()=>gsoc('guildInvite',{peer}));
-      if(inParty(peer)&&typeof followStart==='function')mk(following(peer)?'Stop':'Follow',()=>{if(following(peer))followStop(`You stopped following ${name}.`);else followStart(peer);updateWho();});
+      if(inParty(peer)&&typeof followStart==='function')mk(following(peer)?'Stop':'Follow',()=>{if(following(peer))followStop(`You stopped following ${name}.`);else followAsk(peer);updateWho();});
       mk('Whisper',()=>{openChat();$('#chatIn').value=`/w ${name} `;});
       if(o.z===zoneId&&typeof duelChallenge==='function'&&!DUEL)mk('Duel',()=>duelChallenge(peer));
       if(o.vd)mk('Shop',()=>soc('vendView',{peer}));else if(o.z===zoneId)mk('Trade',()=>soc('tradeRequest',{peer}));

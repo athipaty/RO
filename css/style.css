@@ -1582,3 +1582,10 @@ body.touchui #panel.npcsheet .x{border-radius:50%!important}
 #partyBox .pmr .ph{grid-column:1/-1;grid-row:2;height:7px}
 #partyBox .pmr+.pmr{border-top:1px solid rgba(255,255,255,.06)}
 #panel .aidnote{margin:6px 0 8px;padding:8px 10px;border-radius:10px;background:rgba(200,80,40,.18);border:1px solid rgba(255,140,90,.5);color:#ffd0b0;font-size:13px}
+/* choosing how far behind to follow (js/followgap.js, v1.42.5) */
+#folPick{position:fixed;left:50%;transform:translateX(-50%);bottom:max(150px,calc(env(safe-area-inset-bottom) + 140px));z-index:40;padding:10px 12px;width:min(340px,calc(100vw - 24px));box-sizing:border-box;text-align:center}
+#folPick[hidden]{display:none}#folPick .fpt{font-weight:800;color:#ffe6a0;margin-bottom:8px}
+#folPick .fpb{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}#folPick .fpb .btn{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;min-height:44px}
+#folPick .fpb .btn small{font-size:10px;opacity:.75;font-weight:600}#folPick .fpb .btn.on{color:#2a1a04;background:linear-gradient(180deg,#ffe08a,#e0a83a);border-color:#fff0b8}
+#folPick .fpc{margin-top:8px}
+#folPick{background:linear-gradient(180deg,#1c2a52,#121b38)!important;border:1px solid #c9a24a!important;box-shadow:0 10px 30px rgba(0,0,0,.6);z-index:60}

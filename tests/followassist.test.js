@@ -17,7 +17,7 @@ module.exports = async t => {
       P.x = keep.x - 60; P.y = keep.y; P.target = keep; P.holdPos = true; return { x: P.x, y: P.y, i: keep.idx }; });
     await B.ev(s => { for (const m of mobs) if (m.idx !== s.i) { m.dead = true; m.respawnAt = now + 1e9; }
       P.x = s.x - 70; P.y = s.y + 20; P.cls = 'arcanist'; P.skills = { emberbolt: 5 }; P.st.dex = 1; P.st.int = 30; P.st.vit = 99; S = computeStats(); P.hp = S.maxhp; P.sp = S.maxsp;
-      followStart([...NET.others.keys()][0]); }, spot);
+      FOLLOW_GAP.set('close'); followStart([...NET.others.keys()][0]); }, spot);
     await wait(2500);
     // on a busy machine the follower can still be walking into range: keep trying for a few seconds
     const cast = await B.ev(async i => { const w = ms => new Promise(r => setTimeout(r, ms)); let r = {};
