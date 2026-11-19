@@ -680,6 +680,66 @@ function cbSigilForgeLive(b){const G=cbSfGeo(b),{pot,tw,bx0,byF,W}=G,P=TB_P,c=ct
   c.restore();}
 const cbSigilForgeLights=b=>{const G=cbSfGeo(b);return tbLit([[G.bx0+G.W*.5,G.byF,46],[G.pot.x,G.pot.y,30],[G.bx0+G.W*.5,G.byF,14,1]]);};
 
+/* ---------------- the Alchemist's Laboratory (v1.40.1) ---------------- */
+// a stone workshop under a green copper roof with shelves of coloured bottles in its windows; a round glass greenhouse
+// dome full of herbs on its left; out front a giant glass flask bubbling over a burner, joined by a coiled copper still
+// to a dripping receiving jar; a chimney puffing coloured smoke; a mortar and herb baskets by the door
+const cbLabGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,bx0=X0+60,bx1=X1-12,by0=Y0+14,byF=Y1-60;
+  return{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W:bx1-bx0,D:byF-by0,H:62,RH:32,dome:{x:X0+28,y:Y0+44,r:31},flask:{x:X0+40,y:Y1-30},jar:{x:X0+88,y:Y1-22},ch:{x:bx1-22,y:by0+16}};};
+const CB_POT=['#e85a5a','#5ab0ff','#7ae07a','#c890ff','#f0c040','#ff9a4a'];
+function cbLab(b){const G=cbLabGeo(b),{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W,D,H,RH,dome,ch}=G,P=TB_P,c=ctx;
+  const stone='#d8d0bc',stoneR='#b4ab96',roof=b.roof||'#4a7a4a',copper='#b87a3a',gold='#e8c25a';
+  poly([P(X0,Y1),P(X1+22,Y1),P(X1+22,Y0+22),P(bx1,Y0)],'rgba(0,0,0,.2)');
+  tbBox(ch.x-9,ch.y-9,ch.x+9,ch.y+9,0,H+RH+26,'#8a8070','#6e6656','#5a5246');
+  // the workshop
+  tbBox(bx0,by0,bx1,byF,0,H,stone,stoneR);const F=tbF(bx0,byF),R=tbR(bx1,byF);
+  for(const [S,L] of [[F,W],[R,D]]){c.globalAlpha=.3;for(let h=10;h<H;h+=10)tbSeg(S(0,h),S(L,h),'#8a8070',.8);c.globalAlpha=1;tbQuad(S,0,0,L,7,'#a89e88');tbQuad(S,0,H-5,L,H,copper,null);}
+  // windows full of bottles on shelves
+  for(const [S,u] of [[F,22],[F,W-22],[R,D*.5]]){tbQuad(S,u-12,22,u+12,48,'#2a3a32');for(const h of [30,40]){tbSeg(S(u-11,h),S(u+11,h),'#6a4426',1.4);
+    for(let k=0;k<5;k++){const p=S(u-9+k*4.5,h);c.fillStyle=CB_POT[(k+h)%6];c.fillRect(p.x-1.6,p.y-(k%2?6:5),3.2,k%2?6:5);c.fillStyle='rgba(255,255,255,.5)';c.fillRect(p.x-1,p.y-(k%2?5:4),.8,2.5);}}
+    tbQuad(S,u-13,20,u+13,22,copper,null);}
+  // the door with a green flask sign over it
+  {const u=W*.5;tbQuad(F,u-10,0,u+10,32,'#4a3020');cbArch(F,u-10,u+10,0,26,'#5a3a22');tbSeg(F(u,0),F(u,34),'#2a1a10',1.2);
+    const p=F(u,46);c.fillStyle='#7ae07a';c.strokeStyle=TB_OL;c.lineWidth=1.2;c.beginPath();c.moveTo(p.x-2.5,p.y-8);c.lineTo(p.x+2.5,p.y-8);c.lineTo(p.x+2.5,p.y-4);c.lineTo(p.x+7,p.y+4);c.lineTo(p.x-7,p.y+4);c.lineTo(p.x-2.5,p.y-4);c.closePath();c.fill();c.stroke();}
+  tbGableX(bx0,by0,bx1,byF,H,RH,roof,stoneR);
+  {const top=H+RH+26,F2=tbF(ch.x-9,ch.y+9),R2=tbR(ch.x+9,ch.y+9);tbQuad(F2,0,H+RH*.5,18,top,'#8a8070');tbQuad(R2,0,H+RH*.5,18,top,'#6e6656');tbBox(ch.x-11,ch.y-11,ch.x+11,ch.y+11,top,top+5,copper,shade(copper,-20),'#3a2a1a');}
+  // the greenhouse dome: a stone ring, glass panes on a copper frame, herbs inside
+  {const {x,y,r}=dome;cbCyl(x,y,r+2,0,10,'#b4ab96','#d8d0bc');
+    for(let k=0;k<7;k++){const a=k*.9,px=x+Math.cos(a)*r*.55,py=y+Math.sin(a)*r*.4,p=P(px,py,10);c.fillStyle=k%2?'#4a9a4a':'#6ac06a';c.beginPath();c.ellipse(p.x,p.y-5,5,7,0,0,7);c.fill();
+      c.fillStyle=CB_POT[k%6];c.beginPath();c.arc(p.x+1,p.y-10,1.6,0,7);c.fill();}
+    const ct=P(x,y,10),rx=r*1.103,ry=r*.552,dh=r*1.15;c.fillStyle='rgba(190,240,230,.38)';c.strokeStyle=copper;c.lineWidth=1.6;
+    c.beginPath();c.ellipse(ct.x,ct.y,rx,dh,0,Math.PI,Math.PI*2);c.ellipse(ct.x,ct.y,rx,ry,0,0,Math.PI);c.closePath();c.fill();c.stroke();
+    c.lineWidth=1.1;for(let k=1;k<6;k++){const a=Math.PI*k/6,qx=ct.x-Math.cos(a)*rx,qy=ct.y+Math.sin(a)*ry;c.beginPath();c.moveTo(qx,qy);c.quadraticCurveTo(qx,ct.y-dh*.75,ct.x,ct.y-dh);c.stroke();}
+    c.beginPath();c.ellipse(ct.x,ct.y-dh*.5,rx*.86,ry*.55,0,Math.PI,0);c.stroke();
+    c.fillStyle='rgba(255,255,255,.45)';c.beginPath();c.ellipse(ct.x-rx*.45,ct.y-dh*.55,4,10,-.4,0,7);c.fill();
+    c.fillStyle=gold;c.beginPath();c.arc(ct.x,ct.y-dh-2,2.6,0,7);c.fill();}
+  // the still: the burner and stand under the flask, the copper coil, the receiving jar
+  {const f=G.flask,j=G.jar;cbCyl(f.x,f.y,10,0,8,'#5a5652','#3a3632');for(const dx of [-9,9])tbSeg(P(f.x+dx,f.y+4,0),P(f.x+dx*.7,f.y,16),'#3a3632',2);
+    const a=P(f.x+6,f.y,46),z=P(j.x,j.y,26);c.strokeStyle=copper;c.lineWidth=3;c.beginPath();c.moveTo(a.x,a.y);c.quadraticCurveTo((a.x+z.x)/2,a.y-14,z.x,z.y-4);c.stroke();
+    const mx=(a.x+z.x)/2+4,my=(a.y+z.y)/2-2;for(let k=0;k<3;k++){c.beginPath();c.ellipse(mx,my+k*4,6,2.4,0,0,7);c.stroke();}
+    c.fillStyle='rgba(200,240,255,.5)';c.strokeStyle=TB_OL;c.lineWidth=1.2;const jp=P(j.x,j.y,0);c.beginPath();c.roundRect(jp.x-6,jp.y-20,12,20,3);c.fill();c.stroke();
+    c.fillStyle='#c890ff';c.fillRect(jp.x-5,jp.y-9,10,8);}
+  // a mortar and two herb baskets by the door
+  {const p=P(bx0+W*.5+26,byF+14);c.fillStyle='#9a948a';c.strokeStyle=TB_OL;c.lineWidth=1.2;c.beginPath();c.ellipse(p.x,p.y-4,7,4,0,0,7);c.fill();c.stroke();tbSeg({x:p.x+2,y:p.y-6},{x:p.x+7,y:p.y-14},'#6a4426',2.2);
+    for(const dx of [40,54]){const q=P(bx0+W*.5+dx,byF+10);c.fillStyle='#b8884a';c.beginPath();c.ellipse(q.x,q.y-3,6,3.5,0,0,7);c.fill();c.stroke();c.fillStyle=dx===40?'#6ac06a':'#e8a040';c.beginPath();c.ellipse(q.x,q.y-5,4.5,2.2,0,0,7);c.fill();}}
+}
+function cbLabLive(b){const G=cbLabGeo(b),P=TB_P,c=ctx,t=now;c.save();
+  // the burner's flame and the giant flask bubbling green
+  {const f=G.flask,fl=P(f.x,f.y,10);for(let k=0;k<4;k++){const ph=(t*2.4+k*.25)%1;c.globalAlpha=1-ph;c.fillStyle=k%2?'#8ad0ff':'#3a7aff';c.beginPath();c.ellipse(fl.x-4+k*3,fl.y-ph*8,2.4-ph*1.4,4-ph*2.4,0,0,7);c.fill();}c.globalAlpha=1;
+    const p=P(f.x,f.y,16),R=15;c.fillStyle='rgba(200,240,255,.55)';c.strokeStyle=TB_OL;c.lineWidth=1.4;c.beginPath();c.arc(p.x,p.y-R,R,0,7);c.fill();c.stroke();
+    c.save();c.beginPath();c.arc(p.x,p.y-R,R-1.5,0,7);c.clip();const lv=p.y-R+2+Math.sin(t*2)*1.5;c.fillStyle='#5ad07a';c.fillRect(p.x-R,lv,R*2,R*2);c.fillStyle='rgba(255,255,255,.35)';c.fillRect(p.x-R,lv,R*2,2);c.restore();
+    c.fillStyle='rgba(200,240,255,.55)';c.beginPath();c.roundRect(p.x-4,p.y-R*2-14,8,16,2);c.fill();c.stroke();
+    c.fillStyle='rgba(255,255,255,.55)';c.beginPath();c.ellipse(p.x-6,p.y-R-5,2.5,5,-.4,0,7);c.fill();
+    for(let k=0;k<5;k++){const ph=(t*.9+k/5)%1;c.globalAlpha=1-ph;c.fillStyle='#c8ffd8';c.beginPath();c.arc(p.x-7+k*3.5,p.y-R+6-ph*(R+4),1.2+ph,0,7);c.fill();}c.globalAlpha=1;
+    // a drop runs down the coil into the jar now and then
+    const ph=(t*.6)%1,jp=P(G.jar.x,G.jar.y,26);if(ph<.5){c.globalAlpha=1-ph*2;c.fillStyle='#c890ff';c.beginPath();c.arc(jp.x,jp.y-2+ph*14,1.6,0,7);c.fill();c.globalAlpha=1;}}
+  // coloured smoke from the chimney
+  {const top=P(G.ch.x,G.ch.y,G.H+G.RH+31);for(let k=0;k<6;k++){const ph=(t*.25+k/6)%1;c.globalAlpha=(1-ph)*.5;c.fillStyle=CB_POT[k%6];c.beginPath();c.arc(top.x+ph*18+Math.sin(t+k)*3,top.y-ph*60,4+ph*10,0,7);c.fill();}c.globalAlpha=1;}
+  // the herbs in the dome sway
+  {const {x,y,r}=G.dome;for(let k=0;k<3;k++){const p=P(x-8+k*8,y+4,14);c.strokeStyle='#3a8a3a';c.lineWidth=1.4;c.beginPath();c.moveTo(p.x,p.y);c.quadraticCurveTo(p.x+Math.sin(t*1.5+k)*3,p.y-8,p.x+Math.sin(t*1.5+k)*4,p.y-14);c.stroke();}}
+  c.restore();}
+const cbLabLights=b=>{const G=cbLabGeo(b);return tbLit([[G.bx0+22,G.byF,36],[G.bx0+G.W-22,G.byF,36],[G.bx1,(G.by0+G.byF)/2,36],[G.flask.x,G.flask.y,30],[G.dome.x,G.dome.y,20],[G.bx0+G.W*.5,G.byF,14,1]]);};
+
 const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   gemcut:{body:cbGemcut,live:cbGemcutLive,signAt:b=>{const G=cbGemGeo(b);return[{name:b.name,x:(G.bx0+44)/TILE,w:0,y:(G.byF+12)/TILE,h:0},40];},lights:cbGemcutLights},
   library:{body:cbLib,live:cbLibLive,signAt:b=>{const G=cbLibGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:(G.byF+G.po.d+2)/TILE,h:0},G.po.h+9];},lights:cbLibLights},
@@ -690,6 +750,7 @@ const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   stables:{body:cbStables,live:cbStablesLive,signAt:b=>{const G=cbStbGeo(b);return[{name:b.name,x:(G.bx0+G.stall[1]+10)/TILE,w:0,y:G.byF/TILE,h:0},G.H+20];},lights:cbStablesLights},
   awaken:{body:cbAwaken,live:cbAwakenLive,signAt:b=>{const G=cbAwGeo(b);return[{name:b.name,x:G.cx/TILE,w:0,y:(G.cy+G.cr+9)/TILE,h:0},G.ch+4];},lights:cbAwakenLights},
   fuse:{body:cbSigilForge,live:cbSigilForgeLive,signAt:b=>{const G=cbSfGeo(b);return[{name:b.name,x:(G.bx0+G.W*.5)/TILE,w:0,y:G.byF/TILE,h:0},G.H+2];},lights:cbSigilForgeLights},
+  alchemy:{body:cbLab,live:cbLabLive,signAt:b=>{const G=cbLabGeo(b);return[{name:b.name,x:(G.bx0+G.W*.5)/TILE,w:0,y:G.byF/TILE,h:0},G.H-22];},lights:cbLabLights},
   shop:{body:cbMarket,live:cbMarketLive,signAt:b=>{const G=cbMarketGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.byF/TILE,h:0},G.H1+20];},lights:cbMarketLights}};
 // take over the drawing of the capital's pieces that have a design of their own
 {const _prev=drawBuilding;

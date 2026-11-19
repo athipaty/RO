@@ -40,6 +40,7 @@ function getZone(id){
              {x:5,y:5,w:8,h:5,name:'Aurel Market',roof:'#a8452e',npc:{name:'Merchant Tavi',role:'shop',col:'#c86a3a',hair:'#3a2a1a'}},
              {x:15,y:5,w:7,h:5,name:'Gemcutter',roof:'#5a3a8a',npc:{name:'Gemcutter Sela',role:'gemcut',col:'#7a5ac0',hair:'#e8e4f0'}},
              {x:37,y:4,w:10,h:6,name:'Grand Library',roof:'#2e4f6e',npc:{name:'Librarian Oren',role:'library',col:'#3b5a7a',hair:'#c8c8c8'}},
+             {x:48,y:5,w:6,h:5,name:"Alchemist's Laboratory",roof:'#4a7a4a',npc:{name:'Alchemist Verena',role:'alchemy',col:'#3a6a4a',hair:'#e8a040'}}, // v1.40.1 Scholars' Quarter
              {x:12,y:24,w:6,h:5,name:'Sigil Forge',roof:'#2e6e6a',npc:{name:'Sigilwright Dorn',role:'fuse',col:'#4a5a6a',hair:'#e8e8e8'}}, // v1.38.5 beside the Hall of Awakening in Noble Gardens
              {x:4,y:24,w:7,h:5,name:'Hall of Awakening',roof:'#6a4aa8',npc:{name:'Awakener Liora',role:'awaken',col:'#e8e0f4',hair:'#c8b0ff'}}, // v1.37.4 in Noble Gardens
              {x:46,y:27,w:7,h:5,name:'Royal Stables',roof:'#2a4a8a',npc:{name:'Stablemaster Rowan',role:'stables',col:'#6a4a2a',hair:'#c86a2a'}}, // v1.37.2
