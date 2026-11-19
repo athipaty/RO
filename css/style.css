@@ -1558,3 +1558,7 @@ body.touchui #panel.npcsheet .x{border-radius:50%!important}
 #panel .stbrow .stbmount{width:44px;height:44px;border-radius:10px;background:rgba(0,0,0,.2);border:1px solid rgba(201,162,74,.35)}
 /* what an item is used for, in the Sell list (js/itemuses.js, v1.40.2) */
 #panel .iuse{font-size:11.5px;line-height:1.35;color:#9fd8b8}#panel .iuneed{font-size:11.5px;line-height:1.35;color:#ffcf6a;font-weight:700}
+#panel .iurow{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;align-items:center}
+#panel .iup{width:24px;height:24px;display:inline-grid;place-items:center;border-radius:6px;background:rgba(0,0,0,.28);border:1px solid rgba(160,220,190,.35);cursor:pointer;font-size:14px;font-weight:800;line-height:1}
+#panel .iup img{width:22px;height:22px}#panel .iup.need{border:1.5px solid #ffcf5a;box-shadow:0 0 6px rgba(255,200,90,.55);background:rgba(90,60,10,.5)}
+#panel .iumore{font-size:11px;color:var(--muted);margin-left:2px}
