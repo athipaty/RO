@@ -47,7 +47,7 @@ function getZone(id){
     zone.portals.push({x:(W-2+.5)*TILE,y:21*TILE,to:'town',side:'east'});
     zone.spawn={x:(W-6)*TILE,y:21*TILE};
   } else if(D.theme==='town'){
-    // v1.27.0 Hearthvale in four districts around a round fountain plaza; the four roads run out to the gates.
+    // v1.27.0 Hearthvale in four districts around a round open plaza; the four roads run out to the gates.
     //   Market Row (north-west): shop, smithy, the stylist's stall      Adventurers' Yard (north-east): guild hall, arena, keep, training yard
     //   Chapel Close (south-west): chapel, the elder, the mage, the veiled shade      Travellers' Green (south-east): warehouse, waystation, festival
     // no extra trees on the south and east edges: they stand nearest the camera and would hide the people behind them
@@ -80,7 +80,7 @@ function getZone(id){
     zone.npcs.push({name:'Lune the Stylist',role:'stylist',col:'#d86a9a',hair:'#7a4fb0',x:6.5*TILE,y:10.2*TILE});
     zone.npcs.push({name:'Festival Keeper Pim',role:'festival',col:'#e07ab0',hair:'#f0c040',x:27.5*TILE,y:26.2*TILE});
     // district signposts where each district meets the plaza (drawn by drawObj, kind 'dsign')
-    zone.signs=[{x:15.2,y:10.6,name:'Market Row'},{x:24.8,y:10.6,name:'Adventurers\' Yard'},{x:15.2,y:19.4,name:'Chapel Close'},{x:24.8,y:19.4,name:'Travellers\' Green'}];
+    zone.signs=[{x:15.2,y:10.6,name:'Market Row'},{x:24.8,y:10.6,name:'Adventurers\' Yard'},{x:15.2,y:19.4,name:'Chapel Close'},{x:23.4,y:24.4,name:'Travellers\' Green'}];
     zone.spawn={x:20*TILE,y:19.5*TILE};
   } else if(D.theme==='keep'){
     // a walled courtyard with four gates; cobbled inside, the golden capture ring around the crystal
@@ -172,7 +172,7 @@ function renderZone(z, r){
     if(kind==='rock')k=th2==='crypt'||th2==='arena'||th2==='keep'?'pillar':th2==='cave'?'rock':th2==='heights'?(R()<.35?'crag':'rock'):(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':th2==='farms'&&R()<.3?'hay':'tree';
     z.objs.push({x:px+16,y:py+16,kind:k,v:Math.floor(R()*3),sc:.85+R()*.3});}
   for(const b of z.buildings){mg.fillStyle=b.roof;mg.fillRect(b.x,b.y,b.w,b.h);}
-  if(z.D.theme==='town')z.objs.push(z.id==='capital'?{x:28*TILE,y:16*TILE,kind:'fountain',v:0,sc:1.5}:{x:20*TILE,y:15*TILE,kind:'fountain',v:0,sc:1});
+  if(z.id==='capital')z.objs.push({x:28*TILE,y:16*TILE,kind:'fountain',v:0,sc:1.5}); // Hearthvale's plaza is open, no fountain (v1.28.1)
   for(const s of z.signs||[])z.objs.push({x:s.x*TILE,y:s.y*TILE,kind:'dsign',name:s.name,v:0,sc:1});
   if(z.D.theme==='keep'){const [cx,cy]=KEEP_C;z.objs=z.objs.filter(o=>!(Math.abs(o.x-(cx*TILE+16))<1&&Math.abs(o.y-(cy*TILE+16))<1));z.objs.push({x:(cx+.5)*TILE,y:(cy+.5)*TILE,kind:'crystal',v:0,sc:1});}
   z.img=c; z.mini=mini;

@@ -16,7 +16,7 @@ const npcName=k=>QNPC[k]?QNPC[k].name:Object.keys(NPC_KEY).find(n=>NPC_KEY[n]===
 const QUESTS={
   letter:{name:'A Letter for the Smith',from:'hollis',to:'brannoc',lv:1,obj:[],
     offer:['Ah, a new face in Hearthvale! Welcome, welcome.','Would you do an old man a kindness? Take this letter to Brannoc at the Smithy, just up the road.'],
-    wait:'The Smithy is the dark-roofed building north of the fountain.',
+    wait:'The Smithy is the open forge with the smoking chimney in Market Row.',
     done:['A letter from Hollis? He only writes when he wants something.','…Hah. He wants me to look after you. Fine. Here, take these, you will need them.'],
     reward:{exp:60,jexp:30,gold:100,items:[['red',5]]}},
   sprouts:{name:'Sprouts and Sap',from:'brannoc',to:'brannoc',lv:1,after:'letter',obj:[{kill:'sproutling',n:8},{item:'sap',n:5}],
@@ -62,7 +62,7 @@ const QUESTS={
   warlord:{name:'Heart of Ash',from:'hollis',to:'hollis',lv:40,after:'crypt',obj:[{kill:'warlord',n:1}],
     offer:['The Ashen Warlord wakes in the depths of the Cinder Crypt.','No one in Hearthvale can stand against him. No one but you, and whoever you trust at your side. Bring friends.'],
     wait:'Defeat the Ashen Warlord in the Cinder Crypt. Bring a party.',
-    done:['The ground has gone cold. You did it.','Hearthvale owes you everything. Take this, and know that your name will be told by this fountain for a long time.'],
+    done:['The ground has gone cold. You did it.','Hearthvale owes you everything. Take this, and know that your name will be told in this plaza for a long time.'],
     reward:{exp:60000,jexp:36000,gold:30000,items:[['emberore',5],['glintstone',5]]}},
   // dailies: once per day each
   d_patrol:{name:'Daily: Meadow Patrol',daily:true,from:'pell',to:'pell',lv:3,maxLv:20,after:'watch',obj:[{kill:'hopper',n:15}],
@@ -123,7 +123,7 @@ PANELS.talk=()=>{if(!talk)return '';const key=talk.npc,n=npcName(key);let h=`<di
   if(talk.role&&talk.role!=='talk')h+=`<button class="btn" data-act="tservice">${SERVICE[talk.role]||'Talk'}</button>`;
   return h+`<button class="btn" data-act="close">Goodbye</button></div>`;};
 const SERVICE={shop:'Browse the store',job:'Guild business',heal:'Ask for a blessing',warp:'Travel or rest',smith:'Smithing',storage:'Open storage'};
-function greeting(key){return {hollis:'The fountain has seen a lot of heroes come and go. Sit a while.',pell:'Keep your eyes on the grass. The Hoppers bite.',
+function greeting(key){return {hollis:'This old plaza has seen a lot of heroes come and go. Sit a while.',pell:'Keep your eyes on the grass. The Hoppers bite.',
   ysolde:'Step softly. The woods are listening.',kade:'Sand gets everywhere. Watch your footing.',brannoc:'Mind the sparks.',ilsa:'Welcome back, friend!'}[key]||'Well met, traveller.';}
 function questBox(id,reward){const q=QUESTS[id],r=q.reward;let h=`<div class="qbox">`;
   const on=!!QS().active[id];

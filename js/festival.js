@@ -7,7 +7,7 @@
      Lantern Nights    November       (existing lanterns)           token: Lantern Wick
      Frostfall         December       (existing snow)               token: Frost Ribbon
    During a festival, every monster you defeat has a 12% chance (bosses 100%) to drop the festival's token.
-   Festival Keeper Pim by the fountain trades tokens for that festival's limited hat or face item and a treat.
+   Festival Keeper Pim on Travellers' Green trades tokens for that festival's limited hat or face item and a treat.
    Outside festivals Pim shows the calendar. Tokens and prizes are ordinary items (trade, store, sell). */
 const FESTS={
   blossom:{name:'Blossom Festival',when:'all of February',tok:'petaltok',prize:'blossomcrown',col:'#ffb3d0',treat:'blossomtea'},
@@ -100,4 +100,4 @@ drawSeason=function(){const s=festNow();if(s==='lanterns'||s==='snow'||!s)return
 // tell players once per session when a festival is on
 let festTold=null;
 setInterval(()=>{try{if(!P||!running)return;const fe=festNow();if(!fe||festTold===fe)return;festTold=fe;const F=FESTS[fe];
-  addLog(`✿ ${F.name} is on! Monsters drop ${ITEMS[F.tok].name}s: trade them with Festival Keeper Pim by the fountain for a ${ITEMS[F.prize].name}.`,'l-rare');}catch(e){}},2000);
+  addLog(`✿ ${F.name} is on! Monsters drop ${ITEMS[F.tok].name}s: trade them with Festival Keeper Pim on Travellers' Green for a ${ITEMS[F.prize].name}.`,'l-rare');}catch(e){}},2000);

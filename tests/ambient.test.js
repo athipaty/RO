@@ -19,7 +19,7 @@ module.exports = async t => {
     const beds = await g.ev(async () => { const r = {}; for (const z of ['meadow', 'frost', 'deep1']) { enterZone(z); await new Promise(res => setTimeout(res, 300)); r[z] = AMBS.windZone === z && !!AMBS.wind; } return r; });
     t.ok(beds.meadow && beds.frost && beds.deep1, 'each region starts its own background sound');
     const spots = await g.ev(async () => { enterZone('town'); let n = 0; AMBS.next = now; const orig = SPOTS.town[0]; SPOTS.town[0] = () => { n++; }; await new Promise(r => setTimeout(r, 400)); SPOTS.town[0] = orig; return n; });
-    t.ok(spots >= 1, 'and plays its occasional sounds (the fountain in Hearthvale)');
+    t.ok(spots >= 1, 'and plays its occasional sounds (birds in Hearthvale)');
     // the switch in Settings
     const off = await g.ev(async () => { openPanel('settings'); const sw = panel.querySelector('[data-act="setamb"]'); const had = !!sw; sw.click(); await new Promise(r => setTimeout(r, 300));
       let n = 0; const orig = footstep; footstep = () => { n++; }; keys.d = true; await new Promise(r => setTimeout(r, 800)); keys.d = false; footstep = orig;

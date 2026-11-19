@@ -5,6 +5,9 @@
      shop   General Store: a two-storey market house, an open shop front with shelves, the upper floor overhanging
             the street with a bay window, a striped awning over a counter of produce crates, a hanging balance scale,
             a coin-purse sign on an iron bracket, a hand cart of pumpkins with barrels and sacks
+     smith  Smithy: an open forge shed under a high slate roof, stone back walls hung with tongs and hammers, a stone
+            hearth with a live fire, bellows and coal, the chimney through the roof (smoke), an anvil on a stump
+            (sparks with every strike), a quench barrel (steam), a rack of swords, an axe and shields, a horseshoe sign
    The body is drawn once into a cached picture (js/archi.js bldCacheBlit); anything that moves is drawn live on top.
    Buildings not listed here keep the shared styles from js/archi.js. All drawn in code, original art. */
 const TB_P=(x,y,h=0)=>{const p=proj(x,y);return{x:p.x,y:p.y-h};};
@@ -92,10 +95,91 @@ function tbStore(b){const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)
     for(const [dx,dy] of [[8,10],[20,12],[12,26],[22,28],[15,18]]){const p=P(x+dx,y+dy,24);tbDisc(p.x,p.y-3,5.5,4.2,'#e07a2a','#a04a1a');tbSeg({x:p.x,y:p.y-7},{x:p.x+1,y:p.y-10},'#4a6a2a',1.5);}}
   barrel(bx1+16,Y1-14,'#8a5a32');barrel(bx1+34,Y1-24,'#7a4a2a');sack(bx1+38,Y1-4);sack(bx1+26,Y1+2);}
 
-const TOWN_BLD={shop:{body:tbStore,sign:96}};
+
+/* ---------------- the Smithy ---------------- */
+// an open forge shed: the inside shows under a high slate roof; the anvil, barrel and weapon rack stand in the yard in front
+const tbSmithGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE;
+  return{X0,Y0,X1,Y1,Yr:Y0+78,HB:108,HF:88,hx0:X0+14,hx1:X0+74,hy0:Y0+12,hy1:Y0+58,HH:30,anv:{x:X0+96,y:Y0+104},bar:{x:X0+44,y:Y1-20}};};
+function tbSmith(b){const G=tbSmithGeo(b),{X0,Y0,X1,Y1,Yr,HB,HF,hx0,hx1,hy0,hy1,HH}=G,P=TB_P,c=ctx,stone='#9a948a',stoneR='#7e786e',slate='#4e5260';
+  const roofH=y=>HB-(HB-HF)*(y-(Y0-8))/(Yr-(Y0-8));
+  poly([P(X0,Y1),P(X1+24,Y1),P(X1+24,Y0+24),P(X1,Y0)],'rgba(0,0,0,.18)');
+  // a floor of flagstones under the shed, packed earth in the yard
+  poly([P(X0,Y0),P(X1,Y0),P(X1,Y1),P(X0,Y1)],'#8a7a62');
+  poly([P(X0,Y0),P(X1,Y0),P(X1,Yr),P(X0,Yr)],'#6e6a64');ctx.globalAlpha=.35;for(let x=X0+16;x<X1;x+=22)tbSeg(P(x,Y0),P(x,Yr),'#4a4640',1);for(let y=Y0+18;y<Yr;y+=18)tbSeg(P(X0,y),P(X1,y),'#4a4640',1);ctx.globalAlpha=1;
+  // stone walls at the back and on the left, up to the roof
+  const course=(S,L,h0,h1,col)=>{ctx.globalAlpha=.5;for(let h=h0+10;h<h1;h+=10)tbSeg(S(0,h),S(L,h),col,1);ctx.globalAlpha=1;};
+  tbBox(X0,Y0,X1,Y0+10,0,HB,stone,stoneR);course(tbF(X0,Y0+10),X1-X0,0,HB,'#5e5850');
+  tbBox(X0,Y0+10,X0+10,Yr,0,HF+6,stone,stoneR);course(tbR(X0+10,Yr),Yr-Y0-10,0,HF+6,'#5e5850');
+  // tools hanging on the back wall: tongs, two hammers, a rasp
+  {const S=tbF(X0,Y0+10);for(const [u,k] of [[96,'t'],[112,'h'],[124,'h'],[140,'t'],[156,'r']]){const a=S(u,74),z=S(u,48);c.fillStyle='#3a3632';c.beginPath();c.arc(a.x,a.y,1.6,0,7);c.fill();
+      if(k==='t'){tbSeg(a,z,'#2a2826',2);tbSeg(a,{x:z.x+4,y:z.y},'#2a2826',2);}
+      else if(k==='h'){tbSeg(a,{x:z.x,y:z.y+6},'#7a5230',2.4);c.fillStyle='#4a4846';c.fillRect(z.x-5,z.y+4,10,6);}
+      else{c.fillStyle='#5a5856';c.fillRect(z.x-2,a.y,4,z.y-a.y);}}}
+  // the hearth: a stone block with a fire pit, bellows beside it, a heap of coal
+  tbBox(hx0,hy0,hx1,hy1,0,HH,'#a8a096','#888076','#6a645c');
+  poly([P(hx0+8,hy0+8,HH),P(hx1-8,hy0+8,HH),P(hx1-8,hy1-8,HH),P(hx0+8,hy1-8,HH)],'#2a1a14');
+  {const S=tbF(hx0,hy1);tbQuad(S,18,6,42,20,'#1a120e');}
+  // the hood and the chimney stack, through the roof
+  tbBox(hx0+6,hy0,hx1-6,hy0+20,HH+30,roofH(hy0+20)-2,'#8a847a','#6e685e');
+  poly([P(hx0+2,hy0+30,HH+22),P(hx1-2,hy0+30,HH+22),P(hx1-6,hy0+20,HH+30),P(hx0+6,hy0+20,HH+30)],'#7e786e',TB_OL);
+  {const bx=hx1+4,by=hy0+18;poly([P(bx,by,22),P(bx+22,by+4,16),P(bx+22,by+24,14),P(bx,by+20,22)],'#7a4a2a',TB_OL);tbSeg(P(bx+22,by+14,15),P(bx+34,by+14,12),'#5a3a1c',2.4);
+    const n=P(bx-2,by+10,24);tbSeg(n,P(hx1-2,by+8,HH-6),'#3a3632',2);}
+  for(let i=0;i<9;i++){const p=P(hx0+6+(i%3)*7,hy1+8+Math.floor(i/3)*5,0);tbDisc(p.x,p.y-3-(i%2)*2,4,3,'#1e1c1c');}
+  // the slate roof, high enough to see the forge under it
+  const e=8;poly([P(X0-e,Yr+e,HF),P(X1+e,Yr+e,HF),P(X1+e,Y0-8,HB),P(X0-e,Y0-8,HB)],slate,'#2a2c34');
+  ctx.globalAlpha=.4;for(let x=X0;x<X1+e;x+=10)tbSeg(P(x,Yr+e,HF),P(x,Y0-8,HB),'#2a2c34',1);for(let k=1;k<6;k++){const y=Yr+e-(Yr+e-Y0+8)*k/6;tbSeg(P(X0-e,y,HF+(HB-HF)*k/6),P(X1+e,y,HF+(HB-HF)*k/6),'#2a2c34',1);}ctx.globalAlpha=1;
+  poly([P(X0-e,Yr+e,HF),P(X1+e,Yr+e,HF),P(X1+e,Yr+e,HF-6),P(X0-e,Yr+e,HF-6)],'#3a3e4a',TB_OL);
+  poly([P(X1+e,Yr+e,HF),P(X1+e,Y0-8,HB),P(X1+e,Y0-8,HB-6),P(X1+e,Yr+e,HF-6)],'#30343e',TB_OL);
+  {const cy0=hy0+2,cy1=hy0+20,cx0=hx0+16,cx1=hx1-16;tbBox(cx0,cy0,cx1,cy1,roofH(cy1)-4,HB+46,'#8a847a','#6e685e','#4a4642');tbQuad(tbF(cx0,cy1),-2,HB+40,cx1-cx0+2,HB+46,'#6e685e');}
+  // timber posts holding the roof's front edge
+  for(const x of [X0+4,(X0+X1)/2,X1-6])tbBox(x-3,Yr-3,x+3,Yr+3,0,HF-6,'#6a4a2a','#4e3620');
+  tbBox(X1-9,Y0+30,X1-3,Y0+36,0,HB-14,'#6a4a2a','#4e3620');
+  // the quench barrel of water
+  barrel(G.bar.x,G.bar.y,'#6a4a2a');{const p=P(G.bar.x,G.bar.y,15);tbDisc(p.x,p.y,6,3,'#3a6a8a');}
+  // the anvil on its stump
+  {const p=P(G.anv.x,G.anv.y);c.fillStyle='#6a4426';c.strokeStyle=TB_OL;c.lineWidth=1.2;c.beginPath();c.ellipse(p.x,p.y,11,5.5,0,0,Math.PI);c.lineTo(p.x-11,p.y-14);c.ellipse(p.x,p.y-14,11,5.5,0,Math.PI,0,true);c.closePath();c.fill();c.stroke();
+    tbDisc(p.x,p.y-14,11,5.5,'#9a6a3a',TB_OL);tbDisc(p.x,p.y-14,6,3,'#7a5230');
+    const t=p.y-30;c.fillStyle='#3e3c3e';c.beginPath();c.moveTo(p.x-6,p.y-16);c.lineTo(p.x+6,p.y-16);c.lineTo(p.x+4,t+6);c.lineTo(p.x-4,t+6);c.closePath();c.fill();
+    c.fillStyle='#55535a';c.beginPath();c.moveTo(p.x-12,t+6);c.lineTo(p.x+11,t+6);c.lineTo(p.x+13,t);c.lineTo(p.x-12,t);c.closePath();c.fill();c.stroke();
+    c.beginPath();c.moveTo(p.x-12,t);c.lineTo(p.x-24,t+2);c.lineTo(p.x-12,t+5);c.closePath();c.fill();c.stroke();
+    c.fillStyle='#7a787e';c.fillRect(p.x-11,t-1,23,2);
+    tbSeg({x:p.x+10,y:p.y-2},{x:p.x+16,y:p.y-18},'#7a5230',2);c.fillStyle='#3e3c3e';c.fillRect(p.x+12,p.y-22,8,5);}
+  // the weapon rack: three swords standing, an axe, two round shields leaning
+  {const x0=X1-40,x1=X1-12,y=Y1-26;for(const x of [x0,x1])tbBox(x-2,y-2,x+2,y+2,0,30,'#7a5230','#5a3a1c');tbSeg(P(x0,y,26),P(x1,y,26),'#7a5230',2.6);tbSeg(P(x0,y,8),P(x1,y,8),'#7a5230',2.6);
+    for(const u of [.2,.45,.7]){const bt=P(x0+(x1-x0)*u,y,2),tp=P(x0+(x1-x0)*u,y,40);tbSeg(bt,tp,'#c8ccd4',2.4);tbSeg(tp,{x:tp.x,y:tp.y-3},'#e8ecf4',1.2);
+      const g=P(x0+(x1-x0)*u,y,14);tbSeg({x:g.x-5,y:g.y},{x:g.x+5,y:g.y},'#8a6a2a',2.2);tbSeg(g,P(x0+(x1-x0)*u,y,4),'#5a3a1c',2.4);}
+    {const a=P(x0+(x1-x0)*.92,y,4),z=P(x0+(x1-x0)*.92,y,34);tbSeg(a,z,'#7a5230',2);c.fillStyle='#9aa0a8';c.beginPath();c.moveTo(z.x,z.y+2);c.quadraticCurveTo(z.x+11,z.y+4,z.x+9,z.y+13);c.lineTo(z.x,z.y+9);c.closePath();c.fill();c.strokeStyle=TB_OL;c.stroke();}
+    for(const [dx,col] of [[-14,'#a83a2a'],[34,'#3a5a9a']]){const p=P(x0+dx,y+10,14);tbDisc(p.x,p.y,10,12,col,TB_OL);tbDisc(p.x,p.y,7,8.5,shade(col,20));tbDisc(p.x,p.y,2.6,2.6,'#d8c070',TB_OL);}}
+  // the trade sign: a horseshoe on a board hanging from the roof edge
+  {const h=P(X0+30,Yr+e,HF-6);tbSeg(h,{x:h.x,y:h.y+8},'#2a2420',1.2);const s={x:h.x,y:h.y+20};c.fillStyle='#6a4426';c.strokeStyle=TB_OL;c.lineWidth=1.2;c.beginPath();c.roundRect(s.x-12,s.y-12,24,22,3);c.fill();c.stroke();
+    c.strokeStyle='#c8ccd4';c.lineWidth=3.2;c.beginPath();c.arc(s.x,s.y-1,6.5,Math.PI*.85,Math.PI*2.15,false);c.stroke();c.fillStyle='#2a2826';for(const a of [1.1,1.5,1.9]){c.beginPath();c.arc(s.x+Math.cos(a*Math.PI)*6.5,s.y-1+Math.sin(a*Math.PI)*6.5,.9,0,7);c.fill();}}
+}
+// what moves: the fire in the hearth, sparks off the anvil, smoke from the chimney, steam over the barrel
+function tbSmithLive(b){const G=tbSmithGeo(b),P=TB_P,c=ctx,t=now;c.save();
+  const f=P((G.hx0+G.hx1)/2,(G.hy0+G.hy1)/2,G.HH),fl=.75+Math.sin(t*9)*.12+Math.sin(t*23)*.08;
+  c.globalCompositeOperation='lighter';{const g=c.createRadialGradient(f.x,f.y,2,f.x,f.y,70);g.addColorStop(0,`rgba(255,150,50,${.55*fl})`);g.addColorStop(1,'rgba(255,90,20,0)');c.fillStyle=g;c.beginPath();c.ellipse(f.x,f.y+14,80,46,0,0,7);c.fill();}
+  c.globalCompositeOperation='source-over';
+  tbDisc(f.x,f.y,15,6,`rgba(255,${120+Math.round(60*fl)},40,.95)`);
+  for(let k=0;k<5;k++){const ph=(t*2.2+k*.37)%1,x=f.x-10+k*5+Math.sin(t*7+k)*2,hgt=10+12*(1-ph)*fl;c.fillStyle=k%2?'rgba(255,210,90,.9)':'rgba(255,120,40,.9)';c.beginPath();c.moveTo(x-3.5,f.y);c.quadraticCurveTo(x,f.y-hgt*1.4,x+3.5,f.y);c.closePath();c.fill();}
+  // a hot bar on the anvil, and sparks every strike
+  const a=P(G.anv.x,G.anv.y,31);c.fillStyle=`rgb(255,${150+Math.round(50*Math.sin(t*3))},60)`;c.fillRect(a.x-6,a.y-2,12,3);
+  const strike=(t%1.4)/1.4;if(strike<.45){for(let k=0;k<9;k++){const ang=-Math.PI*(.15+.7*((k*.37)%1)),sp=30+((k*53)%40),d=strike*sp*2.2;
+    c.fillStyle=k%3?'#ffd060':'#fff2b0';c.globalAlpha=1-strike/.45;c.fillRect(a.x+Math.cos(ang)*d,a.y+Math.sin(ang)*d+d*d*.012,2,2);}c.globalAlpha=1;}
+  // chimney smoke
+  const ch=P(G.hx0+30,G.hy0+11,G.HB+46);for(let k=0;k<5;k++){const ph=(t*.25+k/5)%1;tbDisc(ch.x+ph*26+Math.sin(t+k)*4,ch.y-ph*70,6+ph*14,5+ph*11,`rgba(110,105,100,${.45*(1-ph)})`);}
+  // steam off the barrel now and then
+  const bb=P(G.bar.x,G.bar.y,16),sp=(t*.5)%1;if(sp<.6)for(let k=0;k<3;k++){const ph=Math.min(1,sp/.6+k*.15);tbDisc(bb.x+Math.sin(t*2+k)*4,bb.y-ph*30,4+ph*6,3+ph*4,`rgba(235,240,245,${.4*(1-ph)})`);}
+  c.restore();}
+
+// where light shines out at night (js/nightlights.js), in world-view coordinates
+const tbLit=(pts)=>pts.map(([x,y,h,door])=>{const p=proj(x,y);return{x:p.x,y:p.y-h,door:door?1:0};});
+const tbStoreLights=b=>{const X0=b.x*TILE,X1=(b.x+b.w)*TILE,Y0=b.y*TILE,Y1=(b.y+b.h)*TILE;return tbLit([[X0+60,Y1-50,20],[X0+150,Y1-50,20],[(X0+X1)/2-24,Y1-30,66],[X1-46,Y0+40,66]]);};
+const tbSmithLights=b=>{const G=tbSmithGeo(b);return tbLit([[(G.hx0+G.hx1)/2,G.hy1,34],[(G.hx0+G.hx1)/2,G.hy1+20,10,1],[G.anv.x,G.anv.y,30]]);};
+const TOWN_BLD={shop:{body:tbStore,sign:96,lights:tbStoreLights},smith:{body:tbSmith,live:tbSmithLive,sign:60,lights:tbSmithLights}};
 // take over the drawing of Hearthvale's buildings that have a design of their own
 {const _prev=drawBuilding;
   drawBuilding=function(b){const T=typeof zoneId!=='undefined'&&zoneId==='town'&&b.npc&&TOWN_BLD[b.npc.role];if(!T)return _prev.apply(this,arguments);
+    if(T.lights&&!b._tbl){b._nl=T.lights(b);b._tbl=1;}
     if(!bldCacheBlit(b,()=>T.body(b)))T.body(b);
     if(T.live)try{T.live(b);}catch(e){}
     try{drawSign(b,T.sign||54);}catch(e){}};}

@@ -20,7 +20,7 @@ module.exports = async t => {
     const q = await A.ev(async () => { enterZone('town'); const n = Z.npcs.find(n => n.name === 'Elder Hollis'); P.x = n.x; P.y = n.y + 30; openNpc(n); const greet = panel.textContent;
       const b = panel.querySelector('[data-act="topen"]'); if (b) b.click(); await new Promise(r => setTimeout(r, 200)); const offer = panel.textContent; closePanel();
       await new Promise(r => setTimeout(r, 1300)); return { greet, offer, name: QUESTS.letter.name, zone: document.getElementById('zLv').textContent }; });
-    t.ok(/น้ำพุนี้เห็นวีรบุรุษ/.test(q.greet) && q.name === 'จดหมายถึงช่างตีเหล็ก', 'NPC greetings and quest names are in Thai: ' + q.name);
+    t.ok(/ลานเก่าแห่งนี้เห็นวีรบุรุษ/.test(q.greet) && q.name === 'จดหมายถึงช่างตีเหล็ก', 'NPC greetings and quest names are in Thai: ' + q.name);
     t.ok(/หน้าใหม่ใน Hearthvale/.test(q.offer) && /ถัดไป/.test(q.offer), 'quest conversations are in Thai');
     t.ok(/เมืองปลอดภัย/.test(q.zone), 'the region line is in Thai: ' + q.zone);
     const names = await A.ev(() => ({ npc: thText('Elder Hollis'), line: thText('Return to Brannoc the Smith'), quest: QUESTS.letter.offer[1] }));

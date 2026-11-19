@@ -1,6 +1,6 @@
 "use strict";
 /* ================= #4 the stylist: change your look after making your hero =================
-   Lune the Stylist stands near the fountain in Hearthvale. Pick a hairstyle, hair colour, eye colour and skin
+   Lune the Stylist stands in Market Row in Hearthvale. Pick a hairstyle, hair colour, eye colour and skin
    tone with a live preview; it costs STYLE_COST gold and everyone online sees the new look at once. */
 const STYLE_COST=300;
 const STY={lk:null,raf:0};

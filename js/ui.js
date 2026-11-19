@@ -184,7 +184,7 @@ function refreshPanel(){
     <b>Status box:</b> the − button in its corner (or B) shrinks it to just your name, HP and SP; + brings it back.<br>
     <b>Regions:</b> Greenmoss Meadow (Lv 1–10) → Whispering Woods (10–20) → Ashen Dunes (20–32) → Cinder Crypt (32–45), home of the Ashen Warlord → Frostpeak Pass (42–55) → Mirelight Fen (55–70), home of the Mire Matriarch.<br>
     <b>Dungeon:</b> stairs in a clearing in Whispering Woods lead down into the Mossdeep Caverns: three dark floors (Lv 18–37) that get harder as you go deeper, with the Gloomcap King at the bottom.<br>
-    <b>Quests:</b> people with a gold <b>!</b> over their head have a quest for you, and a <b>?</b> means you can hand one in. Start the story with Elder Hollis by the fountain. Press J for your quest log.<br>
+    <b>Quests:</b> people with a gold <b>!</b> over their head have a quest for you, and a <b>?</b> means you can hand one in. Start the story with Elder Hollis in Chapel Close. Press J for your quest log.<br>
     <b>Second jobs:</b> at Job Lv 40, Corvin can test you for an advanced calling.<br>
     <b>Party support:</b> healing and buff skills marked “party” in the skill tree also land on party members standing near you.<br>
     <b>Guilds:</b> with an account you can found a guild (G) for 10,000 gold, pick its emblem, invite players from the online list, and chat with /g. Leaders can name officers, who can invite and post the guild notice.<br>

@@ -2,7 +2,7 @@
 /* ================= #67 footsteps and #68 ambient sounds =================
    Footsteps change with the ground under you (grass, dirt, sand, cobblestone, snow, cave stone). Each region has
    its own background: birds in the meadow, wind and owls in the woods, desert wind, crackling embers, howling
-   frost wind, cave drips, the town fountain, the arena crowd. Everything is synthesised (no recordings), runs
+   frost wind, cave drips, birds in town, the arena crowd. Everything is synthesised (no recordings), runs
    through the sound-effects volume, and Settings has an "Ambient sounds" switch (kept in embervale.settings). */
 const AMBS={wind:null,windZone:null,next:0,stepAcc:0,lastFoot:0};
 const ambOn=()=>!!(typeof SETS==='undefined'||SETS.amb!==false);
@@ -31,7 +31,7 @@ const crackle=()=>{const t=AU.ctx.currentTime;for(let i=0;i<4;i++)noise({ft:'hig
 const gust=()=>noise({ft:'bandpass',f:500,f2:1400,q:.6,dur:1.6,vol:.03});
 const splash=()=>{const t=AU.ctx.currentTime;for(let i=0;i<3;i++)noise({ft:'bandpass',f:1800+Math.random()*1500,q:2,dur:.18,vol:.02,t:t+i*.12});};
 const crowd=()=>{const t=AU.ctx.currentTime;for(let i=0;i<5;i++)tone({f:180+Math.random()*160,dur:.5,vol:.012,t:t+Math.random()*.6,type:'sawtooth',lp:500});};
-const SPOTS={meadow:[chirp,5,9],woods:[()=>Math.random()<.35?owl():chirp(),7,14],dunes:[gust,6,12],frost:[gust,5,9],crypt:[crackle,2,5],deep1:[drip,2,6],deep2:[drip,2,6],deep3:[drip,2,5],keep:[crackle,4,8],arena:[crowd,4,9],town:[splash,3,6]};
+const SPOTS={meadow:[chirp,5,9],woods:[()=>Math.random()<.35?owl():chirp(),7,14],dunes:[gust,6,12],frost:[gust,5,9],crypt:[crackle,2,5],deep1:[drip,2,6],deep2:[drip,2,6],deep3:[drip,2,5],keep:[crackle,4,8],arena:[crowd,4,9],town:[chirp,6,11]};
 
 function ambTick(dt){
   if(!ambReady()||!ambOn()){if(AMBS.wind)windStop();return;}
