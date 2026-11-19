@@ -24,7 +24,16 @@ module.exports = async t => {
       // only the Warden family
       P.cls = 'cleric'; o.blocked = /Only the Warden family/.test(canEquip(ITEMS.oathblade3) || ''); P.cls = 'aegislord';
       o.icon = (() => { const c = itemIconCanvas('oathblade3'), d = c.getContext('2d').getImageData(0, 0, 64, 64).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; })();
+      // the Arcanist's Starweave Staff: every 5th spell costs no SP and casts faster
+      P.cls = 'arcanist'; P.lv = 15; enterZone('town'); await w(200); openPanel('smith'); await w(50);
+      for (const [id, n] of [['spore', 20], ['wispbreath', 20], ['glintstone', 20]]) giveItem(id, n); refreshPanel();
+      o.arcOffered = /Starweave Staff/.test(panel.textContent); PANEL_ACTS.sigwforge('arcanist'); const st = P.inv.find(x => x.id === 'starweave1');
+      P.inv.push(P.eq.weapon); P.eq.weapon = st; P.inv.splice(P.inv.indexOf(st), 1); S = computeStats(); P.starN = 0;
+      const costs = [], durs = [], rc = castNow; castNow = (id, l, cost) => costs.push(cost); const rt = castTime; castTime = () => 1;
+      for (let k = 0; k < 5; k++) { P.casting = null; beginCast('emberbolt', 1, 10, () => {}); durs.push(P.casting ? P.casting.dur : 0); P.casting = null; }
+      castNow = rc; castTime = rt; o.arc = { durs, matk: S.matk };
       closePanel(); return o; });
+    t.ok(r.arcOffered && r.arc.durs.slice(0, 4).every(d => d === 1) && Math.abs(r.arc.durs[4] - .7) < .01, `the Arcanist's Starweave Staff: every 5th spell casts 30% faster (${r.arc.durs.join(', ')})`);
     t.ok(r.offered && r.forged, 'a Warden can have Brannoc forge the Oathbound Blade (with one sigil slot)');
     t.ok(r.bonus[0] === 1 && r.bonus[1] > 1.14, `the lower the HP, the harder it hits (x${r.bonus[0]} at full, x${r.bonus[1].toFixed(2)} nearly fallen)`);
     t.ok(r.lockedTown, 'the next stage waits for the advanced calling and Smith Garrow');

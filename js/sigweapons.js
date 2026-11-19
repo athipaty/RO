@@ -12,10 +12,16 @@ const SIGW={
     {id:'oathblade1',name:'Oathbound Blade',atk:72,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{pelt:10,ramhorn:6,emberore:3},bonus:.15},
     {id:'oathblade2',name:'Sworn Oathblade',atk:150,lv:45,slots:2,tier:2,smith:'garrow',gold:20000,mats:{bone:12,core:6,dust:10,emberore:5},bonus:.25},
     {id:'oathblade3',name:'Oathkeeper',atk:215,lv:75,slots:3,tier:3,smith:'garrow',gold:80000,mats:{mantisblade:10,mirestone:8,fang:12,emberore:10},bonus:.40}],
-    wt:'sword',special:b=>`The lower your HP, the harder you hit: up to +${Math.round(b*100)}% damage when nearly fallen.`}};
+    wt:'sword',special:s=>`The lower your HP, the harder you hit: up to +${Math.round(s.bonus*100)}% damage when nearly fallen.`},
+  // v1.39.4 the Arcanist's Starweave Staff: every few spells one comes free and quick (the stars round its head count up)
+  arcanist:{fam:'Arcanist',stages:[
+    {id:'starweave1',name:'Starweave Staff',atk:12,matk:72,lv:15,slots:1,tier:1,smith:'brannoc',gold:3000,mats:{spore:10,wispbreath:8,glintstone:3},every:5,fast:.3},
+    {id:'starweave2',name:'Nightweave Staff',atk:18,matk:142,lv:45,slots:2,tier:2,smith:'garrow',gold:20000,mats:{dust:10,gloomspore:8,shard:6,glintstone:5},every:4,fast:.5},
+    {id:'starweave3',name:'Astral Loom',atk:26,matk:208,lv:75,slots:3,tier:3,smith:'garrow',gold:80000,mats:{wispglow:12,rotspore:10,shadeveil:8,glintstone:10},every:3,fast:.7}],
+    wt:'wand',special:s=>`Every ${['','','2nd','3rd','4th','5th'][s.every]} spell costs no SP and casts ${Math.round(s.fast*100)}% faster.`}};
 const SIGW_BY={};for(const [fam,L] of Object.entries(SIGW))L.stages.forEach((s,i)=>{SIGW_BY[s.id]={fam,i,s,L};
-  ITEMS[s.id]={name:s.name,type:'weapon',wt:L.wt,atk:s.atk,lv:s.lv,slots:s.slots,price:0,col:'#e8c25a',g:'W',sigw:fam,stage:i+1,
-    desc:`${L.fam} signature weapon, stage ${i+1} of 3. ${L.special(s.bonus)} Only the ${L.fam} family can wield it.`};});
+  ITEMS[s.id]={name:s.name,type:'weapon',wt:L.wt,atk:s.atk,...(s.matk?{matk:s.matk}:{}),lv:s.lv,slots:s.slots,price:0,col:'#e8c25a',g:'W',sigw:fam,stage:i+1,
+    desc:`${L.fam} signature weapon, stage ${i+1} of 3. ${L.special(s)} Only the ${L.fam} family can wield it.`};});
 const famOf=cls=>typeof baseOf==='function'?baseOf(cls):cls;
 const tierOf=cls=>(CLASSES[cls]&&CLASSES[cls].tier)||1;
 // only the family can wield it
@@ -24,6 +30,12 @@ const tierOf=cls=>(CLASSES[cls]&&CLASSES[cls].tier)||1;
 const sigwNow=()=>{const w=P&&P.eq&&P.eq.weapon;return w&&SIGW_BY[w.id]?SIGW_BY[w.id]:null;};
 function oathFactor(){const sw=sigwNow();if(!sw||sw.fam!=='warden'||!S||!S.maxhp)return 1;const miss=clamp(1-P.hp/S.maxhp,0,1);return 1+sw.s.bonus*miss;}
 {const _dp=dealPhys;dealPhys=function(m,mult,o){const k=oathFactor();return _dp.call(this,m,(mult||1)*k,o);};}
+// the Arcanist's special: every few spells one is free and quick
+function starCharge(){const sw=sigwNow();return sw&&sw.fam==='arcanist'?{n:(P.starN||0)%sw.s.every,every:sw.s.every,fast:sw.s.fast}:null;}
+{const _bc=beginCast;beginCast=function(id,l,cost,fn){const ch=starCharge();if(!ch||!SKILLS[id]||SKILLS[id].kind==='passive')return _bc.apply(this,arguments);
+  P.starN=(P.starN||0)+1;const emp=ch.n===ch.every-1;if(!emp)return _bc.apply(this,arguments);
+  const r=_bc.call(this,id,l,0,fn);if(P.casting&&P.casting.id===id)P.casting.dur*=1-ch.fast;
+  floatT(P.x,P.y-62,'Starweave!','#c8b0ff',14);fx.push({k:'ring',x:P.x,y:P.y,r:34,col:'#c8b0ff',t0:now,dur:.5});return r;};}
 // where your line stands: the piece you own (worn or in the bag), and the next stage you can reach
 function sigwOwned(fam){const L=SIGW[fam];if(!L)return null;let best=null;
   const consider=(e,where)=>{const b=e&&SIGW_BY[e.id];if(b&&b.fam===fam&&(!best||b.i>best.i))best={e,where,i:b.i};};
@@ -31,12 +43,12 @@ function sigwOwned(fam){const L=SIGW[fam];if(!L)return null;let best=null;
 function sigwNext(fam){const own=sigwOwned(fam),i=own?own.i+1:0;return i<3?{i,s:SIGW[fam].stages[i],own}:null;}
 function sigwBlock(fam,smith){const L=SIGW[fam],nx=sigwNext(fam),own=sigwOwned(fam);
   let h=`<h3>${L.fam} signature weapon</h3>`;
-  if(!nx){return h+`<div class="row">${icon({id:own.e.id})}<div class="grow"><div class="nm">${esc(ITEMS[own.e.id].name)} <span class="pill">final form</span></div><div class="ds">${esc(L.special(L.stages[2].bonus))}</div></div></div>`;}
+  if(!nx){return h+`<div class="row">${icon({id:own.e.id})}<div class="grow"><div class="nm">${esc(ITEMS[own.e.id].name)} <span class="pill">final form</span></div><div class="ds">${esc(L.special(L.stages[2]))}</div></div></div>`;}
   const s=nx.s,here=s.smith===smith,tierOk=tierOf(P.cls)>=s.tier,lvOk=P.lv>=s.lv,ownOk=nx.i===0||(own&&own.where!=='storage');
   const matsOk=Object.entries(s.mats).every(([id,n])=>((invFind(id)||{}).n||0)>=n),ok=here&&tierOk&&lvOk&&ownOk&&matsOk&&P.gold>=s.gold;
   const need=[];if(!tierOk)need.push(s.tier===2?'your advanced calling':'your master calling');if(!lvOk)need.push(`base level ${s.lv}`);if(!ownOk)need.push(`the ${ITEMS[own.e.id].name} with you (not in storage)`);
   h+=`<div class="row sigwrow">${icon({id:s.id})}<div class="grow"><div class="nm">${nx.i?`${esc(ITEMS[own.e.id].name)} → `:''}${esc(s.name)} <span class="muted">· stage ${nx.i+1}/3 · ATK ${s.atk} · ${s.slots} slot${s.slots>1?'s':''}</span></div>`+
-    `<div class="ds">${esc(L.special(s.bonus))}${nx.i?' Keeps its refine, sigils and awakened line.':''}</div>`+
+    `<div class="ds">${esc(L.special(s))}${nx.i?' Keeps its refine, sigils and awakened line.':''}</div>`+
     `<div class="cms">${Object.entries(s.mats).map(([id,n])=>itemChip(id,n)).join('')}${goldChip(s.gold)}</div>`+
     (need.length?`<div class="ds" style="color:var(--warn)">Needs ${need.join(', ')}.</div>`:'')+
     (here?'':`<div class="ds" style="color:var(--warn)">${s.smith==='brannoc'?'Brannoc the Smith in Hearthvale forges this stage.':'Smith Garrow at the Forge Royal in Aurelmark forges this stage.'}</div>`)+`</div>`+
@@ -91,3 +103,22 @@ if(typeof WA!=='undefined'){Object.assign(WA,{
   aurelmace:()=>waMace({head:'#e8c25a',flange:'#f4e090',gem:'#2a6ad0',glow:'#ffe8a0'}),
   aurelstaff:()=>waWand({len:23,shaft:'#f0e8d0',spiral:'rgba(200,160,60,.5)',band:'#2a4a8a',prong:'#e8c25a',crystal:'#9ad0ff',glow:'#cfe8ff',star:true})});
   if(typeof WA_BOW!=='undefined')WA_BOW.aurelbow={wood:'#e8d8a0',grip:'#2a4a8a',scale:1.1,tip:'#e8c25a',feather:'#ffffff'};}
+/* ---- the Starweave line: a dark shaft with a silver spiral, a crescent cradling a star crystal; small stars circle the
+   head, one for each spell cast toward the next free one; it flares when the next spell is the free one ---- */
+function waStarweave(stage){const c=ctx,t=typeof now==='number'?now:0,L=[20,23,26][stage],ch=starCharge(),gold='#e8c25a',silver='#d8e0f0';
+  const top=-L;c.beginPath();c.roundRect(-1.4,top+4,2.8,L+3,1.2);waFS('#2a2448');
+  c.strokeStyle=silver;c.lineWidth=.8;c.globalAlpha=.8;for(let y=top+6;y<4;y+=3){c.beginPath();c.moveTo(-1.4,y+1.2);c.lineTo(1.4,y-.4);c.stroke();}c.globalAlpha=1;
+  c.beginPath();c.arc(0,5.4,1.8,0,7);waFS(gold);
+  // the crescent cradle
+  c.beginPath();c.arc(0,top,5+stage,Math.PI*.15,Math.PI*.85,false);c.arc(0,top-1.6,3.6+stage,Math.PI*.85,Math.PI*.15,true);c.closePath();waFS(stage>=2?gold:silver);
+  if(stage>=1){for(const s of [-1,1]){c.beginPath();c.moveTo(s*(5+stage),top+1.5);c.quadraticCurveTo(s*(8+stage),top-4,s*(6+stage),top-8);c.lineTo(s*(5+stage),top-5);c.closePath();waFS(silver);}}
+  // the star crystal (it turns slowly)
+  const ready=ch&&ch.n===ch.every-1,R=3.4+stage*.8;c.save();c.translate(0,top-3);c.rotate(t*.6);
+  c.beginPath();for(let k=0;k<8;k++){const a=k*Math.PI/4,r=k%2?R*.42:R;c.lineTo(Math.cos(a)*r,Math.sin(a)*r);}c.closePath();waFS(['#cfe0ff','#d8c8ff','#fff6d8'][stage],.8);c.restore();
+  waGlow(0,top-3,6+stage*2+(ready?3+Math.sin(t*8)*1.5:0),ready?'#e0c8ff':'#a8c0ff',ready?.85:.45);
+  // the charge stars circling the head
+  if(ch){for(let k=0;k<ch.n;k++){const a=t*1.5+k*Math.PI*2/Math.max(1,ch.every-1);c.fillStyle='#fff6c8';c.beginPath();c.arc(Math.cos(a)*(7+stage),top-3+Math.sin(a)*3,.9,0,7);c.fill();}}
+  if(stage>=2)waGlow(0,top-3,12,'#c8a0ff',.25+.1*Math.sin(t*2));}
+if(typeof WA!=='undefined'){WA.starweave1=()=>waStarweave(0);WA.starweave2=()=>waStarweave(1);WA.starweave3=()=>waStarweave(2);}
+if(typeof TH!=='undefined'){for(const [k,v] of [['Starweave Staff','ไม้เท้าถักดาว'],['Nightweave Staff','ไม้เท้าถักราตรี'],['Astral Loom','กี่ทอดารา'],['Arcanist signature weapon','อาวุธประจำสายอาร์คานิสต์']])if(!TH[k])TH[k]=v;
+  if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^Every (\d)(?:st|nd|rd|th) spell costs no SP and casts (\d+)% faster\.( Keeps its refine, sigils and awakened line\.)?$/,(m,n,f,k)=>`ทุกคาถาที่ ${n} ไม่ใช้ SP และร่ายเร็วขึ้น ${f}%${k?' คงระดับตีบวก ซิกิล และพลังที่ปลุกไว้':''}`]);}
