@@ -51,7 +51,7 @@ const _refreshPanelRide=refreshPanel;
 refreshPanel=function(){const r=_refreshPanelRide.apply(this,arguments);
   if(panelKind==='warp'&&P&&!panel.querySelector('.stable')){const own=owned();
     let h=`<div class="stable"><h3>Stable</h3><div class="sub">“A good mount saves a lot of boot leather. Press R to ride; you'll hop off when you fight.”</div>`;
-    for(const [k,M] of Object.entries(MOUNTS)){const has=own.includes(k),lvOk=P.lv>=M.lv;
+    for(const [k,M] of Object.entries(MOUNTS)){if(M.royal)continue;const has=own.includes(k),lvOk=P.lv>=M.lv;
       h+=`<div class="row"><img class="ico img" src="${mountIconURL(k)}" alt="" width="30" height="30"><div class="grow"><div class="nm">${M.name} <span class="muted">· Lv ${M.lv}+ · +${Math.round(M.speed*100)}% speed</span></div><div class="ds">${has?(P.riding===k?'You are riding it.':'Yours.'):lvOk?`${fmt(M.price)} gold`:`Needs base level ${M.lv}`}</div></div>`+
         (has?`<button class="btn small" data-act="ridepick" data-arg="${k}">${P.riding===k?'Hop off':'Ride'}</button>`:`<button class="btn small" data-act="mountbuy" data-arg="${k}" ${lvOk&&P.gold>=M.price?'':'disabled'}>Buy</button>`)+`</div>`;}
     panel.insertAdjacentHTML('beforeend',h+'</div>');}

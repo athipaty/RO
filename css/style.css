@@ -1555,3 +1555,4 @@ body.touchui #panel.npcsheet .x{border-radius:50%!important}
 #crChip em{font-style:normal;font-weight:800;font-size:11px;color:#2a1a04;background:#ffd76a;border-radius:9px;padding:0 6px;min-width:18px;text-align:center}
 #crChip.new{animation:crPulse 1.2s ease-in-out infinite}@keyframes crPulse{50%{box-shadow:0 0 14px rgba(255,210,100,.7)}}
 @media (prefers-reduced-motion:reduce){#crChip.new{animation:none}}
+#panel .stbrow .stbmount{width:44px;height:44px;border-radius:10px;background:rgba(0,0,0,.2);border:1px solid rgba(201,162,74,.35)}
