@@ -12,7 +12,7 @@ Object.assign(MOUNTS,{
 Object.assign(MOUNT_LOOK,{
   aurelstag:{body:'#efe6d2',dark:'#c8b898',light:'#fffaf0',belly:'#fffaf0',mane:'#e8dcc0',blanket:'#2a4a8a',trim:'#e8c25a',eye:'#3a2414',horn:'#e8c25a'},
   emberdrake:{body:'#b83a2a',dark:'#7a2018',light:'#e0604a',belly:'#f0b060',mane:'#5a1810',blanket:'#2a1a1a',trim:'#e8c25a',eye:'#ffd040',horn:'#3a2a20'}});
-const MOUNT_SCALE=1.35;
+const MOUNT_SCALE=1.1; // v1.38.7 a little smaller (was 1.35)
 MART.trail=[];
 function drawRoyalMount(p,k){const L=MOUNT_LOOK[k],key=p===P?'me':(p.name||'?'),f=p.face<0?-1:1,turn=mountTurn(key,p),ph=mountPhase(key,p,k),mv=!!p.moving,stag=k==='aurelstag';
   const tilt=clamp(turn*.42,-.36,.36),fx=.66+.34*Math.cos(turn),x=p.x,y=p.y,c=ctx;c.save();c.lineJoin='round';c.lineCap='round';
