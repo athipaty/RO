@@ -287,9 +287,88 @@ function cbLibLive(b){const G=cbLibGeo(b),P=TB_P,c=ctx,t=now;c.save();
   c.restore();}
 const cbLibLights=b=>{const G=cbLibGeo(b),D=G.byF-G.by0;return tbLit([...[24,54,G.W-54,G.W-24].map(u=>[G.bx0+u,G.byF,32]),[G.bx1,G.byF-D*.3,32],[G.bx1,G.byF-D*.7,32],[G.xc,G.byF,26,1],[G.xc,G.yc,G.H+G.dome.dh+G.dome.h+10]]);};
 
+/* ---------------- the Forge Royal ---------------- */
+// a great stone forge: a tall brick chimney breathing smoke, a wide arched furnace mouth glowing and flickering, a
+// waterwheel turning in a millrace along the side, a rack of royal weapons with a crested shield, a golden anvil on a
+// stone block, and a crowned-anvil sign
+const cbForgeGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,bx0=X0+8,bx1=X1-60,by0=Y0+12,byF=Y1-50;
+  return{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W:bx1-bx0,D:byF-by0,H:66,RH:38,ch:{x0:bx0+18,y0:by0+14,s:24,h:150},
+    wheel:{x:bx1+18,y:(by0+byF)/2+6,h:40,r:34},anvil:{x:bx0+(bx1-bx0)*.72,y:byF+30},rack:{x:bx0+6,y:byF+22}};};
+function cbForge(b){const G=cbForgeGeo(b),{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W,D,H,RH,ch}=G,P=TB_P,c=ctx;
+  const stone='#b8b0a4',stoneR='#948b80',dark='#6a625a',brick='#9a4a36',roof=b.roof||'#4a3a34',gold='#e8c25a',iron='#4a4a52';
+  poly([P(bx0,Y1),P(X1+28,Y1),P(X1+28,Y0+28),P(bx1,Y0)],'rgba(0,0,0,.22)');
+  // the chimney, standing up through the back of the roof
+  tbBox(ch.x0,ch.y0,ch.x0+ch.s,ch.y0+ch.s,0,ch.h,brick,shade(brick,-22),shade(brick,10));
+  {const F=tbF(ch.x0,ch.y0+ch.s),R=tbR(ch.x0+ch.s,ch.y0+ch.s);c.globalAlpha=.4;for(let h=8;h<ch.h;h+=8){tbSeg(F(0,h),F(ch.s,h),'#5a2a1e',.8);tbSeg(R(0,h),R(ch.s,h),'#4a2016',.8);}c.globalAlpha=1;
+    tbBox(ch.x0-3,ch.y0-3,ch.x0+ch.s+3,ch.y0+ch.s+3,ch.h,ch.h+7,dark,shade(dark,-20),'#2a2420');}
+  // the forge hall: heavy dressed stone
+  tbBox(bx0,by0,bx1,byF,0,H,stone,stoneR);const F=tbF(bx0,byF),R=tbR(bx1,byF);
+  for(const [S,L,col] of [[F,W,'#7a7268'],[R,D,'#6a6258']]){c.globalAlpha=.45;for(let h=11;h<H;h+=11){tbSeg(S(0,h),S(L,h),col,.9);for(let u=((h/11)%2)*12+6;u<L;u+=24)tbSeg(S(u,h-11),S(u,h),col,.9);}c.globalAlpha=1;
+    tbQuad(S,0,0,L,8,dark);}
+  // small high windows down the side, an iron-bound side door
+  for(const u of [D*.22,D*.78]){tbQuad(R,u-7,40,u+7,54,'#2a2018');for(const k of [-3,3])tbSeg(R(u+k,40),R(u+k,54),iron,1.2);}
+  tbGableX(bx0,by0,bx1,byF,H,RH,roof,stoneR);
+  // the chimney again where it rises above the roof line (its foot is under the roof)
+  {const top=ch.h,hRoof=H+RH*.55;const F2=tbF(ch.x0,ch.y0+ch.s),R2=tbR(ch.x0+ch.s,ch.y0+ch.s);
+    tbQuad(F2,0,hRoof,ch.s,top,brick);tbQuad(R2,0,hRoof,ch.s,top,shade(brick,-22));c.globalAlpha=.4;for(let h=Math.ceil(hRoof/8)*8;h<top;h+=8){tbSeg(F2(0,h),F2(ch.s,h),'#5a2a1e',.8);tbSeg(R2(0,h),R2(ch.s,h),'#4a2016',.8);}c.globalAlpha=1;
+    tbBox(ch.x0-3,ch.y0-3,ch.x0+ch.s+3,ch.y0+ch.s+3,top,top+7,dark,shade(dark,-20),'#2a2420');}
+  // the furnace mouth: a wide stone arch, the fire inside (it flickers, drawn live), a gold keystone
+  {const u0=W/2-32,u1=W/2+32;cbArch(F,u0-6,u1+6,0,30,dark);cbArch(F,u0,u1,0,30,'#2a1208');
+    const kp=F(W/2,64);c.fillStyle=gold;c.strokeStyle='#8a6a1a';c.lineWidth=1.2;c.beginPath();c.moveTo(kp.x-6,kp.y);c.lineTo(kp.x+6,kp.y);c.lineTo(kp.x+4,kp.y+9);c.lineTo(kp.x-4,kp.y+9);c.closePath();c.fill();c.stroke();}
+  // the millrace along the side: a stone channel with water (its flow is drawn live)
+  {const x0=bx1+6,x1=bx1+30;tbBox(x0,by0-6,x1,byF+8,0,10,'#8a8278','#6a6258','#8a8278');poly([P(x0+4,by0-6,9),P(x1-4,by0-6,9),P(x1-4,byF+8,9),P(x0+4,byF+8,9)],'#3a7ab8',null);}
+  // the weapon rack: a timber frame with a sword, an axe, a spear and a halberd, a crested shield leaning on it
+  {const {x,y}=G.rack;tbBox(x,y,x+44,y+6,0,4,'#6a4426','#4a3018','#8a5a32');for(const dx of [2,42])tbSeg(P(x+dx,y+3,0),P(x+dx,y+3,34),'#5a3a1c',2.6);tbSeg(P(x+2,y+3,30),P(x+42,y+3,30),'#5a3a1c',2.4);
+    const wpn=[[8,'sword'],[17,'axe'],[26,'spear'],[35,'halberd']];
+    for(const [dx,k] of wpn){const a=P(x+dx,y+3,4),z=P(x+dx,y+3,k==='spear'||k==='halberd'?46:38);tbSeg(a,z,k==='sword'?'#d8dce4':'#6a4a2a',k==='sword'?2.4:1.8);
+      if(k==='sword'){tbSeg({x:z.x-4,y:a.y-10},{x:z.x+4,y:a.y-10},gold,2);c.fillStyle=gold;c.beginPath();c.arc(a.x,a.y-2,1.8,0,7);c.fill();}
+      if(k==='axe'){c.fillStyle='#c8ccd4';c.strokeStyle=iron;c.lineWidth=1;c.beginPath();c.moveTo(z.x,z.y+2);c.quadraticCurveTo(z.x+9,z.y-2,z.x+8,z.y+10);c.lineTo(z.x,z.y+8);c.closePath();c.fill();c.stroke();}
+      if(k==='spear'){c.fillStyle='#d8dce4';c.beginPath();c.moveTo(z.x,z.y-8);c.lineTo(z.x+2.5,z.y);c.lineTo(z.x-2.5,z.y);c.closePath();c.fill();}
+      if(k==='halberd'){c.fillStyle='#c8ccd4';c.strokeStyle=iron;c.lineWidth=1;c.beginPath();c.moveTo(z.x,z.y-6);c.lineTo(z.x+2,z.y);c.lineTo(z.x+8,z.y+2);c.lineTo(z.x+7,z.y+9);c.lineTo(z.x,z.y+7);c.closePath();c.fill();c.stroke();}}
+    const sp=P(x+40,y+12,14);c.fillStyle='#2a4a8a';c.strokeStyle=gold;c.lineWidth=1.6;c.beginPath();c.moveTo(sp.x-9,sp.y-12);c.lineTo(sp.x+9,sp.y-12);c.lineTo(sp.x+9,sp.y+2);c.quadraticCurveTo(sp.x+9,sp.y+10,sp.x,sp.y+14);c.quadraticCurveTo(sp.x-9,sp.y+10,sp.x-9,sp.y+2);c.closePath();c.fill();c.stroke();
+    c.fillStyle=gold;c.beginPath();c.moveTo(sp.x-5,sp.y+2);c.lineTo(sp.x-6,sp.y-5);c.lineTo(sp.x-2.5,sp.y-2);c.lineTo(sp.x,sp.y-7);c.lineTo(sp.x+2.5,sp.y-2);c.lineTo(sp.x+6,sp.y-5);c.lineTo(sp.x+5,sp.y+2);c.closePath();c.fill();}
+  // the golden anvil on its stone block, a quench barrel and a hammer
+  {const {x,y}=G.anvil;tbBox(x-12,y-10,x+12,y+8,0,14,'#8a8278','#6a6258','#a49c90');const p=P(x,y,14);
+    c.fillStyle=gold;c.strokeStyle='#7a5a10';c.lineWidth=1.3;c.beginPath();c.moveTo(p.x-16,p.y-14);c.lineTo(p.x+12,p.y-14);c.quadraticCurveTo(p.x+20,p.y-13,p.x+22,p.y-9);c.lineTo(p.x+8,p.y-8);c.lineTo(p.x+6,p.y-3);c.lineTo(p.x+10,p.y);c.lineTo(p.x-10,p.y);c.lineTo(p.x-6,p.y-3);c.lineTo(p.x-8,p.y-8);c.lineTo(p.x-16,p.y-9);c.closePath();c.fill();c.stroke();
+    c.fillStyle='rgba(255,250,210,.6)';c.fillRect(p.x-14,p.y-13.5,24,1.6);
+    tbSeg({x:p.x-10,y:p.y-16},{x:p.x+2,y:p.y-22},'#6a4426',2.2);c.fillStyle=iron;c.fillRect(p.x+1,p.y-26,6,7);
+    barrel(x+26,y-2,'#5a4a3a');}
+  // the sign bracket off the front corner
+  {tbSeg(P(bx1,byF,58),P(bx1,byF+24,58),iron,2.4);tbSeg(P(bx1,byF,46),P(bx1,byF+14,58),iron,1.6);}
+}
+function cbForgeLive(b){const G=cbForgeGeo(b),{bx0,bx1,by0,byF,W,D,ch,wheel}=G,P=TB_P,c=ctx,t=now;c.save();
+  // the fire in the furnace mouth flickers
+  {const F=tbF(bx0,byF),f=.75+Math.sin(t*9)*.12+Math.sin(t*23)*.08,base=F(W/2,0);
+    const gr=c.createRadialGradient(base.x,base.y-10,2,base.x,base.y-14,38);gr.addColorStop(0,`rgba(255,240,170,${f})`);gr.addColorStop(.45,`rgba(255,140,40,${f*.85})`);gr.addColorStop(1,'rgba(120,30,10,0)');
+    c.fillStyle=gr;c.beginPath();const pts=[];const r=32;pts.push(F(W/2-r,0),F(W/2-r,30));for(let i=1;i<12;i++){const a=Math.PI-i*Math.PI/12;pts.push(F(W/2+Math.cos(a)*r,30+Math.sin(a)*r*1.1));}pts.push(F(W/2+r,30),F(W/2+r,0));
+    c.moveTo(pts[0].x,pts[0].y);for(const p of pts)c.lineTo(p.x,p.y);c.closePath();c.fill();
+    for(let k=0;k<5;k++){const ph=(t*1.4+k*.2)%1,p=F(W/2-18+k*9,4+ph*30);c.globalAlpha=1-ph;c.fillStyle=k%2?'#ffd060':'#ff8a2a';c.beginPath();c.ellipse(p.x,p.y,3-ph*2,6-ph*4,0,0,7);c.fill();}c.globalAlpha=1;}
+  // smoke rising from the chimney
+  {const top=P(ch.x0+ch.s/2,ch.y0+ch.s/2,ch.h+7);for(let k=0;k<6;k++){const ph=(t*.22+k/6)%1;c.globalAlpha=(1-ph)*.45;c.fillStyle=k%2?'#8a8682':'#a8a4a0';
+    c.beginPath();c.arc(top.x+ph*22+Math.sin(t+k)*4,top.y-ph*70,5+ph*12,0,7);c.fill();}c.globalAlpha=1;}
+  // the water in the millrace runs, and the wheel turns in it
+  {const x0=bx1+10,x1=bx1+26;c.strokeStyle='rgba(220,240,255,.6)';c.lineWidth=1.2;for(let k=0;k<6;k++){const ph=((t*.5+k/6)%1),y=by0-4+(byF+6-by0+4)*ph;tbSeg(P(x0,y,9),P(x0+6,y,9),'rgba(220,240,255,.6)',1.2);tbSeg(P(x1-6,y-12,9),P(x1,y-12,9),'rgba(220,240,255,.45)',1);}
+    const {x,y,h,r}=wheel,rot=t*1.1,W2=(a,rr)=>P(x,y+Math.cos(a)*rr,h+Math.sin(a)*rr);
+    // the axle bracket on the wall, the rim, the spokes and the paddles
+    tbBox(bx1,y-4,x,y+4,h-4,h+4,'#5a3a1c','#4a3018','#6a4426');
+    c.strokeStyle='#6a4426';c.lineWidth=3;c.beginPath();for(let i=0;i<=32;i++){const p=W2(i*Math.PI/16,r);i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y);}c.stroke();
+    c.lineWidth=1.6;c.beginPath();for(let i=0;i<=32;i++){const p=W2(i*Math.PI/16,r-8);i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y);}c.stroke();
+    for(let k=0;k<8;k++){const a=rot+k*Math.PI/4;tbSeg(W2(0,0),W2(a,r),'#5a3a1c',2);const p0=W2(a,r),p1=W2(a,r+8);poly([{x:p0.x-4,y:p0.y},{x:p0.x+4,y:p0.y},{x:p1.x+4,y:p1.y},{x:p1.x-4,y:p1.y}],'#7a5232','#3a2410');}
+    const hub=W2(0,0);tbDisc(hub.x,hub.y,5,5,'#3a3632','#1a1612');
+    // splashes where the paddles hit the water
+    for(let k=0;k<4;k++){const ph=(t*1.6+k/4)%1,p=P(x,y-r*.5+k*10,10);c.globalAlpha=1-ph;c.fillStyle='#e8f6ff';c.beginPath();c.arc(p.x+(k-1.5)*3,p.y-ph*10,1.6,0,7);c.fill();}c.globalAlpha=1;}
+  // the crowned-anvil sign swings
+  {const a=P(bx1,byF+20,58),sw=Math.sin(t*1.3+2)*.1;c.translate(a.x,a.y);c.rotate(sw);tbSeg({x:-7,y:0},{x:-7,y:5},'#3a3632',1);tbSeg({x:7,y:0},{x:7,y:5},'#3a3632',1);
+    c.fillStyle='#2a2420';c.strokeStyle='#e8c25a';c.lineWidth=1.6;c.beginPath();c.roundRect(-14,5,28,22,4);c.fill();c.stroke();
+    c.fillStyle='#e8c25a';c.beginPath();c.moveTo(-9,17);c.lineTo(7,17);c.lineTo(10,19);c.lineTo(3,20);c.lineTo(4,24);c.lineTo(-4,24);c.lineTo(-3,20);c.lineTo(-9,19);c.closePath();c.fill();
+    c.beginPath();c.moveTo(-5,14);c.lineTo(-6,8);c.lineTo(-2.5,11);c.lineTo(0,7);c.lineTo(2.5,11);c.lineTo(6,8);c.lineTo(5,14);c.closePath();c.fill();}
+  c.restore();}
+const cbForgeLights=b=>{const G=cbForgeGeo(b);return tbLit([[G.bx0+G.W/2,G.byF,26],[G.bx0+G.W/2-18,G.byF,14],[G.bx0+G.W/2+18,G.byF,14],[G.bx1,G.byF-G.D*.22,47],[G.bx1,G.byF-G.D*.78,47]]);};
+
 const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   gemcut:{body:cbGemcut,live:cbGemcutLive,signAt:b=>{const G=cbGemGeo(b);return[{name:b.name,x:(G.bx0+44)/TILE,w:0,y:(G.byF+12)/TILE,h:0},40];},lights:cbGemcutLights},
   library:{body:cbLib,live:cbLibLive,signAt:b=>{const G=cbLibGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:(G.byF+G.po.d+2)/TILE,h:0},G.po.h+9];},lights:cbLibLights},
+  smith:{body:cbForge,live:cbForgeLive,signAt:b=>{const G=cbForgeGeo(b);return[{name:b.name,x:(G.bx0+G.W/2)/TILE,w:0,y:G.byF/TILE,h:0},G.H-4];},lights:cbForgeLights},
   shop:{body:cbMarket,live:cbMarketLive,signAt:b=>{const G=cbMarketGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.byF/TILE,h:0},G.H1+20];},lights:cbMarketLights}};
 // take over the drawing of the capital's pieces that have a design of their own
 {const _prev=drawBuilding;
