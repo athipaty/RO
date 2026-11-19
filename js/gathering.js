@@ -14,7 +14,7 @@ Object.assign(ITEMS,{
   goldsoup:{name:'Golden Soup',type:'use',price:400,col:'#ffd27a',g:'◒',brew:{id:'goldsoup',s:600,b:{str:3,agi:3,vit:3,int:3,dex:3,luk:3}},desc:'For 10 minutes: +3 to every stat.'}});
 if(typeof BREWS!=='undefined')BREWS.push(['red',4,{mossherb:3},0],['blue',2,{mossherb:2,sunpetal:1},20],['grilledfish',2,{pondfish:2},10],['goldsoup',1,{goldfin:1,sunpetal:1,pondfish:2},100],['emberore',1,{ironchunk:6},300]);
 const GATHER={herb:{name:'Herb patch',item:'mossherb',rare:'sunpetal',col:'#7fd36a'},ore:{name:'Ore vein',item:'ironchunk',rare:['emberore','glintstone'],col:'#c8d0dc'},fish:{name:'Fishing spot',item:'pondfish',rare:'goldfin',col:'#9fd3ff'}};
-const GATHER_KINDS=z=>{const t=z.D.theme;return t==='heights'?['herb','ore']:t==='meadow'||t==='woods'||t==='fen'||t==='farms'?['herb']:t==='cave'?['herb','ore']:['dunes','crypt','frost'].includes(t)?['ore']:[];};
+const GATHER_KINDS=z=>{const t=z.D.theme;return t==='heights'?['herb','ore']:t==='meadow'||t==='woods'||t==='fen'||t==='farms'||t==='coast'?['herb']:t==='cave'?['herb','ore']:['dunes','crypt','frost'].includes(t)?['ore']:[];};
 /* spot key -> time it is ready again (Date.now ms), kept on the hero and saved, so reloading the page does not reset it */
 const gRest=()=>{if(!P)return {};if(!P.gatherRest||typeof P.gatherRest!=='object')P.gatherRest={};const R=P.gatherRest,t=Date.now();for(const k in R)if(!(R[k]>t))delete R[k];return R;};
 if(typeof SAVE_EXTRA!=='undefined')SAVE_EXTRA.push('gatherRest');
