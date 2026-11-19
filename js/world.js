@@ -60,7 +60,6 @@ function getZone(id){
     for(let k=2;k<=37;k++){if(k<17||k>22){set(k,12,7);set(k,17,7);}}for(let k=2;k<=27;k++)if(k<12||k>17){set(17,k,7);set(22,k,7);} // flower hedges between districts
     fill(0,13,W-1,16,1);fill(18,0,21,H-1,1);             // the two roads, gate to gate
     for(let y=8;y<=22;y++)for(let x=13;x<=26;x++)if(Math.hypot(x+.5-20,y+.5-15)<6)set(x,y,6); // the round plaza
-    fill(18,13,21,16,3);                                 // the fountain pool
     for(const [x,y] of [[17,2],[22,2],[2,12],[2,17],[2,23],[2,24],[2,25]])set(x,y,2); // trees framing the roads; a dark corner for Nyx
     const B=[{x:3,y:3,w:7,h:4,name:'General Store',roof:'#8e3b2e',npc:{name:'Ilsa the Merchant',role:'shop',col:'#c86a3a',hair:'#8a3b1a'}},
              {x:11,y:3,w:6,h:4,name:'Smithy',roof:'#5a4a42',npc:{name:'Brannoc the Smith',role:'smith',col:'#6a5040',hair:'#2b1d16'}},
