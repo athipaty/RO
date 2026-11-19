@@ -8,7 +8,7 @@
 const MK={tab:'browse',q:'',board:null,pend:{},ref:0,sel:null,price:0,buyAsk:null,busy:false};
 const mkSock=()=>typeof NET!=='undefined'&&NET.sock&&NET.sock.connected?NET.sock:null;
 function mkSend(ev,m){const s=mkSock();if(!s){addLog('The market needs a connection to the game server.','l-bad');return false;}s.emit(ev,m||{});return true;}
-function mkAttach(s){if(!s||s.__mk)return;s.__mk=1;
+function mkAttach(s){if(!s||s.__mk||typeof s.on!=='function')return;s.__mk=1;
   s.on('mkBoard',b=>{if(!b||!Array.isArray(b.items))return;
     const fix=l=>{const e=validEntry(l&&l.e,true);return e?{k:String(l.k),e,price:clamp(Math.floor(fin(l.price)),1,1e9),seller:clean(l.seller,16),mine:!!l.mine}:null;};
     MK.board={items:b.items.slice(0,120).map(fix).filter(Boolean),mine:(Array.isArray(b.mine)?b.mine:[]).slice(0,20).map(fix).filter(Boolean),

@@ -45,8 +45,9 @@ function gkClearCaches(){try{if(typeof smallPicsClear==='function')smallPicsClea
   try{if(typeof texts!=='undefined')for(const t of texts)t.img=null;if(typeof GLYPHS!=='undefined')GLYPHS.clear();}catch(e){}}
 function gkCheck(force){if(!running||!Z)return;
   if(force||gkBlank(Z)){Z._gkBad=true;GK.rebuilds++;if(!force)gkClearCaches();isoGround(Z);}}
-// every 4 s while playing (not during a boss fight: a check is cheap, but never risk a hitch there)
-setInterval(()=>{if(document.hidden||(typeof BS!=='undefined'&&BS.bossOn))return;gkCheck(false);},4000);
+// every 20 s while playing (v1.40.7, was 4 s: the read-back stalls the graphics on phones); coming back to the game
+// checks straight away below. Not during a boss fight.
+setInterval(()=>{if(document.hidden||(typeof BS!=='undefined'&&BS.bossOn))return;gkCheck(false);},20000);
 // coming back to the game, or the browser restoring its graphics: check straight away
 const gkSoon=()=>setTimeout(()=>gkCheck(false),150);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)gkSoon();});

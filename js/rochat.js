@@ -114,7 +114,7 @@ function rcChip(){let el=document.getElementById('crChip');const show=running&&P
   const own=rcOwner(),t=own?RC.mine.t:RC.join.t,max=own?RC.mine.max:RC.join.max;
   const html=`<i aria-hidden="true">💬</i><b>${esc(t)}</b><span>${CR.members.length}/${max}</span>${RC.unread?`<em>${RC.unread>9?'9+':RC.unread}</em>`:''}`;
   if(el.innerHTML!==html)el.innerHTML=html;el.classList.toggle('new',RC.unread>0);el.title='Open the chat room';el.hidden=false;}
-setInterval(()=>{try{rcChip();}catch(e){}},400);
+setInterval(()=>{try{rcChip();}catch(e){}},1000);
 {const _ll2=logLine;logLine=function(kind,prefix,text){const r=_ll2.apply(this,arguments);
   try{if(kind==='room'&&!String(text||'').startsWith('§cr:')&&panelKind!=='chatroom'&&!String(prefix||'').includes(`] ${P.name}: `)){RC.unread++;rcChip();}}catch(e){}return r;};}
 {const _op=openPanel;openPanel=function(k){if(k==='chatroom')RC.unread=0;const r=_op.apply(this,arguments);try{rcChip();}catch(e){}return r;};}

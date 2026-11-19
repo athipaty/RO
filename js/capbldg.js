@@ -760,3 +760,6 @@ const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
     if(!bldCacheBlit(b,()=>T.body(b)))T.body(b);
     if(T.live)try{T.live(b);}catch(e){}
     if(b.name)try{const sa=T.signAt?T.signAt(b):[b,T.sign||54];drawSign(sa[0],sa[1]);}catch(e){}};}
+// v1.40.7 a building that is off screen is not drawn at all (its cached picture and its animations cost time every
+// frame in the busy cities); the margin above leaves room for tall towers, flags and smoke
+{const _dbOn=drawBuilding;drawBuilding=function(b){if(b&&typeof cbOnScreen==='function'&&!cbOnScreen(b,320))return;return _dbOn.apply(this,arguments);};}

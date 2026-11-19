@@ -108,9 +108,20 @@ function drawArchi(b,A){
   // the sign board over the door
   drawSign(b,Math.min(H,60)-6);}
 // the sign board over the door; drawn again after the trade dressing so banners and awnings never cover it
-function drawSign(b,h){if(!b.name)return;const p=proj((b.x+b.w/2)*TILE,(b.y+b.h)*TILE),sg={x:p.x,y:p.y-h};ctx.font='700 12px "Alegreya Sans",sans-serif';const tw=ctx.measureText(b.name).width+14;
-  ctx.fillStyle='#2b2216';ctx.fillRect(sg.x-tw/2,sg.y-8,tw,18);ctx.strokeStyle='#b8924f';ctx.lineWidth=1;ctx.strokeRect(sg.x-tw/2+.5,sg.y-7.5,tw-1,17);
-  ctx.fillStyle='#efe6d2';ctx.textAlign='center';ctx.fillText(b.name,sg.x,sg.y+5);}
+// v1.40.7 each sign is drawn once into a small picture and stamped (measuring and drawing text every frame was costly)
+const SIGN_CACHE=new Map();
+function signPic(name){const d=typeof DPR==='number'&&DPR?DPR:1,key=name+'|'+d;let e=SIGN_CACHE.get(key);if(e&&e.c.width)return e;
+  const m=document.createElement('canvas').getContext('2d');m.font='700 12px "Alegreya Sans",sans-serif';const tw=Math.ceil(m.measureText(name).width+14);
+  const c=document.createElement('canvas');c.width=Math.ceil((tw+2)*d);c.height=Math.ceil(20*d);const g=c.getContext('2d');g.scale(d,d);g.translate(1,1);
+  g.fillStyle='#2b2216';g.fillRect(0,0,tw,18);g.strokeStyle='#b8924f';g.lineWidth=1;g.strokeRect(.5,.5,tw-1,17);
+  g.font='700 12px "Alegreya Sans",sans-serif';g.fillStyle='#efe6d2';g.textAlign='center';g.fillText(name,tw/2,13);
+  e={c,w:tw+2,h:20};if(SIGN_CACHE.size>200)SIGN_CACHE.clear();SIGN_CACHE.set(key,e);return e;}
+function drawSign(b,h){if(!b.name)return;const p=proj((b.x+b.w/2)*TILE,(b.y+b.h)*TILE),sx=p.x,sy=p.y-h;
+  // fonts may still be loading on the first frames: draw directly until they are, then use the picture
+  if(document.fonts&&document.fonts.status!=='loaded'){ctx.font='700 12px "Alegreya Sans",sans-serif';const tw=ctx.measureText(b.name).width+14;
+    ctx.fillStyle='#2b2216';ctx.fillRect(sx-tw/2,sy-8,tw,18);ctx.strokeStyle='#b8924f';ctx.lineWidth=1;ctx.strokeRect(sx-tw/2+.5,sy-7.5,tw-1,17);
+    ctx.fillStyle='#efe6d2';ctx.textAlign='center';ctx.fillText(b.name,sx,sy+5);return;}
+  const e=signPic(b.name);ctx.drawImage(e.c,sx-e.w/2,sy-9,e.w,e.h);}
 
 // take over the house drawing (js/render.js), keeping the trade dressing from js/buildings.js on top
 {const _base=typeof _drawBuildingB==='function'?_drawBuildingB:null;
@@ -139,10 +150,12 @@ function bldCacheBlit(b,draw){if(window.__bldLive||typeof DPR!=='number'||!DPR)r
   ctx.drawImage(e.c,e.x,e.y,e.w,e.h);return true;}
 
 /* ---- keep the building pictures alive (phones can wipe pictures while the game is in the background) ---- */
-function bldCacheClear(){BLD_CACHE.map.clear();BLD_CACHE.zone=null;}
+function bldCacheClear(){BLD_CACHE.map.clear();BLD_CACHE.zone=null;if(typeof SIGN_CACHE!=='undefined')SIGN_CACHE.clear();}
 // a wiped picture reads as transparent at its wall spot: checked through a 1x1 canvas, never reading the picture itself
-function bldCacheCheck(){if(!BLD_CACHE.map.size)return;try{const pc=bldCacheCheck.pc||(bldCacheCheck.pc=document.createElement('canvas'));pc.width=pc.height=1;const g=pc.getContext('2d',{willReadFrequently:true});
-  for(const e of BLD_CACHE.map.values()){if(!e.c.width){bldCacheClear();return;}g.clearRect(0,0,1,1);g.drawImage(e.c,Math.max(0,Math.min(e.c.width-1,e.cx)),Math.max(0,Math.min(e.c.height-1,e.cy)),1,1,0,0,1,1);
+function bldCacheCheck(one){if(!BLD_CACHE.map.size)return;try{const pc=bldCacheCheck.pc||(bldCacheCheck.pc=document.createElement('canvas'));pc.width=pc.height=1;const g=pc.getContext('2d',{willReadFrequently:true});
+  // v1.40.7 one picture at a time, taking turns (a phone wipes them all together); all of them on coming back
+  const all=[...BLD_CACHE.map.values()],list=one?[all[(bldCacheCheck.k=((bldCacheCheck.k||0)+1)%all.length)]]:all;
+  for(const e of list){if(!e.c.width){bldCacheClear();return;}g.clearRect(0,0,1,1);g.drawImage(e.c,Math.max(0,Math.min(e.c.width-1,e.cx)),Math.max(0,Math.min(e.c.height-1,e.cy)),1,1,0,0,1,1);
     if(g.getImageData(0,0,1,1).data[3]===0){bldCacheClear();return;}}}catch(err){}}
 {const _ezB=enterZone;enterZone=function(){bldCacheClear();return _ezB.apply(this,arguments);};}
 // the other small pictures made once and reused (glows, loot beams, night lights): forget them too
@@ -150,4 +163,5 @@ function smallPicsClear(){bldCacheClear();try{if(typeof GLOW_DOTS!=='undefined')
 const bldSoon=()=>smallPicsClear();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)bldSoon();});addEventListener('pageshow',bldSoon);
 if(typeof cv!=='undefined'&&cv)cv.addEventListener('contextrestored',bldSoon);
-setInterval(()=>{if(!document.hidden)bldCacheCheck();},3000);
+setInterval(()=>{if(!document.hidden)bldCacheCheck(true);},10000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>bldCacheCheck(false),200);});

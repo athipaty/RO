@@ -46,6 +46,6 @@ function hpPlace(){const on=hpPhone()&&running&&!!P;pageBtn.hidden=!on;if(!on)re
   const free=(x,y)=>x-S/2>=8&&x+S/2<=innerWidth-8&&y-S/2>=8&&y+S/2<=innerHeight-8&&busy.every(r=>x+S/2+m<=r.left||x-S/2-m>=r.right||y+S/2+m<=r.top||y-S/2-m>=r.bottom);
   let best=null,bd=1e9;for(let x=innerWidth-8-S/2;x>innerWidth*.5;x-=8)for(let y=8+S/2;y<innerHeight-8-S/2;y+=8){if(!free(x,y))continue;const d=Math.hypot(x-ax,y-ay);if(d<bd){bd=d;best=[x,y];}}
   if(best){pageBtn.style.left=Math.round(best[0]-S/2)+'px';pageBtn.style.top=Math.round(best[1]-S/2)+'px';}}
-hpDraw();setInterval(hpPlace,700);addEventListener('resize',()=>setTimeout(hpPlace,120));
+hpDraw();setInterval(hpPlace,2000); /* v1.40.7 was 0.7 s: each run measures ~30 elements and forces a layout */addEventListener('resize',()=>setTimeout(hpPlace,120));
 // a new hero starts on page 1
 if(typeof startWith==='function'){const _swHP=startWith;startWith=function(data){if(!data){HP.page=0;try{localStorage.setItem("embervale.hotPage","0");}catch(e){}hpDraw();}return _swHP.apply(this,arguments);};}

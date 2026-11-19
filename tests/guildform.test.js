@@ -3,7 +3,7 @@ const { player, wait, newRoom } = require('./helpers');
 module.exports = async t => {
   const g = await player('Founder', newRoom(), { server: 'http://127.0.0.1:9' });
   try {
-    await wait(400);
+    await wait(1800); // let the offline check settle first (the game loads more scripts now)
     const r = await g.ev(async () => { const sleep = ms => new Promise(r => setTimeout(r, ms)), out = {};
       // pretend: logged in, server reachable; a fake socket records what is sent and lets us answer
       const H = {}, sent = []; const fake = { connected: true, id: 'me', on: (ev, fn) => { (H[ev] = H[ev] || []).push(fn); }, emit: (ev, d) => sent.push(ev) };

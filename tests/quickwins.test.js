@@ -45,8 +45,8 @@ module.exports = async t => {
     t.ok(await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); const m = mobs.find(m => !m.dead); P.cls = 'novice'; S = computeStats();
       P.x = m.x - 25; P.y = m.y; NET.lastSent = ''; netTick(0); await w(300); hurtMob(m, 99999, false, 'phys');
       const seen = () => texts.some(x => /^\+\d+ EXP$/.test(x.txt)) && texts.some(x => /^\+\d+ Job$/.test(x.txt));
-      for (let i = 0; i < 30 && !seen(); i++) await w(100); return seen(); }),
-      'a kill shows floating "+EXP" and "+Job" gains');
+      await w(1200); return !seen(); }),
+      'a kill shows no floating "+EXP" / "+Job" over the hero (removed in v1.21.5: the status bars show it)');
 
     // ---- #42 monster info
     await g.ev(() => { P.target = mobs.find(m => !m.dead && m.d.id === 'hopper'); updateHud(); document.getElementById('tInfo').click(); });
