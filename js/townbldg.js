@@ -11,6 +11,9 @@
      job    Guild Hall: an adventurers' longhall, low plank walls under a steep mossy shingle roof with crossed dragon
             heads at both ends, a porch with the guild crest (a shield on crossed swords), blue star banners, a quest
             board of notices and a WANTED poster, two braziers burning by the door, smoke from the roof's smoke hole
+     heal   Chapel: a white stone chapel, its gable to the street with a stained-glass sun, a bell tower with a swinging
+            bell under a slate spire crowned by a golden sun, stained-glass windows between buttresses, a glowing
+            healing basin sending up motes of light, a fenced herb garden of lavender, doves on the ridge and one circling
    The body is drawn once into a cached picture (js/archi.js bldCacheBlit); anything that moves is drawn live on top.
    Buildings not listed here keep the shared styles from js/archi.js. All drawn in code, original art. */
 const TB_P=(x,y,h=0)=>{const p=proj(x,y);return{x:p.x,y:p.y-h};};
@@ -246,8 +249,79 @@ function tbGuildLive(b){const G=tbGuildGeo(b),P=TB_P,c=ctx,t=now;c.save();
   const yc=(G.by0+G.byF)/2,v=P(G.vent.x,yc,G.H+G.RH+12);for(let k=0;k<4;k++){const ph=(t*.2+k/4)%1;tbDisc(v.x+ph*20+Math.sin(t+k)*3,v.y-ph*60,5+ph*12,4+ph*9,`rgba(120,115,110,${.35*(1-ph)})`);}
   c.restore();}
 const tbGuildLights=b=>{const G=tbGuildGeo(b);return tbLit([[G.bx0+33,G.byF,24],[G.bx1-33,G.byF,24],[G.bx1,(G.by0+G.byF)/2,24],[G.Xc,G.byF,14,1],[G.brz[0].x,G.brz[0].y,34],[G.brz[1].x,G.brz[1].y,34]]);};
+/* ---------------- the Chapel ---------------- */
+// a white stone chapel: the nave's gable faces the street with a stained-glass sun, a bell tower with a swinging bell and
+// a spire crowned by a golden sun, stained-glass windows down the side, a glowing healing basin, an herb garden, doves
+const tbChapelGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,nx0=X0+70,nx1=X1-44,ny0=Y0+6,nyF=Y1-44;
+  return{X0,Y0,X1,Y1,nx0,nx1,ny0,nyF,H:52,RH:62,tx0:X0+12,tx1:X0+58,ty0:Y1-96,ty1:Y1-50,TH:104,BH:30,SH:50,well:{x:X0+36,y:Y1-20}};};
+function tbArchWin(S,uc,hw,h0,h1,fill){const pts=[S(uc-hw,h0),S(uc+hw,h0)];for(let i=0;i<=10;i++){const t=i/10,u=uc+hw-2*hw*t;pts.push(S(u,h1+Math.sqrt(Math.max(0,1-(2*t-1)**2))*hw));}poly(pts,fill,TB_OL);}
+function tbChapel(b){const G=tbChapelGeo(b),{X0,Y0,X1,Y1,nx0,nx1,ny0,nyF,H,RH,tx0,tx1,ty0,ty1,TH,BH,SH}=G,P=TB_P,c=ctx,wall='#f2ede2',wallR='#d4cdbe',slate='#5a6478',gold='#e8c25a';
+  poly([P(X0,Y1),P(X1+26,Y1),P(X1+26,Y0+26),P(X1,Y0)],'rgba(0,0,0,.18)');
+  // a flagstone path from the door to the street
+  const xc=(nx0+nx1)/2;poly([P(xc-16,nyF),P(xc+16,nyF),P(xc+16,Y1),P(xc-16,Y1)],'#c8c0b0',TB_OL);ctx.globalAlpha=.4;for(let y=nyF+9;y<Y1;y+=9)tbSeg(P(xc-16,y),P(xc+16,y),'#7a7468',1);ctx.globalAlpha=1;
+  // the herb garden beside the nave: a low fence, rows of herbs and lavender
+  {const gx0=nx1+6,gx1=X1-4,gy0=Y0+14,gy1=nyF+30;poly([P(gx0,gy0),P(gx1,gy0),P(gx1,gy1),P(gx0,gy1)],'#6a4a30');
+    for(let r=0;r<4;r++)for(let k=0;k<5;k++){const p=P(gx0+6+(gx1-gx0-12)*(r+.5)/4,gy0+10+(gy1-gy0-20)*k/4);const lav=r%2;
+      if(lav){for(let j=0;j<3;j++){tbSeg({x:p.x-3+j*3,y:p.y},{x:p.x-4+j*4,y:p.y-11},'#5a7a3a',1.2);tbDisc(p.x-4+j*4,p.y-12,1.6,3,'#9a7ad8');}}
+      else{tbDisc(p.x,p.y-4,6,4.5,'#4e8a3a');tbDisc(p.x-2,p.y-6,3,2.2,'#6aa84a');}}
+    for(const [ya,yb,xa,xb] of [[gy1,gy1,gx0,gx1],[gy0,gy1,gx1,gx1]])for(let k=0;k<=8;k++){const x=xa+(xb-xa)*k/8,y=ya+(yb-ya)*k/8;tbSeg(P(x,y),P(x,y,10),'#f4ead6',2);}
+    tbSeg(P(gx0,gy1,8),P(gx1,gy1,8),'#f4ead6',1.6);tbSeg(P(gx1,gy1,8),P(gx1,gy0,8),'#f4ead6',1.6);}
+  // the nave
+  tbBox(nx0,ny0,nx1,nyF,0,H,wall,wallR);
+  const F=tbF(nx0,nyF),R=tbR(nx1,nyF),W=nx1-nx0,D=nyF-ny0;
+  tbQuad(F,0,0,W,7,'#c8c0b0');tbQuad(R,0,0,D,7,'#b0a898');
+  // buttresses and tall stained-glass windows down the side
+  const glassCols=['#c84a4a','#4a7ac8','#e8c040','#5aa84a','#a85ac8'];
+  for(let k=0;k<3;k++){const u=D*(k+.5)/3;tbArchWin(R,u,7,10,34,'#3a5a8a');
+    for(let j=0;j<4;j++){const p=R(u-3.5+(j%2)*7,16+Math.floor(j/2)*9);c.fillStyle=glassCols[(j+k)%5];c.globalAlpha=.85;c.fillRect(p.x-3,p.y-7,5,7);}c.globalAlpha=1;}
+  for(const u of [4,D/3,2*D/3,D-4]){const p0=u;tbBox(nx1,nyF-p0-4,nx1+7,nyF-p0+4,0,H-14,'#e2dccf','#c4bcab');}
+  // the roof, its gable to the street with a stained-glass sun
+  {const e=8,rF=P(xc,nyF+e,H+RH),rB=P(xc,ny0-e,H+RH),eL=P(nx0-e,nyF+e,H),eT=P(nx0-e,ny0-e,H),eB=P(nx1+e,nyF+e,H),eR=P(nx1+e,ny0-e,H);
+    poly([eL,eT,rB,rF],shade(slate,-25),TB_OL);poly([F(0,H),F(W,H),F(W/2,H+RH)],wall,TB_OL);
+    const s=F(W/2,H+RH*.36),rr=13;for(let k=0;k<12;k++){const a0=k/12*6.283,a1=(k+1)/12*6.283;c.fillStyle=glassCols[k%5];c.beginPath();c.moveTo(s.x,s.y);c.lineTo(s.x+Math.cos(a0)*rr,s.y+Math.sin(a0)*rr*1.1);c.lineTo(s.x+Math.cos(a1)*rr,s.y+Math.sin(a1)*rr*1.1);c.closePath();c.fill();}
+    c.strokeStyle='#8a8070';c.lineWidth=2;c.beginPath();c.ellipse(s.x,s.y,rr,rr*1.1,0,0,7);c.stroke();tbDisc(s.x,s.y,4.5,5,gold,'#8a6a2a');
+    poly([eB,eR,rB,rF],slate,shade(slate,-40));ctx.globalAlpha=.35;for(let k=1;k<7;k++){const t=k/7;tbSeg(P(xc+(nx1+e-xc)*t,nyF+e,H+RH*(1-t)),P(xc+(nx1+e-xc)*t,ny0-e,H+RH*(1-t)),shade(slate,-50),1);}ctx.globalAlpha=1;
+    tbSeg(eL,rF,'#e8e2d4',3);tbSeg(eB,rF,'#e8e2d4',3);
+    // a small gold sun on the gable top and doves along the ridge
+    const g=P(xc,nyF+e,H+RH+4);tbDisc(g.x,g.y-6,4,4,gold,'#8a6a2a');
+    for(const t of [.25,.5,.72]){const p=P(xc,nyF+e-(nyF-ny0+2*e)*t,H+RH);tbDisc(p.x,p.y-4,5,3.5,'#fbfbf6','#a8a8a0');tbDisc(p.x+4,p.y-7,2.6,2.4,'#fbfbf6');c.fillStyle='#e8a040';c.fillRect(p.x+6,p.y-7.5,2.4,1.2);}}
+  // the door: arched, double, studded, with a stone step
+  tbBox(nx0+W/2-20,nyF,nx0+W/2+20,nyF+6,0,4,'#c8c0b0','#b0a898','#d8d0c0');
+  tbArchWin(F,W/2,13,0,22,'#6a4426');tbSeg(F(W/2,0),F(W/2,34),'#3a2410',1.6);for(const h of [8,18])for(const u of [-8,-4,4,8]){const p=F(W/2+u,h);c.fillStyle='#d8b060';c.fillRect(p.x-.8,p.y-.8,1.6,1.6);}
+  // the bell tower: a stone shaft, an open belfry (the bell is drawn live), a slate spire with a golden sun
+  tbBox(tx0,ty0,tx1,ty1,0,TH,wall,wallR);
+  {const TF=tbF(tx0,ty1),TR=tbR(tx1,ty1),tw=tx1-tx0,td=ty1-ty0;for(const [S,L] of [[TF,tw],[TR,td]]){tbArchWin(S,L/2,5,30,48,'#3a5a8a');tbQuad(S,0,TH-4,L,TH,'#c8c0b0');}
+    tbArchWin(TF,tw/2,8,0,18,'#6a4426');
+    // the belfry: the back of the opening dark, then four corner piers
+    poly([P(tx0,ty0,TH),P(tx1,ty0,TH),P(tx1,ty1,TH),P(tx0,ty1,TH)],'#2e2a26');
+    tbBox(tx0,ty0,tx1,ty0+4,TH,TH+BH,'#3a3430','#3a3430');
+    for(const [x,y] of [[tx0,ty0],[tx1-6,ty0],[tx0,ty1-6],[tx1-6,ty1-6]])tbBox(x,y,x+6,y+6,TH,TH+BH,wall,wallR);
+    tbBox(tx0-3,ty0-3,tx1+3,ty1+3,TH+BH,TH+BH+6,'#d8d0c0','#c0b8a8','#c8c0b0');
+    const apex=P((tx0+tx1)/2,(ty0+ty1)/2,TH+BH+6+SH);
+    poly([P(tx0-3,ty1+3,TH+BH+6),P(tx1+3,ty1+3,TH+BH+6),apex],slate,TB_OL);poly([P(tx1+3,ty1+3,TH+BH+6),P(tx1+3,ty0-3,TH+BH+6),apex],shade(slate,-30),TB_OL);
+    c.fillStyle=gold;c.strokeStyle='#8a6a2a';c.lineWidth=1;c.beginPath();for(let k=0;k<16;k++){const a=k*Math.PI/8,r=k%2?4:8;c.lineTo(apex.x+Math.cos(a)*r,apex.y-10+Math.sin(a)*r);}c.closePath();c.fill();c.stroke();tbSeg(apex,{x:apex.x,y:apex.y-4},'#8a6a2a',1.6);}
+  // the healing basin: a round stone bowl (its glowing water is drawn live)
+  {const p=P(G.well.x,G.well.y);c.fillStyle='#c8c0b0';c.strokeStyle=TB_OL;c.lineWidth=1.2;c.beginPath();c.ellipse(p.x,p.y,18,9,0,0,Math.PI);c.lineTo(p.x-18,p.y-12);c.ellipse(p.x,p.y-12,18,9,0,Math.PI,0,true);c.closePath();c.fill();c.stroke();
+    tbDisc(p.x,p.y-12,18,9,'#d8d0c0',TB_OL);for(const [dx,dy] of [[-22,4],[22,4],[0,12]]){tbDisc(p.x+dx,p.y+dy,3.5,2.5,'#f07ca0');tbDisc(p.x+dx+4,p.y+dy-1,3,2.2,'#ffffff');}}
+}
+function tbChapelLive(b){const G=tbChapelGeo(b),P=TB_P,c=ctx,t=now;c.save();
+  // the bell swings in its belfry
+  const bp=P((G.tx0+G.tx1)/2,(G.ty0+G.ty1)/2+6,G.TH+G.BH-4),sw=Math.sin(t*2.4)*.35;c.translate(bp.x,bp.y);c.rotate(sw);
+  c.fillStyle='#c89a3a';c.strokeStyle='#6a4a1a';c.lineWidth=1.2;c.beginPath();c.moveTo(-4,2);c.quadraticCurveTo(-6,10,-10,18);c.lineTo(10,18);c.quadraticCurveTo(6,10,4,2);c.closePath();c.fill();c.stroke();
+  c.fillStyle='#e8c25a';c.fillRect(-9,15,4,2);tbDisc(0,20,2.4,2.4,'#6a4a1a');c.restore();c.save();
+  // the healing water glows and sends up motes of light
+  const w=P(G.well.x,G.well.y,12),pl=.6+Math.sin(t*2)*.15;
+  c.globalCompositeOperation='lighter';const g=c.createRadialGradient(w.x,w.y,2,w.x,w.y,46);g.addColorStop(0,`rgba(140,230,200,${.55*pl})`);g.addColorStop(1,'rgba(100,200,255,0)');c.fillStyle=g;c.beginPath();c.ellipse(w.x,w.y,46,30,0,0,7);c.fill();c.globalCompositeOperation='source-over';
+  tbDisc(w.x,w.y,15,7,'#7ad8d0');for(let k=0;k<2;k++){const ph=(t*.6+k/2)%1;c.strokeStyle=`rgba(255,255,255,${.7*(1-ph)})`;c.lineWidth=1;c.beginPath();c.ellipse(w.x,w.y,15*ph,7*ph,0,0,7);c.stroke();}
+  for(let k=0;k<6;k++){const ph=(t*.35+k/6)%1,x=w.x+Math.sin(k*2.1+t*.8)*12;c.fillStyle=`rgba(220,255,240,${1-ph})`;c.beginPath();c.arc(x,w.y-ph*44,1.8,0,7);c.fill();}
+  // a dove circling over the chapel
+  const cx=P((G.nx0+G.nx1)/2,(G.ny0+G.nyF)/2,G.H+G.RH+40),a=t*.8,dx=cx.x+Math.cos(a)*46,dy=cx.y+Math.sin(a)*16,fl=Math.sin(t*12)*4;
+  c.fillStyle='#fbfbf6';c.strokeStyle='#a8a8a0';c.lineWidth=.8;tbDisc(dx,dy,5,3,'#fbfbf6','#a8a8a0');c.beginPath();c.moveTo(dx-2,dy);c.lineTo(dx-7,dy-5-fl);c.lineTo(dx+1,dy-1);c.closePath();c.fill();c.stroke();c.beginPath();c.moveTo(dx+1,dy);c.lineTo(dx+6,dy-5+fl);c.lineTo(dx+3,dy);c.closePath();c.fill();c.stroke();
+  c.restore();}
+const tbChapelLights=b=>{const G=tbChapelGeo(b),xc=(G.nx0+G.nx1)/2;return tbLit([[xc,G.nyF,G.H+G.RH*.36],[G.nx1,G.nyF-20,24],[G.nx1,G.ny0+30,24],[xc,G.nyF,12,1],[G.well.x,G.well.y,14]]);};
 const TOWN_BLD={shop:{body:tbStore,sign:96,lights:tbStoreLights},smith:{body:tbSmith,live:tbSmithLive,sign:60,lights:tbSmithLights},
-  job:{body:tbGuild,live:tbGuildLive,sign:98,lights:tbGuildLights}};
+  job:{body:tbGuild,live:tbGuildLive,sign:98,lights:tbGuildLights},
+  heal:{body:tbChapel,live:tbChapelLive,sign:44,lights:tbChapelLights}};
 // take over the drawing of Hearthvale's buildings that have a design of their own
 {const _prev=drawBuilding;
   drawBuilding=function(b){const T=typeof zoneId!=='undefined'&&zoneId==='town'&&b.npc&&TOWN_BLD[b.npc.role];if(!T)return _prev.apply(this,arguments);
