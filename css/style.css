@@ -1577,3 +1577,7 @@ body.touchui #panel.npcsheet .x{border-radius:50%!important}
 #panel .tcmk{display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:1px 7px;border-radius:9px;background:rgba(255,255,255,.07);border:1px solid rgba(160,180,230,.2)}
 #panel .tcmk i{font-style:normal}#panel .tcmk.q{border-color:#ffe08a;color:#ffe6a0}#panel .tcmk.b{border-color:#ffcf5a;color:#ffd98a}#panel .tcmk.w{border-color:#ff8a7a;color:#ffb0a0}
 #panel .tcgo{display:flex;flex-direction:column;align-items:center;gap:4px}
+/* the party box: each member's HP bar on its own line under the name, the full width of the row (v1.42.1) */
+.pmr,body.touchui #partyBox .pmr{grid-template-columns:minmax(0,1fr) auto auto auto;row-gap:3px;padding:3px 0 5px}
+#partyBox .pmr .ph{grid-column:1/-1;grid-row:2;height:7px}
+#partyBox .pmr+.pmr{border-top:1px solid rgba(255,255,255,.06)}
