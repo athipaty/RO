@@ -6,9 +6,16 @@
 const QPIC={};
 function picCanvas(key,draw,w=44,h=44){if(QPIC[key])return QPIC[key];const c=document.createElement('canvas');c.width=w*2;c.height=h*2;const g=c.getContext('2d');g.scale(2,2);
   const main=ctx;ctx=g;try{draw(g);}catch(e){}finally{ctx=main;}return QPIC[key]=c.toDataURL();}
+// v1.36.4: the monster is drawn big on a scratch canvas first, its real outline is measured, and the whole of it is then
+// fitted in the middle of the picture with a little room around it, so no monster is cut off at any side
 function mobPicURL(id){const d=MOBS[id];if(!d)return '';
-  return picCanvas('m:'+id,()=>{const k=Math.min(1.5,18/Math.max(10,d.size));ctx.translate(22,38);ctx.scale(k,k);
-    drawMob({d,x:0,y:0,face:1,ph:0,hp:d.hp,dead:false,hitF:-9,lunge:0,kbT:0,state:'idle',moving:false,slowUntil:0});});}
+  return picCanvas('m:'+id,g=>{const S=520,sc=document.createElement('canvas');sc.width=sc.height=S;const s2=sc.getContext('2d');
+    s2.translate(S/2,S*.68);s2.scale(2,2);const prev=ctx;ctx=s2;
+    try{drawMob({d,x:0,y:0,face:1,ph:0,hp:d.hp,dead:false,hitF:-9,lunge:0,kbT:0,state:'idle',moving:false,slowUntil:0});}finally{ctx=prev;}
+    const px=s2.getImageData(0,0,S,S).data;let x0=S,y0=S,x1=-1,y1=-1;
+    for(let y=0;y<S;y++)for(let x=0;x<S;x++)if(px[(y*S+x)*4+3]>10){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
+    if(x1<0)return;const bw=x1-x0+1,bh=y1-y0+1,out=g.canvas.width,pad=out*.07,k=Math.min((out-pad*2)/bw,(out-pad*2)/bh,1.6);
+    g.setTransform(1,0,0,1,0,0);g.imageSmoothingQuality='high';g.drawImage(sc,x0,y0,bw,bh,(out-bw*k)/2,(out-bh*k)/2,bw*k,bh*k);});}
 function npcPicURL(key){
   let n=QNPC[key]?{name:QNPC[key].name,col:QNPC[key].col,hair:QNPC[key].hair}:null;
   if(!n)for(const z of ['town','capital']){const Zc=typeof getZone==='function'?getZone(z):null;const f=Zc&&Zc.npcs.find(x=>NPC_KEY[x.name]===key);if(f){n=f;break;}}
