@@ -4,7 +4,7 @@ module.exports = async t => {
   const A = await player('Roomie', newRoom(), { server: 'http://127.0.0.1:9' });
   try {
     const r = await A.ev(() => {
-      const H = {}, sent = []; const sock = { on: (ev, fn) => { H[ev] = fn; } }; roomsAttach(sock);
+      const L = {}, sent = []; const sock = { on: (ev, fn) => { (L[ev] = L[ev] || []).push(fn); } }; const H = new Proxy({}, { get: (_, ev) => v => (L[ev] || []).forEach(f => f(v)) }); roomsAttach(sock);
       const realSoc = soc; soc = (ev, data) => { sent.push([ev, data]); return true; }; const realRoom = NET.room; NET.room = NET.room || { presence: () => Promise.resolve() };
       sendChat('/join Traders'); const join = JSON.stringify(sent.pop());
       H.room({ name: 'Traders', members: ['Roomie', 'Bea'] }); const tab = document.querySelector('#logTabs [data-tab="room"]').textContent;
