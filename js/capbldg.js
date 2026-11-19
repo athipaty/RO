@@ -203,8 +203,93 @@ function cbGemcutLive(b){const G=cbGemGeo(b),P=TB_P,c=ctx,t=now;c.save();
   c.restore();}
 const cbGemcutLights=b=>{const G=cbGemGeo(b),W=G.bx1-G.bx0;return tbLit([[G.bx0+44,G.byF+12,20],[G.bx0+W*.24,G.byF,56],[G.bx0+W*.56,G.byF,56],[G.bx0+W*.84,G.byF,56],[G.tw.x,G.tw.y+G.tw.r,76],[G.bx0+W-28,G.byF,14,1]]);};
 
+/* ---------------- the Grand Library ---------------- */
+// a scholars' hall of pale stone: a columned portico with steps and a pediment bearing an open book, tall arched windows
+// lined with bookshelves, a balustraded roof with a green copper dome and lantern, a brass telescope on the roof,
+// a lectern with an open book (its pages turn) and a globe on the forecourt, and glowing letters drifting from the lantern
+const cbLibGeo=b=>{const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,bx0=X0+10,bx1=X1-44,by0=Y0+18,byF=Y1-60;
+  const W=bx1-bx0;return{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W,xc:(bx0+bx1)/2,yc:(by0+byF)/2,H:72,po:{u0:W/2-52,u1:W/2+52,d:30,h:64},dome:{r:38,dh:24,h:44},
+    tel:{x:bx1-28,y:by0+28},lect:{x:bx0+26,y:byF+34},globe:{x:bx0+58,y:byF+40}};};
+function cbLib(b){const G=cbLibGeo(b),{X0,Y0,X1,Y1,bx0,bx1,by0,byF,W,xc,yc,H,po,dome}=G,P=TB_P,c=ctx;
+  const stone='#ebe3d2',stoneR='#c8bea8',trim='#d6cab0',slate=b.roof||'#2e4f6e',cop='#5aa58e',copD='#3a7a66',gold='#e8c25a';
+  poly([P(bx0,Y1),P(X1+26,Y1),P(X1+26,Y0+26),P(bx1,Y0)],'rgba(0,0,0,.2)');
+  // the hall
+  tbBox(bx0,by0,bx1,byF,0,H,stone,stoneR);const F=tbF(bx0,byF),R=tbR(bx1,byF),D=byF-by0;
+  for(const [S,L] of [[F,W],[R,D]]){c.globalAlpha=.25;for(let h=12;h<H-8;h+=12)tbSeg(S(0,h),S(L,h),'#8a8070',.8);c.globalAlpha=1;tbQuad(S,0,0,L,7,trim);tbQuad(S,0,H-9,L,H,trim);}
+  // tall arched windows with shelves of books behind the glass
+  const bookCols=['#8a2a2a','#2a4a8a','#2a6a3a','#8a6a2a','#5a2a6a'];
+  const win=(S,u)=>{cbArch(S,u-10,u+10,14,46,'#22344a');for(const h of [22,32,42]){tbSeg(S(u-9,h),S(u+9,h),'#6a4a2a',1.4);for(let k=0;k<5;k++){const p=S(u-8+k*3.8,h);c.fillStyle=bookCols[(k+h)%5];c.fillRect(p.x-1.2,p.y-(k%2?7:6),2.4,k%2?7:6);}}
+    cbArch(S,u-10,u+10,14,46,null,'#8a7a5a');tbQuad(S,u-12,11,u+12,14,trim);};
+  for(const u of [24,54,W-54,W-24])win(F,u);for(const u of [D*.3,D*.7])win(R,u);
+  // the roof: flat behind a balustrade, slate edged
+  poly([P(bx0,by0,H),P(bx1,by0,H),P(bx1,byF,H),P(bx0,byF,H)],shade(slate,25),TB_OL);
+  {const n=Math.floor(W/9);for(let i=0;i<=n;i++){const p=P(bx0+i*W/n,byF,H);c.fillStyle='#f4ecdc';c.fillRect(p.x-1.6,p.y-9,3.2,9);}
+    const m=Math.floor(D/9);for(let i=0;i<=m;i++){const p=P(bx1,byF-i*D/m,H);c.fillStyle='#ddd4c0';c.fillRect(p.x-1.6,p.y-9,3.2,9);}
+    tbSeg(P(bx0,byF,H+10),P(bx1,byF,H+10),'#f4ecdc',3);tbSeg(P(bx1,byF,H+10),P(bx1,by0,H+10),'#ddd4c0',3);}
+  // the brass telescope on its round platform at the back corner
+  {const {x,y}=G.tel;cbCyl(x,y,15,H,H+8,stoneR,trim);const a=P(x,y,H+12);
+    for(const dx of [-6,0,6])tbSeg(P(x+dx,y+(dx?4:-4),H+8),a,'#5a4a2a',1.4);
+    c.save();c.translate(a.x,a.y);c.rotate(-.75);c.fillStyle='#c8963a';c.strokeStyle='#5a3a10';c.lineWidth=1.2;c.beginPath();c.moveTo(-8,-3);c.lineTo(26,-5);c.lineTo(26,5);c.lineTo(-8,3);c.closePath();c.fill();c.stroke();
+    c.fillStyle='#e8c25a';c.fillRect(22,-6,4,12);c.fillRect(-9,-3.5,4,7);c.restore();}
+  // the dome: a round drum with little windows, a green copper dome with ribs, a lantern and a gold finial
+  {const r=dome.r,h0=H,h1=H+dome.dh;cbCyl(xc,yc,r,h0,h1,stoneR,null);
+    poly([...cbRing(xc,yc,r,h1,Math.PI*.35,Math.PI*.75,10),...cbRing(xc,yc,r,h0,Math.PI*.75,Math.PI*.35,10)],stone,null);
+    for(let k=0;k<5;k++){const a=-Math.PI/4+(k+.5)*Math.PI/5,p=TB_P(xc+Math.cos(a)*r,yc+Math.sin(a)*r,h0+16);c.fillStyle='#22344a';c.beginPath();c.roundRect(p.x-3,p.y-10,6,10,[3,3,0,0]);c.fill();}
+    cbCyl(xc,yc,r+3,h1,h1+4,trim,trim);
+    const ct=TB_P(xc,yc,h1+4),rx=(r+1)*1.103,ry=(r+1)*.552,dh=dome.h;
+    const gr=c.createLinearGradient(ct.x-rx,0,ct.x+rx,0);gr.addColorStop(0,'#8ad0b8');gr.addColorStop(.45,cop);gr.addColorStop(1,copD);
+    c.fillStyle=gr;c.strokeStyle='#24503f';c.lineWidth=1.5;c.beginPath();c.ellipse(ct.x,ct.y,rx,dh,0,Math.PI,Math.PI*2);c.ellipse(ct.x,ct.y,rx,ry,0,0,Math.PI);c.closePath();c.fill();c.stroke();
+    c.strokeStyle='rgba(30,70,55,.55)';c.lineWidth=1.2;for(let k=1;k<6;k++){const a=Math.PI*k/6,qx=ct.x-Math.cos(a)*rx,qy=ct.y+Math.sin(a)*ry;c.beginPath();c.moveTo(qx,qy);c.quadraticCurveTo(ct.x-Math.cos(a)*rx*1.0,ct.y-dh*.75,ct.x,ct.y-dh);c.stroke();}
+    const lt=TB_P(xc,yc,h1+4+dh);c.fillStyle='#f0e8d8';c.strokeStyle=TB_OL;c.lineWidth=1;c.fillRect(lt.x-7,lt.y-12,14,12);c.strokeRect(lt.x-7,lt.y-12,14,12);
+    c.fillStyle='#22344a';c.fillRect(lt.x-3,lt.y-10,6,8);c.fillStyle=cop;c.beginPath();c.ellipse(lt.x,lt.y-12,9,7,0,Math.PI,0);c.fill();c.stroke();
+    c.fillStyle=gold;c.beginPath();c.arc(lt.x,lt.y-22,2.6,0,7);c.fill();tbSeg({x:lt.x,y:lt.y-19},{x:lt.x,y:lt.y-30},gold,1.6);}
+  // the portico: three broad steps, six columns, an entablature and a pediment with an open book
+  {const x0=bx0+po.u0,x1=bx0+po.u1,yF=byF+po.d,xm=(x0+x1)/2;
+    for(let k=0;k<3;k++)tbBox(x0-12+k*3,byF,x1+12-k*3,yF+10-k*4,k*3,k*3+3,'#ddd4c0','#bfb5a0','#efe8d8');
+    poly([P(x0-4,byF,9),P(x1+4,byF,9),P(x1+4,yF,9),P(x0-4,yF,9)],'#efe8d8',TB_OL);
+    // the doors in the shade of the portico
+    {const u=W/2;tbQuad(F,u-14,9,u+14,48,'#3a2a1a');cbArch(F,u-14,u+14,9,40,'#5a3a20');tbSeg(F(u,9),F(u,52),'#2a1a10',1.4);}
+    for(let i=0;i<6;i++){const x=x0+6+(x1-x0-12)*i/5;cbCyl(x,yF-6,5.5,9,po.h,i<3?'#f4ecdc':'#e0d6c2',null,'#8a8070');
+      c.globalAlpha=.35;for(const dx of [-2,2])tbSeg(P(x+dx,yF-6+3,12),P(x+dx,yF-6+3,po.h-2),'#8a8070',.8);c.globalAlpha=1;
+      tbBox(x-7,yF-13,x+7,yF+1,po.h,po.h+4,trim,shade(trim,-15),'#f4ecdc');}
+    tbBox(x0-6,byF,x1+6,yF+2,po.h+4,po.h+14,'#efe8d8','#cfc5b0','#f4ecdc');
+    const ph=po.h+40;poly([P(x0-8,byF,po.h+14),P(x0-8,yF+4,po.h+14),P(xm,yF+4,ph),P(xm,byF,ph)],shade(slate,20),TB_OL);
+    poly([P(xm,byF,ph),P(xm,yF+4,ph),P(x1+8,yF+4,po.h+14),P(x1+8,byF,po.h+14)],slate,TB_OL);
+    poly([P(x0-8,yF+4,po.h+14),P(x1+8,yF+4,po.h+14),P(xm,yF+4,ph)],'#f4ecdc',TB_OL);
+    poly([P(x0+4,yF+4,po.h+17),P(x1-4,yF+4,po.h+17),P(xm,yF+4,ph-5)],'#e2d8c4',null);
+    // the open book in the pediment
+    {const p=P(xm,yF+4,po.h+24);c.fillStyle='#fffaf0';c.strokeStyle='#8a6a1a';c.lineWidth=1.2;
+      c.beginPath();c.moveTo(p.x,p.y);c.quadraticCurveTo(p.x-6,p.y-4,p.x-13,p.y-2);c.lineTo(p.x-13,p.y-10);c.quadraticCurveTo(p.x-6,p.y-12,p.x,p.y-8);c.closePath();c.fill();c.stroke();
+      c.beginPath();c.moveTo(p.x,p.y);c.quadraticCurveTo(p.x+6,p.y-4,p.x+13,p.y-2);c.lineTo(p.x+13,p.y-10);c.quadraticCurveTo(p.x+6,p.y-12,p.x,p.y-8);c.closePath();c.fill();c.stroke();
+      c.strokeStyle='rgba(120,100,60,.6)';c.lineWidth=.8;for(const s of [-1,1])for(let k=0;k<3;k++){c.beginPath();c.moveTo(p.x+s*3,p.y-7+k*2.2);c.lineTo(p.x+s*10,p.y-8+k*2.2);c.stroke();}
+      c.fillStyle=gold;c.beginPath();c.moveTo(p.x,p.y-20);c.lineTo(p.x+3,p.y-14);c.lineTo(p.x-3,p.y-14);c.closePath();c.fill();}}
+  // the forecourt: a globe on a stand and a stack of books
+  {const {x,y}=G.globe,p=P(x,y);tbSeg(p,{x:p.x,y:p.y-16},'#5a3a1c',2.4);c.fillStyle='#5a3a1c';c.fillRect(p.x-7,p.y-2,14,3);
+    const g=c.createRadialGradient(p.x-3,p.y-26,1,p.x,p.y-23,9);g.addColorStop(0,'#8ac8f0');g.addColorStop(1,'#2a6aa8');c.fillStyle=g;c.strokeStyle=TB_OL;c.lineWidth=1.2;c.beginPath();c.arc(p.x,p.y-23,8.5,0,7);c.fill();c.stroke();
+    c.fillStyle='#5aa04a';c.beginPath();c.ellipse(p.x-2,p.y-25,3.5,2.5,.4,0,7);c.fill();c.beginPath();c.ellipse(p.x+3,p.y-20,2.5,1.8,0,0,7);c.fill();
+    c.strokeStyle=gold;c.lineWidth=1.4;c.beginPath();c.arc(p.x,p.y-23,11,-1.9,1.2);c.stroke();}
+  {const p=P(G.lect.x+30,G.lect.y-8);for(let k=0;k<4;k++){c.fillStyle=bookCols[k];c.strokeStyle=TB_OL;c.lineWidth=.8;c.fillRect(p.x-8+(k%2)*2,p.y-4-k*4,16,4);c.strokeRect(p.x-8+(k%2)*2,p.y-4-k*4,16,4);c.fillStyle='#f4ecdc';c.fillRect(p.x+6+(k%2)*2,p.y-3.5-k*4,1.6,3);}}
+  // the lectern (the book on it is drawn live)
+  {const {x,y}=G.lect,p=P(x,y);c.fillStyle='#6a4426';c.strokeStyle=TB_OL;c.lineWidth=1.2;c.fillRect(p.x-3,p.y-24,6,24);c.strokeRect(p.x-3,p.y-24,6,24);c.fillRect(p.x-8,p.y-2,16,3);
+    c.beginPath();c.moveTo(p.x-13,p.y-24);c.lineTo(p.x+13,p.y-24);c.lineTo(p.x+11,p.y-31);c.lineTo(p.x-11,p.y-31);c.closePath();c.fill();c.stroke();}
+}
+function cbLibLive(b){const G=cbLibGeo(b),P=TB_P,c=ctx,t=now;c.save();
+  // the open book on the lectern: now and then a page turns
+  {const p=P(G.lect.x,G.lect.y),y=p.y-31;c.fillStyle='#fffaf0';c.strokeStyle='#8a7a5a';c.lineWidth=1;
+    c.beginPath();c.moveTo(p.x,y);c.lineTo(p.x-12,y+1);c.lineTo(p.x-11,y-6);c.lineTo(p.x,y-7);c.closePath();c.fill();c.stroke();
+    c.beginPath();c.moveTo(p.x,y);c.lineTo(p.x+12,y+1);c.lineTo(p.x+11,y-6);c.lineTo(p.x,y-7);c.closePath();c.fill();c.stroke();
+    const ph=(t*.4)%1;if(ph<.25){const k=ph/.25,ex=p.x+Math.cos(k*Math.PI)*11,ey=y-3-Math.sin(k*Math.PI)*8;c.fillStyle='#f4ecd8';c.beginPath();c.moveTo(p.x,y);c.lineTo(ex,ey+3);c.lineTo(ex,ey-4);c.lineTo(p.x,y-7);c.closePath();c.fill();c.stroke();}}
+  // glowing letters drift up from the lantern of the dome
+  {const lt=P(G.xc,G.yc,G.H+G.dome.dh+4+G.dome.h),gl='ᚨᛒᛞΣΩ✶';c.font='700 10px serif';c.textAlign='center';
+    for(let k=0;k<5;k++){const ph=(t*.18+k/5)%1;c.globalAlpha=Math.sin(ph*Math.PI)*.85;c.fillStyle=k%2?'#ffe6a0':'#bfe8ff';c.fillText(gl[k],lt.x+Math.sin(t*.8+k*1.7)*14*ph,lt.y-30-ph*60);}c.globalAlpha=1;}
+  // a twinkle on the telescope's lens
+  {const ph=(t*.6)%2.5;if(ph<.3){const a=P(G.tel.x,G.tel.y,G.H+12),lx=a.x+Math.cos(-.75)*26,ly=a.y+Math.sin(-.75)*26;c.globalAlpha=1-ph/.3;c.strokeStyle='#fffbe0';c.lineWidth=1.2;c.beginPath();c.moveTo(lx-5,ly);c.lineTo(lx+5,ly);c.moveTo(lx,ly-5);c.lineTo(lx,ly+5);c.stroke();}}
+  c.restore();}
+const cbLibLights=b=>{const G=cbLibGeo(b),D=G.byF-G.by0;return tbLit([...[24,54,G.W-54,G.W-24].map(u=>[G.bx0+u,G.byF,32]),[G.bx1,G.byF-D*.3,32],[G.bx1,G.byF-D*.7,32],[G.xc,G.byF,26,1],[G.xc,G.yc,G.H+G.dome.dh+G.dome.h+10]]);};
+
 const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   gemcut:{body:cbGemcut,live:cbGemcutLive,signAt:b=>{const G=cbGemGeo(b);return[{name:b.name,x:(G.bx0+44)/TILE,w:0,y:(G.byF+12)/TILE,h:0},40];},lights:cbGemcutLights},
+  library:{body:cbLib,live:cbLibLive,signAt:b=>{const G=cbLibGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:(G.byF+G.po.d+2)/TILE,h:0},G.po.h+9];},lights:cbLibLights},
   shop:{body:cbMarket,live:cbMarketLive,signAt:b=>{const G=cbMarketGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.byF/TILE,h:0},G.H1+20];},lights:cbMarketLights}};
 // take over the drawing of the capital's pieces that have a design of their own
 {const _prev=drawBuilding;
