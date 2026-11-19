@@ -15,7 +15,7 @@ module.exports = async t => {
         // each path can fight: its own attack, or the core attack plus its own skills
         for (const p of J.paths) if (!p.skills.some(s => SKILLS[s].kind !== 'passive')) out.bad.push(`${base}.${p.id} has nothing to cast`);
         const kinds = jobsFrom(base).map(j => jobPaths(j).map(p => p.id).join('+')).sort();
-        if (kinds.filter(k => !k.includes('+')).length !== 2 || kinds.filter(k => k.includes('+')).length !== 1 || new Set(kinds).size !== 3) out.bad.push(`${base} callings: ${kinds}`);
+        if (kinds.length && (kinds.filter(k => !k.includes('+')).length !== 2 || kinds.filter(k => k.includes('+')).length !== 1 || new Set(kinds).size !== 3)) out.bad.push(`${base} callings: ${kinds}`); // (a first job with no callings yet, like the new Gunslinger, is fine)
         // the points a first job must spend to open each calling (requirements of requirements included)
         for (const j of jobsFrom(base)) { const need = {};
           const add = (s, l) => { if ((need[s] || 0) >= l) return; need[s] = l; for (const r in SKILL_REQ[s] || {}) add(r, SKILL_REQ[s][r]); };

@@ -255,7 +255,7 @@ TH_PAT.unshift(
   [/^A (.+) cannot use (.+)s\.$/,'$1 ใช้ $2 ไม่ได้'],[/^base level (\d+)\.$/,'ต้องมีเลเวลฐาน $1'],[/^Requires base level (\d+)\.$/,'ต้องมีเลเวลฐาน $1'],
 );
 // gear lines are built from parts ("ATK 22 · Lv 6+ · club · Slots: empty"): put each part into Thai, but only when every part is known
-const TH_WT={sword:'ดาบ',club:'กระบอง',axe:'ขวาน',wand:'คทา',bow:'ธนู',mace:'ตะบอง',dagger:'มีดสั้น',staff:'ไม้เท้า',spear:'หอก',fist:'สนับมือ',knuckle:'สนับมือ',book:'หนังสือ',instrument:'เครื่องดนตรี'};
+const TH_WT={gun:'ปืน',sword:'ดาบ',club:'กระบอง',axe:'ขวาน',wand:'คทา',bow:'ธนู',mace:'ตะบอง',dagger:'มีดสั้น',staff:'ไม้เท้า',spear:'หอก',fist:'สนับมือ',knuckle:'สนับมือ',book:'หนังสือ',instrument:'เครื่องดนตรี'};
 const TH_STATK=/^(ATK|MATK|DEF|STR|AGI|VIT|INT|DEX|LUK|CRIT|FLEE|HIT|ASPD|Max HP|Max SP|HP regen|SP regen|MDEF)( [+-]?\d+%?)$/;
 function thGearPart(p){if(!p)return '';if(TH_STATK.test(p))return p.replace('Max HP','HP สูงสุด').replace('Max SP','SP สูงสุด').replace('HP regen','ฟื้น HP').replace('SP regen','ฟื้น SP');
   if(/^Lv \d+\+$/.test(p))return p;if(TH_WT[p])return TH_WT[p];if(TH[p]&&/[฀-๿]/.test(TH[p]))return TH[p];
