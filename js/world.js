@@ -21,7 +21,7 @@ function getZone(id){
   const D=ZONES[id], W=D.w, H=D.h, r=seeded(D.seed||7), t=new Uint8Array(W*H);
   const set=(x,y,v)=>{if(x>=0&&y>=0&&x<W&&y<H)t[y*W+x]=v;};
   const get=(x,y)=>(x<0||y<0||x>=W||y>=H)?2:t[y*W+x];
-  const obst=(D.theme==='dunes'||D.theme==='crypt'||D.theme==='cave'||D.theme==='arena'||D.theme==='keep'||D.theme==='heights')?4:2;
+  const obst=(D.theme==='dunes'||D.theme==='crypt'||D.theme==='cave'||D.theme==='arena'||D.theme==='keep'||D.theme==='heights'||D.theme==='caldera')?4:2;
   const zone={id,D,w:W,h:H,t,portals:[],npcs:[],buildings:[],spawn:null};
   for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(x===0||y===0||x===W-1||y===H-1)set(x,y,obst);
   if(D.theme==='town'&&id==='capital'){
@@ -199,7 +199,7 @@ function renderZone(z, r){
   // upright objects (drawn per frame in the isometric view, depth-sorted with characters)
   z.objs=[];
   for(const [px,py,kind] of tops){const th2=z.D.theme;let k;
-    if(kind==='rock')k=th2==='crypt'||th2==='arena'||th2==='keep'?'pillar':th2==='cave'?'rock':th2==='heights'?(R()<.35?'crag':'rock'):(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':th2==='farms'&&R()<.3?'hay':'tree';
+    if(kind==='rock')k=th2==='crypt'||th2==='arena'||th2==='keep'?'pillar':th2==='cave'?'rock':th2==='heights'||th2==='caldera'?(R()<.45?'crag':'rock'):(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':th2==='farms'&&R()<.3?'hay':'tree';
     z.objs.push({x:px+16,y:py+16,kind:k,v:Math.floor(R()*3),sc:.85+R()*.3});}
   for(const b of z.buildings){mg.fillStyle=b.roof;mg.fillRect(b.x,b.y,b.w,b.h);}
   for(const s of z.signs||[])z.objs.push({x:s.x*TILE,y:s.y*TILE,kind:'dsign',name:s.name,v:0,sc:1});

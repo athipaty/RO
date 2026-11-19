@@ -28,3 +28,29 @@ ZONES.coast={name:'Saltspray Coast',w:68,h:46,theme:'coast',music:'coast',seed:1
 ZONES.fen.links.east='coast';
 if(!ZONE_ORDER.includes('coast'))ZONE_ORDER.push('coast');
 THEMES.coast={g:['#ead8aa','#eedcb0','#e5d2a2'],path:'#d8c08a',canopy:['#3f8a4a','#5aa85a'],water:'#3aa8c8'};
+/* ---- Cinderpeak Caldera (Lv 78-90): a volcano past the Coast: black rock, crags and rivers of lava, ash in the air.
+   Cinderling, Magma Hound (packs), Obsidian Golem, Flame Wraith (bolts of fire), Ashen Salamander, Pyre Titan, and the
+   Cinder Wyrm with a Magma Hound escort. Fire monsters: Water Oil from the Alchemist bites hard here. ---- */
+Object.assign(ITEMS,{
+  cinderash:{name:'Cinder Ash',type:'etc',price:530,col:'#8a7a72',g:'•'}, magmahide:{name:'Magma Hide',type:'etc',price:550,col:'#c8501a',g:'•'},
+  obsidian:{name:'Obsidian Shard',type:'etc',price:570,col:'#2a2238',g:'•'}, wraithflame:{name:'Wraith Flame',type:'etc',price:590,col:'#ff9a3a',g:'•'},
+  salascale:{name:'Salamander Scale',type:'etc',price:610,col:'#e8702a',g:'•'}, pyrecore:{name:'Pyre Core',type:'etc',price:640,col:'#ffcf5a',g:'•'},
+  wyrmheart:{name:'Wyrmheart',type:'accessory',b:{str:6,vit:4,atk:30},price:80000,lv:85,slots:1,col:'#ff5a2a',g:'O',desc:'Dropped by the Cinder Wyrm. STR +6 · VIT +4 · ATK +30.'}});
+Object.assign(MOBS,{
+  cinderling:{name:'Cinderling',lv:78,hp:9000,atk:500,def:90,flee:50,exp:8200,jexp:5500,spd:55,shape:'blob',col:'#e8602a',size:14,el:'fire',drops:[['cinderash',.45],['orange',.12]],sig:{kind:'armor',b:{maxhp:600,vit:2},txt:'+600 Max HP, +2 VIT'}},
+  magmahound:{name:'Magma Hound',lv:80,hp:9500,atk:520,def:85,flee:80,exp:8700,jexp:5800,spd:125,aggro:true,shape:'beast',col:'#a8381a',size:16,el:'fire',drops:[['magmahide',.4],['orange',.12]],sig:{kind:'accessory',b:{str:4,crit:5},txt:'+4 STR, +5 CRIT'}},
+  obsidiangolem:{name:'Obsidian Golem',lv:82,hp:15000,atk:540,def:190,flee:20,exp:9400,jexp:6300,spd:40,aggro:true,shape:'golem',col:'#2e2838',size:21,el:'earth',drops:[['obsidian',.45],['emberore',.08]],sig:{kind:'armor',b:{def:16,maxhp:400},txt:'+16 DEF, +400 Max HP'}},
+  flamewraith:{name:'Flame Wraith',lv:84,hp:8500,atk:560,def:55,flee:110,exp:9900,jexp:6700,spd:90,aggro:true,range:190,shape:'ghost',col:'#ff8a3a',size:14,el:'fire',ail:['blind',.12,5],drops:[['wraithflame',.4],['blue',.12]],sig:{kind:'weapon',b:{matk:90,int:4},txt:'+90 MATK, +4 INT'}},
+  salamander:{name:'Ashen Salamander',lv:86,hp:11000,atk:590,def:100,flee:90,exp:10600,jexp:7100,spd:110,aggro:true,shape:'beast',col:'#d8602a',size:17,el:'fire',ail:['poison',.12,6],drops:[['salascale',.4],['orange',.14]],sig:{kind:'weapon',b:{atk:42,agi:3},txt:'+42 ATK, +3 AGI'}},
+  pyretitan:{name:'Pyre Titan',lv:88,hp:17500,atk:610,def:175,flee:25,exp:11500,jexp:7700,spd:45,aggro:true,shape:'golem',col:'#6a3a2a',size:22,el:'fire',ail:['stun',.1,1.5],drops:[['pyrecore',.4],['glintstone',.08]],sig:{kind:'head',b:{str:4,maxhp:500},txt:'+4 STR, +500 Max HP'}},
+  cinderwyrm:{name:'Cinder Wyrm',lv:92,hp:130000,atk:680,def:150,flee:80,exp:120000,jexp:80000,spd:70,aggro:true,boss:true,mini:true,calls:true,shape:'beast',col:'#8a2a1a',size:28,el:'fire',respawn:180,sigChance:.15,
+    drops:[['wyrmheart',.2],['pyrecore',1],['orange',1],['glintstone',.5],['emberore',.5]],sig:{kind:'weapon',b:{atk:50,str:4},txt:'+50 ATK, +4 STR'}}});
+MOBS.flamewraith.skill='bolt';MOBS.magmahound.pack=true;
+for(const id of ['cinderling','magmahound','obsidiangolem','flamewraith','salamander','pyretitan','cinderwyrm']){const m=MOBS[id];m.id=id;m.hit=m.lv*2+12;
+  ITEMS[id+'_sig']={name:m.name+' Sigil',type:'sigil',kind:m.sig.kind,b:m.sig.b,price:m.boss?20000:600,col:'#ffcf5a',g:'✦',desc:`Socket into ${/^[aeiou]/.test(m.sig.kind)?'an':'a'} ${m.sig.kind}: ${m.sig.txt}.`};}
+for(const id in ITEMS)if(!ITEMS[id].id)ITEMS[id].id=id;
+ZONES.caldera={name:'Cinderpeak Caldera',w:66,h:46,theme:'caldera',music:'caldera',seed:173,density:.07,ponds:9,lvl:'Lv 78–90',
+  mobs:[['cinderling',12],['magmahound',9],['obsidiangolem',6],['flamewraith',6],['salamander',6],['pyretitan',4],['cinderwyrm',1],['magmahound',3,'cinderwyrm']],links:{west:'coast'}};
+ZONES.coast.links.east='caldera';
+if(!ZONE_ORDER.includes('caldera'))ZONE_ORDER.push('caldera');
+THEMES.caldera={g:['#3a3236','#3e363a','#363034'],path:'#5a4a44',rock:['#2a2228','#4a3e44'],water:'#e8541a',lava:true};
