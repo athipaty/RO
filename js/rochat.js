@@ -106,3 +106,19 @@ if(typeof TH!=='undefined'){for(const [k,v] of [['Create a chat room','สร้
   if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(\d+)\/(\d+) here( · 🔒 password)? · owner (.+)$/,(m,a,b,l,o)=>`อยู่ ${a}/${b} คน${l?' · 🔒 มีรหัสผ่าน':''} · เจ้าของ ${o}`],[/^(.+)'s room has a password\.$/,'ห้องของ $1 มีรหัสผ่าน']);}
 // on phones the room windows sit at the bottom like a dialogue box, so the town and the people stay in view
 if(typeof NPC_SHEET!=='undefined')for(const k of ['chatroom','crcreate','crpass'])NPC_SHEET.add(k);
+/* ---- v1.38.1 hide the room window and keep chatting: a small chip with the room's title and the unread count ---- */
+RC.unread=0;
+function rcChip(){let el=document.getElementById('crChip');const show=running&&P&&rcIn()&&RC.join&&panelKind!=='chatroom'&&panelKind!=='crcreate';
+  if(!show){if(el)el.hidden=true;return;}
+  if(!el){el=document.createElement('button');el.id='crChip';el.type='button';el.addEventListener('click',()=>{RC.unread=0;openPanel('chatroom');rcChip();});document.body.appendChild(el);}
+  const own=rcOwner(),t=own?RC.mine.t:RC.join.t,max=own?RC.mine.max:RC.join.max;
+  const html=`<i aria-hidden="true">💬</i><b>${esc(t)}</b><span>${CR.members.length}/${max}</span>${RC.unread?`<em>${RC.unread>9?'9+':RC.unread}</em>`:''}`;
+  if(el.innerHTML!==html)el.innerHTML=html;el.classList.toggle('new',RC.unread>0);el.title='Open the chat room';el.hidden=false;}
+setInterval(()=>{try{rcChip();}catch(e){}},400);
+{const _ll2=logLine;logLine=function(kind,prefix,text){const r=_ll2.apply(this,arguments);
+  try{if(kind==='room'&&!String(text||'').startsWith('§cr:')&&panelKind!=='chatroom'&&!String(prefix||'').includes(`] ${P.name}: `)){RC.unread++;rcChip();}}catch(e){}return r;};}
+{const _op=openPanel;openPanel=function(k){if(k==='chatroom')RC.unread=0;const r=_op.apply(this,arguments);try{rcChip();}catch(e){}return r;};}
+PANEL_ACTS.crhide=()=>{closePanel();rcChip();};
+{const _pc=PANELS.chatroom;PANELS.chatroom=function(){const h=_pc.apply(this,arguments);
+  return h.replace('<div class="tbtns">','<div class="tbtns"><button class="btn small" data-act="crhide">▾ Hide</button>');};}
+if(typeof TH!=='undefined')for(const [k,v] of [['▾ Hide','▾ ซ่อน'],['Open the chat room','เปิดห้องแชท']])if(!TH[k])TH[k]=v;

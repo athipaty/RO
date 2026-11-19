@@ -20,6 +20,10 @@ module.exports = async t => {
       // talking: the line goes to the server, and what comes back shows in the window
       document.getElementById('crSay').value = 'anyone for the crypt?'; PANEL_ACTS.crsay(); o.said = /roomChat.*anyone for the crypt/.test(JSON.stringify(sent[sent.length - 1]));
       fire('roomChat', { room: rn, from: 'Bea', text: 'me!' }); o.shown = /Bea.*me!/.test(document.getElementById('crLog').textContent);
+      // hiding the window keeps you in the room: a chip shows the room and counts new lines; tapping it opens the room again
+      PANEL_ACTS.crhide(); await w(50); const chip = document.getElementById('crChip'); o.chip = !!chip && !chip.hidden && panelKind !== 'chatroom' && /Crypt party/.test(chip.textContent);
+      fire('roomChat', { room: rn, from: 'Bea', text: 'still there?' }); o.unread = /1/.test(chip.querySelector('em') ? chip.querySelector('em').textContent : '');
+      chip.click(); await w(50); o.reopen = panelKind === 'chatroom' && chip.hidden && /still there\?/.test(document.getElementById('crLog').textContent);
       // removing someone sends a control line that is never shown
       fire('room', { name: rn, members: ['Roomie', 'Bea'] }); PANEL_ACTS.crkick('Bea'); o.kick = /§cr:kick:Bea/.test(JSON.stringify(sent[sent.length - 1]));
       PANEL_ACTS.crleave(); o.closed = sent.some(s => s[0] === 'roomChat' && s[1].text === '§cr:close') && sent.some(s => s[0] === 'roomLeave') && chatroomPresence() === null;
@@ -43,6 +47,7 @@ module.exports = async t => {
     t.ok(r.joined && r.window, 'opening the room joins it and shows its window');
     t.ok(/"t":"Crypt party".*"m":3/.test(r.pres), 'a bubble with the title and the limit goes out with your presence: ' + r.pres);
     t.ok(r.said && r.shown, 'talking in the room window, and what others say shows there');
+    t.ok(r.chip && r.unread && r.reopen, 'Hide keeps you in the room: a chip shows it with new messages counted, and tapping it opens the room again');
     t.ok(r.kick, 'the owner can ask someone to leave');
     t.ok(r.closed, 'closing the room tells everyone, leaves it and takes the bubble down');
     t.ok(r.hit, "tapping above someone's head finds their bubble");
