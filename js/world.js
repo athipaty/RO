@@ -53,12 +53,12 @@ function getZone(id){
     // no extra trees on the south and east edges: they stand nearest the camera and would hide the people behind them
     for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(x===1||y===1){if(r()<.6)set(x,y,2);}else if(x===W-2||y===H-2){}else set(x,y,r()<.05?7:0);}
     const fill=(x0,y0,x1,y1,v)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)set(x,y,v);};
-    fill(2,2,16,11,6);                                   // Market Row: cobbles
-    fill(23,2,37,11,6);fill(33,3,37,9,1);               // Adventurers' Yard: cobbles, a dirt training yard in the corner
-    for(let y=18;y<=27;y++)for(let x=2;x<=16;x++)if(r()<.12)set(x,y,7);fill(3,24,16,25,6); // Chapel Close: a flowered green, a cobbled walk
+    fill(2,2,16,11,1);                                   // Market Row: a dirt yard before the shops
+    fill(23,2,37,11,1);                                  // Adventurers' Yard: a dirt yard, the training ground in the corner
+    for(let y=18;y<=27;y++)for(let x=2;x<=16;x++)if(r()<.12)set(x,y,7);fill(3,24,16,25,1); // Chapel Close: a flowered green, a dirt walk
     fill(23,24,37,25,1);fill(32,26,35,27,3);             // Travellers' Green: a dirt lane past the doors, a duck pond
     for(let k=2;k<=37;k++){if(k<17||k>22){set(k,12,7);set(k,17,7);}}for(let k=2;k<=27;k++)if(k<12||k>17){set(17,k,7);set(22,k,7);} // flower hedges between districts
-    fill(0,13,W-1,16,1);fill(18,0,21,H-1,1);             // the two roads, gate to gate
+    fill(0,13,W-1,16,6);fill(18,0,21,H-1,6);             // the two stone roads, gate to gate (v1.31.1)
     for(let y=8;y<=22;y++)for(let x=13;x<=26;x++)if(Math.hypot(x+.5-20,y+.5-15)<6)set(x,y,6); // the round plaza
     for(const [x,y] of [[17,2],[22,2],[2,12],[2,17],[2,23],[2,24],[2,25]])set(x,y,2); // trees framing the roads; a dark corner for Nyx
     const B=[{x:3,y:3,w:7,h:4,name:'General Store',roof:'#8e3b2e',npc:{name:'Ilsa the Merchant',role:'shop',col:'#c86a3a',hair:'#8a3b1a'}},
