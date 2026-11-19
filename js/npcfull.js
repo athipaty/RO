@@ -8,9 +8,15 @@ const NPCWIN={on:false,opening:false};
 function syncNpcFull(){
   // townsfolk windows, and the Equipment window, fill the screen on phones
   // since v1.0.2 every window fills the screen on phones (Skills, Status, Items, Shortcut keys, ...), not just townsfolk and Equipment
-  const on=!!panelKind&&!panel.hidden&&document.body.classList.contains('touchui');
+  // v1.34.0 conversations (a few lines and buttons) open as a dialogue box at the bottom instead, as tall as what they say
+  const open=!!panelKind&&!panel.hidden&&document.body.classList.contains('touchui'),sheet=open&&NPC_SHEET.has(panelKind),on=open&&!sheet;
+  if(panel.classList.contains('npcsheet')!==sheet)panel.classList.toggle('npcsheet',sheet);
   if(panel.classList.contains('npcfull')!==on){panel.classList.toggle('npcfull',on);if(on)requestAnimationFrame(()=>{panel.scrollTop=0;});} // after the window is filled: no extra layout pass
   if(document.body.classList.contains('npcopen')!==on)document.body.classList.toggle('npcopen',on);}
+// the windows that are a conversation, not a page of lists: shown as a dialogue box at the bottom on phones
+const NPC_SHEET=new Set(['talk','heal','warp','festival','arena','keep','waystone','rebirth']);
+// tapping the town above the dialogue box closes it (the tap still walks you there)
+document.addEventListener('pointerdown',e=>{if(!panel.hidden&&panel.classList.contains('npcsheet')&&e.target&&e.target.id==='cv')closePanel();},true);
 const _openNpcFull=openNpc;
 openNpc=function(n){NPCWIN.opening=true;NPCWIN.on=true;try{return _openNpcFull.apply(this,arguments);}finally{NPCWIN.opening=false;syncNpcFull();}};
 const _openPanelFull=openPanel;
