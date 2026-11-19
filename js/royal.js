@@ -21,6 +21,8 @@ Object.assign(ITEMS,{
   aurelplate:{name:'Aurel Plate',type:'armor',def:54,price:22000,lv:45,slots:1,col:'#d8c890',g:'A'},
   aurelmantle:{name:'Aurel Mantle',type:'armor',def:20,b:{int:4,maxsp:80},price:20000,lv:45,slots:1,col:'#c8a8e8',g:'A'},
   aurelsignet:{name:'Aurel Signet',type:'accessory',b:{str:1,agi:1,vit:1,int:1,dex:1,luk:1},price:18000,lv:40,slots:0,col:'#e8c25a',g:'O',desc:'The royal seal of Aurelmark. All stats +1.'}});
+// v1.38.9 the Waystone Shard and the Kinship Charm are sold only at the Aurel Market (not Hearthvale's General Store)
+for(const id of ['waystone','kinship']){const i=SHOP.indexOf(id);if(i>=0)SHOP.splice(i,1);if(!ROYAL_SHOP.includes(id))ROYAL_SHOP.splice(2,0,id);}
 const inCapital=()=>typeof zoneId!=='undefined'&&zoneId==='capital';
 // what the shop in this city sells
 const shopStock=()=>inCapital()?ROYAL_SHOP:SHOP; // v1.36.8: the capital sells only the Royal Stock; the basics are Hearthvale's

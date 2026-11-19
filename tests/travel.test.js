@@ -5,12 +5,12 @@ module.exports = async t => {
   try {
     await wait(1500);
     const w = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms));
-      const shop = SHOP.includes('waystone') && SHOP.includes('kinship');
+      const shop = !SHOP.includes('waystone') && !SHOP.includes('kinship') && ROYAL_SHOP.includes('waystone') && ROYAL_SHOP.includes('kinship');
       P.visited = ['town', 'meadow', 'woods', 'deep1']; giveItem('waystone', 2); useItem('waystone');
       const kind = panelKind, opts = [...panel.querySelectorAll('[data-act="waygo"]')].map(b => b.dataset.arg), kept = invFind('waystone').n;
       panel.querySelector('[data-act="waygo"][data-arg="deep1"]').click(); await w(200);
       return { shop, kind, opts, kept, zone: zoneId, left: invFind('waystone').n, closed: panel.hidden }; });
-    t.ok(w.shop, 'Ilsa sells Waystone Shards and Kinship Charms');
+    t.ok(w.shop, 'Waystone Shards and Kinship Charms are sold at the Aurel Market in Aurelmark, not at the General Store');
     t.ok(w.kind === 'waystone' && w.opts.join() === 'meadow,woods,deep1' && w.kept === 2, 'a Waystone Shard lists the regions you have visited (dungeon floors too) and is not used up by opening it');
     t.ok(w.zone === 'deep1' && w.left === 1 && w.closed, 'choosing one takes you there and uses one shard');
     const k = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); giveItem('kinship', 1);
