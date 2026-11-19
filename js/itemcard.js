@@ -20,8 +20,9 @@ function showItemCard(id){const it=ITEMS[id];if(!it)return;let c=document.getEle
     for(const {m,ch} of src){const url=typeof mobPicURL==='function'?mobPicURL(m.id):'';const wh=itemMobWhere(m);
       h+=`<div class="icmob">${url?`<img src="${url}" alt="">`:''}<div class="grow"><div class="nm">${esc(m.name)} <span class="muted">Lv ${m.lv}${m.boss?' · boss':''}</span></div>${wh?`<div class="ds">${esc(wh)}</div>`:''}</div><div class="icpct">${pctTxt(ch)}</div></div>`;}
     h+=`</div>`;}
-  const shop=typeof SHOP!=='undefined'&&SHOP.includes(id);
+  const shop=typeof SHOP!=='undefined'&&SHOP.includes(id),royal=typeof ROYAL_SHOP!=='undefined'&&ROYAL_SHOP.includes(id);
   if(shop)h+=`<h3>In the store</h3><div class="ds">Sold at the General Store for <span class="gold">${fmt(it.price||0)} gold</span>.</div>`;
+  else if(royal)h+=`<h3>In the store</h3><div class="ds">Sold at Aurel Market in Aurelmark for <span class="gold">${fmt(it.price||0)} gold</span>.</div>`;
   const {makes,usedIn}=itemRecipes(id);
   const recipe=r=>Object.entries(r[2]).map(([m,k])=>`<span class="icing" data-card="${m}">${pic(m)}<b>${k}</b></span>`).join('');
   if(makes.length)h+=`<h3>How to make it</h3>`+makes.map(r=>`<div class="icrec">${recipe(r)}<span class="muted">→ ${r[1]>1?r[1]+'× ':''}${r[3]?fmt(r[3])+' gold · ':''}${r[4]==='forge'?'at the smithy':'anywhere (/craft)'}</span></div>`).join('');

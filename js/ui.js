@@ -126,7 +126,8 @@ function refreshPanel(){
     h+=skillTreeHtml();
   }
   else if(panelKind==='smith'){
-    h+=`<h2>Brannoc the Smith</h2><div class="say">"Bring me ore and gold and I'll make that blade sing. Up to +4 never fails. Past that, a bad strike shatters the piece for good."</div>`;
+    if(inCapital())h+=`<h2>Smith Garrow</h2><div class="say">"Royal forge, royal hand. I take a blade all the way to +10, and my strikes miss less than most. Still, past +4 a bad one shatters the piece."</div>`;
+    else h+=`<h2>Brannoc the Smith</h2><div class="say">"Bring me ore and gold and I'll make that blade sing. Up to +4 never fails. Past that, a bad strike shatters the piece for good."</div><div class="ds">Brannoc refines up to +${BRANNOC_MAX}. Past that, only Smith Garrow in Aurelmark has the skill.</div>`;
     h+=`<h3>Materials</h3>`;
     for(const id of ['emberore','glintstone']){const it=ITEMS[id],have=(invFind(id)||{}).n||0;
       h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name} <span class="muted">×${have}</span></div><div class="ds">${it.desc}</div></div><span class="gold">${it.price}</span><button class="btn small" data-act="buy" data-arg="${id}" ${P.gold<it.price?'disabled':''}>Buy</button></div>`;}
@@ -136,14 +137,15 @@ function refreshPanel(){
     const gear=['weapon','armor','head','accessory'].filter(s=>P.eq[s]).map(s=>({e:P.eq[s],key:'eq:'+s,where:'equipped'}));
     if(!gear.length)h+=`<p class="muted">You have no gear equipped. Put a piece on to refine it.</p>`;
     for(const {e,key,where} of gear){const r=e.r||0,next=r+1,mat=refineMat(e.id),has=!!invFind(mat),fee=refineFee(next);
-      const armed=refineArm===key,risk=REFINE_CHANCE[next]<1;
+      const armed=refineArm===key,risk=refineOdds(next)<1,cap=refineCap();
       h+=`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)} <span class="muted">${where}</span></div>`+
-        (r>=10?`<div class="ds">Fully refined.</div></div>`:
-        `<div class="ds">To +${next}: ${Math.round(REFINE_CHANCE[next]*100)}%${risk?' · <span style="color:var(--warn)">breaks on failure</span>':''}</div><div class="cms">${itemChip(mat,1)}${goldChip(fee)}</div></div>`+
+        (r>=10?`<div class="ds">Fully refined.</div></div>`:r>=cap?`<div class="ds">+${cap} is as far as Brannoc goes. Smith Garrow in Aurelmark can take it to +10.</div></div>`:
+        `<div class="ds">To +${next}: ${Math.round(refineOdds(next)*100)}%${risk?' · <span style="color:var(--warn)">breaks on failure</span>':''}</div><div class="cms">${itemChip(mat,1)}${goldChip(fee)}</div></div>`+
         `<button class="btn small" data-act="refine" data-arg="${key}" ${!has||P.gold<fee?'disabled':''}>${armed?'Sure?':'Refine'}</button>`)+`</div>`;}
   }
   else if(panelKind==='storage'){
-    h+=`<h2>Wenna the Keeper</h2><div class="say">"Leave it with me, love. It'll be right here when you come back."</div>`;
+    if(inCapital())h+=`<h2>Banker Ivo</h2><div class="say">"The Royal Bank and Wenna's warehouse share one vault. Whatever you leave with either of us waits for you at both."</div>`;
+    else h+=`<h2>Wenna the Keeper</h2><div class="say">"Leave it with me, love. It'll be right here when you come back."</div>`;
     h+=`<div class="sub">Storage ${P.storage.length}/${STORAGE_MAX} · Weight ${fmt(carryWeight())}/${fmt(maxWeight())}</div>`;
     if(CS.shared)h+=`<p class="muted">${CS.busy||CS.oldSt?'Saving…':'Shared by all your characters.'}</p>`;
     h+=`<h3>Your bag</h3>`;if(!P.inv.length)h+=`<p class="muted">Empty.</p>`;
@@ -199,15 +201,16 @@ function refreshPanel(){
     <h3>Adventure</h3><button class="btn" data-act="newgame">Start a new adventure</button>`;
   }
   else if(panelKind==='shop'){
-    h+=`<h2>General Store</h2><div class="say">“Tonics, steel and sturdy cloth. And I'll buy whatever you dragged out of the wilds.” — Ilsa</div>`;
+    if(inCapital())h+=`<h2>Aurel Market</h2><div class="say">“Everything Hearthvale sells, and the Royal Stock besides: the city's own steel, made for those who have walked far.” — Tavi</div>`;
+    else h+=`<h2>General Store</h2><div class="say">“Tonics, steel and sturdy cloth. And I'll buy whatever you dragged out of the wilds.” — Ilsa</div>`;
     h+=`<div class="tabs"><button class="btn small ${shopTab==='buy'?'on':''}" data-act="tab" data-arg="buy">Buy</button><button class="btn small ${shopTab==='sell'?'on':''}" data-act="tab" data-arg="sell">Sell</button><span class="shopstat" style="margin-left:auto"><span class="gold">${fmt(P.gold)} gold</span>${shopWeightHtml()}</span></div>`;
     // type tabs under Buy / Sell: Use, Equip, Sigils, Etc (only the ones that have something)
-    {const ids=shopTab==='buy'?SHOP:P.inv.map(e=>e.id);const cnt={};for(const id of ids){const c=itemCat(id);cnt[c]=(cnt[c]||0)+1;}
+    {const ids=shopTab==='buy'?shopStock():P.inv.map(e=>e.id);const cnt={};for(const id of ids){const c=itemCat(id);cnt[c]=(cnt[c]||0)+1;}
       const tabs=CAT_TABS.filter(([k])=>cnt[k]);if(tabs.length&&!cnt[shopCat])shopCat=tabs[0][0];
       if(tabs.length>1)h+=`<div class="tabs itabs" role="tablist">`+tabs.map(([k,l])=>`<button class="btn small ${shopCat===k?'on':''}" role="tab" aria-selected="${shopCat===k}" data-act="shopcat" data-arg="${k}">${l} <span class="muted">${cnt[k]}</span></button>`).join('')+`</div>`;}
     if(shopTab==='buy'){const buyRow=id=>{const it=ITEMS[id];const why=it.type==='use'?null:canEquip(it);
       return `<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name}</div><div class="ds">${itemDesc({id,s:it.slots?Array(it.slots).fill(null):[]})}${why&&it.type!=='use'?` · <span style="color:#ef7a6f">${why.replace('Requires ','')}</span>`:''}</div></div><span class="gold" style="font-variant-numeric:tabular-nums">${fmt(it.price)}</span><button class="btn small" data-act="buy" data-arg="${id}" ${P.gold<it.price?'disabled':''}>Buy</button></div>`;};
-      const ids=SHOP.filter(id=>itemCat(id)===shopCat);
+      const ids=shopStock().filter(id=>itemCat(id)===shopCat);
       if(shopCat==='equip')h+=gearTabsHtml(ids,id=>ITEMS[id].type,buyRow,id=>P.gold>=ITEMS[id].price&&!canEquip(ITEMS[id]));
       else h+=ids.map(buyRow).join('');}
     else{const etc=P.inv.filter(e=>ITEMS[e.id].type==='etc'&&!ITEMS[e.id].keep);const tot=etc.reduce((a,e)=>a+sellValue(e.id)*e.n,0);
@@ -252,8 +255,8 @@ function refreshPanel(){
 const emThumbs={};function emoteThumb(k){if(!emThumbs[k]){const c=document.createElement('canvas');c.width=c.height=64;drawEmoteIcon(c.getContext('2d'),k,32,32,52);emThumbs[k]=c.toDataURL();}return emThumbs[k];}
 const STORAGE_MAX=120;let refineArm=null;
 function findGear(key){const[w,v]=key.split(':');if(w==='eq')return P.eq[v]?{e:P.eq[v],slot:v}:null;const i=P.inv.findIndex(e=>String(e.uid)===v);return i<0?null:{e:P.inv[i],idx:i};}
-function doRefine(key){const g=findGear(key);if(!g){refineArm=null;refreshPanel();return;}const e=g.e,next=(e.r||0)+1;if(next>10)return;
-  const mat=refineMat(e.id),fee=refineFee(next),chance=REFINE_CHANCE[next];
+function doRefine(key){const g=findGear(key);if(!g){refineArm=null;refreshPanel();return;}const e=g.e,next=(e.r||0)+1;if(next>refineCap())return;
+  const mat=refineMat(e.id),fee=refineFee(next),chance=refineOdds(next);
   if(!invFind(mat)||P.gold<fee){addLog(`You need ${ITEMS[mat].name} and ${fmt(fee)} gold.`,'l-bad');return;}
   if(chance<1&&refineArm!==key){refineArm=key;refreshPanel();return;} // risky: ask once more
   refineArm=null;takeItem(mat);P.gold-=fee;

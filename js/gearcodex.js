@@ -14,7 +14,7 @@ function gearAll(){const kk=codexKills(),forged=new Set(typeof FORGES!=='undefin
   return Object.entries(ITEMS).filter(([,it])=>GEAR.includes(it.type)).map(([id,it])=>{
     const src=[];for(const m of Object.values(MOBS))for(const [d,ch] of m.drops||[])if(d===id&&(!m.world||kk[m.id]))src.push({m,ch});
     src.sort((a,b)=>b.ch-a.ch||a.m.lv-b.m.lv);
-    const shop=typeof SHOP!=='undefined'&&SHOP.includes(id),forge=forged.has(id);
+    const shop=typeof SHOP!=='undefined'&&(SHOP.includes(id)||(typeof ROYAL_SHOP!=='undefined'&&ROYAL_SHOP.includes(id))),forge=forged.has(id);
     return {id,it,src,shop,forge,other:!src.length&&!shop&&!forge,best:src.length?src[0].ch:0};});}
 // sigil slots: the usual count as dots; gear from monsters rolls one fewer to two more (js/slotvar.js)
 function gearSlotsHtml(x){const n=x.it.slots|0,max=typeof MAX_SLOTS!=='undefined'?MAX_SLOTS:4;

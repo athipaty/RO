@@ -175,7 +175,7 @@ function thSkillDesc(id,en){const t=SKILL_TH[id];if(!t||typeof en!=='string')ret
   const want=(t[1].match(/\{\d+\}/g)||[]).map(x=>+x.slice(1,-1));if(want.some(i=>i>=nums.length))return en; // the English line changed shape: keep it
   return t[1].replace(/\{(\d+)\}/g,(m,i)=>nums[+i]);}
 // item descriptions: the common shapes by pattern, the rest one by one
-const ITEM_TH={
+const ITEM_TH={aurelsignet:'ตราประทับหลวงแห่งออเรลมาร์ก ค่าสถานะทุกอย่าง +1',
   leaf:'วาร์ปไปจุดสุ่มในพื้นที่นี้',waystone:'พาคุณไปยังพื้นที่ใดก็ได้ที่เคยไป รวมถึงชั้นดันเจี้ยน',kinship:'ดึงคุณไปข้างสมาชิกปาร์ตี้ ไม่ว่าเขาจะอยู่ที่ไหน',
   remedy:'รักษาพิษ มึน หลับ แช่แข็ง ใบ้ และตาบอด',scroll:'พาคุณกลับเฮิร์ธเวล',emberore:'ช่างตีเหล็กใช้หนึ่งก้อนเพื่อตีบวกอาวุธ',glintstone:'ช่างตีเหล็กใช้เพื่อตีบวกเกราะ หมวก หรือเครื่องประดับ',
   tamecharm:'ใช้กับมอนสเตอร์ที่อ่อนแรงและเลี้ยงได้ (Sproutling, Hopper, Mossbug, Thornling, Grey Lupe, Mushcap, Cave Bat, Dune Scarab หรือ Frost Wisp) ยิ่งมันอ่อนแรง โอกาสยิ่งสูง',
