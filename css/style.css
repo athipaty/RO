@@ -1556,3 +1556,5 @@ body.touchui #panel.npcsheet .x{border-radius:50%!important}
 #crChip.new{animation:crPulse 1.2s ease-in-out infinite}@keyframes crPulse{50%{box-shadow:0 0 14px rgba(255,210,100,.7)}}
 @media (prefers-reduced-motion:reduce){#crChip.new{animation:none}}
 #panel .stbrow .stbmount{width:44px;height:44px;border-radius:10px;background:rgba(0,0,0,.2);border:1px solid rgba(201,162,74,.35)}
+/* what an item is used for, in the Sell list (js/itemuses.js, v1.40.2) */
+#panel .iuse{font-size:11.5px;line-height:1.35;color:#9fd8b8}#panel .iuneed{font-size:11.5px;line-height:1.35;color:#ffcf6a;font-weight:700}
