@@ -1,6 +1,6 @@
 // First-job stories (js/jobstory.js): Corvin offers five stories at Job Lv 10, one at a time; talk, place and duel
 // steps; rune stones in order; the last chapter makes you the job. The Shade (js/shade.js) fights; master callings
-// are sealed (js/jobs3.js) and an old master save goes back to its advanced calling.
+// are open again (v1.45.0) and a master save keeps its calling.
 const { player, newRoom, wait } = require('./helpers');
 module.exports = async t => {
   const g = await player('Storyteller', newRoom(), { server: 'http://127.0.0.1:9' });
@@ -60,11 +60,11 @@ module.exports = async t => {
       P.skills = { twinfang: 5, shadowsense: 3 }; P.skillPts = 0; S = computeStats(); enterZone('meadow'); await w(300);
       const m = mobs.find(m => !m.dead); m.hp = m.d.hp = 9999; P.x = m.x - 30; P.y = m.y; P.target = m; P.sp = 999; useSkill('twinfang'); await w(500); out.twin = m.hp < 9999;
 
-      // ---- master callings are sealed; an old master save goes back to its advanced calling
-      P.cls = 'ravager'; P.reborn = true; P.jl = 50; P.lv = 60; out.sealed = !!job3Why();
+      // ---- master callings are open (v1.45.0); a master save keeps its calling
+      P.cls = 'ravager'; P.reborn = 0; P.jl = 5; P.lv = 20; out.sealed = !job3Why();
       const mid = Object.keys(JOB3).find(id => JOB3[id].from === 'ravager'), own = CLASSES[mid].own[0];
       P.cls = mid; P.jl = 12; P.skills = { [own]: 4 }; P.skillPts = 1; P.bar = [{ s: own }, null, null, null, null, null, null, null];
-      out.unseal = job3Unseal() && P.cls === 'ravager' && P.jl === 50 && !P.skills[own] && P.skillPts === 5 && !P.bar[0];
+      out.unseal = !job3Unseal() && P.cls === mid && P.jl === 12 && P.skills[own] === 4 && P.skillPts === 1;
       return out;
     });
     t.ok(r.early, 'no calling story before Job Level 10');
@@ -84,8 +84,8 @@ module.exports = async t => {
     t.ok(r.shade, 'finishing the Shade story makes you a Shade with a dagger');
     t.ok(r.goalAfter, 'calling stories are closed once you have a job');
     t.ok(r.twin, 'the Shade\'s Twin Fang damages a monster');
-    t.ok(r.sealed, 'master callings are sealed');
-    t.ok(r.unseal, 'an old master save goes back to its advanced calling at top job level, its master skill points given back');
+    t.ok(r.sealed, 'master callings are open to any advanced calling (no rebirth, no level)');
+    t.ok(r.unseal, 'a master save keeps its master calling and skills');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };

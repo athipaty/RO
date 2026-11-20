@@ -119,7 +119,7 @@ function jobPicURL(cls){const C=CLASSES[cls];if(!C||!P)return '';const key=cls+'
 function jobHowTo(cls){const C=CLASSES[cls];if(!C)return '';
   if(!C.tier||C.tier===1)return `Job Lv 10 as a Novice, then talk to Guildmaster Corvin in Hearthvale.`;
   if(C.tier===2)return `Job Lv ${typeof JOB2_LV!=='undefined'?JOB2_LV:40}, then pass Guildmaster Corvin's trial in the Guild Hall.`;
-  return `Be Reborn, reach job level ${typeof JOB3_LV!=='undefined'?JOB3_LV:50} and base level ${typeof JOB3_BASE_LV!=='undefined'?JOB3_BASE_LV:50}, then pass Seer Valen's Trial of Ascension in Aurelmark.`;}
+  return `Pass Seer Valen's Trial of Ascension in Aurelmark (any advanced calling can take it).`;}
 // the next skill level to take for a build (requirements first); null when everything you can learn is done
 function buildNextSkill(b){if(!P||!b)return null;const can=new Set(CLASSES[P.cls]?CLASSES[P.cls].skills:[]),seen=new Set();
   const need=(id,lv)=>{if(seen.has(id))return null;seen.add(id);const r=SKILL_REQ[id]||{};

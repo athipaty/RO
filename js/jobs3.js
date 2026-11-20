@@ -1,6 +1,6 @@
 "use strict";
 /* ================= third-tier callings =================
-   A reborn hero who holds an advanced calling at job level 50 (and base level 50 again) can take Seer Valen's
+   Any hero who holds an advanced calling (no rebirth or level needed since v1.45.0) can take Seer Valen's
    Trial of Ascension in Aurelmark. Each advanced calling rises into one master calling that keeps every skill
    it had and adds two of its own. Job level starts again at 1 (49 new skill points to spend). */
 const JOB3_LV=50,JOB3_BASE_LV=50,JOB3_GOLD=30000;
@@ -85,9 +85,7 @@ const TRIALS3={
 };
 const trial3Of=()=>P&&TRIALS3[baseOf(P.cls)];
 function job3Why(){const c=CLASSES[P.cls];if(!c||c.tier!==2)return c&&c.tier===3?'You already hold a master calling.':'Earn an advanced calling first.';
-  if(!P.reborn)return 'Only the Reborn can ascend. Take the rite of rebirth first.';
-  if(P.jl<JOB3_LV)return `Reach job level ${JOB3_LV} first (you are ${P.jl}).`;
-  if(P.lv<JOB3_BASE_LV)return `Reach base level ${JOB3_BASE_LV} again first (you are ${P.lv}).`;
+  // v1.45.0: open to every advanced calling: no rebirth and no level needed, only the trial
   return null;}
 function trial3Done(){const t=P.trial3,T=trial3Of();if(!t||!T)return false;const it=invFind(T.item);
   return t.have>=T.need&&(it?it.n:0)>=T.items&&P.gold>=JOB3_GOLD;}
@@ -98,7 +96,7 @@ questKill=function(id){_questKill3(id);const t=P&&P.trial3,T=trial3Of();if(!t||!
 function ascensionHtml(){const c=CLASSES[P.cls];let h=`<h3>Trial of Ascension</h3>`;
   if(c.tier===3)return h+`<div class="sub" style="color:${c.acc}">You are a ${c.name}. The stars remember your name.</div>`;
   const why=job3Why(),T=trial3Of(),next=c.tier===2?job3From(P.cls):[];
-  h+=`<div class="sub">Reborn heroes with an advanced calling at job level ${JOB3_LV} and base level ${JOB3_BASE_LV} can rise into a master calling.</div>`;
+  h+=`<div class="sub">Any hero with an advanced calling can take the trial and rise into a master calling.</div>`;
   // the confirm card: ascending is for life, so one more tap
   if(ascendAsk&&next.includes(ascendAsk)&&trial3Done()){const id=ascendAsk,k=CLASSES[id],pic=advPic(id);
     return h+`<div class="jconfirm">${pic?`<img alt="" src="${pic}">`:''}${advName(id)}<small>${k.desc}</small>`+
@@ -140,12 +138,12 @@ function ascendNow(arg){if(!trial3Done()||!JOB3[arg]||JOB3[arg].from!==P.cls)ret
   ctx.fillStyle='#ffd76a';for(const k of [-1,1]){ctx.beginPath();ctx.arc(x+k*10,by-10.5,1.7,0,7);ctx.fill();ctx.stroke();}
   if(!back){ctx.fillStyle=c.acc;ctx.beginPath();ctx.moveTo(x,by-12);ctx.lineTo(x+2.6,by-9);ctx.lineTo(x,by-6);ctx.lineTo(x-2.6,by-9);ctx.closePath();ctx.fill();ctx.stroke();}};}
 
-/* ================= master callings are sealed for now (v1.16.0) =================
+/* ================= master callings were sealed in v1.16.0 and opened again in v1.45.0 =================
    Nobody can ascend while the first-job stories are being written (js/jobstory.js). A hero who already holds a master
    calling goes back to the advanced calling it came from, at that calling's top job level: the master skills are
    unlearned and their points given back, and they leave the hotbar. The master callings stay defined so old saves,
    other players' presence and the code that draws them keep working, and they can come back later. */
-var JOB3_SEALED=true; // var so tests (and a later unsealing) can switch it
+var JOB3_SEALED=false; // unsealed in v1.45.0; var so tests can switch it
 {const _j3w=job3Why;job3Why=function(){if(JOB3_SEALED)return 'Master callings are sealed for now.';return _j3w.apply(this,arguments);};}
 {const _asc=ascensionHtml;ascensionHtml=function(){if(!JOB3_SEALED)return _asc.apply(this,arguments);
   return `<h3>Trial of Ascension</h3><div class="sub muted">The stars are quiet. Master callings are sealed for now.</div>`;};}
