@@ -65,10 +65,10 @@ const SKILL_FX_SH3={
   reapersharvest:l=>{fxF({k:'crescent',x:P.x,y:P.y,ang:0,r:70,w:16,col:'#c83a5a',dur:.4,h:14});fxF({k:'motes',x:P.x,y:P.y,o:P,col:'#ff5a7a',col2:'#2a1018',n:18,r:60,dur:1});},
   shadowexecute:(l,t)=>{fxF({k:'streak',x0:t.x,y0:t.y-80,x:t.x,y:t.y,col:'#ff5a7a',w:12,dur:.2});fxF({k:'flare',x:t.x,y:t.y,col:'#ff2a4a',r:50,dur:.3,h:fxSz(t),t0:now+.15});fxF({k:'spikes',x:t.x,y:t.y,col:'#ffd0e0',dur:.35,h:fxSz(t),t0:now+.15});},
   deathbloom:(l,t)=>{fxF({k:'claws',x:t.x,y:t.y,ang:.4,r:30,col:'#b8ff5a',dur:.3,h:fxSz(t)});fxF({k:'motes',x:t.x,y:t.y,col:'#b8ff5a',col2:'#3a5a1a',shape:'star',n:14,r:30,dur:1});},
-  pestilence:(l,x,y)=>{fxF({k:'vortex',x,y,col:'#8ad84a',col2:'#1a2a0a',r:140,dur:1.4});fxF({k:'motes',x,y,col:'#b8ff5a',col2:'#5a7a2a',n:30,r:130,dur:5});},
+  pestilence:(l,x,y)=>{fxF({k:'vortex',x,y,col:'#8ad84a',col2:'#1a2a0a',r:140,dur:1.4});fxF({k:'motes',x,y,col:'#b8ff5a',col2:'#5a7a2a',n:30,r:130,dur:5});fxF({k:'rune',x,y,col:'#8ad84a',r:90,dur:1.2});},
   blightnova:l=>{fxF({k:'flare',x:P.x,y:P.y,col:'#c8ff70',r:130,dur:.45,h:8});fxF({k:'quake',x:P.x,y:P.y,r:130,col:'#2a3a1a',glow:'#c8ff70',dur:.7});},
   thousandcuts:(l,t)=>{for(let i=0;i<4;i++)fxF({k:'crescent',x:t.x,y:t.y,ang:i*1.6,r:28,col:i%2?'#c8b8ff':'#ffffff',dur:.18,h:fxSz(t),t0:now+i*.14});},
-  eclipseveil:l=>{fxF({k:'dome',x:P.x,y:P.y,o:P,col:'#9a8ad8',r:34,dur:1.2});fxF({k:'halo',x:P.x,y:P.y,o:P,col:'#1a1428',dur:1.2});},
+  eclipseveil:l=>{fxF({k:'dome',x:P.x,y:P.y,o:P,col:'#9a8ad8',r:34,dur:1.2});fxF({k:'halo',x:P.x,y:P.y,o:P,col:'#1a1428',dur:1.2});fxF({k:'motes',x:P.x,y:P.y,o:P,col:'#3a2a5a',col2:'#9a8ad8',n:12,r:30,dur:1.2});},
   shadowtempest:l=>{fxF({k:'vortex',x:P.x,y:P.y,o:P,col:'#8a7aff',col2:'#14102a',r:140,dur:1});fxF({k:'icicles',x:P.x,y:P.y,col:'#c8b8ff',r:140,n:14,dur:.8});},
 };
 if(typeof SKILL_FX!=='undefined')for(const id in SKILL_FX_SH3){const sk=SKILLS[id];if(!sk||!sk.run||SKILL_FX[id])continue;SKILL_FX[id]=SKILL_FX_SH3[id];const run=sk.run,fxf=SKILL_FX_SH3[id];
@@ -93,3 +93,11 @@ if(typeof TH!=='undefined'){Object.assign(TH,{'Soulreaper':'โซลรีป�
   'A walking plague. Whole packs sicken at once, and the blight bursts out of it when it is cornered.':'โรคระบาดที่เดินได้ มอนสเตอร์ทั้งฝูงล้มป่วยพร้อมกัน และพิษจะระเบิดออกมาเมื่อถูกต้อนจนมุม',
   'Dances where the light ends. A thousand cuts in a heartbeat, and a veil no blow can find.':'ร่ายรำ ณ จุดที่แสงสิ้นสุด พันบาดแผลในชั่วพริบตา และม่านเงาที่ไม่มีการโจมตีใดหาเจอ'});
   for(const [n,th] of [['Soul Harvest','เก็บเกี่ยววิญญาณ'],['Black Plague','กาฬโรค'],['Eclipse Dance','ระบำสุริยคราส']]){TH[n]=th;TH[n+'!']=th+'!';}}
+
+/* Build guide: the Shade builds go on to their master callings. */
+if(typeof BUILDS!=='undefined')for(const [id,master,more] of [
+  ['duskblade','soulreaper',[['deathmark',10],['assassinsedge',10],['reapersharvest',5],['shadowexecute',5]]],
+  ['venomist','plaguelord',[['virulence',10],['pestilence',10],['deathbloom',5],['blightnova',5]]],
+  ['mirage','umbraldancer',[['eclipseveil',10],['thousandcuts',10],['nightwaltz',5],['shadowtempest',5]]]]){
+  const b=BUILDS.find(x=>x.id===id);if(!b||b.route.includes(master))continue;
+  b.route.push(master);b.skills.push(...more);}

@@ -9,7 +9,13 @@ module.exports = async t => {
         for (const c of b.route) if (!CLASSES[c]) bad.push(b.id + ':' + c); for (const id of b.gear) if (!ITEMS[id]) bad.push(b.id + ':' + id); for (const m of b.sigils) if (!ITEMS[m + '_sig']) bad.push(b.id + ':' + m);
         // every skill in the plan belongs to a calling on the route
         for (const [id] of b.skills) if (!b.route.some(c => CLASSES[c].skills.includes(id))) bad.push(b.id + ' off-route ' + id); }
-      const per = {}; for (const b of BUILDS) per[b.job] = (per[b.job] || 0) + 1; return { bad, per }; });
+      const per = {}; for (const b of BUILDS) per[b.job] = (per[b.job] || 0) + 1;
+      // every advanced and master calling is the goal of at least one build, and every build runs to a master calling
+      const goals = new Set(BUILDS.flatMap(b => b.route)), noGoal = Object.keys(CLASSES).filter(c => CLASSES[c].tier >= 2 && !goals.has(c));
+      const short = BUILDS.filter(b => b.route.length < 3).map(b => b.id); return { bad, per, noGoal, short }; });
+    t.ok(!data.noGoal.length, 'every advanced and master calling has a build' + (data.noGoal.length ? ': missing ' + data.noGoal.join(', ') : ''));
+    t.ok(!data.short.length, 'every build runs first job -> advanced -> master' + (data.short.length ? ': short ' + data.short.join(', ') : ''));
+    t.ok(data.per.gunslinger === 3 && data.per.shade === 3, 'three builds each for the Gunslinger and the Shade');
     t.ok(!data.bad.length, 'every build names real skills, callings, gear and sigils on its own route' + (data.bad.length ? ': ' + data.bad.join(', ') : ''));
     t.ok(['warden', 'arcanist', 'ranger', 'cleric'].every(j => data.per[j] === 4), 'four builds for each first job (one more for the new calling)');
 

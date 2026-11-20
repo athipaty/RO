@@ -6,7 +6,7 @@ module.exports = async t => {
   try {
     await wait(500);
     const lists = await g.ev(() => ({ all: ['warden', 'arcanist', 'ranger', 'cleric'].every(c => BUILD_OF[c].every(s => CLASSES[c].skills.includes(s))), w: CLASSES.warden.skills.length, a: CLASSES.arcanist.skills.length, r: CLASSES.ranger.skills.length, c: CLASSES.cleric.skills.length,
-      bul: CLASSES.bulwark.skills.includes('lethaledge'), m3: Object.values(CLASSES).filter(c => c.tier === 3).every(c => c.skills.includes(BUILD_OF[c.base][0])),
+      bul: CLASSES.bulwark.skills.includes('lethaledge'), m3: Object.values(CLASSES).filter(c => c.tier === 3 && BUILD_OF[c.base]).every(c => c.skills.includes(BUILD_OF[c.base][0])),
       pts: 49, lv: ['warden', 'arcanist', 'ranger', 'cleric'].map(c => CLASSES[c].skills.reduce((a, s) => a + SKILLS[s].max, 0)) }));
     t.ok(lists.all && lists.w >= 10, `every first job gets its new skills (skills now (${lists.w}/${lists.a}/${lists.r}/${lists.c})`);
     t.ok(lists.bul && lists.m3, 'advanced and master callings inherit them');

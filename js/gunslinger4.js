@@ -79,7 +79,7 @@ const SKILL_FX_GS4={
   dragonround:(l,t)=>{fxF({k:'claws',x:t.x,y:t.y,ang:.3,r:34,col:'#ff5a1a',dur:.35,h:fxSz(t),t0:now+.15});},
   curvedbullet:(l,t)=>{fxF({k:'chain',x:t.x,y:t.y,pts:[{x:P.x,y:P.y,h:18},{x:(P.x+t.x)/2+30,y:(P.y+t.y)/2-50,h:24},{x:t.x,y:t.y,h:fxSz(t)}],col:'#9ae8ff',dur:.35});fxF({k:'spikes',x:t.x,y:t.y,col:'#d8f8ff',dur:.3,h:fxSz(t),t0:now+.2});},
   phantomstep:l=>{fxF({k:'halo',x:P.x,y:P.y,o:P,col:'#c8f4ff',dur:1});for(let i=0;i<3;i++)fxF({k:'streak',x0:P.x-20-i*14,y0:P.y+i*4,x:P.x,y:P.y,col:'#c8f4ff',w:6,dur:.3,t0:now+i*.05});},
-  thousandbullets:l=>{fxF({k:'crescent',x:P.x,y:P.y,ang:0,r:60,w:10,col:'#bff0ff',dur:.6,h:14});fxF({k:'motes',x:P.x,y:P.y,o:P,col:'#fff2b0',col2:'#bff0ff',n:24,r:60,dur:1.2});},
+  thousandbullets:l=>{fxF({k:'crescent',x:P.x,y:P.y,ang:0,r:60,w:10,col:'#bff0ff',dur:.6,h:14});fxF({k:'motes',x:P.x,y:P.y,o:P,col:'#fff2b0',col2:'#bff0ff',n:24,r:60,dur:1.2});for(let i=0;i<6;i++){const a=i*Math.PI/3;fxF({k:'streak',x0:P.x,y0:P.y,x:P.x+Math.cos(a)*70,y:P.y+Math.sin(a)*40,col:'#fff2b0',w:4,dur:.22,t0:now+i*.06});}},
 };
 if(typeof SKILL_FX!=='undefined')for(const id in SKILL_FX_GS4){const sk=SKILLS[id];if(!sk||!sk.run||SKILL_FX[id])continue;SKILL_FX[id]=SKILL_FX_GS4[id];const run=sk.run,fxf=SKILL_FX_GS4[id];
   sk.run=function(){try{fxf.apply(this,arguments);}catch(e){}return run.apply(this,arguments);};}
@@ -109,3 +109,24 @@ if(typeof TH!=='undefined'){Object.assign(TH,{'Longshot':'ลองช็อต'
   'The last gunslinger standing. A thousand bullets, and a step no blade can follow.':'มือปืนคนสุดท้ายที่ยังยืนอยู่ กระสุนนับพันนัด และฝีเท้าที่ไม่มีคมดาบใดตามทัน'});
   for(const [n,th] of [['Over the Horizon','เหนือเส้นขอบฟ้า'],['Big Bang','บิ๊กแบง'],['Last Man Standing','คนสุดท้ายที่ยืนหยัด'],
     ['One Shot, One Kill','นัดเดียวปลิดชีพ'],['Inferno Salvo','ห่ากระสุนนรก'],['Six-Gun Waltz','วอลซ์หกนัด']]){TH[n]=th;TH[n+'!']=th+'!';}}
+
+/* Build guide: three Gunslinger builds, each running first job -> advanced -> master calling (the old 'quickshot' id is kept
+   for heroes already following it; it becomes the Trickshot/Desperado route). */
+if(typeof BUILDS!=='undefined'){
+  const GSB=[
+    {id:'deadeye',job:'gunslinger',name:'Deadeye',th:'ตาเหยี่ยว',tag:'DEX/LUK one-shot',route:['gunslinger','sniper','longshot'],stats:{dex:5,luk:2,agi:2},
+      desc:'Shoots from far away and rarely needs a second shot; Kill Shot and Horizon Shot grow with DEX, Cold Blood makes every crit hurt.',
+      skills:[['piercinground',10],['steadyaim',10],['quickdraw',5],['flareround',5],['killshot',10],['eaglesight',10],['holdbreath',5],['railshot',10],['pinningshot',3],['horizonshot',10],['coldblood',10],['overwatch',5],['skyfallround',5]],
+      gear:['longrifle','quickgrip'],sigils:['hopper','greylupe','lupealpha'],awaken:['atkpct','critdmg']},
+    {id:'firebrand',job:'gunslinger',name:'Firebrand',th:'มือเพลิง',tag:'DEX/VIT fire',route:['gunslinger','pyrogunner','blastmaster'],stats:{dex:4,vit:3,agi:2},
+      desc:'Sets whole packs on fire; Scatter Shot and Napalm Shell burn crowds, Firestorm and Cannonade finish them.',
+      skills:[['scattershot',10],['flareround',10],['quickdraw',5],['flashbang',5],['incendiary',10],['hotloads',10],['napalm',10],['powderkeg',5],['blazingbarrels',5],['firestorm',10],['cannonade',10],['demolitions',5],['dragonround',5]],
+      gear:['longrifle','carapacemail'],sigils:['emberimp','cactoid','dunetyrant'],awaken:['atkpct','aspd']}];
+  const qs=BUILDS.find(b=>b.id==='quickshot');
+  if(qs)Object.assign(qs,{route:['gunslinger','trickshot','desperado'],tag:'DEX/AGI rapid fire',stats:{dex:4,agi:4,luk:1},
+    desc:'Fans the hammer for two shots at a time; as a Trickshot, bullets bounce between monsters, then Thousand Bullets empties every barrel.',
+    skills:[['quickdraw',10],['fanning',10],['steadyaim',5],['scattershot',5],['flashbang',3],['ricochet',10],['quickhands',10],['bulletstorm',10],['gunkata',5],['wallshot',5],['curvedbullet',10],['phantomstep',10],['luckyround',5],['thousandbullets',5]],
+    gear:['pistol','windscarf','quickgrip']});
+  const at=BUILDS.indexOf(qs);
+  for(const b of GSB)if(!BUILDS.some(x=>x.id===b.id))BUILDS.splice(at>=0?at:BUILDS.length,0,b);
+  if(typeof pathPlanBuild==='function')for(const b of BUILDS)if(b.job==='gunslinger')pathPlanBuild(b);}
