@@ -322,6 +322,21 @@ function callMinions(m,fxOnly){if(!fxOnly)for(const o of mobs)if(o.lead===m.d.id
   if(dist(m,P)<700)addLog(`The ${m.d.name} calls its pack to its side!`,'l-bad');sfx('rare');}
 function slamLand(m){fx.push({k:'ring',x:m.x,y:m.y,r:130,col:'#ff7a3a',t0:now,dur:.4});sfx('slam');shakeUntil=now+.35;
   if(!P.dead&&dist(m,P)<130+PR){hurtPlayer(Math.round(m.d.atk*1.5-S.def*.6),m.d.name);tryAilment(['stun',1,1.5]);}}
+/* v1.45.3 monsters walk around trees and rocks: a straight step when the way is clear, otherwise they follow a
+   path over the tile grid (a few paths are worked out per frame at most), so a chasing monster or boss no longer
+   stops at the first tree between it and you, and one walking home no longer slides along a wall for ever */
+const MOBPATH={t:-1,n:0};
+function mobClear(x0,y0,x1,y1,r){const d=Math.hypot(x1-x0,y1-y0),n=Math.ceil(d/8);for(let k=1;k<=n;k++)if(!canStand(x0+(x1-x0)*k/n,y0+(y1-y0)*k/n,r))return false;return true;}
+function mobStep(m,tx,ty,s,r){const dx=tx-m.x,dy=ty-m.y,n=Math.hypot(dx,dy)||1;
+  if(n<TILE*1.5||mobClear(m.x,m.y,tx,ty,r)){m.mpath=null;return moveEnt(m,dx/n*Math.min(s,n),dy/n*Math.min(s,n),r)?[dx,dy]:null;}
+  const key=Math.floor(tx/TILE)+','+Math.floor(ty/TILE);
+  if(!m.mpath||(m.mpathKey!==key||!m.mpath.length)&&now>m.mpathT){if(MOBPATH.t!==now){MOBPATH.t=now;MOBPATH.n=0;}
+    if(MOBPATH.n<4){MOBPATH.n++;m.mpath=findPath(Math.floor(m.x/TILE),Math.floor(m.y/TILE),Math.floor(tx/TILE),Math.floor(ty/TILE))||[];m.mpathKey=key;m.mpathT=now+.5;}}
+  const pth=m.mpath||[];while(pth.length&&Math.hypot(pth[0].x-m.x,pth[0].y-m.y)<5)pth.shift();
+  // cut corners: head for the furthest of the next few points that is in clear line
+  let wp=pth[0];for(let k=Math.min(3,pth.length-1);k>0;k--)if(mobClear(m.x,m.y,pth[k].x,pth[k].y,r)){pth.splice(0,k);wp=pth[0];break;}
+  if(!wp)return moveEnt(m,dx/n*s,dy/n*s,r)?[dx,dy]:null;
+  const ex=wp.x-m.x,ey=wp.y-m.y,en=Math.hypot(ex,ey)||1;return moveEnt(m,ex/en*Math.min(s,en),ey/en*Math.min(s,en),r)?[ex,ey]:null;}
 function updateMob(m,dt,T){
   if(m.dead){if(now>=m.respawnAt){spawnMob(m.d.id,m);if(m.d.boss)addLog(`The ${m.d.name} has risen again in ${Z.D.name}!`,'l-rare');}return;}
   if(m.d.calls&&m.calls<2&&m.hp<m.d.hp*(m.calls?.3:.6)){m.calls++;callMinions(m);netEvent('c',m);}
@@ -332,7 +347,7 @@ function updateMob(m,dt,T){
   if(!tg){if(m.state==='chase'){m.state='idle';m.aggroed=false;}}
   else if(m.state!=='chase'&&d.aggro&&dp<170)m.state='chase';
   if(m.state==='chase'&&tg){
-    if(Math.hypot(m.x-m.sx,m.y-m.sy)>520||dp>600){m.state='return';m.aggroed=false;}
+    if(Math.hypot(m.x-m.sx,m.y-m.sy)>520||dp>600){m.state='return';m.aggroed=false;m.retT=0;}
     else{
       if(d.boss&&now>m.slamT&&dp<160){m.slamAt=now+1.1;fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});netEvent('w',m);return;}
       const reach=(d.range||0)+d.size+PR+4;
@@ -340,10 +355,10 @@ function updateMob(m,dt,T){
       if(dp<=reach){m.face=sface(tg.x-m.x,tg.y-m.y);m.moving=false;if(m.atkT<=0){m.atkT=d.boss?1.3:1.6;m.lunge=now;
           if(tg===P){if(d.range)shoot(m,P,'arrow','#d8d0b8',()=>mobAttack(m),true);else mobAttack(m);}
           else{netEvent('a',m,tg.id);if(d.range)shoot(m,tg,'arrow','#d8d0b8',()=>{},true);}}}
-      else if(!(m.stunUntil>now)){const dx=tg.x-m.x,dy=tg.y-m.y,n=Math.hypot(dx,dy),s=d.spd*slow*dt*1.15;moveEnt(m,dx/n*s,dy/n*s,Math.min(d.size*.6,11));m.face=sface(dx,dy);m.moving=true;}
+      else if(!(m.stunUntil>now)){const s=d.spd*slow*dt*1.15,st=mobStep(m,tg.x,tg.y,s,Math.min(d.size*.6,11)),v=st||[tg.x-m.x,tg.y-m.y];m.face=sface(v[0],v[1]);m.moving=true;}
     }
   }
-  if(m.state==='return'){const dx=m.sx-m.x,dy=m.sy-m.y,n=Math.hypot(dx,dy);if(n<8){m.state='idle';m.hp=d.hp;}else{const s=d.spd*1.6*dt;if(!moveEnt(m,dx/n*s,dy/n*s,Math.min(d.size*.6,11))){m.x=m.sx;m.y=m.sy;}m.hp=Math.min(d.hp,m.hp+d.hp*dt*.5);}}
+  if(m.state==='return'){const dx=m.sx-m.x,dy=m.sy-m.y,n=Math.hypot(dx,dy);if(n<8){m.state='idle';m.hp=d.hp;m.retT=0;m.mpath=null;}else{const s=d.spd*1.6*dt;m.retT=(m.retT||0)+dt;if(!mobStep(m,m.sx,m.sy,s,Math.min(d.size*.6,11))||m.retT>12){m.x=m.sx;m.y=m.sy;m.mpath=null;}m.hp=Math.min(d.hp,m.hp+d.hp*dt*.5);}}
   if(m.state==='idle'){m.moving=false;m.wT-=dt;
     if(m.tx!==null){const dx=m.tx-m.x,dy=m.ty-m.y,n=Math.hypot(dx,dy);if(n<3)m.tx=null;else{const s=d.spd*.45*slow*dt;if(!moveEnt(m,dx/n*Math.min(s,n),dy/n*Math.min(s,n),Math.min(d.size*.6,11)))m.tx=null;m.face=sface(dx,dy);m.moving=true;}}
     if(m.wT<=0){m.wT=rnd(2,5);if(Math.hypot(m.x-m.sx,m.y-m.sy)>150){m.tx=m.sx;m.ty=m.sy;}else{m.tx=m.x+rnd(-80,80);m.ty=m.y+rnd(-80,80);}}}

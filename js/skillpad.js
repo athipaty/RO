@@ -8,6 +8,7 @@ function skillSections(){const c=CLASSES[P.cls];if(!c)return [];if(P.cls==='novi
   if(c.tier===3){const p=CLASSES[c.parent],own3=new Set(c.own),own2=new Set(p.own);return [[CLASSES[c.base].name,c.skills.filter(s=>!own3.has(s)&&!own2.has(s))],[p.name,p.own],[c.name,c.own]];}
   if(c.tier===2){const own=new Set(c.own);return [[CLASSES[c.base].name,c.skills.filter(s=>!own.has(s))],[c.name,c.own]];}
   return [[c.name,c.skills]];}
+const SKL_L=(en,th)=>typeof LANG!=='undefined'&&LANG==='th'?th:en;
 const skpOn=()=>true; // since v1.0.7 desktop uses the icon tree too (lines between skills read better than a wall of cards)
 {const _stP=skillTreeHtml;skillTreeHtml=function(){if(!skpOn()||!P)return _stP.apply(this,arguments);
   const full=_stP.apply(this,arguments);
@@ -15,15 +16,16 @@ const skpOn=()=>true; // since v1.0.7 desktop uses the icon tree too (lines betw
   const cut=full.indexOf('<div class="ttier"')>=0?full.indexOf('<div class="ttier"'):full.indexOf('<h3');const head=cut>0?full.slice(0,cut).replace(/<h3[^>]*>[^<]*<\/h3>\s*$/,''):full;
   const secs=skillSections(),all=secs.flatMap(s=>s[1]);if(!SKP.sel||!all.includes(SKP.sel))SKP.sel=(typeof buildNextSkill==='function'&&P.build&&buildNextSkill(buildById(P.build))||{}).id||all[0];
   const nx=typeof buildNextSkill==='function'&&P.build?buildNextSkill(buildById(P.build)):null;
-  let left='';
+  // v1.45.2 legend: learned skills are bright with a gold frame, unlearned ones are grey, locked ones carry a lock
+  let left=`<div class="skplegend"><span><i class="lg has"></i>${esc(SKL_L('Learned','อัปแล้ว'))}</span><span><i class="lg max"></i>${esc(SKL_L('Max','เต็มแล้ว'))}</span><span><i class="lg open"></i>${esc(SKL_L('Can learn','อัปได้'))}</span><span><i class="lg lock"></i>${esc(SKL_L('Locked','ยังล็อก'))}</span><span><i class="skk area"></i>${esc(SKL_L('Area (drag to aim)','สกิลวงกว้าง (ลากเพื่อเล็ง)'))}</span><span><i class="skk one"></i>${esc(SKL_L('Single target','สกิลเป้าเดียว'))}</span></div>`;
   for(const [title,ids] of secs){
     left+=`<div class="skpsec">${esc(title)}</div>`;
     // laid out as branches: each starting skill heads a column and the skills it unlocks sit right under it, so
     // lines drop straight down or turn at right angles and never cross (skillBranchLayout)
     const L=skillBranchLayout(ids.filter(id=>SKILLS[id])),hl=(()=>{const ps=skillPathSet(SKP.sel);return ps&&ids.some(i=>ps.has(i))?ps:null;})(); // fade in every section the chosen skill's path goes through
     left+=`<div class="skpgrid" style="--cols:${L.cols};--rows:${L.rows}">`+[...L.pos].map(([id,q])=>{const sk=SKILLS[id],l=P.skills[id]||0,locked=skillMissing(id).length>0;
-      return `<button class="skpic${l?' has':''}${locked?' locked':''}${SKP.sel===id?' sel':''}${nx&&nx.id===id?' next':''}${sk.kind==='passive'?' pas':''}${hl&&!hl.has(id)?' dim':''}" style="--c:${q.col};--r:${q.row}" data-act="sksel" data-arg="${id}" aria-label="${esc(sk.name)} level ${l} of ${sk.max}">`+
-        `<img src="${skillIconURL(id)}" alt="">${sk.party?'<span class="skpparty">party</span>':''}<span class="skplv">${l}/${sk.max}</span><span class="skpnm">${esc(sk.name)}</span></button>`;}).join('')+`</div>`;}
+      return `<button class="skpic${l?' has':''}${l&&l>=sk.max?' max':''}${!l&&!locked?' open':''}${locked?' locked':''}${SKP.sel===id?' sel':''}${nx&&nx.id===id?' next':''}${sk.kind==='passive'?' pas':''}${hl&&!hl.has(id)?' dim':''}" style="--c:${q.col};--r:${q.row}" data-act="sksel" data-arg="${id}" aria-label="${esc(sk.name)} level ${l} of ${sk.max}">`+
+        `<img src="${skillIconURL(id)}" alt="">${sk.party?'<span class="skpparty">party</span>':''}${locked&&!l?'<span class="skplock" aria-hidden="true">🔒</span>':''}${typeof skKindBadge==='function'?skKindBadge(id):''}<span class="skplv">${l>=sk.max?'MAX':l+'/'+sk.max}</span><span class="skpnm">${esc(sk.name)}</span></button>`;}).join('')+`</div>`;}
   const card=skillTiers([SKP.sel]).replace('<div class="ttier">','<div class="ttier skpcard">');
   const sk=SKILLS[SKP.sel],nl=Math.min(sk.max,(P.skills[SKP.sel]||0)+1);
   const more=(P.skills[SKP.sel]||0)<sk.max?`<div class="skpnext"><span class="muted">At Lv ${nl}:</span> ${esc(sk.desc(nl))}</div>`:'';

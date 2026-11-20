@@ -28,6 +28,10 @@ module.exports = async t => {
     });
     const [rain, aid] = setup.sl;
     t.ok(rain && rain[2] && rain[3] > 0 && aid && aid[2], 'Arrow Rain and First Aid sit on the phone skill buttons');
+    const marks = await page.evaluate(() => { const sl = [...document.querySelectorAll('#hotbar .slot')]; P.skills.twinshot = 3; const b = getBar(); b[2] = { s: 'twinshot' }; P.bar = b; document.getElementById('hotbar')._sig = null; rebuildHotbar();
+      const s2 = [...document.querySelectorAll('#hotbar .slot')]; const m = i => { const k = s2[i].querySelector(':scope > .skk'); return k ? k.className : '-'; }; const r = [m(0), m(1), m(2)];
+      b[2] = null; P.bar = b; document.getElementById('hotbar')._sig = null; rebuildHotbar(); return r; });
+    t.ok(marks[0] === 'skk area' && marks[1] === '-' && marks[2] === 'skk one', 'area skills carry a cyan ring mark, single-target ones an orange dot, self skills none (' + marks.join(', ') + ')');
 
     // 1. joystick held with one thumb, the other finger taps First Aid and Sit
     const jx = 90, jy = setup.H - 260;

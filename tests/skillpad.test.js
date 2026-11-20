@@ -20,6 +20,13 @@ module.exports = async t => {
     const desk = await g.ev(async () => { document.body.classList.remove('touchui'); P.skills = { cleave: 5, bladecraft: 3 }; openPanel('skills'); await new Promise(r => setTimeout(r, 300)); const n = panel.querySelectorAll('.skpic').length, lines = panel.querySelectorAll('svg.sklinks path').length, gold = [...panel.querySelectorAll('svg.sklinks path')].some(p => p.getAttribute('stroke') === '#e8c25a'), dashed = [...panel.querySelectorAll('svg.sklinks path')].some(p => p.getAttribute('stroke-dasharray')); closePanel(); document.body.classList.add('touchui'); return { n, lines, gold, dashed }; });
     t.ok(desk.n > 5, 'desktop shows the same icon tree');
     t.ok(desk.lines > 6 && desk.gold && desk.dashed, `lines join each skill to the skills it unlocks (${desk.lines / 2} lines: gold when met, dashed when not)`);
+    // learned skills stand out: gold frame and colour icon; mastered ones say MAX; unlearned icons are grey; locked ones carry a lock
+    const look = await g.ev(() => { P.skills = { cleave: 10, bladecraft: 3 }; openPanel('skills'); const q = id => panel.querySelector(`.skpic[data-arg="${id}"]`);
+      const lv = q('bladecraft'), mx = q('cleave'), un = [...panel.querySelectorAll('.skpic:not(.has)')], lk = panel.querySelector('.skpic.locked');
+      const grey = un.length && getComputedStyle(un[0].querySelector('img')).filter.includes('grayscale'), colour = getComputedStyle(lv.querySelector('img')).filter === 'none';
+      return { has: lv.classList.contains('has') && getComputedStyle(lv).borderTopColor !== getComputedStyle(un[0]).borderTopColor, max: mx.classList.contains('max') && mx.querySelector('.skplv').textContent === 'MAX',
+        grey, colour, lock: !lk || !!lk.querySelector('.skplock'), legend: !!panel.querySelector('.skplegend') }; });
+    t.ok(look.has && look.max && look.grey && look.colour && look.lock && look.legend, 'learned and unlearned skills look different (gold frame vs grey icon, MAX, lock, legend): ' + JSON.stringify(look));
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };
