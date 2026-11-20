@@ -157,6 +157,8 @@ function skillReady(id){return (P.cd[id]||0)<=now;}
 function useSkill(id){
   const l=castLv(id);if(!l||P.dead||P.casting)return;const sk=SKILLS[id];if(sk.kind==='passive')return;
   if((sk.kind==='target'||sk.kind==='area')&&(!P.target||P.target.dead)&&typeof followAssist==='function')followAssist();
+  /* nothing targeted: a single-target skill goes for the nearest monster, like the Attack button */
+  if(sk.kind==='target'&&(!P.target||P.target.dead)&&!Z.D.safe&&skillReady(id))targetNearest(true);
   if(!skillReady(id))return;
   if(P.heavy>1){tooHeavy();return;}
   if(ailHeld()||ailOn('silence')){floatT(P.x,P.y-40,ailOn('silence')?'Silenced':'Cannot act','#c58cff',12);return;}

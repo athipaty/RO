@@ -49,8 +49,12 @@ module.exports = async t => {
     // Settings → Switch character returns to the list
     await g.ev(() => { openPanel('settings'); document.querySelector('[data-act="setswitch"]').click(); }); await wait(1500);
     t.ok(await g.ev(() => !document.getElementById('title').hidden), 'Switch character in Settings returns to the character list');
-    // delete slot 2
-    await g.ev(() => { document.querySelector('.slotc[data-slot="1"]').click(); document.getElementById('slotDel').click(); });
+    // delete slot 2: the delete button sits on the top-right corner of the character picture, away from Continue
+    await g.ev(() => document.querySelector('.slotc[data-slot="1"]').click());
+    const where = await g.ev(() => { const d = document.getElementById('slotDel').getBoundingClientRect(), c = document.getElementById('lookCv').getBoundingClientRect(), k = document.getElementById('contBtn').getBoundingClientRect();
+      return { onPic: !document.getElementById('slotDel').hidden && d.left >= c.left + c.width / 2 && d.right <= c.right + 2 && d.top >= c.top - 2 && d.bottom <= c.top + c.height / 2, farFromStart: Math.abs(d.top - k.top) > 120 || k.left > d.right + 120 }; });
+    t.ok(where.onPic && where.farFromStart, 'the delete button sits on the picture\'s top-right corner, away from Continue');
+    await g.ev(() => document.getElementById('slotDel').click());
     t.ok(await g.ev(() => !document.getElementById('confirm').hidden && /Delete Second/.test(document.getElementById('cfText').textContent)), 'Delete asks first, naming the character');
     await g.ev(() => document.getElementById('cfYes').click()); await wait(200);
     t.ok(await g.ev(() => !localStorage.getItem('embervale.save.v1.s1') && document.querySelector('.slotc[data-slot="1"]').classList.contains('empty') && !document.getElementById('creator').hidden),

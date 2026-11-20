@@ -103,7 +103,7 @@
     <main class="t-main">
       <section class="t-stage" aria-label="Your adventurer">
         <div class="t-glow" aria-hidden="true"></div>
-        <canvas id="lookCv" width="240" height="240" aria-label="Preview of your adventurer"></canvas>
+        <div class="t-cv"><canvas id="lookCv" width="240" height="240" aria-label="Preview of your adventurer"></canvas><button type="button" id="slotDel" hidden title="Delete this character" aria-label="Delete this character"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 3.5h5M4 6h12M5.8 6l.8 10.2c.1.8.6 1.3 1.4 1.3h4c.8 0 1.3-.5 1.4-1.3L14.2 6M8.6 8.8v6M11.4 8.8v6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
         <label class="t-name"><span>Name</span><input id="nameIn" maxlength="16" placeholder="Name your adventurer" value="Wanderer" aria-label="Adventurer name"></label>
         <p class="tag">Leave Hearthvale with a club and a cotton tunic. Hunt across five regions, take up a calling, and go after the Ashen Warlord in the Cinder Crypt.</p>
       </section>
@@ -139,7 +139,6 @@
         <div class="btns">
           <button class="btn primary" id="contBtn" hidden>Continue</button>
           <button class="btn primary" id="newBtn">New adventure</button>
-          <button class="btn small ghost" id="slotDel" hidden>Delete this character</button>
         </div>
         <details class="keys">
           <summary>Controls</summary>
@@ -338,5 +337,7 @@
 <script src="js/pending.js"></script>
 <script src="js/tutorial.js"></script>
 <script src="js/i18n-game.js"></script>
+<script src="js/overweight.js"></script>
+<script src="js/dragaim.js"></script>
 </body>
 </html>

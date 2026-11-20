@@ -30,15 +30,22 @@ function wallNodes(z){const out=[];for(let i=-2;i<=2;i++)out.push({x:z.x+Math.co
 const _useSkillG=useSkill;
 useSkill=function(id){const sk=SKILLS[id];if(!sk)return;
   let ground=sk.kind==='ground';
-  if(sk.kind==='area'&&(!P.target||P.target.dead)){if(typeof followAssist==='function')followAssist();ground=!P.target||P.target.dead;}
+  if(sk.kind==='area'&&(!P.target||P.target.dead)){if(typeof followAssist==='function')followAssist();
+    /* a quick tap with nothing targeted: aim at the nearest monster within reach; none near -> tap the ground as before */
+    if((!P.target||P.target.dead)&&!Z.D.safe&&!(AIM&&AIM.id===id)){let best=null,bd=sk.range+60;for(const m of mobs)if(!m.dead&&!m.dying){const d=dist(m,P);if(d<bd){bd=d;best=m;}}
+      if(best){P.target=best;P.queued=null;P.npcGoal=null;P.sitting=false;}}
+    ground=!P.target||P.target.dead;}
   if(!ground)return _useSkillG(id);
-  const l=castLv(id);if(!l||P.dead||P.casting)return;
-  if(!skillReady(id))return;if(P.heavy>1){tooHeavy();return;}
-  if(ailHeld()||ailOn('silence')){floatT(P.x,P.y-40,ailOn('silence')?'Silenced':'Cannot act','#c58cff',12);return;}
-  if(P.sp<sk.sp(l)){floatT(P.x,P.y-30,'Not enough SP','#7ab0f0',13);return;}
-  if(sk.kind==='ground'&&id!=='haven'&&Z.D.safe){floatT(P.x,P.y-40,'Not in town','#aab4c4',12);return;}
   if(AIM&&AIM.id===id){aimCancel();return;}
-  AIM={id,l};cv.style.cursor='crosshair';floatT(P.x,P.y-44,`${sk.name}: ${matchMedia('(pointer:fine)').matches?'click':'tap'} the ground`,'#ffe9a8',12);};
+  if(aimStart(id))floatT(P.x,P.y-44,`${sk.name}: ${matchMedia('(pointer:fine)').matches?'click':'tap'} the ground`,'#ffe9a8',12);};
+/* the checks, then aiming is armed; also used by drag-aim on phones (js/dragaim.js) */
+function aimStart(id){const sk=SKILLS[id];if(!sk)return false;
+  const l=castLv(id);if(!l||P.dead||P.casting)return false;
+  if(!skillReady(id))return false;if(P.heavy>1){tooHeavy();return false;}
+  if(ailHeld()||ailOn('silence')){floatT(P.x,P.y-40,ailOn('silence')?'Silenced':'Cannot act','#c58cff',12);return false;}
+  if(P.sp<sk.sp(l)){floatT(P.x,P.y-30,'Not enough SP','#7ab0f0',13);return false;}
+  if(sk.kind==='ground'&&id!=='haven'&&Z.D.safe){floatT(P.x,P.y-40,'Not in town','#aab4c4',12);return false;}
+  AIM={id,l};cv.style.cursor='crosshair';return true;}
 function aimCancel(){AIM=null;aimAt=null;if(cv)cv.style.cursor='';}
 function aimCast(w){const a=AIM;aimCancel();if(!a||P.dead||P.casting)return;const sk=SKILLS[a.id],l=castLv(a.id)||a.l,cost=sk.sp(l);
   if(P.sp<cost||!skillReady(a.id))return;
@@ -51,10 +58,10 @@ function placeZone(k,l,x,y,ang){
   if(k==='thornsnare'){const mine=GZ.filter(z=>z.k==='thornsnare');if(mine.length>=3)GZ.splice(GZ.indexOf(mine[0]),1);}
   GZ.push({k,l,x,y,ang,t0:now,until:now+GZ_LIFE[k](l),tick:0,hit:new Map()});
   fx.push({k:'ring',x,y,r:SKILLS[k].radius,col:SKILLS[k].col,t0:now,dur:.35});sfx(k==='emberwall'?'zap':'cast');}
-window.addEventListener('pointerdown',ev=>{if(!AIM||ev.target!==cv)return;ev.preventDefault();ev.stopImmediatePropagation();
+window.addEventListener('pointerdown',ev=>{if(!AIM||AIM.drag||ev.target!==cv)return;ev.preventDefault();ev.stopImmediatePropagation();
   if(ev.button===2){aimCancel();return;}aimCast(worldAt(ev));},true);
 window.addEventListener('contextmenu',ev=>{if(AIM&&ev.target===cv){ev.preventDefault();ev.stopImmediatePropagation();aimCancel();}},true);
-window.addEventListener('pointermove',ev=>{if(AIM&&ev.target===cv)aimAt=worldAt(ev);});
+window.addEventListener('pointermove',ev=>{if(AIM&&!AIM.drag&&ev.target===cv)aimAt=worldAt(ev);});
 window.addEventListener('keydown',ev=>{if(AIM&&ev.key==='Escape'){ev.stopImmediatePropagation();aimCancel();}},true);
 
 /* ---- what the zones do (run every frame from updateHud) ---- */
@@ -95,6 +102,10 @@ function drawGround(){if(!P)return;
         ctx.beginPath();ctx.ellipse(z.x,z.y,95*1.1,95*.55,0,0,7);ctx.fill();ctx.stroke();
         ctx.fillStyle='rgba(220,255,230,.7)';for(let i=0;i<5;i++){const a=now*.8+i*1.26,r=(now*30+i*19)%90;ctx.beginPath();ctx.arc(z.x+Math.cos(a)*r*1.1,z.y+Math.sin(a)*r*.55-((now*20+i*7)%14),1.4,0,7);ctx.fill();}
         ctx.globalAlpha=1;});}
+  /* drag-aim (phones): the skill's reach as a ring around the hero, and a line to the aim */
+  if(AIM&&AIM.drag&&aimAt&&P){const sk=SKILLS[AIM.id],R=sk.range;at(P.x,P.y,()=>{ctx.fillStyle='rgba(255,233,168,.08)';ctx.strokeStyle='rgba(255,233,168,.55)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.ellipse(P.x,P.y,R*1.1,R*.55,0,0,7);ctx.fill();ctx.stroke();ctx.strokeStyle='rgba(255,233,168,.7)';ctx.setLineDash([4,6]);ctx.beginPath();ctx.moveTo(P.x,P.y);ctx.lineTo(aimAt.x,aimAt.y);ctx.stroke();ctx.setLineDash([]);});
+    at(aimAt.x,aimAt.y,()=>{const r=sk.radius||40;ctx.fillStyle=AIM.cancel?'rgba(255,90,70,.18)':'rgba(255,200,90,.22)';ctx.beginPath();ctx.ellipse(aimAt.x,aimAt.y,r*1.1,r*.55,0,0,7);ctx.fill();});}
   if(AIM&&aimAt){const sk=SKILLS[AIM.id],d=Math.hypot(aimAt.x-P.x,aimAt.y-P.y),far=d>sk.range,r=sk.radius||40;
     at(aimAt.x,aimAt.y,()=>{ctx.strokeStyle=far?'rgba(255,140,120,.8)':'rgba(255,233,168,.9)';ctx.setLineDash([6,5]);ctx.lineWidth=2;
       ctx.beginPath();ctx.ellipse(aimAt.x,aimAt.y,r*1.1,r*.55,0,0,7);ctx.stroke();ctx.setLineDash([]);});}}
