@@ -1794,3 +1794,4 @@ body.touchui #panel.npcsheet .sheetacts{background:linear-gradient(180deg,rgba(1
 #panel[data-kind="warp"] .tccard.locked{opacity:.7}#panel[data-kind="warp"] .tccard.locked .tcban{filter:grayscale(.85) brightness(.7)}
 #panel .tctravel.primary{background:linear-gradient(180deg,#ffe08a,#e0a83a)!important;color:#2a1a04!important;border:1.5px solid #fff0b8!important;box-shadow:0 2px 0 #6a4a10,0 0 10px rgba(255,200,90,.25)!important;font-weight:800}
 #panel .tctravel:disabled{background:#2a3040!important;color:#8a93a6!important;border-color:#4a5468!important;box-shadow:none!important}
+#panel .wsgold{display:inline-block;margin:0 0 8px;padding:2px 10px;border-radius:10px;background:rgba(240,181,74,.12);border:1px solid rgba(240,181,74,.35);font-size:13px}

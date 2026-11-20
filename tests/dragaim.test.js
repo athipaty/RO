@@ -87,8 +87,8 @@ module.exports = async t => {
     // 5. no monster within reach: a quick tap asks for a tap on the ground, as before
     await page.evaluate(() => { P.cd = {}; P.casting = null; P.target = null; for (const m of mobs) m.x = 99999; });
     await touch('touchStart', [[rain[0], rain[1], 8]]); await wait(60); await touch('touchEnd', []); await wait(300);
-    const tap = await page.evaluate(() => ({ aim: !!AIM, drag: !!(AIM && AIM.drag), id: AIM && AIM.id }));
-    t.ok(tap.aim && !tap.drag && tap.id === 'arrowrain', 'with no monster near, a quick tap asks for a tap on the ground');
+    const tap = await page.evaluate(() => ({ aim: !!AIM, drag: !!(AIM && AIM.drag), id: AIM && AIM.id, casting: P.casting && P.casting.id, cd: JSON.stringify(P.cd), press: __press.slice(-3), casts: __casts.slice(-3), near: mobs.filter(m => !m.dead && Math.hypot(m.x - P.x, m.y - P.y) < 400).length, log: [...document.querySelectorAll('#log div')].slice(-2).map(e => e.textContent).join(' | ') }));
+    t.ok(tap.aim && !tap.drag && tap.id === 'arrowrain', 'with no monster near, a quick tap asks for a tap on the ground' + (tap.aim && !tap.drag && tap.id === 'arrowrain' ? '' : ' ' + JSON.stringify(tap)));
     await page.evaluate(() => aimCancel());
 
     // 6. a single-target skill with nothing targeted picks the nearest monster (outside auto-hunt)
