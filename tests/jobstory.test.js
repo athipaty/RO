@@ -61,7 +61,7 @@ module.exports = async t => {
       const m = mobs.find(m => !m.dead); m.hp = m.d.hp = 9999; P.x = m.x - 30; P.y = m.y; P.target = m; P.sp = 999; useSkill('twinfang'); await w(500); out.twin = m.hp < 9999;
 
       // ---- master callings are open (v1.45.0); a master save keeps its calling
-      P.cls = 'ravager'; P.reborn = 0; P.jl = 5; P.lv = 20; out.sealed = !job3Why();
+      P.cls = 'ravager'; P.reborn = 0; P.jl = 50; P.lv = 60; const needRb = !!job3Why(); P.reborn = true; out.sealed = needRb && !job3Why();
       const mid = Object.keys(JOB3).find(id => JOB3[id].from === 'ravager'), own = CLASSES[mid].own[0];
       P.cls = mid; P.jl = 12; P.skills = { [own]: 4 }; P.skillPts = 1; P.bar = [{ s: own }, null, null, null, null, null, null, null];
       out.unseal = !job3Unseal() && P.cls === mid && P.jl === 12 && P.skills[own] === 4 && P.skillPts === 1;
@@ -84,7 +84,7 @@ module.exports = async t => {
     t.ok(r.shade, 'finishing the Shade story makes you a Shade with a dagger');
     t.ok(r.goalAfter, 'calling stories are closed once you have a job');
     t.ok(r.twin, 'the Shade\'s Twin Fang damages a monster');
-    t.ok(r.sealed, 'master callings are open to any advanced calling (no rebirth, no level)');
+    t.ok(r.sealed, 'master callings are open again, for the Reborn at job level 50 and base level 50');
     t.ok(r.unseal, 'a master save keeps its master calling and skills');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }

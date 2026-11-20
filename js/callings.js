@@ -18,14 +18,14 @@ function callingNow(){if(!P)return null;const c=CLASSES[P.cls];if(!c)return null
     return {id:'call2',name,trial:{mob:T.mob,need:T.need,have:k,item:T.item,items:T.items,gold:T.gold},steps:[
       {text:`Defeat ${MOBS[T.mob].name} ${k}/${T.need}`,done:k>=T.need,go:{mob:T.mob}},{text:`Bring ${ITEMS[T.item].name} ${Math.min(have,T.items)}/${T.items}`,done:have>=T.items,go:{item:T.item}},
       {text:`${fmt(T.gold)} gold for the guild`,done:P.gold>=T.gold},{text:'Then return to Corvin',go:CORVIN}]};}
-  if(c.tier===2&&typeof job3Why==='function'&&!job3Why()){const T=typeof trial3Of==='function'?trial3Of():null;if(!T)return null;
+  if(c.tier===2&&!P.reborn&&typeof rebirthWhy==='function'){const why=rebirthWhy();if(!why||/costs/.test(why))return {id:'call3',name:'Rite of Rebirth',steps:[{text:'Talk to Seer Valen in Aurelmark about the rite of rebirth',go:VALEN},...(why?[{text:why,done:false}]:[])]};return null;}
+  if(c.tier===2&&P.reborn&&typeof job3Why==='function'&&!job3Why()){const T=typeof trial3Of==='function'?trial3Of():null;if(!T)return null;
     if(!P.trial3)return {id:'call4',name:'Trial of Ascension',steps:[{text:'Talk to Seer Valen in Aurelmark to begin the trial',go:VALEN}]};
     if(typeof trial3Done==='function'&&trial3Done())return {id:'call4',name:'Trial of Ascension',steps:[{text:'Return to Seer Valen and choose your master job',go:VALEN}]};
     const it=invFind(T.item),have=it?it.n:0,k=Math.min(P.trial3.have||0,T.need),gold=typeof JOB3_GOLD!=='undefined'?JOB3_GOLD:0;
     return {id:'call4',name:'Trial of Ascension',trial:{mob:T.mob,need:T.need,have:k,item:T.item,items:T.items,gold},steps:[
       {text:`Defeat ${MOBS[T.mob].name} ${k}/${T.need}`,done:k>=T.need,go:{mob:T.mob}},{text:`Bring ${ITEMS[T.item].name} ${Math.min(have,T.items)}/${T.items}`,done:have>=T.items,go:{item:T.item}},
       {text:`${fmt(gold)} gold`,done:P.gold>=gold},{text:'Then return to Seer Valen',go:VALEN}]};}
-  if(c.tier===2&&!P.reborn&&typeof rebirthWhy==='function'){const why=rebirthWhy();if(!why||/costs/.test(why))return {id:'call3',name:'Rite of Rebirth',steps:[{text:'Talk to Seer Valen in Aurelmark about the rite of rebirth',go:VALEN},...(why?[{text:why,done:false}]:[])]};return null;}
   return null;}
 const callStep=q=>q&&(q.steps.find(s=>!s.done&&s.go)||q.steps.find(s=>!s.done)||q.steps[q.steps.length-1]);
 // where the current step leads (for js/goal.js)

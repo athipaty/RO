@@ -279,8 +279,6 @@ const HELP_TH={
   'Dropped by':'ดรอปจาก','In the store':'ร้านค้า','How to make it':'วิธีทำ','Used to make':'ใช้ทำ','Sold at the General Store for':'มีขายที่ร้านค้าทั่วไป ราคา','boss':'บอส',
   'Not dropped by monsters. Look for it from quests, festivals, bosses or other players.':'มอนสเตอร์ไม่ดรอป ลองหาจากเควส เทศกาล บอส หรือผู้เล่นคนอื่น',
   'Trial of Ascension':'บททดสอบแห่งการเลื่อนขั้น','The trial':'บททดสอบ','Accept trial':'รับบททดสอบ',
-  'Any hero with an advanced calling can take the trial and rise into a master calling.':'ผู้กล้าทุกคนที่มีอาชีพขั้นสูงรับบททดสอบและเลื่อนขั้นเป็นอาชีพระดับปรมาจารย์ได้',
-  "Pass Seer Valen's Trial of Ascension in Aurelmark (any advanced calling can take it).":'ผ่านบททดสอบแห่งการเลื่อนขั้นของผู้หยั่งรู้วาเลนที่ออเรลมาร์ก (อาชีพขั้นสูงทุกอาชีพรับได้)',
   'Reborn heroes with an advanced calling at job level 50 and base level 50 can rise into a master calling.':'ผู้กล้าที่เกิดใหม่และมีอาชีพขั้นสูงเลเวลอาชีพ 50 กับเลเวลฐาน 50 สามารถเลื่อนเป็นอาชีพระดับปรมาจารย์ได้',
   'Only the Reborn can ascend. Take the rite of rebirth first.':'มีแต่ผู้เกิดใหม่เท่านั้นที่เลื่อนขั้นได้ ทำพิธีเกิดใหม่ก่อน','You already hold a master calling.':'คุณเป็นอาชีพระดับปรมาจารย์แล้ว',
   'Learn':'เรียน','Level up':'อัปเลเวล','Mastered':'เชี่ยวชาญแล้ว',

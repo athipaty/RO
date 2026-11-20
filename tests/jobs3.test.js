@@ -1,13 +1,15 @@
-// third-tier callings: any advanced calling (not reborn, any level) takes Seer Valen's trial and ascends
+// third-tier callings: a reborn advanced calling at job 50 / base 50 takes Seer Valen's trial and ascends (open again since v1.45.0)
 const { player, newRoom } = require('./helpers');
 module.exports = async t => {
   const A = await player('Ascender', newRoom(), { server: 'http://127.0.0.1:9' });
   try {
     const r = await A.ev(async () => {
       const open = JOB3_SEALED === false;
-      P.cls = 'bulwark'; P.jl = 12; P.lv = 30; P.reborn = 0; P.skills = { cleave: 5, shieldbash: 5 }; S = computeStats();
-      openPanel('rebirth'); const early = open && !/Reborn|Reach (base|job) level|sealed/.test(document.getElementById('panel').textContent.split('Trial of Ascension')[1] || 'sealed');
-      const canStart = !!document.querySelector('#panel [data-act="trial3"]');
+      P.cls = 'bulwark'; P.jl = 50; P.lv = 60; P.reborn = 0; openPanel('rebirth'); const noRb = /Only the Reborn/.test(panel.textContent) && !panel.querySelector('[data-act="trial3"]');
+      P.jl = 40; P.reborn = 1; refreshPanel(); const noJl = /Reach job level 50/.test(panel.textContent) && !panel.querySelector('[data-act="trial3"]');
+      P.jl = 50; P.lv = 30; P.skills = { cleave: 5, shieldbash: 5 }; S = computeStats();
+      openPanel('rebirth'); const early = open && noRb && noJl && document.getElementById('panel').textContent.includes('Reach base level 50');
+      P.lv = 50; refreshPanel(); const canStart = !!document.querySelector('#panel [data-act="trial3"]');
       PANEL_ACTS.trial3(); for (let i = 0; i < 40; i++) questKill('snowhulk');
       giveItem('fur', 15); P.gold = 40000; refreshPanel();
       const choices = [...document.querySelectorAll('#panel [data-act="ascend"]')].map(b => b.dataset.arg);
@@ -22,7 +24,7 @@ module.exports = async t => {
         tree3: tree === 'Warden|Bulwark|Aegis Lord', descs,
         allTier3: Object.keys(CLASSES).filter(k => CLASSES[k].tier === 3).length, party: !!SKILLS.fortress.party };
     });
-    t.ok(r.early && r.canStart, 'master callings are open: a Bulwark at job level 12, not reborn, base level 30 can start the Trial of Ascension');
+    t.ok(r.early && r.canStart, 'master callings are open again; Valen asks for rebirth, job level 50 and base level 50, then offers the Trial of Ascension');
     t.ok(r.cards, 'the master callings are picture cards with their English names');
     t.ok(r.ask && r.back, 'tapping one asks to confirm first; Go back changes nothing');
     t.ok(r.choices.length === 1 && r.choices[0] === 'aegislord', 'a Bulwark can rise into an Aegis Lord');
