@@ -27,11 +27,15 @@ module.exports = async t => {
       const st2 = P.storage.find(e => e.id === 'sap'); out.taken = st2 && st2.n === 2 && invFind('sap').n === 5;
       closePanel();
       // pushcart: put 3 of 5 in, take 1 out
-      P.cart = []; openPanel('cart'); await sleep(50); btn('cartin', P.inv.findIndex(e => e.id === 'sap')).click(); pick(3);
+      P.cart = []; openPanel('cart'); PANEL_ACTS.carttab(itemCat('sap')); await sleep(50); btn('cartin', P.inv.findIndex(e => e.id === 'sap')).click(); pick(3);
       out.cartIn = P.cart.find(e => e.id === 'sap').n === 3 && invFind('sap').n === 2;
       btn('cartout', 0).click(); pick(1); out.cartOut = P.cart.find(e => e.id === 'sap').n === 2 && invFind('sap').n === 3;
       // cancel does nothing
       btn('cartout', 0).click(); document.querySelector('#qtyPick [data-q="cancel"]').click(); out.cancel = P.cart.find(e => e.id === 'sap').n === 2;
+      // +10 adds ten each press (and never goes past what you have)
+      { const q = document.getElementById('qtyPick'); P.inv.push({ id: 'pelt', n: 25 }); qtyAsk({ id: 'pelt', max: 25, def: 1 }, () => {}); const num = () => +q.querySelector('input[type=number]').value;
+        q.querySelector('[data-q="1"]').click(); q.querySelector('[data-q="a10"]').click(); const a1 = num(); q.querySelector('[data-q="a10"]').click(); const a2 = num(); q.querySelector('[data-q="a10"]').click(); const a3 = num();
+        out.plus10 = a1 === 11 && a2 === 21 && a3 === 25 && !q.querySelector('[data-q="a100"]'); q.querySelector('[data-q="cancel"]').click(); }
       closePanel(); return out; });
     t.ok(r.buyBox && /Total: [\d,]+ gold/.test(r.buyTotal), 'Buy asks how many and shows the total (' + r.buyTotal + ')');
     t.ok(r.bought, 'buying 7 gives 7 and takes 7 prices');
@@ -39,6 +43,7 @@ module.exports = async t => {
     t.ok(r.gearOneTap, 'a single piece of gear still sells with one tap');
     t.ok(r.stored && r.taken, 'storage takes part of a stack and gives part back');
     t.ok(r.cartIn && r.cartOut, 'the pushcart takes part of a stack and gives part back');
+    t.ok(r.plus10, '+10 adds ten more on every press, up to what you have (1 → 11 → 21 → 25)');
     t.ok(r.cancel, 'Cancel leaves everything as it was');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }

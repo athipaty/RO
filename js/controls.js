@@ -80,8 +80,17 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
     card.classList.toggle('left',dir<0);card.style.setProperty('--ax',ax+'px');card.style.setProperty('--ay',ay+'px');
     const svg=card.querySelector('.apLinks');svg.setAttribute('width',innerWidth);svg.setAttribute('height',innerHeight);
     const g=card.querySelector('#apGrad');g.setAttribute('x1',ax);g.setAttribute('y1',ay);
+    // v1.45.4 the choices never cover the skill buttons: the column (two pick-up choices, then Skills and Roam under them)
+    // moves past the hotbar ring when it would land on it (phones held sideways), and up so all of it fits on screen
+    const extra=card.querySelectorAll('.apSk,.apSt').length,span=spread+58*extra;
+    let colY=Math.max(R+8+spread,Math.min(ay,innerHeight-R-8-span)),colX=ax+dir*dx;
+    const keep=[...document.querySelectorAll('#hotbar .slot, #atkBtn, #hotPage')].map(e=>e.getBoundingClientRect()).filter(r=>r.width>0&&r.height>0);
+    const hits=x=>{for(let k=-1;k<=1+extra;k++){const y=colY+(k<0?-spread:k===0?spread:spread+58*k);if(keep.some(r=>x+R+6>r.left&&x-R-6<r.right&&y+R+6>r.top&&y-R-6<r.bottom))return true;}return false;};
+    // first try lifting the column (upright phones have room above); only if that is not enough, move it past the ring
+    if(keep.length&&hits(colX)){const y0=colY;for(let y=y0;y>=R+8+spread;y-=8){colY=y;if(!hits(colX))break;}
+      if(hits(colX)){colY=y0;const edge=dir<0?Math.min(...keep.map(r=>r.left))-R-14:Math.max(...keep.map(r=>r.right))+R+14;colX=dir<0?Math.max(150,edge):Math.min(innerWidth-150,edge);}}
     [['1',-spread],['0',spread]].forEach(([k,dy],i)=>{const o=card.querySelector(`.apOpt[data-loot="${k}"]`);
-      const ox=ax+dir*dx,oy=Math.max(R+8,Math.min(innerHeight-R-8,ay+dy));
+      const ox=colX,oy=Math.max(R+8,Math.min(innerHeight-R-8,colY+dy));
       o.style.left=ox+'px';o.style.top=oy+'px';o.style.setProperty('--fx',(ax-ox)+'px');o.style.setProperty('--fy',(ay-oy)+'px');o.style.transitionDelay=(i*45)+'ms';
       if(i===1){g.setAttribute('x2',ox);g.setAttribute('y2',oy);}
       // a gentle curve from the edge of Auto to the edge of the choice

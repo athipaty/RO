@@ -14,7 +14,8 @@ function syncNpcFull(){
   if(panel.classList.contains('npcfull')!==on){panel.classList.toggle('npcfull',on);if(on)requestAnimationFrame(()=>{panel.scrollTop=0;});} // after the window is filled: no extra layout pass
   if(document.body.classList.contains('npcopen')!==on)document.body.classList.toggle('npcopen',on);}
 // the windows that are a conversation, not a page of lists: shown as a dialogue box at the bottom on phones
-const NPC_SHEET=new Set(['talk','heal','warp','festival','arena','keep','waystone','rebirth']);
+// v1.45.4 the Waystation (travel, rest, stable) fills the screen: it is a page of places, not a few lines of talk
+const NPC_SHEET=new Set(['talk','heal','festival','arena','keep','waystone','rebirth']);
 // tapping the town above the dialogue box closes it (the tap still walks you there)
 document.addEventListener('pointerdown',e=>{if(!panel.hidden&&panel.classList.contains('npcsheet')&&e.target&&e.target.id==='cv')closePanel();},true);
 const _openNpcFull=openNpc;

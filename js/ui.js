@@ -105,7 +105,7 @@ function refreshPanel(){
     /* stat rows and Combat sit side by side on sideways phones (.stgrid in style.css); one column elsewhere */
     h+=`<div class="stgrid"><div class="stcol">`;
     for(const k of STATS){const v=P.st[k],bonus=S[k]-v,cost=statCost(v);
-      h+=`<div class="st"><b>${k.toUpperCase()}</b><span class="muted" style="font-size:12px">${STAT_DESC[k]}</span><span>${v}${bonus?`<span class="gold"> +${bonus}</span>`:''}</span><button class="btn small" data-act="stat" data-arg="${k}" ${P.statPts<cost||v>=99?'disabled':''} title="Costs ${cost} points">+${cost>2?' ('+cost+')':''}</button></div>`;}
+      h+=`<div class="st"><b>${k.toUpperCase()}</b><span class="muted" style="font-size:12px">${STAT_DESC[k]}</span><span>${v}${bonus?`<span class="gold"> +${bonus}</span>`:''}</span><button class="btn small" data-act="stat" data-arg="${k}" ${P.statPts<cost||v>=99?'disabled':''} title="Costs ${cost} points" aria-label="Raise ${k.toUpperCase()} (costs ${cost} points)"><b>+</b>${cost>2?`<small>${cost}</small>`:''}</button></div>`;}
     h+=`</div><div class="cbcol"><h3>Combat</h3><div class="dv"><div><span>ATK</span><span>${S.atk}</span></div><div><span>Attacks/sec</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Weight</span><span>${fmt(carryWeight())}/${fmt(maxWeight())}</span></div><div><span>MATK</span><span>${S.matk}</span></div><div><span>DEF</span><span>${S.def}</span></div><div><span>HIT</span><span>${S.hit}</span></div><div><span>FLEE</span><span>${S.flee}</span></div><div><span>CRIT</span><span>${S.crit}%</span></div><div><span>Range</span><span>${S.range}px</span></div>`+(S.critdmg?`<div><span>Crit damage</span><span>${150+S.critdmg}%</span></div>`:'')+(S.cast?`<div><span>Cast time</span><span>−${S.cast}%</span></div>`:'')+(S.dbl?`<div><span>Double attack</span><span>${S.dbl}%</span></div>`:'')+(S.dmgred?`<div><span>Damage taken</span><span>−${S.dmgred}%</span></div>`:'')+(S.heal?`<div><span>Healing</span><span>+${S.heal}%</span></div>`:'')+(typeof WSIZE==='function'||typeof WSIZE==='object'?['Vs small','Vs medium','Vs large'].map((t,i)=>`<div><span>${t}</span><span>${WSIZE[weaponType()][i]}%</span></div>`).join(''):'')+`</div>`;
     h+=`</div></div>`; // closes .cbcol and .stgrid
     h+=`<h3>Equipment</h3>`;
@@ -242,7 +242,7 @@ function refreshPanel(){
     h+=`<h2>Chapel</h2><div class="say">“Rest a moment, traveller. The light asks nothing of you.” — Sister Maren</div><button class="btn" data-act="heal">Receive a blessing (full HP and SP)</button>`;
   }
   else if(panelKind==='warp'){
-    h+=`<h2>Waystation</h2><div class="say">“I can send you to any road you've already walked. The fare depends on how far you go. And if your feet are sore, the bunks upstairs are clean.” — Tobin</div>`;
+    h+=`<h2>Waystation</h2><div class="say">“Where to? And if your feet are sore, the bunks upstairs are clean.” — Tobin</div>`;
     if(typeof warpCardsHtml==='function')h+=warpCardsHtml();else ZONE_ORDER.slice(1).forEach((id,i)=>{const D=ZONES[id];const ok=P.visited.includes(id);const cost=(i+1)*60; // v1.40.4 picture cards (js/travelcards.js)
       h+=`<div class="row"><div class="grow"><div class="nm">${D.name}</div><div class="ds">${D.lvl}${ok?'':' · not visited yet'}${NET.wb&&NET.wb.z===id?` · <span style="color:#ff9a7a">World boss: ${MOBS[NET.wb.b].name}</span>`:''}</div></div><span class="gold">${cost}</span><button class="btn small" data-act="warp" data-arg="${id}" ${ok&&P.gold>=cost?'':'disabled'}>Travel</button></div>`;});
     h+=innHtml();

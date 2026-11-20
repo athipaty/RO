@@ -15,9 +15,17 @@ function cartPut(e){if(!hasCart())return false;if(cartWeight()+itemWeight(e.id)*
 PANELS.cart=()=>{if(!hasCart())return `<h2>Pushcart</h2><p class="say">You don't have a pushcart. Wenna the Keeper in Hearthvale rents them out for ${fmt(CART_PRICE)} gold.</p>`;
   const row=(e,i,act,label)=>`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${esc(itemName(e))}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><button class="btn small" data-act="${act}" data-arg="${i}">${label}</button></div>`;
   let h=`<h2>🛒 Pushcart</h2><div class="sub">Cart ${P.cart.length}/${CART_MAX} · cart weight ${fmt(cartWeight())}/${fmt(CART_WEIGHT)} · bag ${fmt(carryWeight())}/${fmt(maxWeight())}</div>`;
-  h+=`<h3>Your bag</h3>`;const bag=P.inv.map((e,i)=>[e,i]);h+=bag.length?bag.map(([e,i])=>row(e,i,'cartin','Put in')).join(''):`<p class="muted">Empty.</p>`;
-  h+=`<h3>In the cart</h3>`;h+=P.cart.length?P.cart.map((e,i)=>row(e,i,'cartout','Take')).join(''):`<p class="muted">Nothing in the cart yet. Loot, potions and spare gear can ride here.</p>`;
+  // v1.45.4 tabs like the bag and the shops (Use, Equip, Sigils, Etc): one choice filters both lists; the counts cover both
+  const tabs=[['use','Use'],['equip','Equip'],['sigil','Sigils'],['etc','Etc']],cnt={use:0,equip:0,sigil:0,etc:0};
+  for(const e of [...P.inv,...P.cart]){const c=itemCat(e.id);if(c in cnt)cnt[c]++;}
+  if(!(CART_TAB in cnt))CART_TAB='use';
+  h+=`<div class="tabs itabs" role="tablist">`+tabs.map(([k,l])=>`<button class="btn small ${CART_TAB===k?'on':''}" role="tab" aria-selected="${CART_TAB===k}" data-act="carttab" data-arg="${k}">${l} <span class="muted">${cnt[k]}</span></button>`).join('')+`</div>`;
+  const inTab=e=>itemCat(e.id)===CART_TAB,bag=P.inv.map((e,i)=>[e,i]).filter(([e])=>inTab(e)),cart=P.cart.map((e,i)=>[e,i]).filter(([e])=>inTab(e));
+  h+=`<div class="cartcols"><div class="cartcol"><h3>Your bag</h3>`;h+=bag.length?bag.map(([e,i])=>row(e,i,'cartin','Put in')).join(''):`<p class="muted">${P.inv.length?'Nothing of this kind in your bag.':'Empty.'}</p>`;h+=`</div><div class="cartcol">`;
+  h+=`<h3>In the cart</h3>`;h+=cart.length?cart.map(([e,i])=>row(e,i,'cartout','Take')).join(''):`<p class="muted">${P.cart.length?'Nothing of this kind in the cart.':'Nothing in the cart yet. Loot, potions and spare gear can ride here.'}</p>`;h+=`</div></div>`;
   return h;};
+let CART_TAB=(()=>{try{return localStorage.getItem('embervale.cartTab')||'use';}catch(e){return 'use';}})();
+PANEL_ACTS.carttab=k=>{CART_TAB=k;try{localStorage.setItem('embervale.cartTab',k);}catch(e){}sfx('click');refreshPanel();};
 PANEL_ACTS.cartin=i=>{const e=P.inv[+i];if(!e||!hasCart())return;if(!cartPut(e))return;P.inv.splice(+i,1);sfx('click');rebuildHotbar();refreshPanel();save();};
 PANEL_ACTS.cartout=i=>{const e=hasCart()&&P.cart[+i];if(!e)return;if(carryWeight()+itemWeight(e.id)*(e.n||1)>maxWeight()){addLog(`Too heavy to carry ${itemName(e)}.`,'l-bad');return;}
   P.cart.splice(+i,1);const bag=e.n!==undefined?invFind(e.id):null;if(bag)bag.n+=e.n;else P.inv.push(e);sfx('click');rebuildHotbar();refreshPanel();save();};
@@ -30,7 +38,9 @@ PANEL_ACTS.opencart=()=>openPanel('cart');
   if(panelKind==='storage'&&P){const say=panel.querySelector('.say');const html=hasCart()?`<div class="row cartoffer"><div class="grow"><div class="nm">🛒 Your pushcart</div><div class="ds">${P.cart.length}/${CART_MAX} stacks · ${fmt(cartWeight())}/${fmt(CART_WEIGHT)} weight</div></div><button class="btn small" data-act="opencart">Open</button></div>`
       :`<div class="row cartoffer"><div class="grow"><div class="nm">🛒 Rent a pushcart</div><div class="ds">A second load that rolls along behind you: ${CART_MAX} stacks, ${fmt(CART_WEIGHT)} weight, usable anywhere. Yours to keep.</div></div><span class="gold">${fmt(CART_PRICE)}</span><button class="btn small" data-act="cartrent" ${P.gold>=CART_PRICE?'':'disabled'}>Rent</button></div>`;
     if(say&&!panel.querySelector('.cartoffer'))say.insertAdjacentHTML('afterend',html);}
-  if(panelKind==='items'&&hasCart()&&!panel.querySelector('.cartbtn')){const h2=panel.querySelector('h2');if(h2)h2.insertAdjacentHTML('afterend',`<div class="tbtns cartbtn" style="justify-content:flex-start;margin:4px 0"><button class="btn small" data-act="opencart">🛒 Cart <span class="muted">${P.cart.length}/${CART_MAX}</span></button></div>`);}
+  // v1.45.4 the Cart button sits in the same row as Open a shop
+  if(panelKind==='items'&&hasCart()&&!panel.querySelector('.cartbtn')){const v=panel.querySelector('[data-act="vendsetup"]'),cb=`<button class="btn small cartbtn" data-act="opencart">🛒 Cart <span class="muted">${P.cart.length}/${CART_MAX}</span></button>`;
+    if(v)v.insertAdjacentHTML('beforebegin',cb);else{const h2=panel.querySelector('h2');if(h2)h2.insertAdjacentHTML('afterend',`<div class="tbtns" style="justify-content:flex-start;margin:4px 0">${cb}</div>`);}}
 }catch(e){}return r;};}
 if(typeof chatCommand==='function'){const _ccCart=chatCommand;chatCommand=function(k,arg){if(k==='cart'){openPanel('cart');return true;}return _ccCart.apply(this,arguments);};}
 

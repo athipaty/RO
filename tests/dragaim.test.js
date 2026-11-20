@@ -1,5 +1,5 @@
 // Phone skill buttons: a second finger can press skills while the other thumb holds the joystick, and area skills
-// aim by dragging the skill button (like a MOBA): release casts there, dragging onto Cancel calls it off.
+// aim by dragging the skill button (like a MOBA): release casts there, wherever the finger ends up.
 const pptr = require('puppeteer-core');
 const { BROWSER, wait } = require('./helpers');
 const GAME = process.env.GAME_URL || ('file://' + require('path').resolve(__dirname, '../index.html').split(String.fromCharCode(92)).join('/'));
@@ -51,9 +51,9 @@ module.exports = async t => {
     // 2. drag Arrow Rain up and to the left: an aim with a reach ring, cast on release toward the drag
     await touch('touchStart', [[rain[0], rain[1], 5]]); await wait(60);
     for (let k = 1; k <= 6; k++) { await touch('touchMove', [[rain[0] - k * 10, rain[1] - k * 8, 5]]); await wait(30); }
-    const mid = await page.evaluate(() => ({ aim: !!(AIM && AIM.drag), at: aimAt && { x: aimAt.x, y: aimAt.y }, p: { x: P.x, y: P.y }, stick: !document.getElementById('daStick').hidden, cancel: !document.getElementById('daCancel').hidden,
+    const mid = await page.evaluate(() => ({ aim: !!(AIM && AIM.drag), at: aimAt && { x: aimAt.x, y: aimAt.y }, p: { x: P.x, y: P.y }, stick: !document.getElementById('daStick').hidden,
       hs: proj(P.x, P.y), as: aimAt && proj(aimAt.x, aimAt.y), range: SKILLS.arrowrain.range }));
-    t.ok(mid.aim && mid.stick && mid.cancel, 'dragging an area skill starts aiming: the stick and a Cancel spot show');
+    t.ok(mid.aim && mid.stick, 'dragging an area skill starts aiming: the stick shows');
     t.ok(mid.as && mid.as.x < mid.hs.x - 20 && mid.as.y < mid.hs.y, 'the aim moves the way the finger goes (up and left of the hero on screen)');
     if (SHOTS) await page.screenshot({ path: SHOTS + '/da-aim.png' });
     await touch('touchEnd', []); await wait(1500);
@@ -62,15 +62,20 @@ module.exports = async t => {
     t.ok(done.casts.includes('arrowrain') && run && !done.aim, 'letting go casts Arrow Rain there');
     t.ok(run && Math.hypot(run.x - run.px, run.y - run.py) <= mid.range + 1, 'the cast lands inside the skill\'s reach');
 
-    // 3. drag onto Cancel: nothing is cast
+    // 3. no Cancel spot (v1.45.4): dragging to the very top edge and letting go still casts, clamped to the reach;
+    //    so does a touch the browser cancels at the screen's edge
     await page.evaluate(() => { P.cd = {}; P.casting = null; __casts.length = 0; __runs.length = 0; });
-    await touch('touchStart', [[rain[0], rain[1], 6]]); await wait(60); await touch('touchMove', [[rain[0] - 30, rain[1] - 30, 6]]); await wait(60);
-    const cr = await page.evaluate(() => { const r = document.getElementById('daCancel').getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; });
-    await touch('touchMove', [[cr[0], cr[1], 6]]); await wait(80);
-    const hot = await page.evaluate(() => document.getElementById('daCancel').classList.contains('hot'));
-    await touch('touchEnd', []); await wait(900);
-    const cancelled = await page.evaluate(() => ({ casts: __casts.length, aim: !!AIM, hidden: document.getElementById('daCancel').hidden }));
-    t.ok(hot && !cancelled.casts && !cancelled.aim && cancelled.hidden, 'dragging onto Cancel calls it off');
+    await touch('touchStart', [[rain[0], rain[1], 6]]); await wait(60); await touch('touchMove', [[rain[0] - 20, rain[1] - 60, 6]]); await wait(60);
+    await touch('touchMove', [[rain[0] - 20, 1, 6]]); await wait(80);
+    const noCancel = await page.evaluate(() => !document.getElementById('daCancel') || document.getElementById('daCancel').hidden);
+    await touch('touchEnd', []); await wait(1500);
+    const top = await page.evaluate(() => ({ casts: __casts.slice(), run: __runs[0], aim: !!AIM, range: SKILLS.arrowrain.range }));
+    t.ok(noCancel && top.casts.includes('arrowrain') && top.run && !top.aim && Math.hypot(top.run.x - top.run.px, top.run.y - top.run.py) <= top.range + 1, 'dragging to the top edge and letting go casts inside the reach (no Cancel spot)');
+    await page.evaluate(() => { P.cd = {}; P.casting = null; __casts.length = 0; __runs.length = 0; });
+    await touch('touchStart', [[rain[0], rain[1], 9]]); await wait(60); await touch('touchMove', [[rain[0] - 40, rain[1] + 30, 9]]); await wait(80);
+    await touch('touchCancel', []); await wait(1500);
+    const cc = await page.evaluate(() => ({ casts: __casts.slice(), aim: !!AIM }));
+    t.ok(cc.casts.includes('arrowrain') && !cc.aim, 'a touch cut off at the screen edge still casts at the last aim');
 
     // 4. a quick tap with a monster near and nothing targeted: Arrow Rain goes onto the nearest monster
     const near = await page.evaluate(async () => { P.cd = {}; P.casting = null; P.target = null; __casts.length = 0; __runs.length = 0;

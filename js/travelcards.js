@@ -35,15 +35,24 @@ function tcMarks(id){const out=[],lives=m=>(ZONES[id].mobs||[]).some(([k])=>k===
   try{if(typeof GATHER_KINDS==='function')for(const k of GATHER_KINDS({D:ZONES[id]}))out.push([k==='herb'?'🌿':'⛏',k==='herb'?'Herbs':'Ore','g']);}catch(e){}
   if(ZONES[id].ponds&&!ZONES[id].dungeon)out.push(['🎣','Fishing','g']);
   return out;}
+/* v1.45.4 easier to read: jump buttons for the three parts (Travel, Rest, Stable); places you can go come first (the
+   best one for your level on top), then the ones you have not walked to yet; each card says in words whether it
+   suits you, and has one big button with the fare ("Travel · 60 gold"), or what is missing */
 function warpCardsHtml(){const ids=ZONE_ORDER.slice(1),best=tcBest(ids.filter(id=>P.visited.includes(id)));
-  const order=[...ids].sort((a,b)=>(b===best)-(a===best));
-  return `<div class="tclist">`+order.map(id=>{const i=ids.indexOf(id),D=ZONES[id],ok=P.visited.includes(id),cost=(i+1)*60,bd=ok?tcBadge(id):null,L=tcLevels(id),mk=ok?tcMarks(id):[];
+  const order=[...ids].sort((a,b)=>(P.visited.includes(b)-P.visited.includes(a))||((b===best)-(a===best))||(ids.indexOf(a)-ids.indexOf(b)));
+  const nOk=ids.filter(id=>P.visited.includes(id)).length;
+  let h=`<div class="wsjump"><button class="btn small on" data-act="wsjump" data-arg="travel">🧭 Travel</button><button class="btn small" data-act="wsjump" data-arg="rest">🛏 Rest</button><button class="btn small" data-act="wsjump" data-arg="stable">🐎 Stable</button></div>`;
+  h+=`<h3 id="wsTravel">Travel <span class="wsn">${nOk} of ${ids.length} places</span></h3><div class="wshint">Tobin sends you to any place you have already walked to. Farther places cost more. You have <b class="gold">${fmt(P.gold)} gold</b>.</div>`;
+  return h+`<div class="tclist">`+order.map(id=>{const i=ids.indexOf(id),D=ZONES[id],ok=P.visited.includes(id),cost=(i+1)*60,bd=ok?tcBadge(id):null,L=tcLevels(id),mk=ok?tcMarks(id):[];
     const ms=[...new Set((D.mobs||[]).map(([m])=>m))].map(m=>MOBS[m]).filter(m=>m&&!m.world),norm=ms.filter(m=>!m.boss).slice(0,4),boss=ms.find(m=>m.boss);
     const pics=ok&&typeof mobPicURL==='function'?[...norm,...(boss?[boss]:[])].map(m=>`<img class="tcmob${m.boss?' boss':''}" src="${mobPicURL(m.id)}" alt="" title="${esc(m.name)} · Lv ${m.lv}${m.boss?' · boss':''}">`).join(''):'';
-    return `<div class="tccard${ok?'':' locked'}${id===best?' best':''}"><div class="tcban" style="background-image:url(${tcBanner(id)})"><b>${id===best?'⭐ ':''}${esc(D.name)}</b>${bd?`<span class="tcbadge ${bd.k}">${bd.t}</span>`:''}</div>`+
-      `<div class="tcbody"><div class="grow"><div class="ds">${L?`Lv ${L.lo}–${L.hi}`:esc(D.lvl||'')}${D.dungeon?' · dungeon':''}${ok?'':' · not visited yet'}</div>`+
-      (pics?`<div class="tcmobs">${pics}</div>`:'')+(mk.length?`<div class="tcmarks">${mk.map(([s,t,k])=>`<span class="tcmk ${k}" title="${esc(t)}">${s}<i>${esc(t)}</i></span>`).join('')}</div>`:'')+`</div>`+
-      `<div class="tcgo"><span class="gold">${cost}</span><button class="btn small" data-act="warp" data-arg="${id}" ${ok&&P.gold>=cost?'':'disabled'}>Travel</button></div></div></div>`;}).join('')+`</div>`;}
-if(typeof TH!=='undefined'){for(const [k,v] of [['Easy','ง่าย'],['Dangerous','อันตราย'],['Right for you','เหมาะกับคุณ'],['Bounty monster here','มีมอนสเตอร์ค่าหัว'],['Herbs','สมุนไพร'],['Ore','แร่'],['Fishing','ตกปลา'],[' · dungeon',' · ดันเจี้ยน']])if(!TH[k])TH[k]=v;
-  if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^Quest: (.+)$/,(m,a)=>'เควส: '+thText(a)],[/^World boss: (.+)$/,(m,a)=>'บอสโลก: '+thText(a)],
+    const lv=L?`Lv ${L.lo}–${L.hi}`:esc(D.lvl||''),poor=ok&&P.gold<cost;
+    const btn=!ok?`<div class="tclock">🔒 Walk there once to unlock</div>`:`<button class="btn tctravel${poor?'':' primary'}" data-act="warp" data-arg="${id}" ${poor?'disabled':''}>${poor?`Need ${fmt(cost)} gold`:`Travel · <span>${fmt(cost)} gold</span>`}</button>`;
+    return `<div class="tccard${ok?'':' locked'}${id===best?' best':''}"><div class="tcban" style="background-image:url(${tcBanner(id)})"><b>${id===best?'⭐ ':''}${esc(D.name)}</b>${D.dungeon?'<span class="tcdun">Dungeon</span>':''}</div>`+
+      `<div class="tcbody"><div class="tcfit">${bd?`<span class="tcbadge ${bd.k}">${bd.t}</span>`:''}<span class="tclv">${lv}</span></div>`+
+      (pics?`<div class="tcmobs">${pics}</div>`:'')+(mk.length?`<div class="tcmarks">${mk.map(([s,t,k])=>`<span class="tcmk ${k}" title="${esc(t)}">${s}<i>${esc(t)}</i></span>`).join('')}</div>`:'')+btn+`</div></div>`;}).join('')+`</div>`;}
+PANEL_ACTS.wsjump=k=>{const el=k==='travel'?panel.querySelector('#wsTravel'):k==='stable'?panel.querySelector('.stable'):[...panel.querySelectorAll('h3')].find(h=>/Rest|พัก/.test(h.textContent));
+  for(const b of panel.querySelectorAll('[data-act="wsjump"]'))b.classList.toggle('on',b.dataset.arg===k);if(el&&el.scrollIntoView)el.scrollIntoView({block:'start',behavior:'smooth'});sfx('click');};
+if(typeof TH!=='undefined'){for(const [k,v] of [['Easy','ง่าย'],['Dangerous','อันตราย'],['Right for you','เหมาะกับคุณ'],['Bounty monster here','มีมอนสเตอร์ค่าหัว'],['Herbs','สมุนไพร'],['Ore','แร่'],['Fishing','ตกปลา'],[' · dungeon',' · ดันเจี้ยน'],['Dungeon','ดันเจี้ยน'],['🔒 Walk there once to unlock','🔒 เดินไปที่นั่นสักครั้งเพื่อปลดล็อก'],['🧭 Travel','🧭 เดินทาง'],['🛏 Rest','🛏 พักผ่อน'],['🐎 Stable','🐎 คอกม้า']])if(!TH[k])TH[k]=v;
+  if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^Need ([\d,]+) gold$/,(m,a)=>`ต้องมี ${a} โกลด์`],[/^Travel · ([\d,]+) gold$/,(m,a)=>`เดินทาง · ${a} โกลด์`],[/^(\d+) of (\d+) places$/,(m,a,b)=>`${a} จาก ${b} แห่ง`],[/^Quest: (.+)$/,(m,a)=>'เควส: '+thText(a)],[/^World boss: (.+)$/,(m,a)=>'บอสโลก: '+thText(a)],
     [/^Lv (\d+)–(\d+)( · dungeon)?( · not visited yet)?$/,(m,a,b,d,n)=>`Lv ${a}–${b}${d?' · ดันเจี้ยน':''}${n?' · ยังไม่เคยไป':''}`],[/^⭐ (.+)$/,(m,a)=>'⭐ '+thText(a)]);}

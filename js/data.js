@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='1.45.3';
+const VERSION='1.45.4';
 // chance that a normal monster drops its sigil (card); bosses set their own sigChance
 const SIG_CHANCE=.01;
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
@@ -211,7 +211,7 @@ const THEMES={
 
 /* ================= skills ================= */
 const SKILLS={
-  firstaid:{name:'First Aid',max:5,col:'#7fd38a',g:'+',sp:l=>3,cd:1.5,kind:'self',desc:l=>`Heal ${8+l*7} HP.`,run:l=>healP(8+l*7)},
+  firstaid:{name:'First Aid',max:10,col:'#7fd38a',g:'+',sp:l=>3,cd:1.5,kind:'self',desc:l=>`Heal ${8+l*7} HP.`,run:l=>healP(8+l*7)},
   cleave:{name:'Cleave',max:10,col:'#e06a5a',g:'C',sp:l=>6+l,cd:.8,kind:'target',range:55,desc:l=>`A heavy strike for ${150+l*30}% ATK that never misses, ${15+l*2}% chance to stun.`,
     run:(l,t)=>{fx.push({k:'slash',x:t.x,y:t.y,t0:now,dur:.25});dealPhys(t,1.5+l*.3,{sure:true,ail:['stun',.15+l*.02,1.5]});}},
   whirl:{name:'Whirlwind',max:10,col:'#e0904a',g:'W',sp:l=>12+l*2,cd:2.5,kind:'self',desc:l=>`Spin and hit every foe within 95px for ${120+l*20}% ATK.`,

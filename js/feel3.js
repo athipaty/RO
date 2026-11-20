@@ -54,9 +54,7 @@ const SORT_CAT={use:0,equip:1,sigil:2,etc:3};
 function sortBag(){const nm=e=>ITEMS[e.id]?ITEMS[e.id].name:e.id,cat=e=>SORT_CAT[typeof itemCat==='function'?itemCat(e.id):'etc']??4,rar=e=>typeof rarityOf==='function'?rarityOf(e.id):0;
   P.inv.sort((a,b)=>cat(a)-cat(b)||rar(b)-rar(a)||nm(a).localeCompare(nm(b))||(b.r||0)-(a.r||0));sfx('click');rebuildHotbar();refreshPanel();if(typeof save==='function')save();}
 PANEL_ACTS.bagsort=()=>sortBag();
-{const _rpB=refreshPanel;refreshPanel=function(){const r=_rpB.apply(this,arguments);try{if(panelKind==='items'&&!panel.querySelector('[data-act="bagsort"]')){const v=panel.querySelector('[data-act="vendsetup"]');
-      if(v)v.insertAdjacentHTML('afterend',`<button class="btn small" data-act="bagsort" title="Sort by kind, rarity and name">⇅ Sort</button>`);}}catch(e){}return r;};}
-
+// v1.45.4 the Sort button is gone from the Items window (not needed: the bag tabs already group items); sortBag stays for code
 /* ---- 5. hit direction ---- */
 const HITDIR={el:null};
 // the attacker: hurtPlayer gets its name, so take the nearest monster of that name that is after you

@@ -13,7 +13,7 @@ function qtyAsk(o,cb){const max=Math.max(1,Math.floor(o.max));if(max<=1){cb(1);r
     el.addEventListener('click',ev=>{ev.stopPropagation();const b=ev.target.closest('[data-q]');if(!b)return;const k=b.dataset.q,inp=el.querySelector('input[type=number]');let n=+inp.value||1;const mx=+inp.max;
       if(k==='ok'){const cb=QTY.cb;const v=Math.max(1,Math.min(mx,Math.floor(n)));qtyClose();if(cb)cb(v);return;}
       if(k==='cancel'){qtyClose();return;}
-      n=k==='-'?n-1:k==='+'?n+1:k==='half'?Math.max(1,Math.floor(mx/2)):k==='all'?mx:+k;qtySet(n);});
+      n=k==='-'?n-1:k==='+'?n+1:k==='half'?Math.max(1,Math.floor(mx/2)):k==='all'?mx:k[0]==='a'?n+(+k.slice(1)):+k;qtySet(n);}); // v1.45.4 +10 / +100 add to the number each press
     el.addEventListener('input',ev=>{if(ev.target.matches('input'))qtySet(+ev.target.value||1,ev.target);});
     el.addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();el.querySelector('[data-q="ok"]').click();}if(ev.key==='Escape'){ev.preventDefault();ev.stopPropagation();qtyClose();}});
     document.addEventListener('pointerdown',ev=>{if(QTY.el&&!QTY.el.hidden&&!QTY.el.contains(ev.target))qtyClose();},true);}
@@ -22,7 +22,7 @@ function qtyAsk(o,cb){const max=Math.max(1,Math.floor(o.max));if(max<=1){cb(1);r
   el.innerHTML=`<div class="qhead">${pic}<div><div class="nm">${esc(it?it.name:o.id)}</div><div class="ds">How many? (up to ${max})</div></div></div>`+
     `<div class="qrow"><button class="btn small" data-q="-" aria-label="One less">−</button><input type="number" min="1" max="${max}" value="${def}" aria-label="How many"><button class="btn small" data-q="+" aria-label="One more">+</button></div>`+
     `<input type="range" min="1" max="${max}" value="${def}" aria-label="How many">`+
-    `<div class="qchips">${[1,10].filter(v=>v<max).map(v=>`<button class="btn small ghost" data-q="${v}">${v}</button>`).join('')}${max>=4?'<button class="btn small ghost" data-q="half">Half</button>':''}<button class="btn small ghost" data-q="all">All (${max})</button></div>`+
+    `<div class="qchips">${max>1?'<button class="btn small ghost" data-q="1">1</button>':''}${[10,100].filter(v=>v<max).map(v=>`<button class="btn small ghost" data-q="a${v}" aria-label="Add ${v}">+${v}</button>`).join('')}${max>=4?'<button class="btn small ghost" data-q="half">Half</button>':''}<button class="btn small ghost" data-q="all">All (${max})</button></div>`+
     `<div class="qtotal"></div><div class="tbtns"><button class="btn small ghost" data-q="cancel">Cancel</button><button class="btn small" data-q="ok">${esc(o.verb||'OK')}</button></div>`;
   el.hidden=false;qtySet(def);
   // desktop: type a number straight away; phones: no focus, so the keyboard does not pop up over the box

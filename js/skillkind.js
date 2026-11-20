@@ -10,4 +10,4 @@ function tagHotbarKinds(){for(const b of document.querySelectorAll('#hotbar .slo
   const old=b.querySelector(':scope > .skk');if(old&&(!k||!old.classList.contains(k)))old.remove();
   if(k&&!b.querySelector(':scope > .skk'))b.insertAdjacentHTML('beforeend',skKindBadge(s.skill));}}
 {const _rh=rebuildHotbar;rebuildHotbar=function(){const r=_rh.apply(this,arguments);try{tagHotbarKinds();}catch(e){}return r;};}
-if(typeof TH!=='undefined')Object.assign(TH,{'Area (drag to aim)':'สกิลวงกว้าง (ลากเพื่อเล็ง)','Single target':'สกิลเป้าเดียว'});
+if(typeof TH!=='undefined')Object.assign(TH,{'Area (drag to aim)':'สกิลวงกว้าง (ลากเพื่อเล็ง)','Single target':'สกิลเป้าเดียว','Your buffs wore off when you fell.':'บัฟทั้งหมดหายไปเมื่อคุณล้มลง','Nothing of this kind in your bag.':'ไม่มีของประเภทนี้ในกระเป๋า','Nothing of this kind in the cart.':'ไม่มีของประเภทนี้ในรถเข็น'});

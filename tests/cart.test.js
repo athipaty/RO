@@ -9,12 +9,14 @@ module.exports = async t => {
     const rent = await g.ev(() => { P.gold = 5000; openPanel('storage'); const offer = !!panel.querySelector('[data-act="cartrent"]'); panel.querySelector('[data-act="cartrent"]').click();
       const after = !!panel.querySelector('[data-act="opencart"]'); closePanel(); return { offer, after, gold: P.gold, cart: Array.isArray(P.cart) }; });
     t.ok(rent.offer && rent.after && rent.cart && rent.gold === 2500, 'Wenna rents a pushcart for 2,500 gold, once');
-    const mv = await g.ev(() => { P.inv.push({ id: 'pelt', n: 40 }); const w0 = carryWeight(); openPanel('items'); const btn = !!panel.querySelector('.cartbtn [data-act="opencart"]');
-      openPanel('cart'); const i = P.inv.findIndex(e => e.id === 'pelt'); __q(`[data-act="cartin"][data-arg="${i}"]`).click(); { const q = document.querySelector('#qtyPick:not([hidden]) [data-q="ok"]'); if (q) q.click(); }
+    const mv = await g.ev(() => { P.inv.push({ id: 'pelt', n: 40 }); const w0 = carryWeight(); openPanel('items'); const cbn = panel.querySelector('.cartbtn[data-act="opencart"]'), btn = !!cbn && cbn.parentElement === panel.querySelector('[data-act="vendsetup"]').parentElement;
+      openPanel('cart'); PANEL_ACTS.carttab('use'); const tabs = panel.querySelectorAll('[data-act="carttab"]').length === 4 && !panel.querySelector('[data-act="cartin"][data-arg="' + P.inv.findIndex(e => e.id === 'pelt') + '"]');
+      PANEL_ACTS.carttab(itemCat('pelt')); const i = P.inv.findIndex(e => e.id === 'pelt'); __q(`[data-act="cartin"][data-arg="${i}"]`).click(); { const q = document.querySelector('#qtyPick:not([hidden]) [data-q="ok"]'); if (q) q.click(); }
       const inCart = P.cart.some(e => e.id === 'pelt' && e.n === 40), w1 = carryWeight(); P.inv.push({ id: 'pelt', n: 5 }); refreshPanel(); const j = P.inv.findIndex(e => e.id === 'pelt'); __q(`[data-act="cartin"][data-arg="${j}"]`).click(); { const q = document.querySelector('#qtyPick:not([hidden]) [data-q="ok"]'); if (q) q.click(); }
       const stacked = P.cart.filter(e => e.id === 'pelt').length === 1 && P.cart.find(e => e.id === 'pelt').n === 45;
       __q('[data-act="cartout"][data-arg="0"]').click(); { const q = document.querySelector('#qtyPick:not([hidden]) [data-q="ok"]'); if (q) q.click(); } const back = (invFind('pelt') || {}).n === 45 && !P.cart.length; closePanel();
-      return { btn, inCart, lighter: w1 < w0, stacked, back }; });
+      return { btn, tabs, inCart, lighter: w1 < w0, stacked, back }; });
+    t.ok(mv.tabs, 'the cart has Use / Equip / Sigils / Etc tabs like the bag, and a tab shows only its own kind');
     t.ok(mv.btn, 'the Items window has a Cart button once you own one');
     t.ok(mv.inCart && mv.lighter && mv.stacked, 'items put in the cart leave your bag weight, and stacks merge');
     t.ok(mv.back, 'and come back out into the bag');

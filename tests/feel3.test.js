@@ -14,13 +14,13 @@ module.exports = async t => {
       P.auto = false; await sleep(700); const c = document.getElementById('huntCard'); out.hunt = c && c.classList.contains('show') && /4 defeated/.test(c.textContent) && getComputedStyle(c).pointerEvents === 'none';
       // bag sort
       P.inv = [{ id: 'sap', n: 3 }, { id: 'sword', uid: 91, s: [] }, { id: 'red', n: 2 }, { id: 'sproutling_sig', n: 1 }]; invTab = 'use'; openPanel('items'); await sleep(50);
-      panel.querySelector('[data-act="bagsort"]').click(); out.order = P.inv.map(e => e.id).join(','); closePanel();
+      out.noSort = !panel.querySelector('[data-act="bagsort"]'); PANEL_ACTS.bagsort(); out.order = P.inv.map(e => e.id).join(','); closePanel();
       // hit direction: a monster far off screen hits us
       const m = mobs.find(m => !m.dead && !m.d.boss); m.x = P.x + 2000; m.y = P.y; hurtPlayer(5, m); const h = document.getElementById('hitDir'); out.hit = h && h.classList.contains('on') && 'lrtb'.includes(h.dataset.side);
       return out; });
     t.ok(r.bar && r.flash && r.gone, 'the boss bar shows the boss, flashes when a quarter goes, and leaves after the fight');
     t.ok(r.hunt, 'stopping auto-hunt shows a slim summary strip that never takes taps');
-    t.ok(r.order === 'red,sword,sproutling_sig,sap', 'Sort orders the bag by kind (' + r.order + ')');
+    t.ok(r.noSort && r.order === 'red,sword,sproutling_sig,sap', 'the Items window has no Sort button; sorting still works in code (' + r.order + ')');
     t.ok(r.hit, 'a hit from off screen flashes the screen edge');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }

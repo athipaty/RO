@@ -113,17 +113,52 @@ function returnShop(){const v=TR.vend;TR.vend=null;if(!v)return;for(const l of v
 function returnDraft(){for(const d of TR.draft)bagAdd(d.e);TR.draft=[];}
 function closeShop(){if(!TR.vend)return;soc('vendClose',{});returnShop();addLog('Your shop is closed. Unsold items are back in your bag.');afterItemsChanged();}
 setInterval(()=>{if(TR.vend&&(!P||!P.sitting||P.dead||!running))closeShop();},300);
-PANELS.vendsetup=()=>{
-  let h=`<h2>Open a shop</h2><div class="sub">List items with a price each, then open your shop. You sit down with a sign over your head; standing up closes it.</div>`;
-  h+=`<div class="trow"><label>Sign <input id="vTitle" maxlength="30" value="${esc(TR.pendingTitle||P.name+"'s shop")}"></label></div>`;
-  h+=`<h3>For sale (${TR.draft.length}/12)</h3>`+(TR.draft.map((d,j)=>itemRow(d.e,`<span class="gold">${fmt(d.price)} each</span><button class="btn small" data-act="vendUnlist" data-arg="${j}">Remove</button>`)).join('')||'<p class="muted">Nothing listed yet.</p>');
-  h+=`<h3>Your bag</h3>`+(P.inv.map((e,i)=>itemRow(e,(e.n!==undefined&&e.n>1?`<input class="tq" id="vq${i}" type="number" min="1" max="${e.n}" value="${e.n}" aria-label="How many">`:'')+
-    `<input class="tp" id="vp${i}" type="number" min="1" value="${Math.max(1,ITEMS[e.id].price||1)}" aria-label="Price each"><button class="btn small" data-act="vendList" data-arg="${i}" ${TR.draft.length>=12?'disabled':''}>List</button>`)).join('')||'<p class="muted">Your bag is empty.</p>');
-  h+=`<div class="tbtns"><button class="btn" data-act="vendOpen" ${TR.draft.length?'':'disabled'}>Open shop</button></div>`;return h;};
-PANEL_ACTS.vendsetup=()=>{if(TR.vend){addLog('Your shop is already open.');return;}if(TR.trade){addLog('Finish your trade first.','l-bad');return;}openPanel('vendsetup');};
-PANEL_ACTS.vendList=i=>{const price=Math.floor(+document.getElementById('vp'+i).value||0);if(price<1){addLog('Set a price of at least 1 gold.','l-bad');return;}
-  const q=document.getElementById('vq'+i);TR.pendingTitle=document.getElementById('vTitle').value;const e=bagTake(+i,q?+q.value:0);if(!e)return;TR.draft.push({e,price});afterItemsChanged();};
-PANEL_ACTS.vendUnlist=j=>{TR.pendingTitle=document.getElementById('vTitle').value;const d=TR.draft.splice(+j,1)[0];if(d)bagAdd(d.e);afterItemsChanged();};
+/* v1.45.4 the shop setup is made for phones: your bag as a grid of tiles; tapping one opens a "Put on sale" card
+   (how many with − / + / All, the price with − / + and quick picks from the shop price, the total); listed items are
+   short rows with a ✕; "Open shop" stays at the bottom */
+const vendBase=id=>Math.max(1,(ITEMS[id]&&ITEMS[id].price)||1);
+const vendStep=p=>p>=10000?500:p>=1000?50:p>=100?10:1;
+PANELS.vendsetup=()=>{const full=TR.draft.length>=12;
+  let h=`<h2>Open a shop</h2><div class="sub">Put items on sale, then open your shop. You sit with a sign over your head; standing up closes it.</div>`;
+  h+=`<div class="vwrap"><div class="vcolA">`;
+  h+=`<label class="vsign"><span>Shop sign</span><input id="vTitle" maxlength="30" value="${esc(TR.pendingTitle||P.name+"'s shop")}" placeholder="${esc(P.name)}'s shop"></label>`;
+  const worth=TR.draft.reduce((a,d)=>a+d.price*(d.e.n!==undefined?d.e.n:1),0);
+  h+=`<h3>For sale <span class="vcount">${TR.draft.length}/12</span></h3>`;
+  h+=TR.draft.length?`<div class="vlist">`+TR.draft.map((d,j)=>{const n=d.e.n!==undefined?d.e.n:1,it=ITEMS[d.e.id];
+    return `<div class="vrow"><img class="vpic" src="${itemIconURL(d.e.id)}" alt=""><div class="vtx"><b>${esc(it.name)}${n>1?` <span class="muted">×${n}</span>`:''}</b>`+
+      `<span><span class="gold">${fmt(d.price)}</span> each${n>1?` · ${fmt(d.price*n)} total`:''}</span></div>`+
+      `<button class="vx" data-act="vendUnlist" data-arg="${j}" aria-label="Take ${esc(it.name)} back">✕</button></div>`;}).join('')+`</div><div class="vworth">If everything sells: <b class="gold">${fmt(worth)} gold</b></div>`
+    :'<p class="muted vnone">Nothing on sale yet. Tap an item in your bag.</p>';
+  h+=`</div><div class="vcolB">`;
+  // the "Put on sale" card for the item you tapped
+  const pi=TR.pick,pe=pi!=null&&P.inv[pi];
+  if(pe){const it=ITEMS[pe.id],st=pe.n!==undefined,max=st?pe.n:1,base=vendBase(pe.id),q=Math.min(max,Math.max(1,TR.pickQ||max)),pr=Math.max(1,TR.pickP||base);
+    h+=`<div class="vpick frame"><div class="vph"><img class="vpic big" src="${itemIconURL(pe.id)}" alt=""><div><b>${esc(it.name)}</b><span class="muted">${esc(it.desc||'')}</span></div></div>`+
+      (st?`<div class="vfield"><span>How many <small class="muted">(you have ${max})</small></span><div class="vstep"><button class="btn small" data-act="vendQ" data-arg="-1" aria-label="One less">−</button>`+
+        `<input class="tq" id="vqE" type="number" min="1" max="${max}" value="${q}" inputmode="numeric" aria-label="How many"><button class="btn small" data-act="vendQ" data-arg="1" aria-label="One more">+</button>`+
+        `<button class="btn small ghost" data-act="vendQ" data-arg="all">All</button></div></div>`:'')+
+      `<div class="vfield"><span>Price each <small class="muted">(shop price ${fmt(base)})</small></span><div class="vstep"><button class="btn small" data-act="vendP" data-arg="-" aria-label="Lower price">−</button>`+
+        `<input class="tp" id="vpE" type="number" min="1" value="${pr}" inputmode="numeric" aria-label="Price each"><button class="btn small" data-act="vendP" data-arg="+" aria-label="Higher price">+</button></div>`+
+        `<div class="vchips">${[[1,'Shop price'],[1.25,'+25%'],[1.5,'+50%'],[2,'×2']].map(([k,l])=>`<button class="btn small ghost${Math.round(base*k)===pr?' on':''}" data-act="vendP" data-arg="x${k}">${l}</button>`).join('')}</div></div>`+
+      `<div class="vtotal">${st?`${q} × ${fmt(pr)} = `:''}<b class="gold">${fmt(q*pr)} gold</b></div>`+
+      `<div class="tbtns"><button class="btn small ghost" data-act="vendPick" data-arg="">Cancel</button><button class="btn primary" data-act="vendList" data-arg="${pi}" ${full?'disabled':''}>${full?'Shop is full (12)':'Put on sale'}</button></div></div>`;}
+  h+=`<h3>Your bag</h3>`;
+  h+=P.inv.length?`<div class="vbag">`+P.inv.map((e,i)=>{const it=ITEMS[e.id];if(!it)return '';const n=e.n!==undefined?e.n:1;
+    return `<button class="vtile${i===pi?' sel':''}" data-act="vendPick" data-arg="${i}" ${full?'disabled':''} aria-label="${esc(it.name)}${n>1?' ×'+n:''}"><img src="${itemIconURL(e.id)}" alt="">${n>1?`<span class="vn">${n}</span>`:''}<span class="vnm">${esc(it.name)}</span></button>`;}).join('')+`</div>`
+    :'<p class="muted">Your bag is empty.</p>';
+  h+=`</div>`;
+  h+=`<div class="tbtns vopen"><button class="btn primary" data-act="vendOpen" ${TR.draft.length?'':'disabled'}>${TR.draft.length?`Open shop · ${TR.draft.length} item${TR.draft.length>1?'s':''}`:'Open shop'}</button></div></div>`;return h;};
+PANEL_ACTS.vendsetup=()=>{if(TR.vend){addLog('Your shop is already open.');return;}if(TR.trade){addLog('Finish your trade first.','l-bad');return;}TR.pick=null;openPanel('vendsetup');};
+const vendKeep=()=>{const t=document.getElementById('vTitle');if(t)TR.pendingTitle=t.value;const q=document.getElementById('vqE'),pr=document.getElementById('vpE');if(q)TR.pickQ=Math.floor(+q.value||1);if(pr)TR.pickP=Math.floor(+pr.value||1);};
+PANEL_ACTS.vendPick=i=>{vendKeep();TR.pick=i===''||i==null||+i===TR.pick?null:+i;const e=TR.pick!=null&&P.inv[TR.pick];TR.pickQ=e&&e.n!==undefined?e.n:1;TR.pickP=e?vendBase(e.id):1;sfx('click');refreshPanel();
+  if(TR.pick!=null)requestAnimationFrame(()=>{const c=panel.querySelector('.vpick');if(c&&c.scrollIntoView)c.scrollIntoView({block:'nearest',behavior:'smooth'});});};
+PANEL_ACTS.vendQ=a=>{vendKeep();const e=P.inv[TR.pick];if(!e)return;const max=e.n!==undefined?e.n:1;TR.pickQ=a==='all'?max:Math.max(1,Math.min(max,(TR.pickQ||1)+(+a)));refreshPanel();};
+PANEL_ACTS.vendP=a=>{vendKeep();const e=P.inv[TR.pick];if(!e)return;const base=vendBase(e.id),p=TR.pickP||base;
+  TR.pickP=a[0]==='x'?Math.max(1,Math.round(base*+a.slice(1))):Math.max(1,p+(a==='+'?1:-1)*vendStep(p));refreshPanel();};
+PANEL_ACTS.vendList=i=>{const qE=document.getElementById('vqE'),pE=document.getElementById('vpE'),qO=document.getElementById('vq'+i),pO=document.getElementById('vp'+i);
+  const pEl=pE||pO,price=Math.floor(pEl?+pEl.value||0:vendBase((P.inv[+i]||{}).id));if(price<1){addLog('Set a price of at least 1 gold.','l-bad');return;}if(TR.draft.length>=12)return;
+  const q=qE||qO,t=document.getElementById('vTitle');if(t)TR.pendingTitle=t.value;const e=bagTake(+i,q?+q.value:0);if(!e)return;TR.draft.push({e,price});TR.pick=null;afterItemsChanged();};
+PANEL_ACTS.vendUnlist=j=>{const t=document.getElementById('vTitle');if(t)TR.pendingTitle=t.value;const d=TR.draft.splice(+j,1)[0];if(d)bagAdd(d.e);TR.pick=null;afterItemsChanged();};
 PANEL_ACTS.vendOpen=()=>{if(!TR.draft.length)return;TR.pendingTitle=clean(document.getElementById('vTitle').value,30)||`${P.name}'s shop`;
   soc('vendOpen',{title:TR.pendingTitle,items:TR.draft.map(d=>({e:wireEntry(d.e),price:d.price}))});};
 PANEL_CLOSE.vendsetup=()=>{if(TR.draft.length){returnDraft();afterItemsChanged();}};

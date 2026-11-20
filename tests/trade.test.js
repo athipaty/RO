@@ -48,7 +48,7 @@ module.exports = async t => {
     await stand(B, 40); await wait(800);
 
     // ---- a player shop
-    await A.ev(() => { PANEL_ACTS.vendsetup(); const i = P.inv.findIndex(e => e.id === 'red'); document.getElementById('vq' + i).value = 2; document.getElementById('vp' + i).value = 10;
+    await A.ev(() => { PANEL_ACTS.vendsetup(); const i = P.inv.findIndex(e => e.id === 'red'); PANEL_ACTS.vendPick(i); document.getElementById('vqE').value = 2; document.getElementById('vpE').value = 10;
       document.getElementById('vTitle').value = 'Cheap tonics'; PANEL_ACTS.vendList(i); PANEL_ACTS.vendOpen(); });
     await wait(1500);
     t.ok(await A.ev(() => !!TR.vend && P.sitting), 'opening a shop sits you down');
@@ -64,7 +64,7 @@ module.exports = async t => {
 
     // ---- standing up closes a shop and returns unsold items
     const s0 = await A.ev(() => invFind('scroll').n);
-    await A.ev(() => { PANEL_ACTS.vendsetup(); const i = P.inv.findIndex(e => e.id === 'scroll'); document.getElementById('vp' + i).value = 99; PANEL_ACTS.vendList(i); PANEL_ACTS.vendOpen(); });
+    await A.ev(() => { PANEL_ACTS.vendsetup(); const i = P.inv.findIndex(e => e.id === 'scroll'); PANEL_ACTS.vendPick(i); document.getElementById('vpE').value = 99; PANEL_ACTS.vendList(i); PANEL_ACTS.vendOpen(); });
     await wait(1200);
     await A.ev(() => { P.sitting = false; }); await wait(800);
     t.ok(await A.ev(s => !TR.vend && invFind('scroll').n === s, s0), 'standing up closes the shop and returns unsold items');

@@ -96,6 +96,8 @@ function gainExp(e,j){
 }
 function die(src){
   P.deadT=now;P.dead=true;P.casting=null;P.ail={};P.target=null;P.path=[];P.queued=null;
+  // v1.45.4 dying ends every skill and potion buff (yours and ones from party members); Well rested stays
+  if(P.buffs&&Object.keys(P.buffs).length){P.buffs={};S=computeStats();addLog('Your buffs wore off when you fell.','l-bad');}
   const loss=P.lv>1?Math.floor(expNeed(P.lv)*.01):0;P.exp=Math.max(0,P.exp-loss);
   $('#deathMsg').textContent=`Struck down by ${src}.`+(loss?` You lost ${fmt(loss)} experience.`:'');
   $('#death').hidden=false;sfx('death');addLog(`You were defeated by ${src}.`,'l-bad');

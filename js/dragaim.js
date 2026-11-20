@@ -4,7 +4,8 @@
       browsers only send "click" for a lone tap, so a tap from any extra finger is turned into a press here.
    2. Area and ground skills (Arrow Rain, Arc Storm, Ember Wall, Haven…) aim like a MOBA: press the skill button and
       drag; the button becomes a small stick, the aim circle moves around the hero within the skill's reach (a ring
-      shows the reach), and letting go casts there. Drag onto Cancel (top of the screen) to call it off.
+      shows the reach), and letting go casts there. Since v1.45.4 there is no Cancel spot: wherever the finger ends up
+      (even at the very top or bottom edge, or slid off the screen) the aim stays clamped to the reach and the skill is cast.
       A quick tap without dragging works as before (casts on your target, or asks for a tap on the ground). */
 const DA={on:null,swallow:null,R:80,START:16};
 const daBtnSel='#hotbar .slot, #actions > .act';
@@ -38,13 +39,12 @@ document.addEventListener('pointermove',ev=>{const a=DA.on;if(!a||ev.pointerId!=
   if(!a.aiming){if(Math.hypot(dx,dy)<DA.START)return;a.moved=true;
     if(!a.id||!daAimable(a.id)||!P||!running||!P.skills[a.id])return;
     if(AIM)aimCancel();if(!aimStart(a.id)){DA.on=null;return;}
-    a.aiming=true;AIM.drag=true;document.body.classList.add('daAiming');daCancelEl().hidden=false;}
-  ev.preventDefault();aimAt=daAimFrom(dx,dy);AIM.cancel=daOverCancel(ev.clientX,ev.clientY);
-  daCancelEl().classList.toggle('hot',AIM.cancel);daShowStick(dx,dy);},{capture:true,passive:false});
+    a.aiming=true;AIM.drag=true;document.body.classList.add('daAiming');}
+  ev.preventDefault();aimAt=daAimFrom(dx,dy);AIM.cancel=false;daShowStick(dx,dy);},{capture:true,passive:false});
 
 function daUp(ev){const a=DA.on;if(!a||ev.pointerId!==a.pid)return;
-  if(a.aiming){ev.preventDefault();const cancel=ev.type==='pointercancel'||daOverCancel(ev.clientX,ev.clientY);
-    DA.swallow={el:a.el,t:performance.now(),after:true};daEnd(!cancel);return;}
+  // letting go anywhere casts at the last aim (also when the browser cancels the touch at the screen's edge)
+  if(a.aiming){ev.preventDefault();DA.swallow={el:a.el,t:performance.now(),after:true};daEnd(true);return;}
   DA.on=null;
   // a tap from a second finger: browsers send no click, so press it here (a primary tap still gets its own click)
   if(!a.primary&&!a.moved&&ev.type==='pointerup'){const el=document.elementFromPoint(ev.clientX,ev.clientY);if(el&&a.el.contains(el))daPress(a.el);}}
