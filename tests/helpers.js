@@ -28,6 +28,12 @@ async function openGame(room, opts = {}) {
   await page.setViewport({ width: 1200, height: 800 });
   page.errors = [];
   page.on('pageerror', e => page.errors.push(e.message));
+  // NO_WEB=1: skip outside requests (web fonts, CDNs) so tests still run when the internet is down; local files and
+  // a local game server still load
+  if (process.env.NO_WEB) { await page.setRequestInterception(true);
+    // the socket.io client normally comes from a CDN: NO_WEB_SIO=<path to socket.io.min.js> serves a local copy
+    const sio = process.env.NO_WEB_SIO && fs.existsSync(process.env.NO_WEB_SIO) ? fs.readFileSync(process.env.NO_WEB_SIO, 'utf8') : null;
+    page.on('request', r => { const u = r.url(); if (sio && /socket\.io(-client)?.*\.js/.test(u)) return r.respond({ status: 200, contentType: 'application/javascript', body: sio }); if (/^(file:|data:|blob:|https?:\/\/(localhost|127\.0\.0\.1)[:/])/.test(u)) r.continue(); else r.abort(); }); }
   await page.goto(GAME + '?room=' + room + (opts.server ? '&server=' + encodeURIComponent(opts.server) : SERVER_Q));
   return { browser, page, ev: (f, ...a) => page.evaluate(f, ...a), close: () => browser.close() };
 }
