@@ -253,7 +253,11 @@ function drawAmbient(){
   ctx.restore();
 }
 // names are drawn once into a small picture and reused (stroked text every frame is slow on phones)
-const LABELS=new Map();let MEAS=null;const measCtx=()=>MEAS||(MEAS=document.createElement('canvas').getContext('2d'));
+// pictures we throw away are emptied at once (width 0), so phones give their graphics memory back straight away
+// instead of when the browser gets round to it; too much at once makes Android Chrome reset its graphics (a black second)
+function freePic(c){try{if(c&&c.width){c.width=0;c.height=0;}}catch(e){}}
+const PIC_BUDGET=(matchMedia&&matchMedia('(pointer:coarse)').matches)?24e6:64e6; // bytes for the crowd pictures (perfmobs/perfplayers)
+const LABELS=new (class extends Map{clear(){for(const c of this.values())freePic(c);super.clear();}})();let MEAS=null;const measCtx=()=>MEAS||(MEAS=document.createElement('canvas').getContext('2d'));
 function labelImg(txt,col,size){const k=size+'|'+col+'|'+txt;let c=LABELS.get(k);if(c)return c; // a plain lookup: names repeat every frame
   const s=Math.max(1,Math.min(2,DPR)),f=`700 ${size}px "Alegreya Sans",sans-serif`;const m=measCtx();m.font=f;
   const w=Math.ceil(m.measureText(txt).width)+8,h=Math.ceil(size*1.5)+6;c=document.createElement('canvas');c.width=w*s;c.height=h*s;c._w=w;c._h=h;c._b=Math.ceil(size*1.1)+3;
@@ -270,7 +274,12 @@ function floatGlyphs(txt,col,size){const parts=[];let x=0,h=0,b=0;for(const ch o
   const lw=Math.max(3,size/4.5);return {parts,_w:x+lw*2+4,_h:h,_b:b};}
 function drawFloat(im,x0,y0){if(!im.parts){ctx.drawImage(im,x0,y0,im._w,im._h);return;}
   for(const [x,st] of im.parts)ctx.drawImage(st,x0+x,y0,st._w,st._h);for(const [x,,fl] of im.parts)ctx.drawImage(fl,x0+x,y0,fl._w,fl._h);}
+const FLOATS=new Map();
 function floatImg(txt,col,size){if(/^[0-9,+\-]{1,9}$/.test(txt))return floatGlyphs(txt,col,size);
+  // words (MISS, Crit!, skill names) repeat all fight long: one picture each instead of a new one per hit
+  const fk=size+'|'+col+'|'+txt;let fc=FLOATS.get(fk);if(fc&&fc.width)return fc;
+  fc=floatImgNew(txt,col,size);if(FLOATS.size>=80)FLOATS.delete(FLOATS.keys().next().value);FLOATS.set(fk,fc);return fc;}
+function floatImgNew(txt,col,size){
   const s=Math.max(1,Math.min(2,DPR)),f=`900 ${size}px "Alegreya Sans",sans-serif`,m=measCtx();m.font=f;
   const lw=Math.max(3,size/4.5),w=Math.ceil(m.measureText(txt).width+lw*2+4),h=Math.ceil(size*1.4+lw*2),c=document.createElement('canvas');c.width=w*s;c.height=h*s;c._w=w;c._h=h;c._b=Math.ceil(size+lw);
   const g=c.getContext('2d');g.scale(s,s);g.font=f;g.textAlign='center';g.lineJoin='round';g.lineWidth=lw;g.strokeStyle='rgba(25,12,4,.92)';g.strokeText(txt,w/2,c._b);g.fillStyle=col;g.fillText(txt,w/2,c._b);return c;}

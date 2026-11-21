@@ -18,11 +18,11 @@ const pcrowdMin=()=>typeof HERO2_ON!=='undefined'&&HERO2_ON?3:6;
 {const _doPC=drawOther;drawOther=function(o){
   if(!o||!o.peer||!pcrowdOn())return _doPC.apply(this,arguments);
   let e=PCROWD.pics.get(o.peer);const dp=DPR,tick=Math.floor(now*15+(e?e.ph:0)),sz=o.rd||o.ct?'b':'s',[W,H,OX,OY]=PC_SZ[sz];
-  if(!e||e.dp!==dp||e.sz!==sz){const c=document.createElement('canvas');c.width=Math.ceil(W*dp);c.height=Math.ceil(H*dp);e={c,dp,sz,tick:-1,ph:e?e.ph:(PCROWD.pics.size*.37)%1};PCROWD.pics.set(o.peer,e);}
+  if(!e||e.dp!==dp||e.sz!==sz){if(e)freePic(e.c);const c=document.createElement('canvas');c.width=Math.ceil(W*dp);c.height=Math.ceil(H*dp);e={c,dp,sz,tick:-1,ph:e?e.ph:(PCROWD.pics.size*.37)%1};PCROWD.pics.set(o.peer,e);}
   if(e.tick!==tick){const g=e.c.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,e.c.width,e.c.height);g.setTransform(dp,0,0,dp,0,0);
     const rx=o.rx,ry=o.ry,main=ctx;o.rx=OX;o.ry=OY;ctx=g;
     try{_doPC.call(this,o);}catch(err){}finally{ctx=main;o.rx=rx;o.ry=ry;}e.tick=tick;e.seen=now;PCROWD.draws++;}
   e.seen=now;ctx.drawImage(e.c,o.rx-OX,o.ry-OY,W,H);
   // forget players who left (every few seconds)
-  if(now-PCROWD.sweep>5){PCROWD.sweep=now;for(const [k,v] of PCROWD.pics)if(now-v.seen>5)PCROWD.pics.delete(k);}};}
-if(typeof gkClearCaches==='function'){const _gkcP=gkClearCaches;gkClearCaches=function(){try{PCROWD.pics.clear();}catch(e){}return _gkcP.apply(this,arguments);};}
+  if(now-PCROWD.sweep>5){PCROWD.sweep=now;for(const [k,v] of PCROWD.pics)if(now-v.seen>5){freePic(v.c);PCROWD.pics.delete(k);}}};}
+if(typeof gkClearCaches==='function'){const _gkcP=gkClearCaches;gkClearCaches=function(){try{for(const v of PCROWD.pics.values())freePic(v.c);PCROWD.pics.clear();}catch(e){}return _gkcP.apply(this,arguments);};}

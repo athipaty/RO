@@ -42,7 +42,7 @@ function gkClearCaches(){try{if(typeof smallPicsClear==='function')smallPicsClea
   try{if(typeof LABELS!=='undefined')LABELS.clear();}catch(e){}
   try{if(typeof SPR!=='undefined')for(const k in SPR)delete SPR[k];}catch(e){}
   try{if(typeof NPC_SPR!=='undefined')NPC_SPR.clear();if(typeof MARK_SPR!=='undefined')MARK_SPR.clear();}catch(e){}
-  try{if(typeof texts!=='undefined')for(const t of texts)t.img=null;if(typeof GLYPHS!=='undefined')GLYPHS.clear();}catch(e){}}
+  try{if(typeof texts!=='undefined')for(const t of texts)t.img=null;if(typeof GLYPHS!=='undefined')GLYPHS.clear();if(typeof FLOATS!=='undefined')FLOATS.clear();}catch(e){}}
 function gkCheck(force){if(!running||!Z)return;
   if(force||gkBlank(Z)){Z._gkBad=true;GK.rebuilds++;if(!force)gkClearCaches();isoGround(Z);}}
 // every 20 s while playing (v1.40.7, was 4 s: the read-back stalls the graphics on phones); coming back to the game
