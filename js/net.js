@@ -261,11 +261,16 @@ function netTick(dt){
     pv.x=P.x;pv.y=P.y;pv.on=Math.hypot(pv.vx,pv.vy)>15;
     const end=P.path&&P.path.length?P.path[P.path.length-1]:null,ang=Math.hypot(pv.vx,pv.vy)>20?Math.round(Math.atan2(pv.vy,pv.vx)/.4):'-';
     const key=(pv.on?1:0)+'|'+(end?Math.round(end.x)+','+Math.round(end.y):ang);
-    if(key!==pv.key){pv.key=key;if(now-(NET.sentAt||0)>.06)NET.sendT=0;}}
-  if(!NET.room||!P||now<NET.sendT)return;NET.sendT=now+(NET.viaBroker?.15:.125);NET.sentAt=now;
+    if(key!==pv.key){pv.key=key;if(performance.now()/1000-(NET.sentRt||0)>.06)NET.sendT=0;}}
+  // timed on the real clock (v1.46.1): game time nearly stops during a hit-freeze, which used to hold updates back
+  // right when a fight needs them. At least 55 ms apart (18 a second at most): the server drops a player's updates
+  // beyond 20 a second, and early sends for every hit could pass that in a fast fight, so hits arrived late in bursts.
+  // In a player fight (duel, arena, guild war) updates go out every 66 ms instead of 125 ms.
+  const rn=performance.now()/1000;if(!NET.room||!P||rn<NET.sendT)return;if(rn-(NET.sentRt||0)<(NET.viaBroker?.1:.055))return;
+  NET.sendT=rn+(NET.viaBroker?.15:(typeof pvpOn==='function'&&pvpOn()?.066:.125));NET.sentAt=now;NET.sentRt=rn;
   if(typeof netFresh==='function'){NET.hits=netFresh(NET.hits);NET.vh=netFresh(NET.vh);NET.evs=netFresh(NET.evs);}
   const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,b:P.back?1:0,lk:lookCode(P.look),rb:P.reborn?1:0,j3:CLASSES[P.cls]&&CLASSES[P.cls].tier===3?1:0,bt:P.look&&P.look.body?P.look.body:0,lv:P.lv,pg:NET.ping?Math.round(NET.ping/10)*10:0,mv:P.moving?1:0,sp:Math.round(S?S.speed:145),...(NET.pv&&NET.pv.on?{vx:Math.round(NET.pv.vx),vy:Math.round(NET.pv.vy)}:{}),...(P.moving&&P.path&&P.path.length?{wp:P.path.slice(0,4).map(w=>[Math.round(w.x),Math.round(w.y)])}:{}),st:P.sitting?1:0,d:P.dead?1:0,
-    w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,fg:P.eq.face?P.eq.face.id:null,mg:P.eq.mouth?P.eq.mouth.id:null,ar:P.eq.armor?P.eq.armor.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),ch:NET.myChat,em:NET.myEmote||null,
+    w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,fg:P.eq.face?P.eq.face.id:null,mg:P.eq.mouth?P.eq.mouth.id:null,ar:P.eq.armor?P.eq.armor.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),mh:S?Math.round(S.maxhp):0,df:S?Math.round(S.def):0,ch:NET.myChat,em:NET.myEmote||null,
     id:NET.myId,zt:NET.zt,vd:typeof TR!=='undefined'&&TR.vend?TR.vend.title:null,hd:document.hidden?1:0,hx:NET.hits};if(NET.sp&&NET.sp.length)s.sp=NET.sp;if(typeof groundPresence==='function'){const g=groundPresence();if(g)s.gz=g;}if(NET.vh&&NET.vh.length)s.hv=NET.vh;{const t=P.target;if(t&&!t.dead&&!t.pvp&&mobs[t.idx]===t)s.tg=t.idx;}if(loot.length&&typeof myGroundLoot==='function'){const gl=myGroundLoot();if(gl.length)s.gl=gl;}if(NET.dl&&NET.dl.length)s.dl=NET.dl;if(typeof petPresence==='function'){const pt=petPresence();if(pt)s.pt=pt;}if(typeof myTitle==='function'){const ti=myTitle();if(ti)s.ti=ti;}if(P.casting&&P.casting.id)s.cs=P.casting.id;if(typeof ridePresence==='function'){const rd=ridePresence();if(rd)s.rd=rd;}if(typeof chatroomPresence==='function'){const cr=chatroomPresence();if(cr)s.cr=cr;}if(typeof cartPresence==='function'&&cartPresence())s.ct=1;if(typeof bondPresence==='function'){s.bdv=1;const bd=bondPresence();if(bd)s.bd=bd;}
   if(!zoneHost()&&othersHere()&&mobs.length){s.ev=NET.evs;
     s.mb=mobs.map(m=>[Math.round(m.x),Math.round(m.y),m.dead?0:Math.round(clamp(m.hp/m.d.hp,0,1)*1000),(m.dead?1:0)|(m.moving?2:0)|(m.face<0?4:0)|(m.state==='chase'?8:0)|(m.slowUntil>now?16:0)|(m.ailUntil>now?(m.ail==='freeze'?32:64):0)]);}
