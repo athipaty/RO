@@ -63,6 +63,24 @@ Object.assign(LOOT_ART,{
     for(const [x,y,r] of [[10,12,2],[17,9,1.6],[22,14,2.2],[15,14,1.2]]){g.beginPath();g.arc(x,y,r,0,7);g.fillStyle=shade(c,-.35);g.fill();}
     dots(g,'#c8d070',[[7,24],[25,24],[23,28]],1.3);},
 
+  sap:(g,c)=>{g.beginPath();g.moveTo(3,9);g.quadraticCurveTo(14,2,27,7);g.quadraticCurveTo(16,14,3,9);lp(g,'#8a6a42');
+    line(g,'#6a4a2a',1,()=>{g.moveTo(7,8);g.lineTo(23,7);});
+    g.beginPath();g.moveTo(15,10);g.quadraticCurveTo(16,15,20,19);g.quadraticCurveTo(24,25,19,28.5);g.quadraticCurveTo(13,30,12,24);g.quadraticCurveTo(12,19,15,10);lp(g,c);
+    shine(g,15.5,22,1.3,2.8,.2);g.beginPath();g.arc(24,13,2,0,7);lp(g,c);},
+  spore:(g,c)=>{const gl=g.createRadialGradient(16,17,4,16,17,15);gl.addColorStop(0,'rgba(255,200,170,.7)');gl.addColorStop(1,'rgba(255,200,170,0)');g.fillStyle=gl;g.beginPath();g.arc(16,17,15,0,7);g.fill();
+    g.beginPath();g.moveTo(16,6);g.quadraticCurveTo(26,8,25,18);g.quadraticCurveTo(24,27,16,27);g.quadraticCurveTo(8,27,7,18);g.quadraticCurveTo(6,8,16,6);lp(g,c);
+    line(g,shade(c,-.3),1.1,()=>{g.moveTo(16,6);g.quadraticCurveTo(11,16,16,27);g.moveTo(16,6);g.quadraticCurveTo(21,16,16,27);});dots(g,shade(c,.45),[[12,11],[19,10],[21,16],[14,18],[17,14]],1.5);shine(g,12.5,10.5,2,1.2,-.4);
+    for(const [x,y,r] of [[5,8,1.8],[27,7,1.5],[28,20,1.8],[4,20,1.3]]){g.beginPath();g.arc(x,y,r,0,7);lp(g,shade(c,.2));}},
+  shell:(g,c)=>{g.beginPath();g.moveTo(4,26);g.lineTo(28,26);g.quadraticCurveTo(29,22,25,21);g.lineTo(5,22);g.closePath();lp(g,'#c8b890');
+    g.beginPath();g.arc(16,15,10,0,7);lp(g,c);line(g,shade(c,-.4),1.3,()=>{g.moveTo(16,15);g.arc(16,15,2.5,0,4.5);g.arc(16,15.8,6,4.5,9.2);});
+    for(const [x,y,r] of [[10,6.5,3],[15,5,3.4],[21,6,3]]){g.beginPath();g.arc(x,y,r,0,7);lp(g,'#4a8a3a');}
+    g.beginPath();g.ellipse(15.5,7,6,2.4,0,0,7);g.fillStyle='#4a8a3a';g.fill();
+    line(g,OL,1.3,()=>{g.moveTo(26,21);g.lineTo(28,16);g.moveTo(27,21);g.lineTo(30,17);});},
+  carapace:(g,c)=>{g.beginPath();g.ellipse(16,7,6,3.5,0,0,7);lp(g,shade(c,-.3));
+    for(const s of [-1,1]){g.beginPath();g.moveTo(16+s*1.2,9);g.quadraticCurveTo(16+s*13,9,16+s*12,20);g.quadraticCurveTo(16+s*10,28,16+s*3,29);g.lineTo(16+s*1.2,9);g.closePath();
+      const gr=g.createLinearGradient(16+s*2,10,16+s*12,26);gr.addColorStop(0,shade(c,.35));gr.addColorStop(.6,c);gr.addColorStop(1,'#6a4aa0');lp(g,gr);}
+    shine(g,10,14,1.3,3.5,.4);shine(g,21.5,14,1,2.5,-.4);},
+
   // ---------- the Fen (Lv 60s) ----------
   bogmoss:(g,c)=>{g.beginPath();g.ellipse(16,23,12,6,0,0,7);lp(g,'#5a4a32');
     for(const [x,y,r] of [[9,19,5],[16,15,6],[23,19,5],[13,21,4],[20,21,4]]){g.beginPath();g.arc(x,y,r,0,7);lp(g,c);}
