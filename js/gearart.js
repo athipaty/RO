@@ -165,6 +165,38 @@ drawItemIcon=function(g,id){const it=ITEMS[id],key=it&&(it.radiant?it.base:id),f
   if(it.radiant){g.save();g.strokeStyle='#fff2a0';g.lineWidth=1.6;g.shadowColor='#ffd76a';g.shadowBlur=6;g.beginPath();g.arc(16,16,14,0,7);g.stroke();
     for(let i=0;i<8;i++){const a=i*Math.PI/4;g.beginPath();g.moveTo(16+Math.cos(a)*14,16+Math.sin(a)*14);g.lineTo(16+Math.cos(a)*16.5,16+Math.sin(a)*16.5);g.stroke();}g.restore();}};
 
+// ---------- mouth gear: shown on its own and large (on a face it was a few pixels) ----------
+const scarf=(g,c,dark,tail)=>{g.beginPath();g.moveTo(4,9);g.quadraticCurveTo(16,15,28,9);g.lineTo(28,15);g.quadraticCurveTo(16,21,4,15);g.closePath();gp(g,c);
+  g.beginPath();tail();gp(g,c);gline(g,dark,1.2,()=>{g.moveTo(5,12);g.quadraticCurveTo(16,18,27,12);});};
+const MOUTH_ART={
+  windscarf:(g,c)=>{scarf(g,c,shade(c,-.25),()=>{g.moveTo(22,14);g.quadraticCurveTo(26,20,31,19);g.lineTo(30,24);g.quadraticCurveTo(24,25,19,16);g.closePath();});
+    g.beginPath();g.moveTo(18,16);g.quadraticCurveTo(22,24,29,27);g.lineTo(26,30);g.quadraticCurveTo(18,27,15,17);g.closePath();gp(g,shade(c,-.1));
+    gline(g,'#ffffff',1.4,()=>{g.moveTo(2,23);g.quadraticCurveTo(7,21,12,23);g.moveTo(4,28);g.quadraticCurveTo(9,26,14,28);g.moveTo(3,4);g.quadraticCurveTo(8,2,12,4);});},
+  trailscarf:(g,c)=>{scarf(g,c,shade(c,-.3),()=>{g.moveTo(9,14);g.lineTo(15,16);g.lineTo(14,28);g.lineTo(8,27);g.closePath();});
+    g.beginPath();g.moveTo(14,16);g.lineTo(20,16);g.lineTo(22,26);g.lineTo(16,27);g.closePath();gp(g,shade(c,-.15));
+    gline(g,'#f4e2a0',1.4,()=>{g.moveTo(8.5,22);g.lineTo(14.5,23);g.moveTo(15.5,22);g.lineTo(21,21);});
+    gline(g,OL,1.1,()=>{for(const x of [9,11,13])g.moveTo(x,27.5),g.lineTo(x-.5,30.5);for(const x of [17,19,21])g.moveTo(x,26.8),g.lineTo(x+.5,30);});},
+  frostscarf:(g,c)=>{scarf(g,c,'#4a7a9a',()=>{g.moveTo(17,15);g.lineTo(23,14);g.lineTo(25,27);g.lineTo(19,28);g.closePath();});
+    g.fillStyle='#ffffff';for(const [y1,y2] of [[19,20.8],[23,24.8]]){g.beginPath();g.moveTo(17.8,y1);g.lineTo(24,y1-.6);g.lineTo(24.3,y2-.6);g.lineTo(18,y2);g.closePath();g.fill();}
+    g.save();g.translate(9,12.5);g.strokeStyle='#ffffff';g.lineWidth=1;g.beginPath();for(let i=0;i<3;i++){const a=i*Math.PI/3;g.moveTo(Math.cos(a)*2.6,Math.sin(a)*2.6);g.lineTo(-Math.cos(a)*2.6,-Math.sin(a)*2.6);}g.stroke();g.restore();
+    g.beginPath();g.arc(22,29,2.6,0,7);gp(g,'#ffffff');},
+  grassstalk:(g,c)=>{gline(g,OL,3.4,()=>{g.moveTo(5,28);g.quadraticCurveTo(14,18,24,7);});gline(g,c||'#7fc85a',1.8,()=>{g.moveTo(5,28);g.quadraticCurveTo(14,18,24,7);});
+    for(let i=0;i<5;i++){const x=19+i*1.6,y=11-i*1.7;g.save();g.translate(x,y);g.rotate(-.75);g.beginPath();g.ellipse(-2,0,2.6,1.3,0,0,7);gp(g,'#d8c070');g.beginPath();g.ellipse(2,0,2.6,1.3,0,0,7);gp(g,'#d8c070');g.restore();}
+    g.save();g.translate(11,22);g.rotate(-.2);g.beginPath();g.moveTo(0,0);g.quadraticCurveTo(-7,-4,-8,-11);g.quadraticCurveTo(-2,-6,1,-1);g.closePath();gp(g,'#5aa04a');g.restore();},
+  tinwhistle:(g,c)=>{tilt(g,()=>{g.beginPath();g.roundRect(-2.8,-14,5.6,26,2);gp(g,'#c8ccd4');g.beginPath();g.moveTo(-2.8,12);g.lineTo(2.8,12);g.lineTo(2,16);g.lineTo(-2,16);g.closePath();gp(g,'#4a6aa8');
+    g.beginPath();g.roundRect(-3.2,6,6.4,3,1);gp(g,'#4a6aa8');g.fillStyle=OL;g.fillRect(-1.6,9.6,3.2,1.6);for(const y of [-11,-7,-3,1]){g.beginPath();g.arc(0,y,1.1,0,7);g.fill();}
+    gline(g,'#ffffff',1,()=>{g.moveTo(-1.6,-13);g.lineTo(-1.6,4);});});
+    gline(g,'#6a9ae0',1.2,()=>{g.moveTo(26,4);g.quadraticCurveTo(29,6,27,9);g.moveTo(22,3);g.quadraticCurveTo(24,1,26,2);});g.fillStyle='#6a9ae0';g.beginPath();g.arc(26.5,10,1.4,0,7);g.fill();},
+  emberpipe:(g,c)=>{tilt(g,()=>{g.beginPath();g.roundRect(-2.4,-8,4.8,24,2);gp(g,'#b89860');gline(g,'#7a5a3a',1.2,()=>{for(const y of [-2,6])g.moveTo(-2.4,y),g.lineTo(2.4,y);});
+    g.beginPath();g.moveTo(-4,-8);g.lineTo(4,-8);g.lineTo(3,-13);g.lineTo(-3,-13);g.closePath();gp(g,'#3a2a2a');
+    const gr=g.createRadialGradient(0,-13,.5,0,-13,4);gr.addColorStop(0,'#fff2b0');gr.addColorStop(1,'#ff7a2a');g.beginPath();g.ellipse(0,-13,3,1.6,0,0,7);gp(g,gr);});
+    gline(g,'rgba(160,150,150,.85)',1.6,()=>{g.moveTo(25,6);g.quadraticCurveTo(22,3,25,1);g.moveTo(28,8);g.quadraticCurveTo(31,5,28,2);});dots_(g);},
+};
+const dots_=g=>{g.fillStyle='#ffcf5a';for(const [x,y] of [[29,12],[21,4]]){g.beginPath();g.arc(x,y,1,0,7);g.fill();}};
+const _drawItemIconMouth=drawItemIcon;
+drawItemIcon=function(g,id){const it=ITEMS[id],f=it&&it.type==='mouth'&&MOUTH_ART[id];if(!f)return _drawItemIconMouth.apply(this,arguments);it.id=id;
+  g.save();g.lineJoin='round';g.lineCap='round';g.lineWidth=1.6;g.strokeStyle=OL;try{f(g,it.col);}finally{g.restore();}};
+
 // ---------- the four hats that had no drawing (on the hero and in the icon) ----------
 const _drawHatGear=drawHat;
 drawHat=function(id,x,hy,f){const c=ctx;
