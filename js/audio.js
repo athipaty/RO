@@ -76,11 +76,13 @@ function sfx(n){
     case 'hitBlunt':tone({f:120,f2:45,dur:.15,vol:.6});noise({ft:'lowpass',f:900,f2:200,dur:.12,vol:.4});break;
     case 'hitArrow':noise({ft:'bandpass',f:1800,dur:.05,vol:.25,q:2});tone({type:'triangle',f:330,f2:140,dur:.07,vol:.25});break;
     case 'zap':tone({type:'sawtooth',f:300,f2:1000,dur:.13,vol:.12,lp:2400});noise({f:3500,dur:.07,vol:.14});break;
-    case 'crit': // the big one: a ringing metallic "shing" over a heavy thump
-      tone({f:110,f2:38,dur:.3,vol:.7});noise({f:3500,dur:.4,vol:.32});
-      tone({type:'square',f:1319,dur:.35,vol:.1,lp:5000,t:t+.02});tone({type:'square',f:1760,dur:.5,vol:.08,lp:6000,t:t+.05});
-      tone({f:2637,dur:.7,vol:.12,t:t+.06});tone({f:3520,dur:.5,vol:.06,t:t+.09});
-      tone({type:'sawtooth',f:200,f2:1400,dur:.12,vol:.1,lp:3500});break;
+    case 'crit': // short and sharp: a crack, a crisp "chak" with a second snap, a low punch and a bright ting (~0.2 s)
+      noise({f:6000,dur:.03,vol:.55});                                        // the crack at the moment of the hit
+      noise({ft:'bandpass',f:2600,f2:900,dur:.09,vol:.5,q:1.6});              // "chak"
+      noise({ft:'bandpass',f:3400,f2:1600,dur:.05,vol:.3,q:2,t:t+.045});      // the second snap
+      tone({f:190,f2:58,dur:.1,vol:.6});                                      // punch
+      tone({type:'triangle',f:2349,dur:.32,vol:.18,t:t+.012});                // ting
+      tone({f:3136,dur:.24,vol:.11,t:t+.016});tone({f:4699,dur:.1,vol:.05,t:t+.02});break;
     case 'miss':noise({ft:'bandpass',f:700,f2:2600,dur:.16,vol:.13,q:2});break;
     case 'hurt':tone({type:'square',f:150,f2:70,dur:.16,vol:.16,lp:900});noise({ft:'lowpass',f:700,dur:.1,vol:.22});break;
     case 'kill':tone({type:'triangle',f:523,dur:.1,vol:.18});tone({type:'triangle',f:784,dur:.2,vol:.18,t:t+.07});break;
