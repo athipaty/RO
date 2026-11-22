@@ -8,7 +8,7 @@ module.exports = async t => {
     const st = await g.ev(() => { const p = Z.portals.find(p => p.to === 'deep1'); if (!p) return null;
       const reach = Z.reach[Math.floor(p.y / TILE) * Z.w + Math.floor(p.x / TILE)]; return { side: p.side, reach: !!reach, road: Z.portals.filter(p => p.side !== 'down').map(p => p.to).sort().join() }; });
     t.ok(st && st.side === 'down' && st.reach, 'Whispering Woods has stairs down to the caverns, reachable on foot');
-    t.ok(st && st.road === 'dunes,meadow', 'the woods keep their east and west exits');
+    t.ok(st && st.road === 'jungle,meadow', 'the woods keep their east and west exits (east to Thornveil Jungle since v1.47.0)');
 
     const down = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); const p = Z.portals.find(p => p.to === 'deep1');
       P.portalLock = 0; P.x = p.x; P.y = p.y; await w(400); return { z: zoneId, name: Z.D.name, banner: document.getElementById('zoneBanner').textContent }; });

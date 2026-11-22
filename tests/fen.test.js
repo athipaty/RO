@@ -5,9 +5,9 @@ module.exports = async t => {
   const A = await player('Fenwalker', newRoom(), { server: 'http://127.0.0.1:9' });
   try {
     const r = await A.ev(async () => { const sleep = ms => new Promise(r => setTimeout(r, ms)), out = {};
-      enterZone('frost'); out.gate = Z.portals.some(p => p.to === 'fen');
-      enterZone('fen', 'frost'); await sleep(300);
-      out.back = Z.portals.some(p => p.to === 'frost'); out.name = Z.D.name; out.safe = !!Z.D.safe;
+      enterZone('jungle'); out.gate = Z.portals.some(p => p.to === 'fen');
+      enterZone('fen', 'jungle'); await sleep(300);
+      out.back = Z.portals.some(p => p.to === 'jungle'); out.name = Z.D.name; out.safe = !!Z.D.safe;
       const kinds = new Set(mobs.map(m => m.d.id || m.id || m.kind));
       out.kinds = [...kinds].join(','); out.n = mobs.length;
       out.newKinds = ['bogling', 'fenlurker', 'marshwisp', 'rotcap', 'miregolem', 'bogmantis', 'mirematriarch'].every(id => MOBS[id] && ITEMS[id + '_sig']);
@@ -22,7 +22,7 @@ module.exports = async t => {
         out.chipH = Math.round(b.getBoundingClientRect().height); } catch (e) { out.chipErr = String(e); }
       GW.war = keepWar; gwBar();
       return out; });
-    t.ok(r.gate && r.back, 'Frostpeak Pass has an east exit to Mirelight Fen, and a way back');
+    t.ok(r.gate && r.back, 'Thornveil Jungle has an east exit to Mirelight Fen, and a way back (v1.47.0)');
     t.ok(r.name === 'Mirelight Fen' && !r.safe && r.n > 30, `the Fen is a hunting region full of monsters (${r.n})`);
     t.ok(r.newKinds && r.lantern, 'seven new monsters with sigils, and the Fenlight Lantern');
     t.ok(r.album, 'the sigil album has a Mirelight Fen page with all seven monsters');

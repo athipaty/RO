@@ -7,7 +7,7 @@
      Grand Gate        Smith Garrow (refining past +7), the road home
    v1.35.1: the bank, chapel, guild hall and waystation that only copied Hearthvale's were taken out.
    Layout lives in world.js (theme 'town', id 'capital'); no monsters, so the server needs nothing new. */
-ZONES.capital={name:'Aurelmark',w:56,h:42,theme:'town',safe:true,lvl:'Capital city',links:{east:'town'}};
+ZONES.capital={name:'Aurelmark',w:56,h:42,theme:'town',safe:true,lvl:'Capital city',links:typeof worldLinks==='function'?worldLinks('capital'):{east:'town'}}; // v1.47.0 also a west gate to Goldleaf Downs
 if(!ZONE_ORDER.includes('capital'))ZONE_ORDER.push('capital');
 if(typeof WORLD_ROAD!=='undefined'&&!WORLD_ROAD.includes('capital'))WORLD_ROAD.unshift('capital');
 const DISTRICTS=[{name:'Market Row',sub:'Shops and the Gemcutter',x0:3,y0:3,x1:26,y1:19},

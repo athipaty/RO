@@ -11,7 +11,7 @@ module.exports = async t => {
         looks: ids.every(id => typeof MOB_LOOKS[id] === 'function'), sigils: ids.every(id => ITEMS[id + '_sig'] && ITEMS[radId(id + '_sig')]),
         boss: MOBS.cinderwyrm.boss && MOBS.cinderwyrm.drops.some(([d]) => d === 'wyrmheart'), order: ZONE_ORDER.includes('caldera') && WORLD_ROAD.includes('caldera'),
         song: !!SONGS.caldera, album: ALBUM.some(p => p.id === 'caldera') }; });
-    t.ok(r.gate && r.back, 'Saltspray Coast has an east gate to Cinderpeak Caldera, and back');
+    t.ok(r.gate && r.back, 'Saltspray Coast has a south gate to Cinderpeak Caldera, and back');
     t.ok(r.theme === 'caldera' && r.kinds === r.want, 'all seven monsters live there: ' + r.kinds);
     t.ok(r.looks, 'each has its own artwork');
     t.ok(r.sigils, 'each has a sigil card (and a Radiant one for fusion)');

@@ -5,13 +5,13 @@ module.exports = async t => {
   try {
     await wait(800);
     const r = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)), ids = ['tidecrab', 'saltwing', 'driftgolem', 'coralsiren', 'reefstalker', 'barnaclebrute', 'krakenmatron'];
-      enterZone('fen'); await w(300); const gate = Z.portals.find(p => p.to === 'coast');
-      enterZone('coast', 'fen'); await w(500); const back = Z.portals.find(p => p.to === 'fen');
+      enterZone('crypt'); await w(300); const gate = Z.portals.find(p => p.to === 'coast');
+      enterZone('coast', 'crypt'); await w(500); const back = Z.portals.find(p => p.to === 'crypt');
       return { gate: !!gate, back: !!back, theme: Z.D.theme, kinds: [...new Set(mobs.map(m => m.d.id))].sort().join(), want: ids.slice().sort().join(),
         looks: ids.every(id => typeof MOB_LOOKS[id] === 'function'), sigils: ids.every(id => ITEMS[id + '_sig'] && ITEMS[radId(id + '_sig')]),
         boss: MOBS.krakenmatron.boss && MOBS.krakenmatron.drops.some(([d]) => d === 'krakeneye'), order: ZONE_ORDER.includes('coast') && WORLD_ROAD.includes('coast'),
         song: !!SONGS.coast, album: ALBUM.some(p => p.id === 'coast') }; });
-    t.ok(r.gate && r.back, 'Mirelight Fen has an east gate to Saltspray Coast, and back');
+    t.ok(r.gate && r.back, 'the Cinder Crypt has a south gate to Saltspray Coast, and back (v1.47.0)');
     t.ok(r.theme === 'coast' && r.kinds === r.want, 'all seven monsters live there: ' + r.kinds);
     t.ok(r.looks, 'each has its own artwork');
     t.ok(r.sigils, 'each has a sigil card (and a Radiant one for fusion)');

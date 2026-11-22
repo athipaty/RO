@@ -21,7 +21,7 @@ function getZone(id){
   const D=ZONES[id], W=D.w, H=D.h, r=seeded(D.seed||7), t=new Uint8Array(W*H);
   const set=(x,y,v)=>{if(x>=0&&y>=0&&x<W&&y<H)t[y*W+x]=v;};
   const get=(x,y)=>(x<0||y<0||x>=W||y>=H)?2:t[y*W+x];
-  const obst=(D.theme==='dunes'||D.theme==='crypt'||D.theme==='cave'||D.theme==='arena'||D.theme==='keep'||D.theme==='heights'||D.theme==='caldera'||D.theme==='molten')?4:2;
+  const obst=(D.theme==='dunes'||D.theme==='crypt'||D.theme==='cave'||D.theme==='arena'||D.theme==='keep'||D.theme==='heights'||D.theme==='caldera'||D.theme==='molten'||(THEMES[D.theme]&&THEMES[D.theme].rocky))?4:2;
   const zone={id,D,w:W,h:H,t,portals:[],npcs:[],buildings:[],spawn:null};
   for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(x===0||y===0||x===W-1||y===H-1)set(x,y,obst);
   if(D.theme==='town'&&id==='capital'){
@@ -33,7 +33,7 @@ function getZone(id){
     for(let y=24;y<=38;y++)for(let x=3;x<=24;x++)if(r()<.14)set(x,y,7);          // Noble Gardens: a royal garden, no buildings (v1.35.1)
     for(let y=3;y<=H-4;y++)for(let x=3;x<=W-4;x++)if(Math.hypot(x+.5-15,(y+.5-35)*1.2)<3.4)set(x,y,3); // the garden pond (south of the Hall and the Forge, v1.38.5)
     for(let k=3;k<=W-4;k++){if(k<23||k>32){set(k,18,7);set(k,23,7);}}for(let k=3;k<=H-4;k++)if(k<16||k>25){set(25,k,7);set(30,k,7);} // hedges
-    fill(2,19,W-1,22,6);fill(26,2,29,H-3,6);                                     // the two avenues (the east one runs out of the gate)
+    fill(D.links.west?0:2,19,W-1,22,6);fill(26,2,29,H-3,6);                                     // the two avenues (the east one runs out of the gate)
     fill(18,30,25,31,6);                                                          // a walk in from the plaza
     for(let y=12;y<=30;y++)for(let x=19;x<=37;x++)if(Math.hypot(x+.5-28,y+.5-21)<7.2)set(x,y,6); // the royal plaza
     const B=[{x:23,y:2,w:10,h:7,name:'Royal Palace',roof:'#2a4a8a',npc:{name:'Herald Cassian',role:'palace',col:'#2a4a8a',hair:'#e8d8b0'}}, // v1.37.0 at the head of the avenue
@@ -57,18 +57,22 @@ function getZone(id){
     // v1.37.1 the city wall instead of the ring of trees: a tall crenellated wall with watchtowers on the far (north and
     // west) sides, a low parapet on the near (south and east) sides so it never hides anyone, and the east gate's two
     // towers either side of the road to Hearthvale. Drawn in sections by capbldg.js (only those on screen).
-    for(let x=0;x<W;x++){set(x,0,5);set(x,1,5);set(x,H-1,5);}for(let y=0;y<H;y++){set(0,y,5);set(1,y,5);if(y<19||y>22)set(W-1,y,5);}
+    const wg=!!D.links.west; // v1.47.0 a west gate too, the road to Goldleaf Downs
+    for(let x=0;x<W;x++){set(x,0,5);set(x,1,5);set(x,H-1,5);}for(let y=0;y<H;y++){if(!wg||y<19||y>22){set(0,y,5);set(1,y,5);}if(y<19||y>22)set(W-1,y,5);}
     for(let y=2;y<H-1;y++)if(get(2,y)===2)set(2,y,0);for(let x=2;x<W-1;x++)if(get(x,2)===2)set(x,2,0);
-    fill(W-2,17,W-1,18,5);fill(W-2,23,W-1,24,5);
+    fill(W-2,17,W-1,18,5);fill(W-2,23,W-1,24,5);if(wg){fill(0,17,1,18,5);fill(0,23,1,24,5);}
     const wall=(x,y,w,h,side,tower)=>zone.buildings.push({x,y,w,h,name:'',roof:'#c8c0b0',kind:'wall',side,tower});
     for(let x=0;x<W;x+=8)wall(x,0,Math.min(8,W-x),2,'n',x%16===0);
     zone.buildings[zone.buildings.length-1].towerEnd=1;                                  // the north-east corner tower
-    for(let y=2;y<H;y+=8)wall(0,y,2,Math.min(8,H-y),'w',y>2&&(y-2)%16===0);
+    if(!wg)for(let y=2;y<H;y+=8)wall(0,y,2,Math.min(8,H-y),'w',y>2&&(y-2)%16===0);
+    else for(const [y0,y1] of [[2,17],[25,H]])for(let y=y0;y<y1;y+=8)wall(0,y,2,Math.min(8,y1-y),'w',y===25);
     zone.buildings[zone.buildings.length-1].towerEnd=1;                                  // the south-west corner tower
     for(let x=2;x<W;x+=8)wall(x,H-1,Math.min(8,W-x),1,'s',false);
     for(const [y0,y1] of [[2,17],[25,H-1]])for(let y=y0;y<y1;y+=8)wall(W-1,y,1,Math.min(8,y1-y),'e',false);
     for(const y of [17,23])zone.buildings.push({x:W-2,y,w:2,h:2,name:'',roof:'#c8c0b0',kind:'gatetower',up:y<20});
     zone.portals.push({x:(W-2+.5)*TILE,y:21*TILE,to:'town',side:'east'});
+    if(wg){for(const y of [17,23])zone.buildings.push({x:0,y,w:2,h:2,name:'',roof:'#c8c0b0',kind:'gatetower',up:y<20});
+      zone.portals.push({x:1.5*TILE,y:21*TILE,to:D.links.west,side:'west'});}
     zone.spawn={x:(W-6)*TILE,y:21*TILE};
   } else if(D.theme==='town'){
     // v1.27.0 Hearthvale in four districts around a round open plaza; the four roads run out to the gates.
@@ -180,10 +184,11 @@ function renderZone(z, r){
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){
     const v=z.t[y*W+x], px=x*TILE, py=y*TILE;
     g.fillStyle=th.g[Math.floor(R()*th.g.length)]; g.fillRect(px,py,TILE,TILE);
-    // ground texture
-    if(z.D.theme==='dunes'||z.D.theme==='arena'){g.strokeStyle='rgba(150,110,60,.18)';g.lineWidth=1;g.beginPath();const oy=R()*TILE;g.moveTo(px,py+oy);g.quadraticCurveTo(px+16,py+oy-4,px+32,py+oy);g.stroke();}
-    else if(z.D.theme==='crypt'||z.D.theme==='keep'){g.strokeStyle='rgba(0,0,0,.25)';g.strokeRect(px+.5,py+.5,TILE-1,TILE-1);if(R()<.15){g.beginPath();g.moveTo(px+R()*32,py+R()*32);g.lineTo(px+R()*32,py+R()*32);g.stroke();}}
-    else if(z.D.theme==='frost'){for(let k=0;k<3;k++){g.fillStyle='rgba(110,140,170,.2)';g.fillRect(px+R()*30,py+R()*30,2,2);}}
+    // ground texture (a theme may borrow another's with tex)
+    const tx0=th.tex||z.D.theme;
+    if(tx0==='dunes'||z.D.theme==='arena'){g.strokeStyle='rgba(150,110,60,.18)';g.lineWidth=1;g.beginPath();const oy=R()*TILE;g.moveTo(px,py+oy);g.quadraticCurveTo(px+16,py+oy-4,px+32,py+oy);g.stroke();}
+    else if(tx0==='crypt'||tx0==='keep'){g.strokeStyle='rgba(0,0,0,.25)';g.strokeRect(px+.5,py+.5,TILE-1,TILE-1);if(R()<.15){g.beginPath();g.moveTo(px+R()*32,py+R()*32);g.lineTo(px+R()*32,py+R()*32);g.stroke();}}
+    else if(tx0==='frost'){for(let k=0;k<3;k++){g.fillStyle='rgba(110,140,170,.2)';g.fillRect(px+R()*30,py+R()*30,2,2);}}
     else{for(let k=0;k<3;k++){g.fillStyle='rgba(0,40,0,.18)';const gx=px+R()*30,gy=py+R()*30;g.fillRect(gx,gy,1.5,4);g.fillRect(gx+2,gy+1,1.5,3);}}
     let mc=th.g[0];
     if(v===1){g.fillStyle=th.path;g.fillRect(px,py,TILE,TILE);g.fillStyle='rgba(0,0,0,.12)';for(let k=0;k<3;k++)g.fillRect(px+R()*28,py+R()*28,3,2);mc=th.path;}
@@ -199,7 +204,7 @@ function renderZone(z, r){
   // upright objects (drawn per frame in the isometric view, depth-sorted with characters)
   z.objs=[];
   for(const [px,py,kind] of tops){const th2=z.D.theme;let k;
-    if(kind==='rock')k=th2==='crypt'||th2==='arena'||th2==='keep'?'pillar':th2==='cave'?'rock':th2==='heights'||th2==='caldera'||th2==='molten'?(R()<.45?'crag':'rock'):(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':th2==='farms'&&R()<.3?'hay':'tree';
+    if(kind==='rock'&&th.rockKind)k=th.rockKind==='crag'?(R()<.5?'crag':'rock'):th.rockKind;else if(kind!=='rock'&&th.tree)k=th.tree;else if(kind==='rock')k=th2==='crypt'||th2==='arena'||th2==='keep'?'pillar':th2==='cave'?'rock':th2==='heights'||th2==='caldera'||th2==='molten'?(R()<.45?'crag':'rock'):(R()<.3?'cactus':'rock');else k=th2==='frost'?'pine':th2==='farms'&&R()<.3?'hay':'tree';
     z.objs.push({x:px+16,y:py+16,kind:k,v:Math.floor(R()*3),sc:.85+R()*.3});}
   for(const b of z.buildings){mg.fillStyle=b.roof;mg.fillRect(b.x,b.y,b.w,b.h);}
   for(const s of z.signs||[])z.objs.push({x:s.x*TILE,y:s.y*TILE,kind:'dsign',name:s.name,v:0,sc:1});

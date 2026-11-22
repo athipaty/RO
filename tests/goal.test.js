@@ -20,7 +20,7 @@ module.exports = async t => {
       return out; });
     t.ok(/has a quest/.test(r.newbie), 'a new hero is pointed at whoever has the first quest (' + r.newbie + ')');
     t.ok(/Defeat Sproutling 0\/8/.test(r.town) && /Greenmoss Meadow/.test(r.town) && r.townGate === 'meadow', 'in town the chip shows the objective and the arrow aims at the meadow gate (' + r.town + ')');
-    t.ok(r.step === 'meadow,town,deep1', 'routes go gate by gate between regions (' + r.step + ')');
+    t.ok(r.step === 'heights,town,deep1', 'routes go gate by gate between regions (' + r.step + ')');
     t.ok(r.aimsMob && / m$/.test(r.meadow.trim()), 'in the meadow it aims at the nearest Sproutling with a distance (' + r.meadow + ')');
     t.ok(r.log, 'tapping the chip opens the quest log');
     t.ok(r.off, 'Settings → Goal arrow hides it');

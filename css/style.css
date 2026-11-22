@@ -231,6 +231,20 @@ button{font:inherit;color:inherit}
 .wlink{text-align:center;color:var(--muted);line-height:14px;font-size:12px}
 .wbranch{margin:4px 0 0 22px;padding-left:10px;border-left:2px dashed var(--edge-dim);display:flex;flex-direction:column;gap:4px}
 .wbranch .wbl{font-size:11.5px}
+/* v1.47.0 the world grid around the city */
+.wgrid{display:grid;gap:3px;max-width:420px;margin:6px auto 4px}
+.wc{position:relative;aspect-ratio:1;min-width:0;padding:0;border:1px solid rgba(0,0,0,.55);border-radius:5px;color:#fff;font:700 11px system-ui,sans-serif;text-shadow:0 1px 2px #000,0 0 3px #000;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.wc.empty{border:0;background:none;cursor:default}
+.wc.unseen{filter:grayscale(.85) brightness(.7)}
+.wc.city{border-color:#ffd77a;box-shadow:0 0 0 1px #ffd77a inset}.wc.city b{font-size:15px;color:#ffe9a8}
+.wc.here{outline:2px solid var(--exp);outline-offset:1px;animation:wcpulse 1.4s ease-in-out infinite}
+@keyframes wcpulse{50%{outline-color:transparent}}
+.wc.le::after{content:'';position:absolute;right:-5px;top:calc(50% - 1.5px);width:7px;height:3px;background:#c9b07a;z-index:1}
+.wc.ls::before{content:'';position:absolute;bottom:-5px;left:calc(50% - 1.5px);width:3px;height:7px;background:#c9b07a;z-index:1}
+.wc i{position:absolute;font-style:normal;font-size:9px;line-height:1}.wc .wdn{right:2px;bottom:1px;color:#ffcf8a}.wc .wwb{left:1px;top:1px}.wc .wpal{right:2px;top:1px;color:#8fe0a8}
+.wkey{text-align:center;font-size:11px;margin-bottom:6px}
+.warm{margin:12px 0 4px}.warm .ds{font-weight:400}
+.wnode.pick{border-color:#ffd77a;box-shadow:0 0 0 1px #ffd77a inset}
 /* buff row: picture + countdown */
 #buffs{display:flex;flex-wrap:wrap;gap:6px 5px;margin:5px 0 6px}#buffs[hidden]{display:none}
 #buffs .buff{position:relative;width:30px;height:30px;border:1px solid var(--edge-dim);border-radius:5px;background:#10141b;display:flex;align-items:center;justify-content:center}
