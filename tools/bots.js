@@ -13,7 +13,11 @@ const URL = process.env.GAME_URL || 'https://ro-six-bay.vercel.app/';
 const NAMES = (process.env.BOTS || 'Mira,Kade,Pim,Toby').split(',').map(s => s.trim()).filter(Boolean);
 const HOURS = +process.env.HOURS || 3;
 const LOG = process.env.LOG || '';
-const END = Date.now() + HOURS * 3600 * 1000;
+// each bot's browser storage (its saved hero) is kept here, so a restart continues the same heroes
+const STATE_DIR = process.env.STATE_DIR || require('path').join(__dirname, '..', '.bots');
+fs.mkdirSync(STATE_DIR, { recursive: true });
+// END can be pinned (END_AT=ISO time) so a restart keeps the original finish time
+const END = process.env.END_AT ? Date.parse(process.env.END_AT) : Date.now() + HOURS * 3600 * 1000;
 // how each bot spends stat points: a rough build so they don't all look the same
 const BUILDS = [['str', 'agi', 'vit'], ['agi', 'dex', 'luk'], ['vit', 'str', 'dex'], ['dex', 'agi', 'vit'], ['str', 'vit', 'luk']];
 const log = m => { const line = `${new Date().toISOString().slice(11, 19)} ${m}`; console.log(line); if (LOG) fs.appendFileSync(LOG, line + '\n'); };
@@ -50,7 +54,9 @@ const tick = build => {
 };
 
 async function runBot(browser, name, i) {
-  const ctx = await browser.newContext({ viewport: { width: 640, height: 360 }, deviceScaleFactor: 1 });
+  const statePath = require('path').join(STATE_DIR, name.replace(/[^\w-]/g, '_') + '.json');
+  const ctx = await browser.newContext({ viewport: { width: 640, height: 360 }, deviceScaleFactor: 1, ...(fs.existsSync(statePath) ? { storageState: statePath } : {}) });
+  const keep = async () => { try { await ctx.storageState({ path: statePath }); } catch (e) {} };
   const page = await ctx.newPage();
   page.on('pageerror', e => log(`${name}: page error ${e.message}`));
   const start = async () => {
@@ -68,11 +74,14 @@ async function runBot(browser, name, i) {
     try {
       const r = await page.evaluate(tick, BUILDS[i % BUILDS.length]);
       if (!r.ok) { if (++fails >= 6) { log(`${name}: not responding, reloading`); await start(); fails = 0; } continue; }
-      fails = 0; const s = `Lv ${r.lv} job ${r.jl} ${r.zone} ${r.online}`;
-      if (s !== last || r.moved || r.revived) { log(`${name}: ${s}${r.moved ? ' (moved)' : ''}${r.revived ? ' (revived)' : ''} · gold ${r.gold} · ${r.others} others online`); last = s; }
+      fails = 0; if (r.revived) { log(`${name}: fell, got back up`); continue; } const s = `Lv ${r.lv} job ${r.jl} ${r.zone} ${r.online}`;
+      if (Math.random() < .35) await keep();
+      if (r.revived) { log(`${name}: fell, got back up`); continue; }
+      if (s !== last || r.moved) { log(`${name}: ${s}${r.moved ? ' (moved)' : ''}${r.revived ? ' (revived)' : ''} · gold ${r.gold} · ${r.others} others online`); last = s; }
     } catch (e) { log(`${name}: ${e.message.split('\n')[0]}, reloading`); try { await start(); } catch (e2) {} }
   }
   try { await page.evaluate(() => { try { P.auto = false; save(); } catch (e) {} }); } catch (e) {}
+  await keep();
   await ctx.close(); log(`${name}: done`);
 }
 
