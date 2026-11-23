@@ -488,6 +488,19 @@ body.touchui #gwBar{top:calc(max(10px,env(safe-area-inset-top)) + 182px);font-si
 .hbp{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--ink);cursor:pointer;text-align:left;font:500 12.5px Inter,var(--ui)}
 .hbp img{width:26px;height:26px;object-fit:contain;flex:none}.hbp.used{border-color:rgba(240,181,74,.45)}.hbp i{color:var(--muted);font-style:normal}
 .hbp:hover,.hbs:hover{background:rgba(255,255,255,.08)}
+/* v1.49.5 skill type under the name in the hotbar editor */
+.hbp span{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0}
+.hbk{display:inline-block;font-size:10.5px;font-weight:700;line-height:1.25;padding:0 5px;border-radius:6px;letter-spacing:.2px}
+.hbk.k-one{color:#ffb070;background:rgba(255,150,70,.14)}.hbk.k-area{color:#7fe0f0;background:rgba(90,200,230,.14)}
+.hbk.k-heal{color:#8fe0a0;background:rgba(110,210,130,.14)}.hbk.k-nova{color:#ff8fb0;background:rgba(255,110,150,.14)}
+.hbk.k-buff{color:#e0c8ff;background:rgba(190,150,255,.14)}
+/* v1.49.5 the editor's slots placed like the real hotbar (arcs around the Attack button on phones) */
+.hbslots.hbmap{display:block;position:relative;margin:10px auto}
+.hbslots.hbmap .hbs{position:absolute;aspect-ratio:auto;border-radius:50%}
+.hbslots.hbmap .hbs img{width:62%;height:62%}
+.hbslots.hbmap .hbs em{left:-4px;top:-4px;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;background:#2a2016;border:1px solid #c8a050;color:#ffe9b0;font-size:10px;z-index:1}
+.hbslots.hbmap .hbs.on{box-shadow:0 0 0 2px #f0b54a,0 0 10px rgba(240,181,74,.5)}
+.hbatk{position:absolute;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 40% 35%,#d65a4a,#8a2a22);color:#ffe9d0;font-size:20px;opacity:.75;border:2px solid #c8a050;pointer-events:none}
 /* ===== phone: the slots sit in two arcs around the Attack button ===== */
 body.touchui #actions{gap:6px}
 body.touchui #atkBtn{margin-top:190px}
