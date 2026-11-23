@@ -29,10 +29,22 @@ module.exports = async t => {
     t.ok(a.on && b.on && a.pcs[0] === 'connected' && b.pcs[0] === 'connected' && a.audio && b.audio, 'both join voice and hear each other ' + JSON.stringify([a, b]));
     let talk = 0; for (let i = 0; i < 30 && !talk; i++) { talk = await A.evaluate(() => document.querySelectorAll('#partyBox .pmr.vctalk').length); await wait(100); }
     t.ok(talk > 0 && await A.evaluate(() => document.querySelectorAll('#partyBox .pmr.vcin').length === 2), 'the party box shows who is in voice and who is talking');
+    // the Sound window: ♪ opens it; a member's volume slider sets how loud you hear them
+    const mix = await A.evaluate(() => { document.getElementById('muteBtn').click(); const open = panelKind === 'sound';
+      const sl = [...panel.querySelectorAll('input[data-snd^="vp:"]')][0]; if (!sl) return { open, sl: false };
+      sl.value = 30; sl.dispatchEvent(new Event('input', { bubbles: true })); vcApplyVol();
+      const vol = [...VC.pcs.values()][0].audio.volume; const all = !!panel.querySelector('input[data-snd="vall"]') && !!panel.querySelector('input[data-snd="mv"]'); closePanel(); return { open, sl: true, vol, all }; });
+    t.ok(mix.open && mix.sl && mix.all && Math.abs(mix.vol - .3) < .02, "the ♪ button opens the Sound window; a party member's volume slider sets how loud you hear them " + JSON.stringify(mix));
     await A.evaluate(() => document.getElementById('pMic').click());
     t.ok(await A.evaluate(() => VC.muted && VC.stream.getAudioTracks().every(x => !x.enabled)), 'the microphone button mutes you');
     await B.evaluate(() => document.getElementById('pVoice').click()); await wait(1500);
     t.ok(await A.evaluate(() => VC.pcs.size === 0) && await B.evaluate(() => !VC.on), 'leaving voice closes the connection for both');
+    // listen only: B hears A without the microphone ever being asked for
+    await A.evaluate(() => { if (VC.muted) vcMute(); });
+    await B.evaluate(() => { window.__gum = 0; const g = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices); navigator.mediaDevices.getUserMedia = c => { window.__gum++; return g(c); }; vcJoin(true); });
+    await wait(5000);
+    const li = await B.evaluate(() => ({ on: VC.on, listen: VC.listen, gum: window.__gum, pc: [...VC.pcs.values()].map(e => e.pc.connectionState), hear: [...VC.pcs.values()].some(e => e.audio && e.audio.srcObject && e.audio.srcObject.getAudioTracks().length > 0), icon: document.getElementById('pMic').textContent }));
+    t.ok(li.on && li.listen && li.gum === 0 && li.pc[0] === 'connected' && li.hear && li.icon === '🎧', 'listen only: you hear the party and the microphone is never asked for ' + JSON.stringify(li));
     t.ok(A.errs.length === 0 && B.errs.length === 0, 'no script errors' + [...A.errs, ...B.errs].map(e => ': ' + e).join(''));
   } finally { await browser.close(); }
 };

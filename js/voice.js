@@ -16,19 +16,24 @@ const vcSend=(ev,d)=>{if(VC.sock&&VC.sock.connected){VC.sock.emit(ev,d||{});retu
   sock.on('disconnect',()=>{if(VC.on)vcLeave(true);});};}
 
 /* ---- joining and leaving ---- */
-async function vcJoin(){if(VC.on||VC.joining)return;if(!SOC.party){addLog('Join a party first to use voice chat.','l-bad');return;}
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){addLog('This browser cannot use a microphone here.','l-bad');return;}
-  VC.joining=true;
-  try{VC.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});}
-  catch(e){VC.joining=false;addLog('Voice chat needs your microphone. Allow it in the browser to talk with your party.','l-bad');return;}
+/* (v1.52.1) listen only: join without a microphone (the browser is never asked for it) and just hear the party. If the
+   microphone is refused or missing, you join to listen instead of not at all. VC.listen is true while listening only. */
+async function vcJoin(listenOnly){if(VC.on||VC.joining)return;if(!SOC.party){addLog('Join a party first to use voice chat.','l-bad');return;}
+  VC.joining=true;VC.stream=null;let why='';
+  if(!listenOnly){if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)why='This browser cannot use a microphone here, so you join to listen.';
+    else try{VC.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});}
+    catch(e){why='The microphone was not allowed, so you join to listen. Allow it in the browser to talk too.';}}
   VC.joining=false;if(!SOC.party){vcStop();return;}
-  VC.on=true;VC.muted=false;vcMeter('me',VC.stream);
+  VC.on=true;VC.muted=false;VC.listen=!VC.stream;if(VC.stream)vcMeter('me',VC.stream);
   if(!vcSend('vcJoin')){addLog('Voice chat needs the game server, which is not reachable right now.','l-bad');vcStop();return;}
-  addLog('You joined the party voice chat. 🎤 mutes you; 🎙 leaves.','l-good');sfx('click');renderParty();}
-function vcStop(){for(const [p] of VC.pcs)vcDrop(p);VC.pcs.clear();if(VC.stream)for(const t of VC.stream.getTracks())t.stop();VC.stream=null;
+  if(why)addLog(why,'l-bad');
+  addLog(VC.listen?'You are listening to the party voice chat (your microphone is not used). 🎙 leaves.':'You joined the party voice chat. 🎤 mutes you; 🎙 leaves.','l-good');sfx('click');renderParty();}
+// listening only, then wanting to talk: join again with the microphone
+async function vcTalk(){if(!VC.on||!VC.listen)return;vcLeave(true);await new Promise(r=>setTimeout(r,300));vcJoin(false);}
+function vcStop(){VC.listen=false;for(const [p] of VC.pcs)vcDrop(p);VC.pcs.clear();if(VC.stream)for(const t of VC.stream.getTracks())t.stop();VC.stream=null;
   for(const [k,m] of VC.meters){try{m.src.disconnect();}catch(e){}}VC.meters.clear();VC.on=false;VC.peers=[];}
 function vcLeave(quiet){if(!VC.on)return;vcSend('vcLeave');vcStop();if(!quiet)addLog('You left the party voice chat.');renderParty();}
-function vcMute(){if(!VC.on||!VC.stream)return;VC.muted=!VC.muted;for(const t of VC.stream.getAudioTracks())t.enabled=!VC.muted;
+function vcMute(){if(VC.on&&VC.listen){vcTalk();return;}if(!VC.on||!VC.stream)return;VC.muted=!VC.muted;for(const t of VC.stream.getAudioTracks())t.enabled=!VC.muted;
   floatT(P.x,P.y-50,VC.muted?'Muted':'Mic on','#cfe8ff',12);renderParty();}
 
 /* ---- the connections, one per party member in voice ---- */
@@ -40,7 +45,8 @@ function vcState(m){if(m&&m.why)addLog(clean(m.why,80),'l-bad');
   for(const [p] of VC.pcs)if(!peers.includes(p))vcDrop(p);
   renderParty();}
 function vcPeer(peer,offer){const pc=new RTCPeerConnection({iceServers:VC_ICE});const e={pc,audio:null,failed:false};VC.pcs.set(peer,e);
-  for(const t of VC.stream.getTracks())pc.addTrack(t,VC.stream);
+  if(VC.stream)for(const t of VC.stream.getTracks())pc.addTrack(t,VC.stream);
+  else pc.addTransceiver('audio',{direction:'recvonly'}); // listening only: receive, send nothing
   pc.onicecandidate=ev=>{if(ev.candidate)vcSend('vcSig',{to:peer,d:{c:ev.candidate.toJSON()}});};
   pc.ontrack=ev=>{const st=ev.streams[0];if(!st)return;if(!e.audio){e.audio=new Audio();e.audio.autoplay=true;e.audio.playsInline=true;}
     e.audio.srcObject=st;e.audio.play().catch(()=>{});vcMeter(peer,st);};
@@ -75,7 +81,7 @@ setInterval(()=>{if(!VC.on||!SOC.party)return;const box=document.getElementById(
     mb=document.createElement('button');mb.id='pMic';mb.type='button';mb.className='btn small';mb.addEventListener('click',ev=>{ev.stopPropagation();vcMute();});
     const leave=document.getElementById('pLeave');hd.insertBefore(jb,leave);hd.insertBefore(mb,leave);}
   jb.textContent='🎙';jb.classList.toggle('on',VC.on);jb.title=VC.on?'Leave the party voice chat':'Join the party voice chat';jb.setAttribute('aria-label',jb.title);
-  mb.hidden=!VC.on;mb.textContent=VC.muted?'🔇':'🎤';mb.title=VC.muted?'Unmute your microphone':'Mute your microphone';mb.setAttribute('aria-label',mb.title);
+  mb.hidden=!VC.on;mb.textContent=VC.listen?'🎧':VC.muted?'🔇':'🎤';mb.title=VC.listen?'Listening only: tap to talk too':VC.muted?'Unmute your microphone':'Mute your microphone';mb.setAttribute('aria-label',mb.title);
   for(const row of box.querySelectorAll('.pmr[data-peer]'))row.classList.toggle('vcin',VC.peers.includes(row.dataset.peer));};}
 addEventListener('pagehide',()=>{if(VC.on)vcLeave(true);});
 
@@ -84,5 +90,5 @@ if(typeof TH!=='undefined')Object.assign(TH,{'Join the party voice chat':'เข
   'Join a party first to use voice chat.':'เข้าร่วมปาร์ตี้ก่อนเพื่อใช้แชทเสียง','This browser cannot use a microphone here.':'เบราว์เซอร์นี้ใช้ไมโครโฟนที่นี่ไม่ได้',
   'Voice chat needs your microphone. Allow it in the browser to talk with your party.':'แชทเสียงต้องใช้ไมโครโฟน อนุญาตในเบราว์เซอร์เพื่อคุยกับปาร์ตี้',
   'Voice chat needs the game server, which is not reachable right now.':'แชทเสียงต้องใช้เซิร์ฟเวอร์เกม ซึ่งตอนนี้เชื่อมต่อไม่ได้',
-  'You joined the party voice chat. 🎤 mutes you; 🎙 leaves.':'คุณเข้าห้องพูดคุยของปาร์ตี้แล้ว 🎤 ปิดเสียง 🎙 ออก','You left the party voice chat.':'คุณออกจากห้องพูดคุยของปาร์ตี้แล้ว'});
+  'You joined the party voice chat. 🎤 mutes you; 🎙 leaves.':'คุณเข้าห้องพูดคุยของปาร์ตี้แล้ว 🎤 ปิดเสียง 🎙 ออก','You are listening to the party voice chat (your microphone is not used). 🎙 leaves.':'คุณกำลังฟังแชทเสียงของปาร์ตี้ (ไม่ใช้ไมโครโฟน) 🎙 ออก','Listening only: tap to talk too':'ฟังอย่างเดียว: แตะเพื่อพูดด้วย','This browser cannot use a microphone here, so you join to listen.':'เบราว์เซอร์นี้ใช้ไมโครโฟนไม่ได้ จึงเข้าร่วมเพื่อฟังอย่างเดียว','The microphone was not allowed, so you join to listen. Allow it in the browser to talk too.':'ไม่ได้อนุญาตไมโครโฟน จึงเข้าร่วมเพื่อฟังอย่างเดียว อนุญาตในเบราว์เซอร์เพื่อพูดด้วย','You left the party voice chat.':'คุณออกจากห้องพูดคุยของปาร์ตี้แล้ว'});
 if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^Voice could not reach (.+): one of your networks blocks direct connections\.$/,'แชทเสียงเชื่อมต่อกับ $1 ไม่ได้: เครือข่ายของฝ่ายใดฝ่ายหนึ่งบล็อกการเชื่อมต่อโดยตรง']);
