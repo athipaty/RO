@@ -1,8 +1,12 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='1.50.1';
+const VERSION='1.51.0';
 // chance that a normal monster drops its sigil (card); bosses set their own sigChance
 const SIG_CHANCE=.01;
+/* (v1.51.0) one damage for everyone: heroes have 3x the HP they had, and monsters hit 3x as hard, tonics and fixed heals
+   heal 3x and HP regen is 3x, so hunting feels exactly as before. Player fights then use the same damage as hunting (no
+   hidden player-fight scale): a skill does the same number to a player as to a monster. See js/hpscale.js. */
+const HP_K=3;
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
 const BLOCK=[0,0,1,1,1,1,0,0]; // 0 ground 1 path 2 tree 3 water 4 rock 5 building 6 cobble 7 flowers
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];

@@ -14,7 +14,7 @@ module.exports = async t => {
       P.eq.armor = { id: 'tunic', uid: 801, s: [mobs[2] + '_sig'] }; albumScan(); const sock = !!P.album[mobs[2]];
       for (const m of mobs) giveItem(m + '_sig', 1); S = computeStats(); return { one, rad, sock, done: albumComplete(ALBUM[0]), hp: S.maxhp - hp0 }; });
     t.ok(r.one && r.rad && r.sock, 'a sigil counts when it reaches your bag, a Radiant one for its monster, socketed ones too');
-    t.ok(r.done && r.hp === 60, `completing Greenmoss Meadow gives +60 Max HP for good (+${r.hp})`);
+    t.ok(r.done && r.hp === 60 * 3, `completing Greenmoss Meadow gives +${60 * 3} Max HP for good, 60 x 3 since heroes have 3x HP (+${r.hp})`);
     const all = await g.ev(() => { const st0 = { ...computeStats() }; for (const p of ALBUM) for (const m of albumMobs(p)) P.album[m] = 1; S = computeStats();
       return { done: albumDone(), str: S.str - st0.str, aspd: S.delay < st0.delay, dmgred: S.dmgred - st0.dmgred }; });
     t.ok(all.done === 18 && all.str === 1 && all.aspd && all.dmgred === 2, 'every page complete: each region\'s bonus plus +1 to every stat');

@@ -35,8 +35,9 @@ module.exports = async t => {
     t.ok(land && land.right && land.side, 'on a phone held sideways the hotbar sits on the right, skills and items on the left ' + JSON.stringify(land));
     // the library's sigil list can be filtered and sorted by every bonus sigils give
     const cx = await ev(() => { const kk = codexKills(); for (const id in MOBS) kk[id] = 1; CODEX.slot = 'all'; CODEX.ab = 'all'; const d = document.createElement('div'); d.innerHTML = codexHtml();
-      return [...d.querySelectorAll('[data-act="cxab"]')].map(b => b.dataset.arg); });
-    t.ok(['critdmg', 'aspd', 'dbl', 'cast', 'dmgred', 'healpct', 'atkpct', 'matkpct', 'sppct', 'spregen'].every(k => cx.includes(k)), 'the sigil library offers every bonus as a filter (' + cx.join(', ') + ')');
+      const keys = new Set(); for (const s of codexAll()) for (const k in s.b) keys.add(k);
+      return { chips: [...d.querySelectorAll('[data-act="cxab"]')].map(b => b.dataset.arg), keys: [...keys] }; });
+    t.ok(cx.keys.every(k => cx.chips.includes(k)) && cx.chips.includes('critdmg') && cx.chips.includes('leech'), 'the sigil library offers every bonus sigils give as a filter (' + cx.chips.join(', ') + ')');
     t.ok(errors.length === 0, 'no script errors' + errors.map(e => ': ' + e).join(''));
   } finally { await browser.close(); }
 };

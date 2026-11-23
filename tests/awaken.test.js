@@ -35,7 +35,8 @@ module.exports = async t => {
       hop: ITEMS.hopper_sigr, stronger: Object.keys(ITEMS).filter(id => ITEMS[id].radiant).every(id => Object.keys(ITEMS[ITEMS[id].base].b).every(k => ITEMS[id].b[k] > ITEMS[ITEMS[id].base].b[k])),
       icon: !!itemIconURL && itemIconURL('hopper_sigr') !== itemIconURL('hopper_sig') }));
     t.ok(rs.n === rs.base && rs.stronger, `every sigil has a Radiant twin that is stronger (${rs.n})`);
-    t.ok(rs.hop.txt && /Attack speed/.test(rs.hop.txt) && rs.icon, 'Radiant sigils describe themselves and have their own picture: ' + rs.hop.txt);
+    t.ok(rs.hop.txt && /Move speed/.test(rs.hop.txt) && rs.icon, // the Hopper sigil's ability since v1.51.0
+      'Radiant sigils describe themselves and have their own picture: ' + rs.hop.txt);
     // fusion
     const fu = await g.ev(() => { P.inv.push({ id: 'hopper_sig', n: 2 }, { id: 'greylupe_sig', n: 1 }); openPanel('fuse');
       const before = looseSigils().reduce((a, e) => a + e.n, 0), g0 = P.gold;

@@ -17,7 +17,7 @@ const AUTOSK={t:0,
   reserve:.3,
   /* heals cast as soon as the HP you are missing is at least what they heal (nothing wasted): First Aid heals 8+7*level,
      raised by your Healing bonus. Example: 250 max HP and a 50 HP First Aid -> cast once HP is 200 or less. */
-  fill:{firstaid:l=>8+l*7}};
+  fill:{firstaid:l=>(8+l*7)*HP_K}};
 const autoSkillHealAmt=id=>{const f=AUTOSK.fill[id];return f?Math.max(1,Math.round(f(castLv(id))*(1+((S&&S.heal)||0)/100))):0;};
 function autoSkillList(){const ids=[],add=e=>{if(e&&typeof e.s==='string'&&!ids.includes(e.s))ids.push(e.s);};
   (Array.isArray(P.bar)?P.bar:[]).forEach(add);if(Array.isArray(P.bars))for(const r of P.bars)if(Array.isArray(r))r.forEach(add);

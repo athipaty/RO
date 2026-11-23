@@ -32,15 +32,15 @@ module.exports = async t => {
     // 2. the opponent's HP bar
     const h = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); const o = window.__foe, e = DUEL.ent;
       NET.ping = 100; netTick(.016); const full = e.hp;
-      hurtMob(e, 450, false, 'phys'); netTick(.016); const right = e.hp;          // (450 - 50*.6) * 40% (v1.50.0) = 168 of 2000 = 8.4%
-      o.hp = 91.6; netTick(.016); netTick(.016); const confirmed = e.hp;            // their update arrives: no double count
-      hurtMob(e, 230, false, 'phys'); netTick(.016); const second = e.hp;         // 200 * 40% = 80 of 2000 = 4%
+      hurtMob(e, 450, false, 'phys'); netTick(.016); const right = e.hp;          // 450 - 50*.6 = 420 of 2000 = 21%
+      o.hp = 79; netTick(.016); netTick(.016); const confirmed = e.hp;            // their update arrives: no double count
+      hurtMob(e, 230, false, 'phys'); netTick(.016); const second = e.hp;         // 200 of 2000 = 10%
       await w(700); for (let i = 0; i < 30; i++) netTick(.016); const gaveUp = e.hp; // never confirmed (a miss on their side)
       return { full, right, confirmed, second, gaveUp }; });
-    t.ok(h.full === 100 && Math.abs(h.right - 91.6) < 1, `the HP bar drops at once when you hit (100% → ${h.right.toFixed(1)}%)`);
-    t.ok(Math.abs(h.confirmed - 91.6) < 1, `when their game confirms the hit the bar stays put (${h.confirmed.toFixed(1)}%), no double drop`);
-    t.ok(Math.abs(h.second - 87.6) < 1, `the next hit drops it again at once (${h.second.toFixed(1)}%)`);
-    t.ok(h.gaveUp > 90.6, `a hit their game never confirms is dropped after a moment (back to ${h.gaveUp.toFixed(1)}%)`);
+    t.ok(h.full === 100 && Math.abs(h.right - 79) < 1, `the HP bar drops at once when you hit (100% → ${h.right.toFixed(1)}%)`);
+    t.ok(Math.abs(h.confirmed - 79) < 1, `when their game confirms the hit the bar stays put (${h.confirmed.toFixed(1)}%), no double drop`);
+    t.ok(Math.abs(h.second - 69) < 1, `the next hit drops it again at once (${h.second.toFixed(1)}%)`);
+    t.ok(h.gaveUp > 78, `a hit their game never confirms is dropped after a moment (back to ${h.gaveUp.toFixed(1)}%)`);
     await g.ev(() => { duelEnd('test over'); NET.others.delete('fake'); });
     t.ok(await g.ev(() => !pvpOn()), 'after the duel, updates go back to the normal pace');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));

@@ -46,17 +46,18 @@ module.exports = async t => {
       const a = { ct: castTime('emberbolt'), matk: S.matk }; P.skills.swiftcast = 10; P.skills.arcanefocus = 10; P.skills.manaflow = 5; S = computeStats();
       const b = { ct: castTime('emberbolt'), matk: S.matk };
       P.skills.manashield = 10; P.sp = 400; P.hp = S.maxhp; useSkill('manashield'); const sp0 = P.sp, hp0 = P.hp; hurtPlayer(100, 'test');
-      return { a, b, hpLost: hp0 - P.hp, spLost: sp0 - P.sp }; });
+      return { a, b, hpLost: hp0 - P.hp, spLost: sp0 - P.sp, k: HP_K }; });
     t.ok(ar.b.ct < ar.a.ct * .75 && ar.b.matk > ar.a.matk * 1.15, `Swift Casting and Arcane Focus: cast ${ar.a.ct.toFixed(2)} → ${ar.b.ct.toFixed(2)}s, MATK ${ar.a.matk} → ${ar.b.matk}`);
-    t.ok(ar.spLost >= 50 && ar.hpLost <= 50, `Mana Shield pays part of a hit with SP (HP −${ar.hpLost}, SP −${ar.spLost})`);
+    // since v1.51.0 monster hits are HP_K (3x) bigger, as heroes have 3x HP
+    t.ok(ar.spLost >= 50 * ar.k && ar.hpLost <= 50 * ar.k, `Mana Shield pays part of a hit with SP (HP −${ar.hpLost}, SP −${ar.spLost})`);
 
     // Ranger crit build, Cleric healing and guard
     const rc = await g.ev(() => { delete P.buffs.manashield; P.cls = 'ranger'; P.eq.weapon = { id: 'galebow', uid: 503, s: [null] }; P.skills = { huntersluck: 10, owleye: 10, doublenock: 10 }; S = computeStats();
       const r = { critdmg: S.critdmg, dbl: S.dbl };
       P.cls = 'cleric'; P.eq.weapon = { id: 'dawnmace', uid: 504, s: [null] }; P.skills = { faith: 10, divineguard: 10, mend: 3 }; S = computeStats(); P.hp = 1; healP(100); const healed = P.hp - 1;
-      P.hp = S.maxhp; const h0 = P.hp; hurtPlayer(100, 'test'); return { r, healed, taken: h0 - P.hp, unl: skillUnlocked('renew') }; });
+      P.hp = S.maxhp; const h0 = P.hp; hurtPlayer(100, 'test'); return { r, healed, taken: h0 - P.hp, unl: skillUnlocked('renew'), k: HP_K }; });
     t.ok(rc.r.critdmg === 55 && rc.r.dbl === 30, `Ranger: Hunter's Luck + Galeheart Bow crit damage +${rc.r.critdmg}%, Double Nock ${rc.r.dbl}%`);
-    t.ok(rc.healed === 140 && rc.taken === 85, `Cleric: Faith + Dawnlight Mace heal 100 → ${rc.healed}; Divine Guard takes 100 → ${rc.taken}`);
+    t.ok(rc.healed === 140 && rc.taken === 85 * rc.k, `Cleric: Faith + Dawnlight Mace heal 100 → ${rc.healed}; Divine Guard takes 100 → ${rc.taken}`);
 
     // gear text and recipes
     const gear = await g.ev(() => ({ desc: itemDesc({ id: 'twinfang', s: [null] }), forge: ['quickgrip', 'monocle', 'twinfang', 'stonewall', 'galebow', 'splitter', 'dawnmace'].every(id => FORGES.some(r => r[0] === id)),

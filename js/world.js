@@ -261,7 +261,7 @@ function computeStats(){
   const st={};for(const k of STATS)st[k]=P.st[k]+(b[k]||0);
   const w=P.eq.weapon?ITEMS[P.eq.weapon.id]:null, bow=w&&w.wt==='bow';
   const s={...st};
-  s.maxhp=Math.round(((35+lv*11)*(1+st.vit*.012)*c.hp+(b.maxhp||0))*(1+(b.hppct||0)/100));
+  s.maxhp=Math.round(((35+lv*11)*(1+st.vit*.012)*c.hp*HP_K+(b.maxhp||0))*(1+(b.hppct||0)/100)); // HP_K: js/hpscale.js
   s.maxsp=Math.round(((10+lv*2.5)*(1+st.int*.012)*c.sp+st.int*.6+(b.maxsp||0))*(1+(b.sppct||0)/100));
   s.atk=Math.round(((bow?st.dex+(st.dex/10|0)**2+st.str/5:st.str+(st.str/10|0)**2+st.dex/5)+st.luk/5+lv/4+(b.atk||0))*(1+(b.atkpct||0)/100));
   s.matk=Math.round((st.int+(st.int/7|0)**2+lv/4+(b.matk||0))*(1+(b.matkpct||0)/100));
@@ -272,7 +272,7 @@ function computeStats(){
   s.cast=Math.min(70,b.cast||0);s.critdmg=b.critdmg||0;s.dbl=Math.min(60,b.dbl||0);s.dmgred=Math.min(50,b.dmgred||0);s.heal=b.healpct||0;
   s.magic=!!c.magic; s.ranged=bow||!!c.magic;
   s.range=c.magic?175:bow?235:44;
-  s.speed=145; s.regen=s.maxhp*.004+st.vit*.08+(b.regen||0); s.spregen=s.maxsp*.006+st.int*.05+(b.spregen||0);
+  s.speed=145; s.regen=s.maxhp*.004+(st.vit*.08+(b.regen||0))*HP_K; s.spregen=s.maxsp*.006+st.int*.05+(b.spregen||0);
   return s;
 }
 

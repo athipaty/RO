@@ -172,7 +172,7 @@ function refreshPanel(){
     const pc=c=>{const v=c*100;return(v>=10||v===Math.round(v)?Math.round(v):v.toFixed(1))+'%';};
     const where=Object.values(ZONES).filter(z=>z.mobs&&z.mobs.some(([t])=>t===d.id)).map(z=>z.name).join(', ');
     h+=`<h2>${esc(d.name)}</h2><div class="sub">Lv ${d.lv}${d.boss?' · boss':''}${d.undead?' · undead':''} · ${d.aggro?'attacks on sight':'passive until hit'}${d.range?' · ranged':''}</div>`;
-    h+=`<div class="dv"><div><span>HP</span><span>${fmt(d.hp)}</span></div><div><span>ATK</span><span>${d.atk}</span></div><div><span>DEF</span><span>${d.def}</span></div><div><span>FLEE</span><span>${d.flee}</span></div>`+
+    h+=`<div class="dv"><div><span>HP</span><span>${fmt(d.hp)}</span></div><div><span>ATK</span><span>${d.atk*HP_K}</span></div><div><span>DEF</span><span>${d.def}</span></div><div><span>FLEE</span><span>${d.flee}</span></div>`+
       `<div><span>Base EXP</span><span>${fmt(d.exp)}</span></div><div><span>Job EXP</span><span>${fmt(d.jexp)}</span></div>`+
       `<div><span>Your hit chance</span><span>${clamp(80+S.hit-d.flee,5,100)}%</span></div><div><span>You dodge</span><span>${100-clamp(85+d.hit-S.flee,5,95)}%</span></div></div>`;
     h+=`<h3>Drops</h3>`+d.drops.map(([id,c])=>`<div class="row">${icon(ITEMS[id])}<div class="grow"><div class="nm">${ITEMS[id].name}</div></div><span>${pc(c)}</span></div>`).join('')+

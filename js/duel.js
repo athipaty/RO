@@ -32,15 +32,16 @@ function duelAnswer(yes){const a=DASK.in;DASK.in=null;hideDuelAsk();if(!a)return
    FLEE: my opponent's stand-in uses my real FLEE (sent as "fl"), but only half of what is above my level counts, and
      an attacker always keeps at least a 60% chance to land a hit. */
 const PVP_RED_CAP=30;
-/* (v1.50.0) player-fight damage, so nobody falls to one hit. Skills are made to fight monsters, which have 10-20x
-   the HP of a player: measured at Lv 60, the strongest skills hit for 2,400-4,000 against 900-2,000 HP, a one-hit
-   kill. Now, for hits from players only (monsters are unchanged):
-     PVP_DMG    every hit does 40% (after DEF)
+/* (v1.50.0, v1.51.0) player-fight damage, so nobody falls to one hit. Skills are made to fight monsters, which have
+   10-20x the HP of a player: measured at Lv 60, the strongest skills hit for 2,400-4,000 against 900-2,000 HP.
+   Since v1.51.0 heroes have 3x HP instead (js/hpscale.js), so hits from players do the same damage as against
+   monsters (PVP_DMG 1, it was 40%) and only the safety limits below remain:
+     PVP_DMG    every hit does 100% (after DEF): the same as hunting
      PVP_HIT    one hit takes at most 30% of your max HP (40% for a critical hit)
      PVP_BURST  one attacker takes at most 50% of your max HP within 1.2 s (multi-hit skills, double attack)
    So the strongest skills need about 4 hits to win and normal attacks about 12: a fight lasts 10-15 s and you
    have time to answer. DEF, "Damage taken" sigils, VIT and level all still count. */
-const PVP_DMG=.4,PVP_HIT=.3,PVP_HIT_CRIT=.4,PVP_BURST=.5,PVP_BURST_T=1.2;
+const PVP_DMG=1,PVP_HIT=.3,PVP_HIT_CRIT=.4,PVP_BURST=.5,PVP_BURST_T=1.2;
 function pvpTaken(raw,o,crit){const cap=400+clamp((o&&o.lv)||1,1,99)*150;let d=(fin(raw)-S.def*.6)*PVP_DMG;
   if(S.dmgred)d*=1-Math.min(PVP_RED_CAP,S.dmgred)/100;
   const mh=Math.max(1,S.maxhp||1);d=Math.min(d,mh*(crit?PVP_HIT_CRIT:PVP_HIT));

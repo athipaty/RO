@@ -26,8 +26,8 @@ const BUILD_SKILLS={
       for(const o of mobs){if(n>=2)break;if(o===t||o.dead||o.dying||dist(o,t)>70)continue;dealPhys(o,k/2,{sure:true});n++;}}},
   stoneblood:{name:'Stoneblood',max:10,col:'#a89a88',g:'◆',...PASSIVE(),desc:l=>`+${l*2}% max HP, +${l} DEF and +${l} HP regen per second.`},
   secondwind:{name:'Second Wind',max:10,col:'#8fe0a8',g:'❋',sp:l=>15+l,cd:15,kind:'self',
-    desc:l=>`Heal ${4+l}% of max HP plus ${l*2} per VIT, and +${l*3} DEF for 10s.`,
-    run:l=>{healP(S.maxhp*(4+l)/100+S.vit*l*2);buff('secondwind','Second Wind',10,{def:l*3});}},
+    desc:l=>`Heal ${4+l}% of max HP plus ${l*2*HP_K} per VIT, and +${l*3} DEF for 10s.`,
+    run:l=>{healP(S.maxhp*(4+l)/100+S.vit*l*2*HP_K);buff('secondwind','Second Wind',10,{def:l*3});}},
   sunder:{name:'Sundering Blow',max:10,col:'#e0603a',g:'⚒',sp:l=>14+l*2,cd:3,kind:'target',range:55,
     desc:l=>`Bring the weapon down for ${200+l*35}% ATK plus 1% per STR that never misses. Axes hit 25% harder.`,
     run:(l,t)=>{fx.push({k:'impact',x:t.x,y:t.y-(t.d?t.d.size*.6:10),t0:now,dur:.3});fx.push({k:'ring',x:t.x,y:t.y,r:40,col:'#e0a060',t0:now,dur:.3});

@@ -5,7 +5,7 @@ module.exports = async t => {
   const A = await player('Rook', newRoom(), { server: 'http://127.0.0.1:9' });
   try {
     await wait(2000);
-    // "Damage taken" counts against players, up to 30% (on top of the player-fight scale of 40%, v1.50.0)
+    // "Damage taken" counts against players, up to 30% (since v1.51.0 player hits do full damage; heroes have 3x HP)
     const red = await A.ev(() => {
       const keep = { def: S.def, dmgred: S.dmgred, maxhp: S.maxhp };
       S.def = 0; S.maxhp = 1e6; S.dmgred = 0; const plain = pvpTaken(1000, { lv: 50 });
@@ -13,7 +13,7 @@ module.exports = async t => {
       S.dmgred = 50; const capped = pvpTaken(1000, { lv: 50 });
       Object.assign(S, keep); return { plain, ten, capped };
     });
-    t.ok(red.plain === 400 && red.ten === 360 && red.capped === 280, 'a player hit does 40%, cut further by Damage taken, at most 30% ' + JSON.stringify(red));
+    t.ok(red.plain === 1000 && red.ten === 900 && red.capped === 700, 'a player hit does the same damage as hunting, cut by Damage taken, at most 30% ' + JSON.stringify(red));
 
     // nobody falls to one hit: at most 30% of max HP a hit (40% crit), 50% from one attacker in a moment
     const caps = await A.ev(() => {

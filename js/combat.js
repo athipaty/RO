@@ -57,7 +57,7 @@ function dropLoot(m,id,o={}){
 function pickUp(l){const i=loot.indexOf(l);if(i<0)return;
   if(!l.gold&&carryWeight()+itemWeight(l.id)>maxWeight()){l.tooHeavy=true;floatT(P.x,P.y-40,'Too heavy!','#ff9a6a',13);addLog(`You are carrying too much to pick up ${ITEMS[l.id].name}.`,'l-bad');return;}
   loot.splice(i,1);
-  if(l.gold){P.gold+=l.gold;sfx('coin');floatT(P.x,P.y-40,`+${fmt(l.gold)} gold`,'#ffcf5a',13);}
+  if(l.gold){const g=typeof sfxGold==='function'?sfxGold(l.gold):l.gold;P.gold+=g;sfx('coin');floatT(P.x,P.y-40,`+${fmt(g)} gold`,'#ffcf5a',13);} // sfxGold: Gold % sigils (js/sigfx.js)
   else{giveItem(l.id,1,true);if(l.rare)sfx('rare');}}
 function lootAt(sc){let best=null,bd=1e9;const pad=touchPick?26:15;for(const l of loot){const q=proj(l.x,l.y),d=Math.hypot(q.x-sc.x,q.y-6-sc.y);if(d<pad&&d<bd){bd=d;best=l;}}return best;}
 function goLoot(l){P.target=null;P.queued=null;P.npcGoal=null;P.lootGoal=l;if(dist(P,l)<30){pickUp(l);P.lootGoal=null;}else pathTo(l.x,l.y,true);}
@@ -74,7 +74,8 @@ function mobAttack(m){
   hurtPlayer(Math.max(1,Math.round(m.d.atk*rnd(.85,1.1)-S.def*.6)),m.d.name);
   if(m.d.ail)tryAilment(m.d.ail);
 }
-function healP(n){n=Math.max(1,Math.round(n*(1+((S&&S.heal)||0)/100)));P.hp=Math.min(S.maxhp,P.hp+n);floatT(P.x,P.y-30,'+'+fmt(n),'#7fd38a',16);fx.push({k:'heal',x:P.x,y:P.y,t0:now,dur:.6});sfx('heal');}
+let HEAL_FLAT=0;
+function healP(n){if(HEAL_FLAT)n*=HP_K;n=Math.max(1,Math.round(n*(1+((S&&S.heal)||0)/100)));P.hp=Math.min(S.maxhp,P.hp+n);floatT(P.x,P.y-30,'+'+fmt(n),'#7fd38a',16);fx.push({k:'heal',x:P.x,y:P.y,t0:now,dur:.6});sfx('heal');}
 function buff(id,name,dur,b){P.buffs[id]={name,until:now+dur,b};fx.push({k:'ring',x:P.x,y:P.y,r:40,col:'#f0e0a0',t0:now,dur:.5});addLog(`${name} is active for ${dur}s.`,'l-good');S=computeStats();}
 
 const EXPLOG=[];
@@ -139,7 +140,7 @@ function useItem(id){
   const grp=potGroup(it);if((P.cd[grp]||0)>now)return;
   if(typeof useTravelItem==='function'&&useTravelItem(id))return;
   if(it.cure){if(!Object.keys(P.ail||{}).some(ailOn)){addLog('You have no ailments to cure.');return;}cureAll();}
-  else if(it.heal){if(P.hp>=S.maxhp)return;healP(it.heal);}
+  else if(it.heal){if(P.hp>=S.maxhp)return;HEAL_FLAT++;try{healP(it.heal);}finally{HEAL_FLAT--;}}
   else if(it.sp){if(P.sp>=S.maxsp)return;P.sp=Math.min(S.maxsp,P.sp+it.sp);floatT(P.x,P.y-30,'+'+it.sp+' SP','#7ab0f0',15);}
   else if(it.home){takeItem(id);enterZone('town');addLog('The scroll carries you home.');save();return;}
   else if(it.tele){if(Z.D.safe){addLog('Drift Leaves only work outside town.','l-bad');return;}
