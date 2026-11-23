@@ -90,7 +90,7 @@ duelRecv=function(o,arr,fresh){if(Array.isArray(arr)&&!fresh){const M=AR.match;
     if(!M||e.to!==NET.myId||e.m!==M.id||M.out||!P||now<M.fightAt-.5)continue;
     const f=M.foes.find(x=>x.id===o.id);if(!f||f.out)continue;
     if(Math.hypot(o.x-P.x,o.y-P.y)>ARENA_REACH)continue;
-    const d=pvpTaken(e.d,o);
+    const d=pvpTaken(e.d,o,!!e.c);
     P.hp-=d;P.hurtT=now;P.sitting=false;interruptCast();sfx('hurt');fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});
     hurtNum(P.x,P.y-30,d,!!e.c);
     if(P.hp<=1)arenaOut(`${o.n} knocked you out!`);}}

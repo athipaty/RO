@@ -38,7 +38,8 @@ module.exports = async t => {
     t.ok(await B.ev(() => window.__hn === 2), 'the next press gives the next hit');
     // a target skill with nothing targeted picks the nearest fighter too
     t.ok(await A.ev(() => { P.target = null; const id = Object.keys(SKILLS).find(k => SKILLS[k].kind === 'target'); useSkill(id); return !!(P.target && P.target.brawl); }), 'a target skill with nothing selected goes for the nearest fighter');
-    await B.ev(() => { S = computeStats(); P.hp = S.maxhp; });
+    // since v1.50.0 one hit takes at most 30% of max HP, so the knockdown below starts from low HP
+    await B.ev(() => { S = computeStats(); P.hp = Math.ceil(S.maxhp * .2); });
     await wait(500);
     const hit = await A.ev(() => { const e = [...BRW.ents.values()][0]; if (!e) return 'no stand-in'; P.target = e; const before = e.hp; hurtMob(e, 5000, false, 'phys'); netTick(0); window.__pred = e.hp < before && e.hp <= 5; return 'ok'; });
     t.ok(await A.ev(() => window.__pred), 'my hit shows on their HP bar at once, before their game confirms it');

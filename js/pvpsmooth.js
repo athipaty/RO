@@ -12,7 +12,9 @@ function pvpOn(){try{return !!((typeof DUEL!=='undefined'&&DUEL)||(typeof AR!=='
 function pvpOther(m){if(!m)return null;const id=m.pid||(typeof DUEL!=='undefined'&&DUEL&&m===DUEL.ent?DUEL.id:null);return id&&typeof dlOther==='function'?dlOther(id):null;}
 // what their game will take off for this hit, as a share of their HP (the same sum duel.js / arena.js / guildwar.js use)
 function pvpGuess(m,dmg){const o=pvpOther(m);if(!o||!(o.mh>0))return 0;
-  const cap=400+clamp(P&&P.lv||1,1,99)*150,d=clamp(Math.round(dmg-(o.df||0)*.6),1,cap);return d/o.mh*100;}
+  const cap=400+clamp(P&&P.lv||1,1,99)*150;let d=clamp(Math.round((dmg-(o.df||0)*.6)*(typeof PVP_DMG!=='undefined'?PVP_DMG:1)),1,cap);
+  if(typeof PVP_HIT!=='undefined')d=Math.min(d,o.mh*PVP_HIT); // (v1.50.0) the same player-fight rules the target's game uses
+  return d/o.mh*100;}
 
 const _hurtMobPvp=hurtMob;
 hurtMob=function(m,dmg,crit,kind){const before=NET.dlId,r=_hurtMobPvp.apply(this,arguments);

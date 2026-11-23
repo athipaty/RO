@@ -64,7 +64,7 @@ function brawlKO(o){P.hp=1;BRW.falls++;dlSend(o.id,'fako');addLog(`${o.n} knocke
       if(panelKind==='arena')refreshPanel();continue;}
     if(!brawlOn()||!brawlFoe(o)||pvpDowned()||now<BRW.safeUntil)continue;
     if(Math.hypot(o.x-P.x,o.y-P.y)>BRAWL_REACH)continue;
-    const d=pvpTaken(e.d,o);P.hp-=d;P.hurtT=now;P.sitting=false;interruptCast();sfx('hurt');fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});
+    const d=pvpTaken(e.d,o,!!e.c);P.hp-=d;P.hurtT=now;P.sitting=false;interruptCast();sfx('hurt');fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});
     hurtNum(P.x,P.y-30,d,!!e.c);if(P.hp<=1)brawlKO(o);}}
   return _drBR(o,arr,fresh);};}
 
@@ -134,7 +134,7 @@ addEventListener('keydown',ev=>{if(!running||!P||ev.target.tagName==='INPUT')ret
 {const _poBR=pvpOn;pvpOn=function(){return _poBR()||brawlOn();};}
 {const _ntPP=netTick;netTick=function(dt){_ntPP(dt);for(const o of NET.others.values())o.hpShow=null;
   for(const e of pvpCands()){const o=pvpOther(e);if(o&&e.pvShow!=null)o.hpShow=Math.max(1,Math.min(o.hp||0,e.hp));}};}
-{const _ptPP=pvpTaken;pvpTaken=function(raw,o){const r=_ptPP(raw,o);
+{const _ptPP=pvpTaken;pvpTaken=function(raw,o){const r=_ptPP.apply(this,arguments);
   try{const src=o&&o.__srv?Object.getPrototypeOf(o):o;if(src&&P){src.swingT=now;src.swingDur=.22;src.atkFace=sface(P.x-(src.rx||src.x),P.y-(src.ry||src.y));src.atkFaceT=now;}}catch(e){}
   return r;};}
 

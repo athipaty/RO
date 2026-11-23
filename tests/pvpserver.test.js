@@ -62,10 +62,11 @@ module.exports = async t => {
 
     // 6. far too many hits at once: only a burst's worth gets through
     h0 = await hpB(); u0 = await hurtB();
+    // counted as hits that reached Birch's game (since v1.50.0 the HP lost is capped per attacker, so HP cannot count them)
+    await B.ev(() => { window.__hits = 0; const p = pvpTaken; pvpTaken = function () { window.__hits++; return p.apply(this, arguments); }; });
     await A.ev(() => { const b = [...NET.others.values()].find(o => o.n === 'Birch'); for (let i = 0; i < 60; i++) PVPS.sock.emit('pvpHit', { to: b.peer, k: 'hit', d: 100, c: 0 }); });
     await wait(1200); h1 = await hpB(); u1 = await hurtB();
-    const per = await B.ev(() => Math.max(1, Math.round(100 - S.def * .6)));
-    const landed = Math.round((h0 - h1) / per);
+    const landed = await B.ev(() => window.__hits);
     t.ok(landed >= 10 && landed <= 16, `60 hits sent at once: only ${landed} get through`);
 
     // 7. an opponent on an older game (no pv in presence): hits go the old way, in presence, and still land

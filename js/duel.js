@@ -32,8 +32,22 @@ function duelAnswer(yes){const a=DASK.in;DASK.in=null;hideDuelAsk();if(!a)return
    FLEE: my opponent's stand-in uses my real FLEE (sent as "fl"), but only half of what is above my level counts, and
      an attacker always keeps at least a 60% chance to land a hit. */
 const PVP_RED_CAP=30;
-function pvpTaken(raw,o){const cap=400+clamp((o&&o.lv)||1,1,99)*150;let d=fin(raw)-S.def*.6;
-  if(S.dmgred)d*=1-Math.min(PVP_RED_CAP,S.dmgred)/100;return clamp(Math.round(d),1,cap);}
+/* (v1.50.0) player-fight damage, so nobody falls to one hit. Skills are made to fight monsters, which have 10-20x
+   the HP of a player: measured at Lv 60, the strongest skills hit for 2,400-4,000 against 900-2,000 HP, a one-hit
+   kill. Now, for hits from players only (monsters are unchanged):
+     PVP_DMG    every hit does 40% (after DEF)
+     PVP_HIT    one hit takes at most 30% of your max HP (40% for a critical hit)
+     PVP_BURST  one attacker takes at most 50% of your max HP within 1.2 s (multi-hit skills, double attack)
+   So the strongest skills need about 4 hits to win and normal attacks about 12: a fight lasts 10-15 s and you
+   have time to answer. DEF, "Damage taken" sigils, VIT and level all still count. */
+const PVP_DMG=.4,PVP_HIT=.3,PVP_HIT_CRIT=.4,PVP_BURST=.5,PVP_BURST_T=1.2;
+function pvpTaken(raw,o,crit){const cap=400+clamp((o&&o.lv)||1,1,99)*150;let d=(fin(raw)-S.def*.6)*PVP_DMG;
+  if(S.dmgred)d*=1-Math.min(PVP_RED_CAP,S.dmgred)/100;
+  const mh=Math.max(1,S.maxhp||1);d=Math.min(d,mh*(crit?PVP_HIT_CRIT:PVP_HIT));
+  // the same attacker in the last moment: what is left of their burst allowance
+  const src=o&&o.__srv?Object.getPrototypeOf(o):o;if(src){const b=(src.pvBurst||[]).filter(x=>now-x.t<PVP_BURST_T);const used=b.reduce((s,x)=>s+x.d,0);
+    d=Math.min(d,Math.max(1,mh*PVP_BURST-used));d=clamp(Math.round(d),1,cap);b.push({t:now,d});src.pvBurst=b;return d;}
+  return clamp(Math.round(d),1,cap);}
 function pvpFlee(o){const lv=clamp((o&&o.lv)||1,1,99),fl=fin(o&&o.fl);let f=fl>lv?lv+(fl-lv)*.5:lv;
   if(S)f=Math.min(f,S.hit+20);return Math.max(1,Math.round(f));}
 /* ---- the fight ---- */
@@ -67,7 +81,7 @@ function duelRecv(o,arr,fresh){if(!Array.isArray(arr))return;
     else if(e.k==='busy'){if(DASK.out&&DASK.out.id===o.id){DASK.out=null;addLog(`${o.n} is busy right now.`);}}
     else if(e.k==='hit'){if(!DUEL||DUEL.id!==o.id||now<DUEL.fightAt-.5||P.dead)continue;
       if(Math.hypot(o.x-P.x,o.y-P.y)>450)continue; // too far away to have hit me
-      const d=pvpTaken(e.d,o);
+      const d=pvpTaken(e.d,o,!!e.c);
       P.hp-=d;P.hurtT=now;P.sitting=false;interruptCast();sfx('hurt');fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});
       hurtNum(P.x,P.y-30,d,!!e.c);
       if(P.hp<=1){P.hp=1;dlSend(o.id,'lose');duelEnd(`${o.n} won the duel. You are at 1 HP. Well fought!`,'l-bad');}}
