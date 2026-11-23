@@ -255,7 +255,8 @@ const TH_STATK=/^(ATK|MATK|DEF|STR|AGI|VIT|INT|DEX|LUK|CRIT|FLEE|HIT|ASPD|Max HP
 function thGearPart(p){if(!p)return '';if(TH_STATK.test(p))return p.replace('Max HP','HP สูงสุด').replace('Max SP','SP สูงสุด').replace('HP regen','ฟื้น HP').replace('SP regen','ฟื้น SP');
   if(/^Lv \d+\+$/.test(p))return p;if(TH_WT[p])return TH_WT[p];if(TH[p]&&/[฀-๿]/.test(TH[p]))return TH[p];
   if(/^Slots: /.test(p))return 'ช่อง: '+p.slice(7).split(', ').map(x=>x==='empty'?'ว่าง':x).join(', ');
-  if(/ \(refine\)$/.test(p))return p.replace(' (refine)',' (ตีบวก)');return null;}
+  if(/ \(refine\)$/.test(p))return p.replace(' (refine)',' (ตีบวก)');
+  return typeof thBonusPart==='function'?thBonusPart(p):null;}
 TH_PAT.push([/^.+ · .+$/,m=>{const parts=m.replace(/ ·$/,'').split(' · '),out=parts.map(thGearPart);return out.every(x=>x!==null)?out.join(' · ')+(/ ·$/.test(m)?' ·':''):m;}]);
 // stat bonus lists ("+80 Max HP, Healing +5%", "Attack speed +3%"): each part into Thai when every part is known
 const TH_BONUS={'Attack speed':'ความเร็วโจมตี','Cast time':'เวลาร่าย','Crit damage':'ความเสียหายคริติคอล','Double attack':'โจมตีสองครั้ง','Damage taken':'ความเสียหายที่ได้รับ','Healing':'การรักษา','SP regen':'ฟื้น SP','HP regen':'ฟื้น HP','Max HP':'HP สูงสุด','Max SP':'SP สูงสุด'};

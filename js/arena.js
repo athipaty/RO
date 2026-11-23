@@ -90,7 +90,7 @@ duelRecv=function(o,arr,fresh){if(Array.isArray(arr)&&!fresh){const M=AR.match;
     if(!M||e.to!==NET.myId||e.m!==M.id||M.out||!P||now<M.fightAt-.5)continue;
     const f=M.foes.find(x=>x.id===o.id);if(!f||f.out)continue;
     if(Math.hypot(o.x-P.x,o.y-P.y)>ARENA_REACH)continue;
-    const cap=400+clamp(o.lv||1,1,99)*150,d=clamp(Math.round(fin(e.d)-S.def*.6),1,cap);
+    const d=pvpTaken(e.d,o);
     P.hp-=d;P.hurtT=now;P.sitting=false;interruptCast();sfx('hurt');fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});
     floatT(P.x,P.y-30,fmt(d),e.c?'#ffb03a':'#ff6a5a',e.c?22:16);
     if(P.hp<=1)arenaOut(`${o.n} knocked you out!`);}}
@@ -102,7 +102,7 @@ const _netTickA=netTick;
 netTick=function(dt){_netTickA(dt);const M=AR.match;if(!M||!P)return;
   if(zoneId!=='arena'){if(!M.out)arenaOut('You left the arena, so you are out of the match.');return;}
   if(M.out){if(P.hp<1)P.hp=1;P.target=null;}
-  for(const f of M.foes){const o=dlOther(f.id);if(!o)continue;const e=f.ent;e.x=o.rx;e.y=o.ry;e.hp=Math.max(1,o.hp||1);e.d.lv=o.lv||1;e.d.flee=clamp(o.lv||1,1,99);}
+  for(const f of M.foes){const o=dlOther(f.id);if(!o)continue;const e=f.ent;e.x=o.rx;e.y=o.ry;e.hp=Math.max(1,o.hp||1);e.d.lv=o.lv||1;e.d.flee=pvpFlee(o);}
   if(P.dead&&!M.out)arenaOut();
   if(Math.floor(now*2)!==Math.floor((now-dt)*2))for(const f of M.foes)if(!f.out)fx.push({k:'ring',x:f.ent.x,y:f.ent.y,r:24,col:'#ff5a4a',t0:now,dur:.5});};
 // out of the fight: no attacks or skills

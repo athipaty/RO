@@ -95,7 +95,7 @@ function manaShield(dmg){const b=P&&P.buffs&&P.buffs.manashield;if(!b||!(b.until
 
 // double attack (Double Nock, gear with dbl): a second hit right after a normal attack; spellcasters' bolts do not double
 {const _baDbl=basicAttack;basicAttack=function(t){const r=_baDbl.apply(this,arguments);
-  if(S&&S.dbl&&t&&!CLASSES[P.cls].magic&&Math.random()*100<S.dbl){const ranged=S.range>100;
+  if(S&&S.dbl&&t&&!CLASSES[P.cls].magic&&Math.random()*100<(t.pvp?Math.min(30,S.dbl):S.dbl)){const ranged=S.range>100;
     setTimeout(()=>{if(!P||P.dead||!t||t.dead)return;floatT(t.x-14,t.y-(t.d?t.d.size:16)-20,'Double!','#d8e8a0',11);
       if(ranged)shoot(P,t,'arrow','#d8e8a0',()=>dealPhys(t,1));else dealPhys(t,1);},ranged?240:190);}
   return r;};}

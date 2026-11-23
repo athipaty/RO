@@ -85,7 +85,7 @@ duelRecv=function(o,arr,fresh){if(Array.isArray(arr)){
   for(const e of arr.slice(-10)){if(!e||typeof e!=='object'||e.k!=='gh')continue;const i=fin(e.i);if(i<=(o.ghSeen||0))continue;o.ghSeen=i;
     if(fresh||e.to!==NET.myId||!gwFighting()||!gwFoe(o))continue;
     if(Math.hypot(o.x-P.x,o.y-P.y)>GW_REACH)continue;
-    const cap=400+clamp(o.lv||1,1,99)*150,d=clamp(Math.round(fin(e.d)-S.def*.6),1,cap);
+    const d=pvpTaken(e.d,o);
     P.hp-=d;P.hurtT=now;P.sitting=false;interruptCast();sfx('hurt');fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});
     floatT(P.x,P.y-30,fmt(d),e.c?'#ffb03a':'#ff6a5a',e.c?22:16);
     if(P.hp<=1)gwKnockout(o.n);}}
@@ -96,7 +96,7 @@ netTick=function(dt){_netTickGW(dt);if(!gwFighting()){if(GW.ents.size)gwClear();
   const seen=new Set();
   for(const o of NET.others.values()){if(!gwFoe(o)||!o.id)continue;seen.add(o.id);let e=GW.ents.get(o.id);
     if(!e){e={pvp:true,gw:true,pid:o.id,x:o.rx,y:o.ry,hp:100,dead:false,hitF:-9,idx:-1,state:'idle',d:{id:'gw',name:o.n,lv:1,hp:100,size:12,flee:1,def:0,el:'neutral',drops:[]}};GW.ents.set(o.id,e);}
-    e.x=o.rx;e.y=o.ry;e.hp=Math.max(1,o.hp||1);e.d.name=o.n;e.d.lv=o.lv||1;e.d.flee=clamp(o.lv||1,1,99);}
+    e.x=o.rx;e.y=o.ry;e.hp=Math.max(1,o.hp||1);e.d.name=o.n;e.d.lv=o.lv||1;e.d.flee=pvpFlee(o);}
   for(const [id,e] of GW.ents)if(!seen.has(id)){if(P.target===e)P.target=null;GW.ents.delete(id);}};
 // clicking a rival targets them
 const _mobAtGW=mobAt;

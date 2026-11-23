@@ -41,9 +41,11 @@ function ailTick(dt){if(!P||P.dead||!P.ail)return;
   for(const k in P.ail)if(P.ail[k]&&P.ail[k]<=now){delete P.ail[k];}}
 function ailText(){if(!P||!P.ail)return '';return Object.keys(AILS).filter(ailOn).map(k=>`${AILS[k].g} ${AILS[k].name} ${Math.ceil(P.ail[k]-now)}s`).join(' · ');}
 // little coloured badges over your head
-function drawAilIcons(x,y){const on=Object.keys(AILS).filter(ailOn);if(!on.length)return;let ox=x-(on.length-1)*8;
+// (v1.49.0: no work at all without an ailment, and the font is set once per frame instead of once per badge)
+function drawAilIcons(x,y){if(!P||!P.ail)return;let n=0;for(const k in P.ail)if(AILS[k]&&ailOn(k))n++;if(!n)return;const on=Object.keys(AILS).filter(ailOn);let ox=x-(on.length-1)*8;
+  ctx.font='800 8px "Alegreya Sans",sans-serif';ctx.textAlign='center';
   for(const k of on){ctx.fillStyle='rgba(0,0,0,.6)';ctx.beginPath();ctx.arc(ox,y,7,0,7);ctx.fill();ctx.fillStyle=AILS[k].col;ctx.beginPath();ctx.arc(ox,y,5.5,0,7);ctx.fill();
-    ctx.fillStyle='#1a120a';ctx.font='800 8px "Alegreya Sans",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(AILS[k].g,ox,y+.5);ctx.textBaseline='alphabetic';ox+=16;}}
+    ctx.fillStyle='#1a120a';ctx.textBaseline='middle';ctx.fillText(AILS[k].g,ox,y+.5);ox+=16;}ctx.textBaseline='alphabetic';}
 function drawBlind(){const g=ctx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.12,VW/2,VH/2,Math.max(VW,VH)*.6);
   g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.88)');ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);ctx.restore();}
 // freezing or stunning a monster: told to the server when it runs the monsters

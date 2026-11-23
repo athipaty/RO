@@ -26,10 +26,20 @@ function duelAnswer(yes){const a=DASK.in;DASK.in=null;hideDuelAsk();if(!a)return
   if(!yes||!o||DUEL){dlSend(a.id,'no');return;}
   dlSend(a.id,'yes');duelStart(o);}
 
+/* ---- player-fight rules for the defender's own gear (v1.49.0) ----
+   Damage taken: a hit from a player is cut by my "Damage taken" bonus too (at most 30% in player fights, half the
+     50% allowed against monsters, so a wall of damage-cut gear can still be beaten).
+   FLEE: my opponent's stand-in uses my real FLEE (sent as "fl"), but only half of what is above my level counts, and
+     an attacker always keeps at least a 60% chance to land a hit. */
+const PVP_RED_CAP=30;
+function pvpTaken(raw,o){const cap=400+clamp((o&&o.lv)||1,1,99)*150;let d=fin(raw)-S.def*.6;
+  if(S.dmgred)d*=1-Math.min(PVP_RED_CAP,S.dmgred)/100;return clamp(Math.round(d),1,cap);}
+function pvpFlee(o){const lv=clamp((o&&o.lv)||1,1,99),fl=fin(o&&o.fl);let f=fl>lv?lv+(fl-lv)*.5:lv;
+  if(S)f=Math.min(f,S.hit+20);return Math.max(1,Math.round(f));}
 /* ---- the fight ---- */
 function duelStart(o){DASK.out=null;
   const ent={pvp:true,x:o.rx,y:o.ry,hp:o.hp||100,dead:false,hitF:-9,idx:-1,state:'idle',
-    d:{id:'duel',name:o.n,lv:o.lv||1,hp:100,size:12,flee:clamp(o.lv||1,1,99),def:0,el:'neutral',drops:[]}};
+    d:{id:'duel',name:o.n,lv:o.lv||1,hp:100,size:12,flee:pvpFlee(o),def:0,el:'neutral',drops:[]}};
   DUEL={id:o.id,peer:o.peer,name:o.n,fightAt:now+3,until:now+3+DUEL_TIME,ent,farT:0};
   addLog(`Duel with ${o.n}! Click them to attack. First to fall to 1 HP loses. Nobody dies.`,'l-rare');
   [3,2,1].forEach((n,i)=>setTimeout(()=>{if(DUEL&&DUEL.ent===ent){texts.push({x:P.x,y:P.y-70,txt:String(n),col:'#ffcf5a',size:30,t0:now,dur:.8});sfx('click');}},i*1000));
@@ -57,7 +67,7 @@ function duelRecv(o,arr,fresh){if(!Array.isArray(arr))return;
     else if(e.k==='busy'){if(DASK.out&&DASK.out.id===o.id){DASK.out=null;addLog(`${o.n} is busy right now.`);}}
     else if(e.k==='hit'){if(!DUEL||DUEL.id!==o.id||now<DUEL.fightAt-.5||P.dead)continue;
       if(Math.hypot(o.x-P.x,o.y-P.y)>450)continue; // too far away to have hit me
-      const cap=400+clamp(o.lv||1,1,99)*150,d=clamp(Math.round(fin(e.d)-S.def*.6),1,cap);
+      const d=pvpTaken(e.d,o);
       P.hp-=d;P.hurtT=now;P.sitting=false;interruptCast();sfx('hurt');fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});
       floatT(P.x,P.y-30,fmt(d),e.c?'#ffb03a':'#ff6a5a',e.c?22:16);
       if(P.hp<=1){P.hp=1;dlSend(o.id,'lose');duelEnd(`${o.n} won the duel. You are at 1 HP. Well fought!`,'l-bad');}}
@@ -68,7 +78,7 @@ function duelRecv(o,arr,fresh){if(!Array.isArray(arr))return;
 const _netTickD=netTick;
 netTick=function(dt){_netTickD(dt);if(!DUEL||!P)return;const o=dlOther(DUEL.id),e=DUEL.ent;
   if(!o||o.z!==zoneId){duelEnd(`The duel with ${DUEL.name} is over: they left.`);return;}
-  e.x=o.rx;e.y=o.ry;e.hp=Math.max(1,o.hp||1);e.d.name=o.n;e.d.lv=o.lv||1;
+  e.x=o.rx;e.y=o.ry;e.hp=Math.max(1,o.hp||1);e.d.name=o.n;e.d.lv=o.lv||1;e.d.flee=pvpFlee(o);
   if(P.dead){dlSend(DUEL.id,'lose');duelEnd('You fell to a monster, so the duel is lost.','l-bad');return;}
   DUEL.farT=Math.hypot(o.x-P.x,o.y-P.y)>DUEL_RANGE?DUEL.farT+dt:0;
   if(DUEL.farT>5){dlSend(DUEL.id,'end');duelEnd(`You walked away from the duel with ${DUEL.name}.`);return;}
