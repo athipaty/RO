@@ -1886,3 +1886,29 @@ body.touchui #panel.npcsheet .sheetacts{background:linear-gradient(180deg,rgba(1
 #title .t-stage>.tcArrow{position:absolute;transform:translateY(-50%)}
 #title .t-stage>#slotPrev,#title.tcNew .t-stage>#slotPrev{left:8px}#title .t-stage>#slotNext,#title.tcNew .t-stage>#slotNext{right:8px}
 #title .t-stage>#slotDel{top:10px;right:10px;z-index:3}
+/* v1.53.1 equipment on a phone held sideways: the hero in the middle, head/face/mouth/shoes in a 2x2 block on the
+   left, weapon/armour/both accessories in a 2x2 block on the right (8 slots no longer spill over the stats line) */
+@media (orientation:landscape) and (max-height:540px){
+  body.touchui #panel .eqgrid,body.touchui #panel.npcfull .eqgrid{display:grid;grid-template-columns:minmax(0,1fr) clamp(100px,15vw,150px) minmax(0,1fr);grid-template-rows:auto;gap:6px;align-items:stretch;flex:none}
+  body.touchui #panel .eqcol,body.touchui #panel.npcfull .eqcol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-content:start}
+  body.touchui #panel #eqCv,body.touchui #panel.npcfull #eqCv{grid-column:2;grid-row:1;width:100%;height:auto;aspect-ratio:4/5;align-self:center}
+  body.touchui #panel .eqgrid>.eqcol:first-child{grid-column:1;grid-row:1}body.touchui #panel .eqgrid>.eqcol:last-child{grid-column:3;grid-row:1}
+  body.touchui #panel .eqslot{min-width:0;padding:5px 6px;gap:5px}
+  body.touchui #panel .eqslot .nm{font-size:12px;line-height:1.2}body.touchui #panel .eqslot .ds{font-size:10.5px;line-height:1.25}
+  body.touchui #panel .eqslot .btn.small{padding:2px 6px;font-size:11px}
+}
+/* v1.53.1 Remove on equipment cards: a small ✕ in the top-right corner, so names and stats get the whole width */
+#panel .eqslot{position:relative;padding-right:26px!important}
+#panel .eqrm{position:absolute;top:4px;right:4px;width:22px;height:22px;padding:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;
+  background:rgba(40,20,16,.75);border:1px solid rgba(255,140,120,.45);color:#ffb0a0}
+#panel .eqrm:hover,#panel .eqrm:focus-visible{background:#a8241a;color:#fff;border-color:#ffb8a8;outline:none}
+#panel .eqrm svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+body.touchui #panel .eqrm{width:26px;height:26px}
+@media (orientation:landscape) and (max-height:540px){body.touchui #panel.npcfull[data-kind="equip"] .sub{display:none}
+  body.touchui #panel .eqslot,body.touchui #panel.npcfull .eqslot{grid-template-columns:34px minmax(0,1fr)!important;padding:6px 28px 6px 6px!important}
+  body.touchui #panel.npcfull .eqslot .ico{width:34px;height:34px}}
+/* v1.53.1 the two accessories at the bottom outer corners on a phone held sideways (left block: head, face /
+   accessory, mouth; right block: weapon, armour / shoes, accessory II) */
+@media (orientation:landscape) and (max-height:540px){
+  body.touchui #panel .eqslot[data-slot="head"]{order:1}body.touchui #panel .eqslot[data-slot="face"]{order:2}
+  body.touchui #panel .eqslot[data-slot="accessory"]{order:3}body.touchui #panel .eqslot[data-slot="mouth"]{order:4}}
