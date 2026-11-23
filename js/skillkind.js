@@ -38,8 +38,14 @@ addEventListener('resize',()=>setTimeout(()=>{try{hbMapMeasure()&&hbMap();}catch
 {const _hbPM=PANELS.hotbar;PANELS.hotbar=()=>{let h=_hbPM();const m=hbMap();if(!m)return h;
   // a single straight row: the plain grid already matches it
   const flat=m.pos.every(p=>Math.abs(p.y-m.pos[0].y)<4)&&!m.atk;if(flat)return h;
-  const W=Math.min(300,(window.innerWidth||360)-60),k=Math.min(1,W/m.w),H=Math.round(m.h*k);
+  const land=innerWidth>innerHeight&&innerHeight<=540,W=land?Math.min(300,innerWidth*.42):Math.min(300,(window.innerWidth||360)-60),k=Math.min(1,W/m.w,land?innerHeight*.62/m.h:9),H=Math.round(m.h*k);
   let i=0;h=h.replace(/<div class="hbslots"/,`<div class="hbslots hbmap" style="height:${H}px;width:${Math.round(m.w*k)}px"`);
   h=h.replace(/<button class="hbs/g,s=>{const p=m.pos[i++];if(!p)return s;return `<button style="left:${Math.round(p.x*k)}px;top:${Math.round(p.y*k)}px;width:${Math.round(p.s*k)}px;height:${Math.round(p.s*k)}px" class="hbs`;});
   if(m.atk)h=h.replace(/(<div class="hbslots hbmap"[^>]*>)/,`$1<span class="hbatk" aria-hidden="true" style="left:${Math.round(m.atk.x*k)}px;top:${Math.round(m.atk.y*k)}px;width:${Math.round(m.atk.s*k)}px;height:${Math.round(m.atk.s*k)}px">⚔</span>`);
   return h;};}
+/* (v1.49.7) a phone held sideways: the editor shows the hotbar on the right (where it is on screen) and the skills and
+   items on the left, side by side, instead of one long column. The parts are wrapped here; css/style.css lays them out. */
+{const _hbPS=PANELS.hotbar;PANELS.hotbar=()=>{const h=_hbPS();
+  const a=h.indexOf('<div class="hbslots'),b=h.indexOf('<h3>Skills</h3>'),c=h.lastIndexOf('<div class="tbtns"><button class="btn small" data-act="hbreset"');
+  if(a<0||b<a||c<b)return h;
+  return h.slice(0,a)+`<div class="hbsplit"><div class="hbright">${h.slice(a,b)}</div><div class="hbleft">${h.slice(b,c)}</div></div>`+h.slice(c);};}

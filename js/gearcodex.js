@@ -7,7 +7,7 @@
 Object.assign(CODEX,Object.assign({gslot:'all',gsrc:'drop',gab:'all',gsort:'lv'},CODEX));
 const GEAR_SLOTS=[['all','All'],['weapon','Weapon'],['armor','Armour'],['head','Head'],['face','Face'],['mouth','Mouth'],['accessory','Accessory']];
 const GEAR_SRCS=[['all','All'],['drop','Monster drop'],['shop','Shop'],['forge','Forge'],['other','Quests & events']];
-const GEAR_ABS=[...CODEX_ABS,['regen','HP regen'],['vs_beast','vs Beast'],['vs_insect','vs Insect'],['vs_plant','vs Plant'],['vs_spirit','vs Spirit'],['vs_undead','vs Undead']];
+const GEAR_ABS=[...CODEX_ABS,['vs_beast','vs Beast'],['vs_insect','vs Insect'],['vs_plant','vs Plant'],['vs_spirit','vs Spirit'],['vs_undead','vs Undead']];
 const gearAbName=k=>(GEAR_ABS.find(a=>a[0]===k)||[k,k.toUpperCase()])[1];
 const gearStat=(it,k)=>k==='atk'||k==='matk'||k==='def'?(it[k]||0)+((it.b&&it.b[k])||0):((it.b&&it.b[k])||0);
 function gearAll(){const kk=codexKills(),forged=new Set(typeof FORGES!=='undefined'?FORGES.map(r=>r[0]):[]);

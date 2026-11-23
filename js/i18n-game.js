@@ -307,3 +307,7 @@ if(typeof TH!=='undefined'){Object.assign(TH,{'Open PvP':'PvP แบบเปิ
     [/^You entered the arena \((\d+)\/(\d+) fighters\)\. Tap anyone to fight! Fall to 1 HP and you are knocked down, then back in the fight\. Auto mode is off here\.$/,'คุณเข้าสู่อารีน่าแล้ว ($1/$2 คน) แตะใครก็ได้เพื่อสู้! ถ้า HP เหลือ 1 คุณจะล้มลง แล้วกลับมาสู้ต่อ ที่นี่ปิดโหมดออโต้'],
     [/^The arena is full \((\d+) fighters\)\. Try again in a moment\.$/,'อารีน่าเต็มแล้ว ($1 คน) ลองใหม่อีกครั้งในอีกสักครู่'],
     [/^(.+) knocked you down!$/,'$1 ล้มคุณลงแล้ว!'],[/^You knocked down (.+)!$/,'คุณล้ม $1 ลงแล้ว!']);}
+// v1.49.7: every sigil ability in the library's filter
+if(typeof TH!=='undefined')Object.assign(TH,{'ATK %':'ATK เพิ่ม %','MATK %':'MATK เพิ่ม %','Damage taken −%':'ความเสียหายที่ได้รับ −%','Max SP %':'SP สูงสุด %',
+  'Crit damage %':'ความเสียหายคริติคอล %','Double attack %':'โจมตีสองครั้ง %','Attack speed %':'ความเร็วโจมตี %','Cast time −%':'เวลาร่าย −%',
+  'Healing %':'การรักษา %','HP regen':'ฟื้น HP','SP regen':'ฟื้น SP'});

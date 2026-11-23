@@ -8,7 +8,14 @@
 const CODEX=(()=>{const d={tab:'beast',slot:'all',ab:'all',sort:'lv'};try{return Object.assign(d,JSON.parse(localStorage.getItem('embervale.codex')||'{}'));}catch(e){return d;}})();
 const saveCodex=()=>{try{localStorage.setItem('embervale.codex',JSON.stringify(CODEX));}catch(e){}};
 const CODEX_SLOTS=[['all','All'],['weapon','Weapon'],['armor','Armour'],['head','Head'],['accessory','Accessory']];
-const CODEX_ABS=[['atk','ATK'],['matk','MATK'],['def','DEF'],['maxhp','Max HP'],['hppct','Max HP %'],['maxsp','Max SP'],['str','STR'],['agi','AGI'],['vit','VIT'],['int','INT'],['dex','DEX'],['luk','LUK'],['crit','CRIT'],['hit','HIT'],['flee','FLEE']];
+const CODEX_ABS=[['atk','ATK'],['atkpct','ATK %'],['matk','MATK'],['matkpct','MATK %'],['def','DEF'],['dmgred','Damage taken −%'],['maxhp','Max HP'],['hppct','Max HP %'],['maxsp','Max SP'],['sppct','Max SP %'],
+  ['str','STR'],['agi','AGI'],['vit','VIT'],['int','INT'],['dex','DEX'],['luk','LUK'],['crit','CRIT'],['critdmg','Crit damage %'],['dbl','Double attack %'],['aspd','Attack speed %'],['cast','Cast time −%'],
+  ['hit','HIT'],['flee','FLEE'],['healpct','Healing %'],['regen','HP regen'],['spregen','SP regen']];
+// (v1.49.7) every bonus a sigil can give can be picked and sorted by; one not in the list above still shows, named by its label
+function codexAbList(sigs){const keys=new Set();for(const s of sigs)for(const k in s.b)keys.add(k);
+  const out=CODEX_ABS.filter(([k])=>keys.has(k));
+  for(const k of keys)if(!CODEX_ABS.some(a=>a[0]===k)){const l=typeof bonusLabel==='function'&&bonusLabel(k,0);out.push([k,l?l.replace(/\s*[+−-]?0(%|\/s)?/,'').trim():k.toUpperCase()]);}
+  return out;}
 const codexAbName=k=>(CODEX_ABS.find(a=>a[0]===k)||[k,k.toUpperCase()])[1];
 function codexKills(){return (typeof achData==='function'?achData().kk:(P.ach&&P.ach.kk))||{};}
 function codexAll(){const kk=codexKills();
@@ -18,12 +25,12 @@ function codexOwned(id){let loose=0,sock=0;
   for(const e of [...P.inv,...(P.storage||[])]){if(e.id===id&&e.n!==undefined)loose+=e.n;if(Array.isArray(e.s))sock+=e.s.filter(v=>v===id).length;}
   for(const e of Object.values(P.eq||{}))if(e&&Array.isArray(e.s))sock+=e.s.filter(v=>v===id).length;
   return {loose,sock};}
-function codexBonusHtml(b){return Object.entries(b).map(([k,v])=>{const on=CODEX.ab===k;const t=CODEX_ABS.some(a=>a[0]===k)||typeof bonusLabel!=='function'||!bonusLabel(k,v)?`+${v}${k==='hppct'?'%':''} ${k==='hppct'?'Max HP':codexAbName(k)}`:bonusLabel(k,v);
+function codexBonusHtml(b){return Object.entries(b).map(([k,v])=>{const on=CODEX.ab===k;const t=(typeof bonusLabel==='function'&&bonusLabel(k,v))||`+${v} ${codexAbName(k)}`;
   return on?`<b class="cxon">${t}</b>`:t;}).join(', ');}
 function codexHtml(){
   const all=codexAll(),kk=codexKills();
   const bySlot=CODEX.slot==='all'?all:all.filter(s=>s.kind===CODEX.slot);
-  const abs=CODEX_ABS.filter(([k])=>bySlot.some(s=>s.b[k]));
+  const abs=codexAbList(bySlot).filter(([k])=>bySlot.some(s=>s.b[k]));
   if(CODEX.ab!=='all'&&!abs.some(a=>a[0]===CODEX.ab))CODEX.ab='all';
   if(CODEX.sort==='best'&&CODEX.ab==='all')CODEX.sort='lv';
   let list=CODEX.ab==='all'?bySlot:bySlot.filter(s=>s.b[CODEX.ab]);

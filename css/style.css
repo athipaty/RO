@@ -1822,3 +1822,12 @@ body.touchui #panel.npcsheet .sheetacts{background:linear-gradient(180deg,rgba(1
 #panel .tctravel.primary{background:linear-gradient(180deg,#ffe08a,#e0a83a)!important;color:#2a1a04!important;border:1.5px solid #fff0b8!important;box-shadow:0 2px 0 #6a4a10,0 0 10px rgba(255,200,90,.25)!important;font-weight:800}
 #panel .tctravel:disabled{background:#2a3040!important;color:#8a93a6!important;border-color:#4a5468!important;box-shadow:none!important}
 #panel .wsgold{display:inline-block;margin:0 0 8px;padding:2px 10px;border-radius:10px;background:rgba(240,181,74,.12);border:1px solid rgba(240,181,74,.35);font-size:13px}
+/* v1.49.7 hotbar editor on a phone held sideways: skills and items on the left, the hotbar (as on screen) on the right */
+@media (orientation:landscape) and (max-height:540px){
+  .hbsplit{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start}
+  .hbsplit .hbleft{grid-column:1;grid-row:1;min-width:0}
+  .hbsplit .hbright{grid-column:2;grid-row:1;position:sticky;top:0;max-width:46vw}
+  .hbsplit .hbleft h3:first-child{margin-top:4px}
+  .hbsplit .hbleft .hbpick{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .hbsplit .hbright .hbslots:not(.hbmap){grid-template-columns:repeat(4,44px)}
+}

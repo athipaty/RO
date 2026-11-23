@@ -26,6 +26,17 @@ module.exports = async t => {
     });
     t.ok(r.map && r.atk && r.same, 'on a phone the editor places slots like the real hotbar, around the Attack button ' + JSON.stringify({ map: r.map, atk: r.atk, same: r.same }));
     t.ok(['Single target', 'Area', 'Around you', 'Heal', 'Buff', 'Ground (aim)'].every(k => r.kinds.includes(k)), 'every skill in the editor says its type (' + r.kinds.join(', ') + ')');
+    // held sideways: skills and items on the left, the hotbar on the right
+    await ev(() => closePanel());
+    await page.setViewport({ width: 860, height: 400, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });
+    await wait(800);
+    const land = await ev(() => { openPanel('hotbar'); const L = document.querySelector('#panel .hbleft'), R = document.querySelector('#panel .hbright');
+      if (!L || !R) return null; const l = L.getBoundingClientRect(), r = R.getBoundingClientRect(); return { right: r.left >= l.right - 2, side: Math.abs(r.top - l.top) < 40 }; });
+    t.ok(land && land.right && land.side, 'on a phone held sideways the hotbar sits on the right, skills and items on the left ' + JSON.stringify(land));
+    // the library's sigil list can be filtered and sorted by every bonus sigils give
+    const cx = await ev(() => { const kk = codexKills(); for (const id in MOBS) kk[id] = 1; CODEX.slot = 'all'; CODEX.ab = 'all'; const d = document.createElement('div'); d.innerHTML = codexHtml();
+      return [...d.querySelectorAll('[data-act="cxab"]')].map(b => b.dataset.arg); });
+    t.ok(['critdmg', 'aspd', 'dbl', 'cast', 'dmgred', 'healpct', 'atkpct', 'matkpct', 'sppct', 'spregen'].every(k => cx.includes(k)), 'the sigil library offers every bonus as a filter (' + cx.join(', ') + ')');
     t.ok(errors.length === 0, 'no script errors' + errors.map(e => ': ' + e).join(''));
   } finally { await browser.close(); }
 };
