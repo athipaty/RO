@@ -67,7 +67,7 @@ function renderParty(){const box=$('#partyBox'),p=SOC.party;box.hidden=!p;if(!p)
   list._key=key;
   list.textContent='';
   for(const m of p.members){const isMe=m.peer===me,o=NET.others.get(m.peer);
-    const row=document.createElement('div');row.className='pmr';
+    const row=document.createElement('div');row.className='pmr';row.dataset.peer=m.peer; // (voice.js) who is talking
     const nm=document.createElement('span');nm.className='pn';nm.textContent=(m.peer===p.leader?'★ ':'')+m.name+(isMe?' (you)':'');
     const hp=isMe?(S?P.hp/S.maxhp:1):o?(o.hp||0)/100:0;
     const bar=document.createElement('i');bar.className='ph';bar.style.setProperty('--hp',(clamp(hp,0,1)*100).toFixed(0)+'%');
