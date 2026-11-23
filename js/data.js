@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='1.49.0';
+const VERSION='1.49.1';
 // chance that a normal monster drops its sigil (card); bosses set their own sigChance
 const SIG_CHANCE=.01;
 const TILE=32, PR=10, SAVE_KEY='embervale.save.v1';
@@ -188,7 +188,7 @@ const ZONES={
   // Stage 6 arena: four pits for ranked matches (js/arena.js); reached from the Arena Master in Hearthvale
   // Stage 6 guild war: the Ember Crystal sits in a ring at the centre (js/guildwar.js); reached from the Keep Herald in Hearthvale
   keep:{name:'Emberkeep',w:44,h:34,theme:'keep',music:'crypt',safe:true,lvl:'Guild war',links:{}},
-  arena:{name:'Ember Arena',w:48,h:34,theme:'arena',music:'boss',safe:true,lvl:'Ranked PvP',links:{}},
+  arena:{name:'Ember Arena',w:48,h:34,theme:'arena',music:'boss',safe:true,lvl:'Open PvP',links:{}},
   frost:{name:'Frostpeak Pass',w:64,h:44,theme:'frost',seed:67,density:.08,ponds:3,lvl:'Lv 42–55',mobs:[['rimestalker',12],['frostwisp',11],['snowhulk',9],['frostmatron',1],['rimestalker',3,'frostmatron'],['iceimp',4],['glacierbeetle',3]],links:{west:'crypt',east:'fen'}},
   // v1.7.0 Mirelight Fen: many ponds, willow-dark trees and green fireflies
   fen:{name:'Mirelight Fen',w:66,h:46,theme:'fen',seed:131,density:.08,ponds:13,lvl:'Lv 55–70',mobs:[['bogling',12],['fenlurker',9],['marshwisp',7],['rotcap',6],['miregolem',4],['mirematriarch',1],['bogmantis',3,'mirematriarch'],['bogmantis',4]],links:{west:'frost'}},

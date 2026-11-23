@@ -2,6 +2,9 @@
 // Runs only against a local copy of the game server (it creates accounts), started with short arena timings:
 //   EMBER_ARENA_START_MS=5000 EMBER_ARENA_MATCH_MS=40000
 //   EMBER_SERVER=http://localhost:5055 GAME_URL=http://localhost:8080/index.html npm test -- arena
+// v1.49.1: the queue is gone from the Arena Master's window (the arena is now an open fight, see brawl.test.js), so this
+// test is retired. The server's ranked matchmaking still exists; set ARENA_RANKED=1 to run it with a game that still
+// offers the queue.
 const { player, wait, newRoom } = require('./helpers');
 
 async function account(prefix) {
@@ -16,6 +19,7 @@ const join = async (g, mode) => { await g.ev(() => openPanel('arena')); const ok
 const logHas = (g, s, ms) => until(g, `() => document.getElementById('log').textContent.includes(${JSON.stringify(s)})`, ms);
 
 module.exports = async t => {
+  if (!process.env.ARENA_RANKED) { t.ok(true, 'retired: the arena is an open fight now (brawl.test.js)'); return; }
   if (!process.env.EMBER_SERVER) { t.ok(true, 'skipped (set EMBER_SERVER to run against a local game server)'); return; }
   const room = newRoom();
   const [aa, ab] = await Promise.all([account('ara'), account('arb')]);

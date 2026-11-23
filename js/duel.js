@@ -69,7 +69,7 @@ function duelRecv(o,arr,fresh){if(!Array.isArray(arr))return;
       if(Math.hypot(o.x-P.x,o.y-P.y)>450)continue; // too far away to have hit me
       const d=pvpTaken(e.d,o);
       P.hp-=d;P.hurtT=now;P.sitting=false;interruptCast();sfx('hurt');fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});
-      floatT(P.x,P.y-30,fmt(d),e.c?'#ffb03a':'#ff6a5a',e.c?22:16);
+      hurtNum(P.x,P.y-30,d,!!e.c);
       if(P.hp<=1){P.hp=1;dlSend(o.id,'lose');duelEnd(`${o.n} won the duel. You are at 1 HP. Well fought!`,'l-bad');}}
     else if(e.k==='lose'){if(DUEL&&DUEL.id===o.id){announce('duel',o.n);sfx('fanfare');fx.push({k:'lvl',x:P.x,y:P.y-30,t0:now,dur:2,txt:'VICTORY',col:'#ffcf5a'});duelEnd(`You won the duel against ${o.n}!`,'l-rare');}}
     else if(e.k==='end'){if(DUEL&&DUEL.id===o.id)duelEnd(`${o.n} left the duel.`);}}}

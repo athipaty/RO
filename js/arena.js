@@ -92,7 +92,7 @@ duelRecv=function(o,arr,fresh){if(Array.isArray(arr)&&!fresh){const M=AR.match;
     if(Math.hypot(o.x-P.x,o.y-P.y)>ARENA_REACH)continue;
     const d=pvpTaken(e.d,o);
     P.hp-=d;P.hurtT=now;P.sitting=false;interruptCast();sfx('hurt');fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});
-    floatT(P.x,P.y-30,fmt(d),e.c?'#ffb03a':'#ff6a5a',e.c?22:16);
+    hurtNum(P.x,P.y-30,d,!!e.c);
     if(P.hp<=1)arenaOut(`${o.n} knocked you out!`);}}
   else if(Array.isArray(arr)&&fresh){for(const e of arr.slice(-10))if(e&&e.k==='ah')o.arSeen=Math.max(o.arSeen||0,fin(e.i));}
   return _duelRecvA(o,arr,fresh);};

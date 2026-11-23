@@ -440,7 +440,7 @@ function drawHat(id,x,hy,f){
   ctx.restore();
 }
 function drawOther(o){const atk=o.atkFaceT&&now-o.atkFaceT<.4;
-  drawPlayer({name:o.n,look:o.look,x:o.rx,y:o.ry,cls:o.cls,face:atk?o.atkFace:o.face,moving:o.moving,walkT:o.walkT,sitting:o.sitting,hat:o.hat,fc:o.fc,mo:o.mo,armor:o.ar||null,back:o.back,swingT:o.swingT,swingDur:o.swingDur,lungeT:o.lungeT,lgX:o.lgX,lgY:o.lgY,casting:o.cs,hurtT:o.hurtT,dead:o.dead,deadT:o.deadT},o.wid);}
+  drawPlayer({name:o.n,look:o.look,x:o.rx,y:o.ry,cls:o.cls,face:atk?o.atkFace:o.face,moving:o.moving,walkT:o.walkT,sitting:o.sitting,hat:o.hat,fc:o.fc,mo:o.mo,armor:o.ar||null,back:o.back,swingT:o.swingT,swingDur:o.swingDur,lungeT:o.lungeT,lgX:o.lgX,lgY:o.lgY,casting:o.cs,hurtT:o.hurtT,dead:o.dead||!!o.kd,deadT:o.dead?o.deadT:o.kd?o.kdT:o.deadT},o.wid);}
 // where a melee swing is at: p from 0 (start) to 1 (end), or -1 when not swinging; follow-through runs a little past 1
 function swingPhase(P){const sd=P.swingDur||.22;return P.swingT&&now-P.swingT<sd*1.25?(now-P.swingT)/sd:-1;}
 const ease3=k=>k*k*(3-2*k),easeOut=k=>1-(1-k)**3;

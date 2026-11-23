@@ -37,7 +37,7 @@ function tryAilment([k,chance,dur]){if(!P||P.dead||!AILS[k])return false;const s
 function cureAll(quiet){if(!P||!P.ail)return;const had=Object.keys(P.ail).some(ailOn);P.ail={};if(had&&!quiet){floatT(P.x,P.y-56,'Cured!','#7fe08a',13);addLog('Your ailments are cured.','l-good');}}
 let poisonAcc=0;
 function ailTick(dt){if(!P||P.dead||!P.ail)return;
-  if(ailOn('poison')){poisonAcc+=dt;if(poisonAcc>=1){poisonAcc-=1;const d=Math.max(1,Math.round(S.maxhp*.015));if(P.hp>d+1){P.hp-=d;floatT(P.x,P.y-30,fmt(d),'#7fd36a',13);}}}
+  if(ailOn('poison')){poisonAcc+=dt;if(poisonAcc>=1){poisonAcc-=1;const d=Math.max(1,Math.round(S.maxhp*.015));if(P.hp>d+1){P.hp-=d;floatT(P.x,P.y-30,'-'+fmt(d),'#7fd36a',13);}}}
   for(const k in P.ail)if(P.ail[k]&&P.ail[k]<=now){delete P.ail[k];}}
 function ailText(){if(!P||!P.ail)return '';return Object.keys(AILS).filter(ailOn).map(k=>`${AILS[k].g} ${AILS[k].name} ${Math.ceil(P.ail[k]-now)}s`).join(' · ');}
 // little coloured badges over your head

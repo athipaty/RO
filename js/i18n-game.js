@@ -295,3 +295,15 @@ if(typeof LANG!=='undefined'&&LANG==='th'){
     sk.name=SKILL_TH[id][0];}
   for(const id in ITEMS){const it=ITEMS[id];if(typeof it.desc==='string')it.desc=thItemDesc(id,it.desc);}
   if(typeof TH_MEMO!=='undefined')TH_MEMO.clear();}
+// v1.49.1: the open arena (js/brawl.js), knockdowns (js/pvpdown.js) and no auto mode in player fights
+if(typeof TH!=='undefined'){Object.assign(TH,{'Open PvP':'PvP แบบเปิด','inside':'อยู่ข้างใน','knockdowns':'ล้มคู่ต่อสู้','falls':'ถูกล้ม',
+  'Enter the arena':'เข้าสู่อารีน่า','Leave the arena':'ออกจากอารีน่า','The arena is full. Try again in a moment.':'อารีน่าเต็มแล้ว ลองใหม่อีกครั้งในอีกสักครู่',
+  'The arena needs the game server, which is not reachable right now.':'อารีน่าต้องใช้เซิร์ฟเวอร์เกม ซึ่งตอนนี้เชื่อมต่อไม่ได้',
+  'Auto mode is off in player fights. Fight by hand!':'ปิดโหมดออโต้ในการต่อสู้กับผู้เล่น สู้ด้วยมือเลย!','Open fight · no queue':'สู้แบบเปิด · ไม่ต้องรอคิว',
+  'Finish your duel first.':'จบการดวลก่อน','KO!':'KO!'});
+  TH_PAT.unshift(
+    [/^An open fight with no queue: walk in and fight anyone inside, up to (\d+) fighters at a time\. Fall to 1 HP and you are knocked down for a moment, then you stand up somewhere else in the arena at full HP\. Nobody dies or loses EXP\. Auto mode is off in the arena\.$/,'สู้แบบเปิด ไม่ต้องรอคิว: เดินเข้าไปสู้กับใครก็ได้ที่อยู่ข้างใน ได้สูงสุด $1 คนพร้อมกัน ถ้า HP เหลือ 1 คุณจะล้มลงครู่หนึ่ง แล้วลุกขึ้นที่จุดอื่นในอารีน่าพร้อม HP เต็ม ไม่มีใครตายหรือเสีย EXP ในอารีน่าปิดโหมดออโต้'],
+    [/^You are in a ranked (\w+) match\. Finish it first\.$/,'คุณอยู่ในแมตช์จัดอันดับ $1 จบแมตช์ก่อน'],
+    [/^You entered the arena \((\d+)\/(\d+) fighters\)\. Tap anyone to fight! Fall to 1 HP and you are knocked down, then back in the fight\. Auto mode is off here\.$/,'คุณเข้าสู่อารีน่าแล้ว ($1/$2 คน) แตะใครก็ได้เพื่อสู้! ถ้า HP เหลือ 1 คุณจะล้มลง แล้วกลับมาสู้ต่อ ที่นี่ปิดโหมดออโต้'],
+    [/^The arena is full \((\d+) fighters\)\. Try again in a moment\.$/,'อารีน่าเต็มแล้ว ($1 คน) ลองใหม่อีกครั้งในอีกสักครู่'],
+    [/^(.+) knocked you down!$/,'$1 ล้มคุณลงแล้ว!'],[/^You knocked down (.+)!$/,'คุณล้ม $1 ลงแล้ว!']);}

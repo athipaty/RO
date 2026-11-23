@@ -69,7 +69,7 @@ PANEL_ACTS.gwhome=()=>{closePanel();enterZone('town','keep');save();};
 
 /* ---- fighting in the keep during the war ---- */
 const gwFighting=()=>!!(GW.war&&GD.g&&zoneId==='keep'&&P&&!P.dead);
-const gwFoe=o=>o&&o.z==='keep'&&o.guild&&o.guild.n&&GD.g&&o.guild.n!==GD.g.name&&!o.dead;
+const gwFoe=o=>o&&o.z==='keep'&&o.guild&&o.guild.n&&GD.g&&o.guild.n!==GD.g.name&&!o.dead&&!o.kd;
 function gwClear(){for(const e of GW.ents.values())if(P&&P.target===e)P.target=null;GW.ents.clear();}
 function gwKnockout(by){P.hp=1;P.target=null;P.casting=null;P.path=[];
   const z=Z;P.x=z.spawn.x;P.y=z.spawn.y;S=computeStats();P.hp=Math.round(S.maxhp*.6);
@@ -87,7 +87,7 @@ duelRecv=function(o,arr,fresh){if(Array.isArray(arr)){
     if(Math.hypot(o.x-P.x,o.y-P.y)>GW_REACH)continue;
     const d=pvpTaken(e.d,o);
     P.hp-=d;P.hurtT=now;P.sitting=false;interruptCast();sfx('hurt');fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});
-    floatT(P.x,P.y-30,fmt(d),e.c?'#ffb03a':'#ff6a5a',e.c?22:16);
+    hurtNum(P.x,P.y-30,d,!!e.c);
     if(P.hp<=1)gwKnockout(o.n);}}
   return _duelRecvGW(o,arr,fresh);};
 // every frame: a stand-in for each rival in the keep

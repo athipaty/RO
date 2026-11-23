@@ -1,6 +1,10 @@
 "use strict";
 /* ================= combat ================= */
 function floatT(x,y,txt,col,size=15){texts.push({x:x+rnd(-6,6),y,txt,col,size,t0:now,dur:.9,vx:rnd(-28,28)});}
+/* damage YOU take (v1.49.1): its own look so it never mixes up with the damage you deal. Yours: white, warm white
+   for big hits, gold for crits. Taken: a minus sign, rose red, and deep crimson and bigger for a critical hit. */
+const HURT_COL='#ff5a78',HURT_CRIT='#ff1f4a';
+function hurtNum(x,y,d,crit){floatT(x,y,'-'+fmt(d),crit?HURT_CRIT:HURT_COL,crit?22:16);}
 // keep the log short, but never remove the chat tabs at its top
 function trimLog(el,max){while(el.children.length>max){const f=el.firstElementChild&&el.firstElementChild.id==='logTabs'?el.children[1]:el.firstElementChild;if(!f)break;f.remove();}}
 function addLog(msg,cls='l-sys'){const el=$('#log');const d=document.createElement('div');d.className=cls;d.textContent=msg;el.appendChild(d);trimLog(el,60);el.scrollTop=el.scrollHeight;}
@@ -60,7 +64,7 @@ function goLoot(l){P.target=null;P.queued=null;P.npcGoal=null;P.lootGoal=l;if(di
 function dropText(d){const pc=c=>{const v=c*100;return(v>=10||v===Math.round(v)?Math.round(v):v.toFixed(1))+'%';};
   return [...d.drops.map(([id,c])=>`${ITEMS[id].name} ${pc(c)}`),`Sigil ${pc(d.sigChance||SIG_CHANCE)}`].join(' · ');}
 function hurtPlayer(dmg,src){
-  if(P.dead)return;if(S&&S.dmgred)dmg=Math.max(1,Math.round(dmg*(1-S.dmgred/100)));if(typeof manaShield==='function')dmg=manaShield(dmg);P.hp-=dmg;P.sitting=false;P.hurtT=now;interruptCast();if(P.ail&&P.ail.sleep)delete P.ail.sleep;fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});sfx('hurt');floatT(P.x,P.y-30,fmt(dmg),'#ff6a5a',16);
+  if(P.dead)return;if(S&&S.dmgred)dmg=Math.max(1,Math.round(dmg*(1-S.dmgred/100)));if(typeof manaShield==='function')dmg=manaShield(dmg);P.hp-=dmg;P.sitting=false;P.hurtT=now;interruptCast();if(P.ail&&P.ail.sleep)delete P.ail.sleep;fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});sfx('hurt');hurtNum(P.x,P.y-30,dmg,false);
   if(P.hp<=0){P.hp=0;die(src);}
 }
 function mobAttack(m){
