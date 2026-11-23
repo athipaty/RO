@@ -91,6 +91,12 @@ function sfx(n){
     case 'levelup':[523,659,784,1047,784,1047].forEach((f,i)=>tone({type:i>3?'square':'triangle',f,dur:i===5?.7:.18,vol:.15,lp:4000,t:t+i*.1}));break;
     case 'jobup':[587,740,880,1175].forEach((f,i)=>tone({type:'triangle',f,dur:.26,vol:.15,t:t+i*.09}));break;
     case 'pickup':tone({type:'square',f:988,dur:.06,vol:.06,lp:3000});tone({type:'square',f:1319,dur:.1,vol:.06,lp:3000,t:t+.05});break;
+    // (v1.51.2) refining at the smithy: two anvil strikes, then a bright rising chime (success) or a crack and a shatter (failure)
+    case 'refineOk':for(const d of [0,.16]){tone({type:'triangle',f:1760,f2:1500,dur:.18,vol:.13,t:t+d});tone({type:'square',f:3520,dur:.06,vol:.04,lp:6000,t:t+d});noise({f:3500,dur:.08,vol:.08,t:t+d});}
+      [784,988,1175,1568,1976].forEach((f,i)=>tone({f,dur:i===4?.8:.3,vol:.13,t:t+.4+i*.08,send:true}));noise({f:7000,dur:.6,vol:.05,t:t+.72});break;
+    case 'refineFail':tone({type:'triangle',f:1760,f2:1500,dur:.18,vol:.13,t});tone({type:'square',f:3520,dur:.06,vol:.04,lp:6000,t});noise({f:3500,dur:.08,vol:.08,t});
+      noise({ft:'bandpass',f:2500,f2:600,dur:.5,vol:.22,q:1.5,t:t+.28});for(let i=0;i<5;i++)tone({type:'square',f:2600-i*330,dur:.05,vol:.04,lp:5000,t:t+.3+i*.045});
+      tone({type:'sawtooth',f:220,f2:70,dur:.7,vol:.14,lp:900,t:t+.32});break;
     case 'rare':[1047,1319,1568,2093,2637].forEach((f,i)=>tone({f,dur:.55,vol:.12,t:t+i*.07}));noise({f:6000,dur:.7,vol:.07});break;
     case 'coin':tone({type:'square',f:1568,dur:.06,vol:.05,lp:4000});tone({type:'square',f:2093,dur:.16,vol:.05,lp:4000,t:t+.06});break;
     case 'portal':tone({f:200,f2:900,dur:.5,vol:.14});noise({ft:'bandpass',f:400,f2:3000,dur:.5,vol:.12,q:4});break;

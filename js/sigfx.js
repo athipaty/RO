@@ -51,6 +51,11 @@ if(typeof tryAilment==='function'){const _taFX=tryAilment;tryAilment=function(){
 {const _geFX=gainExp;gainExp=function(e,j){if(SFX.exp){e=Math.round(e*(1+SFX.exp/100));j=Math.round(j*(1+SFX.exp/100));}return _geFX.call(this,e,j);};}
 function sfxGold(g){return SFX.gold?Math.round(g*(1+SFX.gold/100)):g;}
 if(typeof TH!=='undefined')Object.assign(TH,{'Resist!':'ต้านทาน!'});
+// (v1.51.2) Radiant twins (made in js/awaken.js from the numbers above) stop at 10% for any percentage
+if(typeof SIG_PCT_KEYS!=='undefined')for(const it of Object.values(ITEMS)){if(!it.radiant||!it.b)continue;let ch=false;
+  for(const k of SIG_PCT_KEYS)if(it.b[k]>SIG_PCT_RADIANT){it.b[k]=SIG_PCT_RADIANT;ch=true;}
+  if(ch&&typeof statLabel==='function'){it.txt=Object.entries(it.b).map(([k,v])=>statLabel(k,v)).join(', ');
+    it.desc=`Socket into ${/^[aeiou]/.test(it.kind)?'an':'a'} ${it.kind}: ${it.txt}. Only made by sigil fusion.`;}}
 // the library's ability filter (js/codex.js) lists the new abilities too
 if(typeof CODEX_ABS!=='undefined'&&typeof SIG3_NAME!=='undefined'){for(const k in SIG3_NAME)if(!CODEX_ABS.some(a=>a[0]===k))CODEX_ABS.push([k,SIG3_NAME[k].replace(/ \(.*\)$/,'')]);
   for(const r of ['beast','insect','plant','spirit','undead','fiend','construct'])if(!CODEX_ABS.some(a=>a[0]==='vs_'+r))CODEX_ABS.push(['vs_'+r,'vs '+r[0].toUpperCase()+r.slice(1)]);}

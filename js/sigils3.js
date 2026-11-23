@@ -64,6 +64,17 @@ if(typeof TH!=='undefined')Object.assign(TH,{'Life steal':'ดูดเลือ
   'Water damage taken':'ความเสียหายน้ำที่ได้รับ','Wind damage taken':'ความเสียหายลมที่ได้รับ','Earth damage taken':'ความเสียหายดินที่ได้รับ','Shadow damage taken':'ความเสียหายเงามืดที่ได้รับ',
   'Ailment resist':'ต้านทานสถานะผิดปกติ','Gold':'ทอง','Move speed':'ความเร็วเดิน','Last Stand':'ยืนหยัด','Giant Slayer':'นักล่ายักษ์','Ambush':'ซุ่มโจมตี',
   'vs Fiend':'ต่อปีศาจ','vs Construct':'ต่อสิ่งประดิษฐ์','vs Beast':'ต่อสัตว์','vs Insect':'ต่อแมลง','vs Plant':'ต่อพืช','vs Spirit':'ต่อวิญญาณ','vs Undead':'ต่ออันเดด'});
+/* (v1.51.2) no sigil gives more than 10%: a sigil's percentages grow with its monster's level from about 2% to 8% at
+   Lv 99 (boss-only abilities from 3%), any other % bonus on a sigil stops at 8%, and a Radiant twin (fusion only) at 10%
+   (js/sigfx.js). Before, Ambush reached 43%, Last Stand 34%, ailment resist 33% and Radiant twins half again more. */
+const SIG_PCT_MAX=8,SIG_PCT_RADIANT=10;
+const SIG_PCT_KEYS=['leech','stun','freeze','slow','thorns','res_fire','res_water','res_wind','res_earth','res_shadow','ailres','exp','gold','move',
+  'lowhp','bossdmg','firstdmg','vs_beast','vs_insect','vs_plant','vs_spirit','vs_undead','vs_fiend','vs_construct',
+  'critdmg','hppct','healpct','aspd','cast','dbl','atkpct','matkpct','dmgred','sppct','crit'];
+{const grow=(lv,lo)=>Math.max(lo,Math.min(SIG_PCT_MAX,Math.round(lo+(SIG_PCT_MAX-lo)*lv/99)));
+  const LEVELED=/^(res_|vs_)|^(thorns|ailres|gold)$/,BOSSONLY=/^(lowhp|bossdmg|firstdmg)$/;
+  for(const id in SIG3){const b=SIG3[id],lv=(MOBS[id]&&MOBS[id].lv)||1;
+    for(const k in b){if(BOSSONLY.test(k))b[k]=grow(lv,3);else if(LEVELED.test(k))b[k]=grow(lv,2);else if(SIG_PCT_KEYS.includes(k))b[k]=Math.min(SIG_PCT_MAX,b[k]);}}}
 {const NM={maxhp:'Max HP',maxsp:'Max SP'};
   const lab=(k,v)=>(typeof bonusLabel==='function'&&bonusLabel(k,v))||`+${v} ${NM[k]||k.toUpperCase()}`;
   for(const id in SIG3){const m=MOBS[id],it=ITEMS[id+'_sig'];if(!m||!m.sig||!it)continue;

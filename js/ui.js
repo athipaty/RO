@@ -267,10 +267,10 @@ function doRefine(key){const g=findGear(key);if(!g){refineArm=null;refreshPanel(
   if(!invFind(mat)||P.gold<fee){addLog(`You need ${ITEMS[mat].name} and ${fmt(fee)} gold.`,'l-bad');return;}
   if(chance<1&&refineArm!==key){refineArm=key;refreshPanel();return;} // risky: ask once more
   refineArm=null;takeItem(mat);P.gold-=fee;
-  if(Math.random()<chance){e.r=next;sfx('levelup');fx.push({k:'ring',x:P.x,y:P.y,r:46,col:'#ffcf5a',t0:now,dur:.5});
+  if(Math.random()<chance){e.r=next;sfx('refineOk');fx.push({k:'ring',x:P.x,y:P.y,r:46,col:'#ffcf5a',t0:now,dur:.5});
     addLog(`Success! It is now ${itemName(e)}.`,'l-good');floatT(P.x,P.y-50,`+${next}!`,'#ffcf5a',20);
     if(next>=7)announce('refine',`${next}:${e.id}`);}
-  else{sfx('hurt');shakeUntil=now+.25;fx.push({k:'poof',x:P.x,y:P.y-10,col:'#9aa0aa',t0:now,dur:.6});
+  else{sfx('refineFail');shakeUntil=now+.25;fx.push({k:'poof',x:P.x,y:P.y-10,col:'#9aa0aa',t0:now,dur:.6});
     if(g.slot)P.eq[g.slot]=null;else P.inv.splice(g.idx,1);
     addLog(`The refine failed. Your ${itemName(e)} shattered.`,'l-bad');floatT(P.x,P.y-50,'Shattered!','#ff8a7a',18);}
   S=computeStats();P.hp=Math.min(P.hp,S.maxhp);P.sp=Math.min(P.sp,S.maxsp);rebuildHotbar();refreshPanel();save(true);}

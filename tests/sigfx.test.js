@@ -16,6 +16,9 @@ module.exports = async t => {
     t.ok(u.over.length === 0, `no two-bonus pattern is on more than two sigils (${u.n} patterns) ` + u.over.join('; '));
     t.ok(/Life steal/.test(u.bat) && /Last Stand|Giant Slayer|Ambush/.test(u.boss), 'a bat sigil steals life; a boss sigil has a boss-only ability (' + u.bat + ' | ' + u.boss + ')');
 
+    // no sigil percentage above 8% (a Radiant twin 10%)
+    const pct = await A.ev(() => { let n = 0, r = 0; for (const it of Object.values(ITEMS)) { if (it.type !== 'sigil') continue; for (const k of SIG_PCT_KEYS) { const v = it.b[k] || 0; if (it.radiant) r = Math.max(r, v); else n = Math.max(n, v); } } return { n, r }; });
+    t.ok(pct.n <= 8 && pct.r <= 10, `no sigil gives more than 8% of anything, a Radiant one 10% (highest ${pct.n}%, ${pct.r}%)`);
     // a socketed sigil turns its ability on
     t.ok(await A.ev(() => { P.eq.weapon = { id: 'dagger', uid: 9001, s: ['cavebat_sig'] }; S = computeStats(); return SFX.leech > 0; }), 'socketing a sigil turns its ability on');
 
