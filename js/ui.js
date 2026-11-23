@@ -48,8 +48,13 @@ function rebuildHotbar(){
     const d=s.skill?SKILLS[s.skill]:ITEMS[s.item];
     b.title=(s.skill?d.name:d.name+' — '+d.desc)+` (${i+1})`;b.setAttribute('aria-label',b.title);
     b.innerHTML=(s.item&&typeof itemIconURL==='function'?`<img class="ic img" src="${itemIconURL(s.item)}" alt="">`:s.skill&&typeof skillIconURL==='function'?`<img class="ic img" src="${skillIconURL(s.skill)}" alt="">`:`<span class="ic" style="background:${d.col}">${d.g}</span>`)+`<span class="k">${i+1}</span><span class="cd"></span><span class="n"></span>`;
-    b._slot=s;b.addEventListener('click',()=>pressSlot(i));if(s.skill)b.addEventListener('contextmenu',ev=>{ev.preventDefault();lowerSlot(i);});hb.appendChild(b);hotEls.push(b);});
+    b._slot=s;b.addEventListener('click',()=>pressSlot(i));if(s.skill)b.addEventListener('contextmenu',ev=>{ev.preventDefault();if(slotTouchHold(ev))return;lowerSlot(i);});hb.appendChild(b);hotEls.push(b);});
 }
+// (v1.49.6) right-click lowers a skill's cast level, but a phone sends the same event when a finger rests on a button
+// (holding or dragging to aim an area skill), which lowered the level by accident. Only a real mouse right-click counts.
+let LAST_TOUCH=-1e9;addEventListener('pointerdown',ev=>{if(ev.pointerType==='touch'||ev.pointerType==='pen')LAST_TOUCH=performance.now();},true);
+addEventListener('touchstart',()=>{LAST_TOUCH=performance.now();},{capture:true,passive:true});
+function slotTouchHold(ev){return ev.pointerType==='touch'||ev.pointerType==='pen'||performance.now()-LAST_TOUCH<2000||(typeof DA!=='undefined'&&!!DA.on);}
 function lowerSlot(i){const s=hotSlots()[i];if(!s||!s.skill)return;if(!P.skills[s.skill]){addLog(`Learn ${SKILLS[s.skill].name} in the Skills window (K).`);return;}if(P.skills[s.skill]<2){floatT(P.x,P.y-44,`${SKILLS[s.skill].name} has only level 1`,'#aab4c4',12);return;}setCastLv(s.skill,castLv(s.skill)-1);}
 function pressSlot(i){const s=hotSlots()[i];if(!s)return;if(s.skill){if(!P.skills[s.skill]){addLog(`Learn ${SKILLS[s.skill].name} in the Skills window (K).`);return;}useSkill(s.skill);}else useItem(s.item);}
 

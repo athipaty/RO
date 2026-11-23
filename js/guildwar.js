@@ -84,6 +84,7 @@ const _duelRecvGW=duelRecv;
 duelRecv=function(o,arr,fresh){if(Array.isArray(arr)){
   for(const e of arr.slice(-10)){if(!e||typeof e!=='object'||e.k!=='gh')continue;const i=fin(e.i);if(i<=(o.ghSeen||0))continue;o.ghSeen=i;
     if(fresh||e.to!==NET.myId||!gwFighting()||!gwFoe(o))continue;
+    if((typeof pvpDowned==='function'&&pvpDowned())||now<(GW.safeUntil||0))continue; // down, or just back at the gate (v1.49.6)
     if(Math.hypot(o.x-P.x,o.y-P.y)>GW_REACH)continue;
     const d=pvpTaken(e.d,o);
     P.hp-=d;P.hurtT=now;P.sitting=false;interruptCast();sfx('hurt');fx.push({k:'spark',x:P.x,y:P.y-24,t0:now,dur:.22,r:rnd(0,6),col:'#ff8a7a'});

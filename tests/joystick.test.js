@@ -51,9 +51,9 @@ module.exports = async t => {
     const mt = await ev(() => { const m = mobs[0]; m.x = P.x + 70; m.y = P.y; const s = proj(m.x, m.y); return { x: s.x - camX, y: s.y - camY - m.d.size * .9 }; });
     await touch.tap(mt.x, mt.y); await wait(200);
     t.ok(await ev(() => P.target === mobs[0]), 'a tap on a monster targets it');
-    // a drag cancels the target and walks instead
+    // a drag walks; since v1.49.6 a target still within reach is kept (so Attack works while walking), one out of reach is dropped
     await touch.touchStart(150, 450); await touch.touchMove(150, 480); await touch.touchMove(150, 520); await wait(300);
-    t.ok(await ev(() => !P.target && P.moving), 'dragging takes over from the attack');
+    t.ok(await ev(() => P.moving && (!P.target || dist(P, P.target) - P.target.d.size <= S.range + 24)), 'dragging walks, keeping only a target within reach');
     await touch.touchEnd();
     t.ok(errors.length === 0, 'no script errors' + errors.map(e => ': ' + e).join(''));
   } finally { await browser.close(); }

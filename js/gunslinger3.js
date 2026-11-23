@@ -56,7 +56,7 @@ const GS3_SKILLS={
       hop(P,t);}},
   bulletstorm:{name:'Bullet Storm',max:10,col:'#a8e8ff',g:'❂',sp:l=>24+l*2,cd:5,kind:'self',
     desc:l=>`Spin and fire ${4+Math.floor(l/2)} shots at monsters within 220px, each for ${70+l*10}% ATK.`,
-    run:l=>{const list=mobs.filter(m=>!m.dead&&Math.hypot(m.x-P.x,m.y-P.y)<=220+m.d.size);if(!list.length)return;const n=4+Math.floor(l/2);
+    run:l=>{const list=mobs.filter(m=>!m.dead&&Math.hypot(m.x-P.x,m.y-P.y)<=220+m.d.size).concat(typeof pvpNear==='function'?pvpNear(P.x,P.y,220):[]);if(!list.length)return;const n=4+Math.floor(l/2);
       for(let k=0;k<n;k++)setTimeout(()=>{if(!P||P.dead)return;const live=list.filter(gs3Live);if(!live.length)return;const m=live[k%live.length];
         gs3Shot(P,m,'#d8f4ff',()=>{if(gs3Live(m))dealPhys(m,.7+l*.1);});},k*90);}},
   quickhands:{name:'Quick Hands',max:10,col:'#c8f0ff',g:'✋',sp:l=>26,cd:30,kind:'self',

@@ -267,15 +267,22 @@ function update(dt){
   // phone joystick: an analogue direction on screen; a light push walks slower
   if(typeof JOY!=='undefined'&&JOY.on){const m=Math.hypot(JOY.x,JOY.y);if(m>.2){kx=JOY.x;ky=JOY.y;ks=clamp((m-.2)/.6,.45,1);}else{kx=ky=0;}}
   P.moving=false;
+  /* (v1.49.6) walking with the stick (or WASD) keeps a target that is within reach, so you can press Attack with the
+     other thumb and hit while you move. A target out of reach is dropped as before, so walking away never makes the
+     hero run back to it when you let go. */
+  let stickWalk=false;
   if((kx||ky)&&!held){if(Math.abs(kx)>.15)P.face=Math.sign(kx);if(Math.abs(ky)>.15)P.back=ky<0;P.lootGoal=null;
-    if(!P.sitting){P.path=[];P.target=null;P.queued=null;P.npcGoal=null;const wx=(kx+2*ky)/2,wy=(2*ky-kx)/2,n=Math.hypot(wx,wy);moveEnt(P,wx/n*S.speed*ks*dt,wy/n*S.speed*ks*dt,PR);P.moving=true;}}
+    if(!P.sitting){const tk=P.target;P.path=[];P.queued=null;P.npcGoal=null;stickWalk=true;
+      if(tk&&(tk.dead||tk.dying||dist(P,tk)-tk.d.size>S.range+24))P.target=null;const wx=(kx+2*ky)/2,wy=(2*ky-kx)/2,n=Math.hypot(wx,wy);moveEnt(P,wx/n*S.speed*ks*dt,wy/n*S.speed*ks*dt,PR);P.moving=true;}}
   if(!held)autoHunt();
   // target behaviour
   const t=P.target;
   if(t&&!t.dead&&!t.dying&&!held){
     const need=P.queued?SKILLS[P.queued].range:S.range;
     const d=dist(P,t)-t.d.size;
-    if(d<=need&&(!S.ranged&&!P.queued?true:clearLine(P.x,P.y,t.x,t.y)||d<60)){
+    if(stickWalk){ // walking by hand: swing when in reach, never chase
+      if(d<=S.range+24&&P.atkT<=0&&!P.casting&&P.heavy<=1){faceTo(P,t.x-P.x,t.y-P.y);basicAttack(t);P.atkT=S.delay;}}
+    else if(d<=need&&(!S.ranged&&!P.queued?true:clearLine(P.x,P.y,t.x,t.y)||d<60)){
       P.path=[];faceTo(P,t.x-P.x,t.y-P.y);
       if(P.queued){useSkill(P.queued);}
       else if(P.atkT<=0&&!P.casting&&!P.assist){if(P.heavy>1){tooHeavy();P.atkT=1;}else{basicAttack(t);P.atkT=S.delay;}}

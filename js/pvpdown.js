@@ -32,4 +32,7 @@ function pvpStandUp(){const f=PDOWN.then;PDOWN.until=0;PDOWN.then=null;PDOWN.are
 if(typeof arenaOut==='function'){const _outA=arenaOut;arenaOut=function(why){const M=AR.match,was=!!(M&&!M.out);_outA(why);
   if(was&&AR.match&&AR.match.out&&zoneId==='arena'&&P&&!P.dead){P.sitting=false;pvpDown(60);PDOWN.arena=true;}};}
 if(typeof gwKnockout==='function'){const _koGW=gwKnockout;gwKnockout=function(by){if(pvpDowned())return;P.hp=1;
-  addLog(`${by} knocked you down!`,'l-bad');pvpDown(3,()=>_koGW(by));};}
+  addLog(`${by} knocked you down!`,'l-bad');
+  // (v1.49.6) like the arena: the attacker is told, and you get 3 s of protection once back at the gate
+  for(const o of NET.others.values())if(o.n===by&&o.z==='keep'){dlSend(o.id,'fako');break;}
+  pvpDown(3,()=>{_koGW(by);GW.safeUntil=now+3;fx.push({k:'ring',x:P.x,y:P.y,r:30,col:'#ffcf5a',t0:now,dur:.7});});};}

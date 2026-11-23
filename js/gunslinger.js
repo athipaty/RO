@@ -31,7 +31,7 @@ function gunTracer(s){const a=Math.atan2((s.to&&s.to.y||0)-s.y,(s.to&&s.to.x||0)
 if(typeof sfx==='function'){const _sfx=sfx;sfx=function(n){if(n==='bow'&&isGun()&&typeof noise==='function'&&typeof AU!=='undefined'&&AU.ctx){try{const t=AU.ctx.currentTime;noise({ft:'lowpass',f:1800,dur:.09,vol:.11,t});noise({ft:'highpass',f:3000,dur:.03,vol:.05,t});return;}catch(e){}}return _sfx.apply(this,arguments);};}
 
 // ---- its skills ----
-const near=(x,y,r)=>mobs.filter(m=>!m.dead&&Math.hypot(m.x-x,m.y-y)<=r+m.d.size);
+const near=(x,y,r)=>{const a=mobs.filter(m=>!m.dead&&Math.hypot(m.x-x,m.y-y)<=r+m.d.size);return typeof pvpNear==='function'?a.concat(pvpNear(x,y,r)):a;}; // + opponents in a player fight (js/brawl.js)
 const GUN_SK={
   quickdraw:{name:'Quick Draw',max:10,col:'#ffd27a',g:'⁑',sp:l=>6+l,cd:.9,kind:'target',range:230,
     desc:l=>`Two shots in a blink, each for ${80+l*12}% ATK, with ${l*2}% more critical chance.`,

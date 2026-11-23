@@ -41,7 +41,7 @@ const GS4_SKILLS={
   luckyround:{name:'Lucky Round',max:10,col:'#ffe68a',g:'✦',...PASSIVE(),desc:l=>`With a gun: +${l*2} CRIT and ${l*2}% chance to fire twice.`},
   thousandbullets:{name:'Thousand Bullets',max:10,col:'#bff0ff',g:'⁂',sp:l=>50+l*4,cd:8,kind:'self',
     desc:l=>`Empty every gun you own: ${10+l} shots at monsters within 260px, each ${90+l*12}% ATK.`,
-    run:l=>{const list=mobs.filter(m=>!m.dead&&Math.hypot(m.x-P.x,m.y-P.y)<=260+m.d.size);if(!list.length)return;const n=10+l;
+    run:l=>{const list=mobs.filter(m=>!m.dead&&Math.hypot(m.x-P.x,m.y-P.y)<=260+m.d.size).concat(typeof pvpNear==='function'?pvpNear(P.x,P.y,260):[]);if(!list.length)return;const n=10+l;
       for(let k=0;k<n;k++)setTimeout(()=>{if(!P||P.dead)return;const live=list.filter(gs3Live);if(!live.length)return;const m=live[k%live.length];
         gs3Shot(P,m,k%2?'#fff2b0':'#bff0ff',()=>{if(gs3Live(m))dealPhys(m,.9+l*.12);});},k*65);}},
 };

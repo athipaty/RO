@@ -60,7 +60,7 @@ function brawlKO(o){P.hp=1;BRW.falls++;dlSend(o.id,'fako');addLog(`${o.n} knocke
   for(const e of arr.slice(-10)){if(!e||typeof e!=='object'||(e.k!=='fa'&&e.k!=='fako'))continue;
     if(!o.__srv){const i=fin(e.i),key=e.k==='fa'?'faSeen':'fkSeen';if(i<=(o[key]||0))continue;o[key]=i;}
     if(fresh||e.to!==NET.myId||!P)continue;
-    if(e.k==='fako'){if(!BRW.in)continue;BRW.kos++;addLog(`You knocked down ${o.n}!`,'l-good');texts.push({x:P.x,y:P.y-70,txt:'KO!',col:'#ffcf5a',size:26,t0:now,dur:1});sfx('fanfare');
+    if(e.k==='fako'){const gw=typeof gwFighting==='function'&&gwFighting();if(!BRW.in&&!gw)continue;if(gw)GW.kos=(GW.kos||0)+1;else BRW.kos++;addLog(`You knocked down ${o.n}!`,'l-good');texts.push({x:P.x,y:P.y-70,txt:'KO!',col:'#ffcf5a',size:26,t0:now,dur:1});sfx('fanfare');
       if(panelKind==='arena')refreshPanel();continue;}
     if(!brawlOn()||!brawlFoe(o)||pvpDowned()||now<BRW.safeUntil)continue;
     if(Math.hypot(o.x-P.x,o.y-P.y)>BRAWL_REACH)continue;
@@ -111,7 +111,7 @@ const pvpActive=()=>!!((typeof DUEL!=='undefined'&&DUEL)||(typeof AR!=='undefine
   if(Z.D.safe){addLog('No opponent nearby.');return;}
   return _tnBR(keep);};}
 {const _usBR2=useSkill;useSkill=function(id){const sk=SKILLS[id];
-  if(sk&&sk.kind==='target'&&P&&!P.dead&&(!P.target||P.target.dead)&&pvpActive())targetNearest(true);
+  if(sk&&(sk.kind==='target'||sk.kind==='area')&&P&&!P.dead&&(!P.target||P.target.dead)&&pvpActive())targetNearest(true);
   return _usBR2.apply(this,arguments);};}
 
 /* ---- (v1.49.4) one press, one hit in player fights ----
@@ -137,3 +137,10 @@ addEventListener('keydown',ev=>{if(!running||!P||ev.target.tagName==='INPUT')ret
 {const _ptPP=pvpTaken;pvpTaken=function(raw,o){const r=_ptPP(raw,o);
   try{const src=o&&o.__srv?Object.getPrototypeOf(o):o;if(src&&P){src.swingT=now;src.swingDur=.22;src.atkFace=sface(P.x-(src.rx||src.x),P.y-(src.ry||src.y));src.atkFaceT=now;}}catch(e){}
   return r;};}
+
+/* ---- (v1.49.6) area skills hit opponents too ----
+   Area, ground and "around you" skills only looked for monsters (aoe in combat.js, near() in gunslinger.js, Bullet
+   Storm and Thousand Bullets), so in a duel, the arena or a guild war they never touched the other player. Opponents
+   standing in the area are now hit as well; the hit travels like any other player-fight hit. */
+function pvpNear(x,y,r){if(!pvpActive())return [];return pvpCands().filter(e=>!e.dead&&Math.hypot(e.x-x,e.y-y)<=r+((e.d&&e.d.size)||12));}
+{const _aoePV=aoe;aoe=function(x,y,r,fn){_aoePV(x,y,r,fn);for(const e of pvpNear(x,y,r))fn(e);};}
