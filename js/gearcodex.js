@@ -5,7 +5,7 @@
    sort by level, best drop chance, strongest stat, name or owned first. Monster sources that are world bosses you
    have not defeated stay hidden, as in the Bestiary. Choices are remembered with the Sigil Codex's. */
 Object.assign(CODEX,Object.assign({gslot:'all',gsrc:'drop',gab:'all',gsort:'lv'},CODEX));
-const GEAR_SLOTS=[['all','All'],['weapon','Weapon'],['armor','Armour'],['head','Head'],['face','Face'],['mouth','Mouth'],['accessory','Accessory']];
+const GEAR_SLOTS=[['all','All'],['weapon','Weapon'],['armor','Armour'],['head','Head'],['face','Face'],['mouth','Mouth'],['shoes','Shoes'],['accessory','Accessory']];
 const GEAR_SRCS=[['all','All'],['drop','Monster drop'],['shop','Shop'],['forge','Forge'],['other','Quests & events']];
 const GEAR_ABS=[...CODEX_ABS,['vs_beast','vs Beast'],['vs_insect','vs Insect'],['vs_plant','vs Plant'],['vs_spirit','vs Spirit'],['vs_undead','vs Undead']];
 const gearAbName=k=>(GEAR_ABS.find(a=>a[0]===k)||[k,k.toUpperCase()])[1];
@@ -53,7 +53,7 @@ function gearCodexHtml(){
     let desc='';try{desc=itemDesc({id:x.id,s:[]});}catch(e){desc='';} // slots get their own line below
     if(CODEX.gab!=='all'){const k=CODEX.gab,v=gearStat(it,k);desc+=` · <b class="cxon">${gearAbName(k)} ${v>0?'+':''}${v}</b>`;}
     const srcs=x.src.map(({m,ch})=>{const wh=typeof itemMobWhere==='function'?itemMobWhere(m):'',mp=typeof mobPicURL==='function'?mobPicURL(m.id):'';
-      return `<div class="gxsrc">${mp?`<img src="${mp}" alt="" loading="lazy">`:''}<div class="grow"><b>${esc(m.name)}</b> <span class="muted">Lv ${m.lv}${m.boss?' · boss':''}</span>${wh?`<div class="ds">${esc(wh)}</div>`:''}</div><span class="gxpct">${pct(ch)}</span></div>`;}).join('');
+      return `<div class="gxsrc">${mp?`<img src="${mp}" alt="" loading="lazy">`:''}<div class="grow"><b>${esc(m.name)}</b> <span class="muted">Lv ${m.lv}${m.boss?' · boss':''}</span>${wh?`<div class="ds">${wh.split(', ').map(z=>`<span>${esc(z)}</span>`).join(', ')}</div>`:''}</div><span class="gxpct">${pct(ch)}</span></div>`;}).join('');
     const tags=[x.shop?`<span class="gxtag">Store · ${fmt(it.price||0)} gold</span>`:'',x.forge?`<span class="gxtag">Forged by Brannoc</span>`:'',x.other?`<span class="gxtag">Quests, festivals or bosses</span>`:''].join('');
     h+=`<div class="cxcard gxcard${own?' have':''}"><div class="gxhead">${icon(it).replace(/ data-item="[^"]*"/,'')}<div class="grow"><div class="cxtop"><span class="nm" style="color:${rarityCol(x.id)}">${esc(it.name)}</span><span class="cxslot">${esc(slot)}</span></div>`+
       `<div class="ds">${desc}</div>${gearSlotsHtml(x)}${own?`<span class="cxown">You have ${own}</span>`:''}</div></div>`+

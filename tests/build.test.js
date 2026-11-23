@@ -14,7 +14,7 @@ module.exports = async t => {
     t.ok(await A.ev(() => { save(); return JSON.parse(localStorage.getItem(SAVE_KEY)).p.look.body === 2; }), 'it is saved');
     B = await player('Viewer', room, { server: OFFLINE });
     t.ok(await poll(B, () => { const o = [...NET.others.values()][0]; return o && o.look && o.look.body === 2; }), 'other players see your build');
-    const sty = await A.ev(() => { P.gold = 5000; openPanel('stylist'); PANEL_ACTS.stybuild(1); const r = /Standard/.test(panel.textContent); PANEL_ACTS.stybuy(); closePanel(); return r && (P.look.body | 0) === 0; });
+    const sty = await A.ev(() => { P.gold = 5000; openPanel('stylist'); PANEL_ACTS.stybuild(1); const r = /Stocky/.test(panel.textContent); PANEL_ACTS.stybuy(); closePanel(); return r && (P.look.body | 0) === 3; }); // after Slender comes Stocky (v1.52.5: five builds)
     t.ok(sty, 'Lune the Stylist can change it later');
     t.ok(A.page.errors.length === 0 && B.page.errors.length === 0, 'no script errors' + [...A.page.errors, ...B.page.errors].map(e => ': ' + e).join(''));
   } finally { await A.close(); if (B) await B.close(); }

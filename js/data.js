@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='1.52.6';
+const VERSION='1.53.0';
 // chance that a normal monster drops its sigil (card); bosses set their own sigChance
 const SIG_CHANCE=.01;
 /* (v1.51.0) one damage for everyone: heroes have 3x the HP they had, and monsters hit 3x as hard, tonics and fixed heals
@@ -90,7 +90,7 @@ const ITEMS={
 // #17 item weight (explicit `w` wins, otherwise a default by type)
 const WEAPON_W={club:40,sword:80,axe:150,wand:30,bow:50,mace:70},ARMOR_W={tunic:10,vest:40,robe:30,scale:120,plate:180};
 function itemWeight(id){const it=ITEMS[id];if(!it)return 0;if(it.w!=null)return it.w;
-  if(it.type==='weapon')return WEAPON_W[it.wt]||50;if(it.type==='armor')return ARMOR_W[id]||50;if(it.type==='head')return 15;if(it.type==='face'||it.type==='mouth')return 5;if(it.type==='accessory')return 10;
+  if(it.type==='weapon')return WEAPON_W[it.wt]||50;if(it.type==='armor')return ARMOR_W[id]||50;if(it.type==='head')return 15;if(it.type==='face'||it.type==='mouth')return 5;if(it.type==='accessory')return 10;if(it.type==='shoes')return 12;
   if(it.type==='sigil')return 1;if(it.type==='use')return id==='scroll'||id==='leaf'||id==='waystone'||id==='kinship'?1:5;return id==='crest'?20:2;}
 /* ---- #20 rarity: colour-coded item names ---- */
 const RARITY=[{name:'Common',col:'#e8e2d2'},{name:'Uncommon',col:'#7fd38a'},{name:'Rare',col:'#6fb0ff'},{name:'Epic',col:'#c58cff'},{name:'Legendary',col:'#ffb347'}];

@@ -32,7 +32,7 @@ function qtySet(n,src){const el=QTY.el,o=QTY.o;if(!el||!o)return;const num=el.qu
   el.querySelector('.qtotal').textContent=o.unit?`${o.gain?'You get':'Total'}: ${fmt(o.unit*n)} gold`:`${n} of ${mx}`;}
 addEventListener('keydown',e=>{if(e.key==='Escape'&&QTY.el&&!QTY.el.hidden)qtyClose();},true);
 
-const isGear=id=>{const t=ITEMS[id]&&ITEMS[id].type;return ['weapon','armor','accessory','head','face','mouth'].includes(t);};
+const isGear=id=>{const t=ITEMS[id]&&ITEMS[id].type;return ['weapon','armor','accessory','head','face','mouth','shoes'].includes(t);};
 const roomFor=id=>{const w=itemWeight(id);return w>0?Math.floor((maxWeight()-carryWeight())/w):9999;};
 const qtyDone=()=>{rebuildHotbar();refreshPanel();if(typeof save==='function')save();};
 

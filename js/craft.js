@@ -46,7 +46,7 @@ const FORGES=[
 ];
 const CRAFT={tab:'brew',ftype:(()=>{try{return localStorage.getItem('embervale.forgeType')||'all';}catch(e){return 'all';}})()};
 // the forge's gear-type tabs (only types that have recipes are shown)
-const FORGE_TYPES=[['weapon','Weapon'],['armor','Armour'],['head','Head'],['accessory','Accessory'],['face','Face'],['mouth','Mouth']];
+const FORGE_TYPES=[['weapon','Weapon'],['armor','Armour'],['head','Head'],['accessory','Accessory'],['face','Face'],['mouth','Mouth'],['shoes','Shoes']];
 // which monsters drop a material (for the "from …" hints)
 const dropFrom=id=>Object.values(MOBS).filter(m=>!m.boss&&(m.drops||[]).some(([d])=>d===id)).map(m=>m.name);
 const atSmithy=()=>zoneId==='town'&&Z.npcs.some(n=>n.role==='smith'&&dist(P,n)<170);

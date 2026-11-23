@@ -69,7 +69,8 @@ function shopWeightHtml(){const w=carryWeight(),m=maxWeight(),f=m?w/m:0,cls=f>=.
   return `<span class="shopwt ${cls}" title="${lbl}"><span>${lbl}</span><i style="--f:${Math.min(100,f*100).toFixed(0)}%"></i></span>`;}
 // General Store, Equip tab: sub-tabs by gear type, like the forge (remembered)
 let shopGear=(()=>{try{return localStorage.getItem('embervale.shopGear')||'all';}catch(e){return 'all';}})();
-const GEAR_TABS=[['weapon','Weapon'],['armor','Armour'],['head','Head'],['accessory','Accessory'],['face','Face'],['mouth','Mouth']];
+const GEAR_TABS=[['weapon','Weapon'],['armor','Armour'],['head','Head'],['accessory','Accessory'],['face','Face'],['mouth','Mouth'],['shoes','Shoes']];
+const SLOT_NAME={acc2:'accessory II',accessory:'accessory'}; // (v1.53.0) the second accessory slot
 // gear-type chips + rows grouped into sections ("All") or one type; rowOf(x) draws a row, okOf(x) lights the tab's dot
 function gearTabsHtml(list,typeOf,rowOf,okOf){
   const types=GEAR_TABS.filter(([k])=>list.some(x=>typeOf(x)===k));if(shopGear!=='all'&&!types.some(([k])=>k===shopGear))shopGear='all';
@@ -117,8 +118,8 @@ function refreshPanel(){
     h+=`</div><div class="cbcol"><h3>Combat</h3><div class="dv"><div><span>ATK</span><span>${S.atk}</span></div><div><span>Attacks/sec</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Weight</span><span>${fmt(carryWeight())}/${fmt(maxWeight())}</span></div><div><span>MATK</span><span>${S.matk}</span></div><div><span>DEF</span><span>${S.def}</span></div><div><span>HIT</span><span>${S.hit}</span></div><div><span>FLEE</span><span>${S.flee}</span></div><div><span>CRIT</span><span>${S.crit}%</span></div><div><span>Range</span><span>${S.range}px</span></div>`+(S.critdmg?`<div><span>Crit damage</span><span>${150+S.critdmg}%</span></div>`:'')+(S.cast?`<div><span>Cast time</span><span>−${S.cast}%</span></div>`:'')+(S.dbl?`<div><span>Double attack</span><span>${S.dbl}%</span></div>`:'')+(S.dmgred?`<div><span>Damage taken</span><span>−${S.dmgred}%</span></div>`:'')+(S.heal?`<div><span>Healing</span><span>+${S.heal}%</span></div>`:'')+(typeof WSIZE==='function'||typeof WSIZE==='object'?['Vs small','Vs medium','Vs large'].map((t,i)=>`<div><span>${t}</span><span>${WSIZE[weaponType()][i]}%</span></div>`).join(''):'')+`</div>`;
     h+=`</div></div>`; // closes .cbcol and .stgrid
     h+=`<h3>Equipment</h3>`;
-    for(const slot of ['head','face','mouth','weapon','armor','accessory']){const e=P.eq[slot];
-      h+=`<div class="row">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="nm">${e?ITEMS[e.id].name:'<span class="muted">No '+slot+'</span>'}</div><div class="ds">${e?itemDesc(e):''}</div></div>${e?`<button class="btn small" data-act="unequip" data-arg="${slot}">Remove</button>`:''}</div>`;}
+    for(const slot of ['head','face','mouth','shoes','weapon','armor','accessory','acc2']){const e=P.eq[slot];
+      h+=`<div class="row">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="nm">${e?ITEMS[e.id].name:'<span class="muted">No '+(SLOT_NAME[slot]||slot)+'</span>'}</div><div class="ds">${e?itemDesc(e):''}</div></div>${e?`<button class="btn small" data-act="unequip" data-arg="${slot}">Remove</button>`:''}</div>`;}
   }
   else if(panelKind==='items'){
     h+=`<h2>Items</h2><div class="sub">${fmt(P.gold)} gold · click an item to use, equip or socket it</div><div class="tbtns" style="justify-content:flex-start;margin:0 0 6px"><button class="btn small" data-act="vendsetup">Open a shop</button></div>`;
@@ -142,7 +143,7 @@ function refreshPanel(){
     if(typeof FORGES!=='undefined')h+=`<div class="tbtns" style="justify-content:flex-start;margin:6px 0"><button class="btn small" data-act="openforge">⚒ Forge gear from monster materials</button></div>`;
     h+=`<h3>Refine</h3><div class="sub">${fmt(P.gold)} gold</div>`;
     // only the gear you are wearing can be refined (bag items are left out: equip a piece to refine it)
-    const gear=['weapon','armor','head','accessory'].filter(s=>P.eq[s]).map(s=>({e:P.eq[s],key:'eq:'+s,where:'equipped'}));
+    const gear=['weapon','armor','head','accessory','acc2','shoes'].filter(s=>P.eq[s]).map(s=>({e:P.eq[s],key:'eq:'+s,where:'equipped'}));
     if(!gear.length)h+=`<p class="muted">You have no gear equipped. Put a piece on to refine it.</p>`;
     for(const {e,key,where} of gear){const r=e.r||0,next=r+1,mat=refineMat(e.id),has=!!invFind(mat),fee=refineFee(next);
       const armed=refineArm===key,risk=refineOdds(next)<1,cap=refineCap();
@@ -161,10 +162,10 @@ function refreshPanel(){
     P.storage.forEach((e,i)=>{h+=`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><button class="btn small" data-act="take" data-arg="${i}">Take</button></div>`;});
   }
   else if(panelKind==='equip'){S=computeStats();
-    const slotBox=s=>{const e=P.eq[s];return `<div class="eqslot">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="eqk">${s}</div>`+
+    const slotBox=s=>{const e=P.eq[s];return `<div class="eqslot">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="eqk">${SLOT_NAME[s]||s}</div>`+
       (e?`<div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}</div><div class="ds">${itemDesc(e,1)}</div>${sigStripHtml(e)}</div><button class="btn small" data-act="unequip" data-arg="${s}">Remove</button>`:`<div class="muted">Empty</div></div>`)+`</div>`;};
     h+=`<h2>Equipment</h2><div class="sub">Refine gear with Brannoc the Smith in Hearthvale.</div>`;
-    h+=`<div class="eqgrid"><div class="eqcol">${slotBox('head')}${slotBox('face')}${slotBox('mouth')}</div><canvas id="eqCv" width="240" height="300" aria-label="Your character"></canvas><div class="eqcol">${slotBox('weapon')}${slotBox('armor')}${slotBox('accessory')}</div></div>`;
+    h+=`<div class="eqgrid"><div class="eqcol">${slotBox('head')}${slotBox('face')}${slotBox('mouth')}${slotBox('shoes')}</div><canvas id="eqCv" width="240" height="300" aria-label="Your character"></canvas><div class="eqcol">${slotBox('weapon')}${slotBox('armor')}${slotBox('accessory')}${slotBox('acc2')}</div></div>`;
     h+=`<div class="dv"><div><span>ATK</span><span>${S.atk}</span></div><div><span>MATK</span><span>${S.matk}</span></div><div><span>DEF</span><span>${S.def}</span></div><div><span>HIT</span><span>${S.hit}</span></div>`+
       `<div><span>FLEE</span><span>${S.flee}</span></div><div><span>CRIT</span><span>${S.crit}</span></div><div><span>Attacks/sec</span><span>${(1/S.delay).toFixed(2)}</span></div><div><span>Weight</span><span>${fmt(carryWeight())}/${fmt(maxWeight())}</span></div></div>`;
   }
@@ -543,7 +544,7 @@ $('#acImport').addEventListener('click',async()=>{let gst=guestStorage(),first=-
 function startWith(data){
   P=newPlayer(data?data.p.name:($('#nameIn').value.trim()||'Wanderer'));
   setTimeout(()=>{if(typeof syncAutoLootBtn==='function')syncAutoLootBtn();},0);
-  if(data){Object.assign(P,data.p);uid=Math.max(uid,data.p.uid||1);if(!('head' in P.eq))P.eq.head=null;if(!('face' in P.eq))P.eq.face=null;if(!('mouth' in P.eq))P.eq.mouth=null;P.look=lookDecode(lookCode(P.look))&&P.look;}
+  if(data){Object.assign(P,data.p);uid=Math.max(uid,data.p.uid||1);if(!('head' in P.eq))P.eq.head=null;if(!('face' in P.eq))P.eq.face=null;if(!('mouth' in P.eq))P.eq.mouth=null;if(!('shoes' in P.eq))P.eq.shoes=null;if(!('acc2' in P.eq))P.eq.acc2=null;P.look=lookDecode(lookCode(P.look))&&P.look;}
   else P.look={...newLook};
   // storage: shared by every character of the account (or of this device for guests)
   CS.shared=!(ACC.token&&CS.legacy);CS.oldSt=null;

@@ -11,9 +11,13 @@ const SFX_KEYS=['leech','spleech','killhp','killsp','stun','freeze','slow','thor
   'ailres','exp','gold','move','lowhp','bossdmg','firstdmg'];
 let SFX={};
 function sfxSum(){const t={};if(!P||!P.eq)return t;const add=b=>{if(!b)return;for(const k of SFX_KEYS)if(b[k])t[k]=(t[k]||0)+b[k];};
-  for(const slot of ['weapon','armor','accessory','head','face','mouth']){const e=P.eq[slot];if(!e||!ITEMS[e.id])continue;add(ITEMS[e.id].b);
+  for(const slot of ['weapon','armor','accessory','acc2','head','face','mouth','shoes']){const e=P.eq[slot];if(!e||!ITEMS[e.id])continue;add(ITEMS[e.id].b);
     for(const s of e.s||[])if(s&&ITEMS[s])add(ITEMS[s].b);if(e.aw&&SFX_KEYS.includes(e.aw.k))t[e.aw.k]=(t[e.aw.k]||0)+(+e.aw.v||0);}
+  for(const k in t){const cap=SFX_CAP[k]||(k.startsWith('res_')?30:null);if(cap!=null&&t[k]>cap)t[k]=cap;}
   return t;}
+// (v1.53.0) the most each ability can add up to from all your gear together (with two accessories and shoes, several
+// sigils of the same kind could otherwise stack far past what one sigil gives)
+const SFX_CAP={leech:8,spleech:8,killhp:10,killsp:30,stun:15,freeze:15,slow:15,thorns:20,ailres:40,exp:20,gold:30,move:25,lowhp:15,bossdmg:15,firstdmg:15};
 {const _csFX=computeStats;computeStats=function(){const s=_csFX.apply(this,arguments);try{SFX=sfxSum();if(SFX.move&&s)s.speed=Math.round(s.speed*(1+Math.min(40,SFX.move)/100));}catch(e){}return s;};}
 
 // my hits: damage bonuses before, the rest after
@@ -51,6 +55,8 @@ if(typeof tryAilment==='function'){const _taFX=tryAilment;tryAilment=function(){
 {const _geFX=gainExp;gainExp=function(e,j){if(SFX.exp){e=Math.round(e*(1+SFX.exp/100));j=Math.round(j*(1+SFX.exp/100));}return _geFX.call(this,e,j);};}
 function sfxGold(g){return SFX.gold?Math.round(g*(1+SFX.gold/100)):g;}
 if(typeof TH!=='undefined')Object.assign(TH,{'Resist!':'ต้านทาน!'});
+// (v1.53.0) Radiant shoe sigils: 'Socket into shoes'
+for(const it of Object.values(ITEMS))if(it.radiant&&it.kind==='shoes'&&typeof it.desc==='string')it.desc=it.desc.replace(/^Socket into an? shoes:/,'Socket into shoes:');
 // (v1.51.2) Radiant twins (made in js/awaken.js from the numbers above) stop at 10% for any percentage
 if(typeof SIG_PCT_KEYS!=='undefined')for(const it of Object.values(ITEMS)){if(!it.radiant||!it.b)continue;let ch=false;
   for(const k of SIG_PCT_KEYS)if(it.b[k]>SIG_PCT_RADIANT){it.b[k]=SIG_PCT_RADIANT;ch=true;}

@@ -112,7 +112,7 @@ function die(src){
 function invFind(id){return P.inv.find(e=>e.id===id&&e.n!==undefined);}
 function giveItem(id,n=1,announce){
   const it=ITEMS[id];
-  if(it.type==='weapon'||it.type==='armor'||it.type==='accessory'||it.type==='head'||it.type==='face'||it.type==='mouth'){for(let i=0;i<n;i++)P.inv.push({id,uid:uid++,s:Array(it.slots).fill(null)});}
+  if(it.type==='weapon'||it.type==='armor'||it.type==='accessory'||it.type==='head'||it.type==='face'||it.type==='mouth'||it.type==='shoes'){for(let i=0;i<n;i++)P.inv.push({id,uid:uid++,s:Array(it.slots).fill(null)});}
   else{const e=invFind(id);if(e)e.n+=n;else P.inv.push({id,n});}
   if(announce){sfx('pickup');}if(announce)addLog(`You got ${it.name}${n>1?' ×'+n:''}.`,'l-loot');
   refreshPanel();rebuildHotbar();
@@ -129,7 +129,12 @@ function useInv(i){
   if(it.type==='etc'){addLog(`${it.name} sells for ${sellValue(e.id)} gold at the General Store.`);return;}
   if(it.type==='sigil'){openSocket(e.id);return;} // js/socket.js: pick the gear, then OK
   const why=canEquip(it);if(why){addLog(why,'l-bad');return;}
-  const slot=it.type, old=P.eq[slot];
+  // (v1.53.0) two accessory slots: a new accessory fills an empty one (the first, then the second); the same one twice is not allowed
+  let slot=it.type;
+  if(slot==='accessory'){const a=P.eq.accessory,b=P.eq.acc2;
+    if((a&&a.id===e.id)||(b&&b.id===e.id)){addLog(`You already wear a ${it.name}.`,'l-bad');return;}
+    if(a&&!b)slot='acc2';}
+  const old=P.eq[slot];
   P.inv.splice(i,1);P.eq[slot]=e;if(old)P.inv.push(old);
   addLog(`Equipped ${it.name}.`);S=computeStats();P.hp=Math.min(P.hp,S.maxhp);P.sp=Math.min(P.sp,S.maxsp);refreshPanel();save();
 }
@@ -208,7 +213,7 @@ function questKill(id){const q=P.quest;if(!q||q.mob!==id)return;q.have=Math.min(
 function lootMatters(l){if(!l||l.ghost)return false;if(l.boss||l.rare)return true;
   if(l.id&&typeof rarityOf==='function'&&rarityOf(l.id)>=1)return true; // anything with a coloured name (Uncommon or better)
   const it=l.id&&ITEMS[l.id];
-  return !!it&&(it.type==='sigil'||(typeof GEAR!=='undefined'?GEAR.includes(it.type):['weapon','armor','head','accessory','face','mouth'].includes(it.type)));}
+  return !!it&&(it.type==='sigil'||(typeof GEAR!=='undefined'?GEAR.includes(it.type):['weapon','armor','head','accessory','face','mouth','shoes'].includes(it.type)));}
 function autoHunt(){
   if(!P.auto||P.dead||Z.D.safe)return;
   const f=P.hp/S.maxhp;

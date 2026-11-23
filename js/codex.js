@@ -7,7 +7,7 @@
    World-boss sigils stay hidden until you have defeated that boss, as in the Bestiary. Choices are remembered. */
 const CODEX=(()=>{const d={tab:'beast',slot:'all',ab:'all',sort:'lv'};try{return Object.assign(d,JSON.parse(localStorage.getItem('embervale.codex')||'{}'));}catch(e){return d;}})();
 const saveCodex=()=>{try{localStorage.setItem('embervale.codex',JSON.stringify(CODEX));}catch(e){}};
-const CODEX_SLOTS=[['all','All'],['weapon','Weapon'],['armor','Armour'],['head','Head'],['accessory','Accessory']];
+const CODEX_SLOTS=[['all','All'],['weapon','Weapon'],['armor','Armour'],['head','Head'],['accessory','Accessory'],['shoes','Shoes']];
 const CODEX_ABS=[['atk','ATK'],['atkpct','ATK %'],['matk','MATK'],['matkpct','MATK %'],['def','DEF'],['dmgred','Damage taken −%'],['maxhp','Max HP'],['hppct','Max HP %'],['maxsp','Max SP'],['sppct','Max SP %'],
   ['str','STR'],['agi','AGI'],['vit','VIT'],['int','INT'],['dex','DEX'],['luk','LUK'],['crit','CRIT'],['critdmg','Crit damage %'],['dbl','Double attack %'],['aspd','Attack speed %'],['cast','Cast time −%'],
   ['hit','HIT'],['flee','FLEE'],['healpct','Healing %'],['regen','HP regen'],['spregen','SP regen']];

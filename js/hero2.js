@@ -27,6 +27,7 @@ const WARDEN_LOOKS={
   runeguard:{kit:'rune',coat:'#22365e',steel:'#c4d4e6',trim:'#7fd3ff',boot:'#1e2236',sleeve:'#22365e',pant:'#2a2e48'}};
 function drawHuman2(x,y,body,hair,face,walk,opt={}){
   const L=opt.look||{style:0,eye:'#5a3a22',skin:'#f6d6b8',seed:0};hair=L.hair||hair;
+  const SHO=opt.shoes&&typeof ITEMS!=='undefined'&&ITEMS[opt.shoes]&&ITEMS[opt.shoes].type==='shoes'?ITEMS[opt.shoes]:null; // (v1.53.0) worn shoes colour the boots
   const f=face<0?-1:1,out=HERO2_DRESS[opt.outfit]?opt.outfit:'npc',D=HERO2_DRESS[out],OL='#2a1c14',st=L.style|0,bk=!!opt.back,sd=L.seed||0;
   const WV=out==='warden'&&WARDEN_V2?WARDEN_LOOKS[opt.cls]:null,wv2=!!WV,KN=wv2&&WV.kit==='knight',FORT=wv2&&WV.kit==='fort',BERS=wv2&&WV.kit==='bers',RUNE=wv2&&WV.kit==='rune',GOLD=WV?WV.trim:'',STEEL=WV?WV.steel:'',STEEL2=WV?WV.steel2:'',RED=WV?WV.cloth:'';
   const glow=(fn)=>{if(WV&&WV.glow){ctx.save();ctx.shadowColor=WV.trim;ctx.shadowBlur=6;fn();ctx.restore();}else fn();};
@@ -78,7 +79,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   if(!opt.sit){for(const k of [-1,1]){const s=k*wk*3.4*G.leg+k*(opt.stance||0),lift=walk?Math.max(0,-k*wk)*1.6:0,fx=x+k*3.6+s,fy=y-1.5-lift;
       if(!robe){ctx.strokeStyle=OL;ctx.lineWidth=6.2;ctx.beginPath();ctx.moveTo(x+k*3.6,hip-2);ctx.lineTo(fx,fy-2.5);ctx.stroke();
         ctx.strokeStyle=(WV&&WV.pant)||(AK&&AK.pant)||D.pant;ctx.lineWidth=FORT?4.6:3.6;ctx.beginPath();ctx.moveTo(x+k*3.6,hip-2);ctx.lineTo(fx,fy-2.5);ctx.stroke();}
-      ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=WV?WV.boot:AK&&AK.boot?AK.boot:D.boot;ctx.beginPath();ctx.roundRect(fx-3,fy-(RUNE||(AK&&AK.tall)?7:5),6,RUNE||(AK&&AK.tall)?7:5,2);fs();
+      ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=(SHO?SHO.col:WV?WV.boot:AK&&AK.boot?AK.boot:D.boot);ctx.beginPath();ctx.roundRect(fx-3,fy-(RUNE||(AK&&AK.tall)||(SHO&&SHO.tall)?7:5),6,RUNE||(AK&&AK.tall)||(SHO&&SHO.tall)?7:5,2);fs();
       if(AK)outfitPart(AK,'leg',{x,y,by,hip,f,bk,sway,OL,fs,fx,fy,k});
       ctx.beginPath();ctx.ellipse(fx+f*1.3,fy-.6,3.9,2.4,0,0,7);fs();
       ctx.fillStyle='rgba(255,255,255,.18)';ctx.fillRect(fx-2.6,fy-4.6,5.2,1.3);
@@ -87,14 +88,14 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
       if(FORT){ctx.fillStyle=STEEL;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(fx-3.4,fy-10,6.8,7,1.6);fs();ctx.strokeStyle=GOLD;ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(fx-3,fy-9.2);ctx.lineTo(fx+3,fy-9.2);ctx.stroke();}
       if(KN){ctx.fillStyle=STEEL;ctx.strokeStyle=OL;ctx.lineWidth=1.1;const kx=(x+k*3.6+fx)/2,ky=(hip-2+fy-2.5)/2;ctx.beginPath();ctx.roundRect(fx-2.6,fy-8.5,5.2,5,1.4);fs();
         ctx.beginPath();ctx.ellipse(kx,ky,2.7,2.2,0,0,7);fs();ctx.fillStyle=GOLD;ctx.beginPath();ctx.arc(kx,ky,.8,0,7);ctx.fill();}}}
-  else if(opt.sitPose&&typeof drawSitLegs==='function')drawSitLegs(x,y,f,opt.sitPose,robe?top:(WV&&WV.pant)||(AK&&AK.pant)||D.pant,WV?WV.boot:AK&&AK.boot?AK.boot:D.boot);
+  else if(opt.sitPose&&typeof drawSitLegs==='function')drawSitLegs(x,y,f,opt.sitPose,robe?top:(WV&&WV.pant)||(AK&&AK.pant)||D.pant,(SHO?SHO.col:WV?WV.boot:AK&&AK.boot?AK.boot:D.boot));
   else if(opt.ride){ // v1.39.0 astride a mount: the near leg hangs down the mount's side to the stirrup, the far one tucked behind
-    ctx.lineWidth=1.5;ctx.strokeStyle=OL;const pant=robe?top:(WV&&WV.pant)||(AK&&AK.pant)||D.pant,boot=WV?WV.boot:AK&&AK.boot?AK.boot:D.boot;
+    ctx.lineWidth=1.5;ctx.strokeStyle=OL;const pant=robe?top:(WV&&WV.pant)||(AK&&AK.pant)||D.pant,boot=(SHO?SHO.col:WV?WV.boot:AK&&AK.boot?AK.boot:D.boot);
     for(const [k,dx] of [[-1,-2.5],[1,2]]){const kx=x+f*dx;ctx.fillStyle=k<0?shade(pant,-18):pant;ctx.beginPath();ctx.ellipse(kx+f*2.5,y-2,5.5,3.4,f*.25,0,7);fs();
       ctx.beginPath();ctx.roundRect(kx+f*3.5-2.6,y-1,5.2,9,2.4);fs();ctx.fillStyle=k<0?shade(boot,-18):boot;ctx.beginPath();ctx.ellipse(kx+f*4.6,y+8.6,3.6,2.3,0,0,7);fs();}}
   else{ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=robe?top:D.pant;
     for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*7,y-2.5,6.5,3.6,k*.18,0,7);fs();}
-    ctx.fillStyle=D.boot;for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*2.5,y,3.4,2.4,0,0,7);fs();}}
+    ctx.fillStyle=SHO?SHO.col:D.boot;for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*2.5,y,3.4,2.4,0,0,7);fs();}}
   // ---- arms: shoulder to hand, swinging against the legs; up while casting; on the knees when sitting ----
   const hand=k=>{if(opt.hands){const h=opt.hands[k===f?0:1];return [x+f*h[0],by+h[1]];}if(opt.ride)return [x+f*(9+(k===f?1.5:-1))*bw,y-10];if(opt.sit)return [x+k*10*bw,y-4];if(opt.cast)return [x+k*11.5*bw,by-17+Math.sin(now*9+k)*1.2];
     return [x+k*9.6*bw-k*wk*f*0+(walk?-k*wk*2.6*G.arm:0),by-3+(walk?Math.abs(wk)*-.6:0)+br*.3];};

@@ -83,3 +83,6 @@ const SIG_PCT_KEYS=['leech','stun','freeze','slow','thorns','res_fire','res_wate
   for(const id in SIG3){const m=MOBS[id],it=ITEMS[id+'_sig'];if(!m||!m.sig||!it)continue;
     m.sig.b={...SIG3[id]};it.b=m.sig.b;m.sig.txt=Object.entries(m.sig.b).map(([k,v])=>lab(k,v)).join(', ');
     it.desc=`Socket into ${/^[aeiou]/.test(m.sig.kind)?'an':'a'} ${m.sig.kind}: ${m.sig.txt}.`;}}
+/* (v1.53.0) shoe sigils: nimble monsters' sigils now go into shoes (move speed, FLEE, AGI and the like) */
+const SIG_SHOES=['hopper','bumblewing','greylupe','rimestalker','glasslynx','saltwing','gravehound','duskpanther','duskweaver','thunderhawk','wraith','emberbat'];
+for(const id of SIG_SHOES){const m=MOBS[id],it=ITEMS[id+'_sig'];if(!m||!m.sig||!it)continue;m.sig.kind='shoes';it.kind='shoes';it.desc=`Socket into shoes: ${m.sig.txt}.`;}
