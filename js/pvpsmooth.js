@@ -23,14 +23,16 @@ hurtMob=function(m,dmg,crit,kind){const before=NET.dlId,r=_hurtMobPvp.apply(this
 function pvpEnts(){const out=[];
   if(typeof DUEL!=='undefined'&&DUEL&&DUEL.ent)out.push(DUEL.ent);
   if(typeof AR!=='undefined'&&AR.match)for(const f of AR.match.foes||[])if(f.ent)out.push(f.ent);
-  if(typeof GW!=='undefined'&&GW.ents)for(const e of GW.ents.values())out.push(e);return out;}
+  if(typeof GW!=='undefined'&&GW.ents)for(const e of GW.ents.values())out.push(e);
+  if(typeof BRW!=='undefined'&&BRW.ents)for(const e of BRW.ents.values())out.push(e);return out;}
 // how long a guess may wait for their game to confirm it: a round trip plus two of their updates
 const pvpWait=()=>Math.min(1500,(typeof NET!=='undefined'&&NET.ping?NET.ping:150)*1.5+300);
 
 const _netTickPvp=netTick;
 netTick=function(dt){_netTickPvp(dt);
   const tn=performance.now(),wait=pvpWait();
-  for(const e of pvpEnts()){const base=e.hp;if(e.dead){e.pvPend=null;e.pvBase=base;continue;}
+  // (v1.49.4) their real HP is read from their own report, so it does not matter who last wrote the stand-in's HP
+  for(const e of pvpEnts()){const po=pvpOther(e),base=po?Math.max(1,po.hp||1):e.hp;if(e.dead){e.pvPend=null;e.pvBase=base;continue;}
     const pend=e.pvPend;
     // their real HP went down: those hits have arrived, so their guesses are used up (oldest first)
     if(pend&&pend.length&&e.pvBase!=null&&base<e.pvBase){let drop=e.pvBase-base;while(pend.length&&drop>0){const q=pend[0];if(q.p<=drop+.5){drop-=q.p;pend.shift();}else{q.p-=drop;drop=0;}}}

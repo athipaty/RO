@@ -49,6 +49,8 @@ PANEL_ACTS.arleave=PANEL_ACTS.brleave;
 /* ---- my attacks on a fighter's stand-in: sent as kind "fa" ---- */
 {const _hmBR=hurtMob;hurtMob=function(m,dmg,crit,kind){if(!m||!m.brawl)return _hmBR(m,dmg,crit,kind);
   if(!brawlOn()||m.dead||pvpDowned())return;dlSend(m.pid,'fa',{d:Math.round(dmg),c:crit?1:0});m.hitF=now;
+  if(typeof pvpGuess==='function'){const g=pvpGuess(m,dmg);if(g>0)(m.pvPend||(m.pvPend=[])).push({p:g,t:performance.now()});} // the HP bar drops at once (js/pvpsmooth.js)
+ 
   if(crit){sfx('crit');texts.push({x:m.x,y:m.y-40,txt:fmt(dmg),col:'#ffb03a',size:24,t0:now,dur:1});}else{sfx(kind==='mag'?'zap':hitSound());floatT(m.x,m.y-28,fmt(dmg),'#ffffff',15);}};}
 
 /* ---- hits on me, and word that I knocked someone down ---- */
@@ -75,7 +77,7 @@ function brawlKO(o){P.hp=1;BRW.falls++;dlSend(o.id,'fako');addLog(`${o.n} knocke
   const seen=new Set();
   for(const o of NET.others.values()){if(!brawlFoe(o))continue;seen.add(o.id);let e=BRW.ents.get(o.id);
     if(!e){e={pvp:true,brawl:true,pid:o.id,x:o.rx,y:o.ry,hp:100,dead:false,hitF:-9,idx:-1,state:'idle',d:{id:'brawl',name:o.n,lv:1,hp:100,size:12,flee:1,def:0,el:'neutral',drops:[]}};BRW.ents.set(o.id,e);}
-    e.x=o.rx;e.y=o.ry;e.hp=Math.max(1,o.hp||1);e.d.name=o.n;e.d.lv=o.lv||1;e.d.flee=pvpFlee(o);e.dead=!!o.kd;if(e.dead&&P.target===e)P.target=null;}
+    e.x=o.rx;e.y=o.ry;if(e.pvShow==null)e.hp=Math.max(1,o.hp||1);e.d.name=o.n;e.d.lv=o.lv||1;e.d.flee=pvpFlee(o);e.dead=!!o.kd;if(e.dead&&P.target===e)P.target=null;}
   for(const [id,e] of BRW.ents)if(!seen.has(id)){if(P.target===e)P.target=null;BRW.ents.delete(id);}
   // a shimmer while protected after standing up
   if(now<BRW.safeUntil&&Math.floor(now*3)!==Math.floor((now-dt)*3))fx.push({k:'ring',x:P.x,y:P.y,r:22,col:'#ffe9a0',t0:now,dur:.4});};}
@@ -111,3 +113,27 @@ const pvpActive=()=>!!((typeof DUEL!=='undefined'&&DUEL)||(typeof AR!=='undefine
 {const _usBR2=useSkill;useSkill=function(id){const sk=SKILLS[id];
   if(sk&&sk.kind==='target'&&P&&!P.dead&&(!P.target||P.target.dead)&&pvpActive())targetNearest(true);
   return _usBR2.apply(this,arguments);};}
+
+/* ---- (v1.49.4) one press, one hit in player fights ----
+   Against another player the hero no longer keeps swinging by itself: each press of Attack, or each tap on the
+   opponent, gives one normal attack (walking over first if they are out of reach). Skills work as before. */
+const PVPHIT={press:0,at:-99};
+function pvpPress(){PVPHIT.press=1;PVPHIT.at=now;}
+{const _baOH=basicAttack;basicAttack=function(t){
+  if(t&&t.pvp&&pvpActive()){if(!PVPHIT.press||now-PVPHIT.at>4)return;PVPHIT.press=0;}
+  return _baOH.apply(this,arguments);};}
+document.getElementById('atkBtn').addEventListener('click',()=>{if(P&&pvpActive()&&P.target&&P.target.pvp)pvpPress();});
+cv.addEventListener('click',ev=>{if(!P||!pvpActive())return;const m=mobAt(screenAt(ev));if(m&&m.pvp)pvpPress();});
+addEventListener('keydown',ev=>{if(!running||!P||ev.target.tagName==='INPUT')return;const k=(ev.key||'').toLowerCase();
+  if((k===' '||k==='spacebar')&&pvpActive()){ev.preventDefault();if(!P.target||!P.target.pvp||P.target.dead)targetNearest(true);if(P.target&&P.target.pvp)pvpPress();}});
+
+/* ---- (v1.49.4) less gap between two players fighting ----
+   1. The open arena counts as a player fight for js/pvpsmooth.js too: updates every 66 ms, and my hits show on the
+      opponent's HP bar at once (also the small bar over their head), before their game confirms them.
+   2. Their swing shows the moment their hit reaches me, instead of waiting for their next position update. */
+{const _poBR=pvpOn;pvpOn=function(){return _poBR()||brawlOn();};}
+{const _ntPP=netTick;netTick=function(dt){_ntPP(dt);for(const o of NET.others.values())o.hpShow=null;
+  for(const e of pvpCands()){const o=pvpOther(e);if(o&&e.pvShow!=null)o.hpShow=Math.max(1,Math.min(o.hp||0,e.hp));}};}
+{const _ptPP=pvpTaken;pvpTaken=function(raw,o){const r=_ptPP(raw,o);
+  try{const src=o&&o.__srv?Object.getPrototypeOf(o):o;if(src&&P){src.swingT=now;src.swingDur=.22;src.atkFace=sface(P.x-(src.rx||src.x),P.y-(src.ry||src.y));src.atkFaceT=now;}}catch(e){}
+  return r;};}
