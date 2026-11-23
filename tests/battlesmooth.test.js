@@ -21,7 +21,10 @@ module.exports = async t => {
         const bossOn = BS.bossOn; setTimeout(() => res({ bossOn, skipped, bossKill, texts: texts.length, fx: fx.length }), 200); }; go(); }); });
     t.ok(r.bossOn && r.skipped && r.bossKill, 'in a boss fight crit freezes are skipped, the boss death still freezes ' + JSON.stringify(r));
     t.ok(r.texts <= 30 && r.fx <= 150, `damage numbers and effects are capped (${r.texts}, ${r.fx})`);
-    const cam = await g.ev(() => new Promise(res => { P.x -= 1500; setTimeout(() => { const tp = proj(P.x, P.y); res(Math.abs(camX - (tp.x - VW / 2)) < 3); }, 120); }));
+    // the first frames after the jump: snapped (not gliding) — waits for frames rather than a fixed 120 ms, as a busy machine can delay them
+    const cam = await g.ev(() => new Promise(res => { P.x -= 1500; let n = 0; const t0 = performance.now();
+      const look = () => { const tp = proj(P.x, P.y), off = Math.abs(camX - (tp.x - VW / 2)); n++;
+        if (n >= 3 || performance.now() - t0 > 1000) return res(off < 3); requestAnimationFrame(look); }; requestAnimationFrame(look); }));
     t.ok(cam, 'the camera snaps straight to the hero after a long jump');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }

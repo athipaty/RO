@@ -231,7 +231,7 @@ function spawnMob(type,m,lead){
   if(L){const lx=Math.floor(L.x/TILE),ly=Math.floor(L.y/TILE);for(let k=0;k<20;k++){const tx=lx+Math.round(rnd(-2.4,2.4)),ty=ly+Math.round(rnd(-2.4,2.4)),j=ty*Z.w+tx;
     if(tx>0&&ty>0&&tx<Z.w-1&&ty<Z.h-1&&!BLOCK[Z.t[j]]&&Z.reach[j]){i=j;break;}}}
   const d=MOBS[type];const x=(i%Z.w+.5)*TILE,y=(((i/Z.w)|0)+.5)*TILE;
-  Object.assign(m,{calls:0,d,x,y,sx:x,sy:y,hp:d.hp,state:'idle',atkT:0,wT:rnd(0,3),tx:null,ty:null,face:1,hitF:-9,dead:false,slowUntil:0,aggroed:false,ph:Math.random()*6,slamT:now+6,slamAt:0});
+  Object.assign(m,{calls:0,d,x,y,sx:x,sy:y,hp:d.hp,state:'idle',atkT:0,wT:rnd(0,3),tx:null,ty:null,face:1,hitF:-9,dead:false,slowUntil:0,aggroed:false,ph:Math.random()*6,slamT:now+6,slamAt:0,zoneT:now+4});
   return m;
 }
 function enterZone(id,from){
@@ -251,7 +251,7 @@ function enterZone(id,from){
 
 /* ================= update ================= */
 const keys={};
-function update(dt){
+function update(dt){if(BZONES.length)bossZoneTick();
   netTick(dt);
   if(P&&(zoneId==='crypt'||Z.D.dungeon)){const b=mobs.find(m=>m.d.boss&&!m.d.world&&!m.dead);musicPlay(b&&b.state==='chase'&&dist(b,P)<650?'boss':Z.D.music||zoneId);}
   if(!P||P.dead){if(P&&Z)mobsTick(dt);updateFx();return;}
@@ -333,6 +333,15 @@ function mobTargets(){const t=[];if(P&&!P.dead&&!Z.D.safe)t.push(P);
 function callMinions(m,fxOnly){if(!fxOnly)for(const o of mobs)if(o.lead===m.d.id&&o.dead){spawnMob(o.d.id,o);o.state='chase';o.aggroed=true;}
   fx.push({k:'ring',x:m.x,y:m.y,r:90,col:'#ffcf5a',t0:now,dur:.6});floatT(m.x,m.y-m.d.size-30,'Calls its pack!','#ffcf5a',14);
   if(dist(m,P)<700)addLog(`The ${m.d.name} calls its pack to its side!`,'l-bad');sfx('rare');}
+/* (v1.50.1) boss area strike: a circle is marked on the ground under a player and erupts 1.2 s later. Each game hurts
+   its own hero if they are still inside (1.3x the boss's ATK, DEF counts), so step out of the glowing circle. */
+const BZONES=[];let bzTold=false;
+function bossZone(m,x,y,r){if(!m||!m.d)return;BZONES.push({m,x,y,r,at:now+1.2});fx.push({k:'warn',x,y,r,t0:now,dur:1.2});
+  if(!bzTold&&P&&Math.hypot(P.x-x,P.y-y)<r+PR+40){bzTold=true;addLog(`${m.d.name} marks the ground under you: step out of the glowing circle!`,'l-bad');}}
+function bossZoneTick(){for(let i=BZONES.length-1;i>=0;i--){const z=BZONES[i];if(!mobs.includes(z.m)){BZONES.splice(i,1);continue;}if(now<z.at)continue;BZONES.splice(i,1);
+  fx.push({k:'ring',x:z.x,y:z.y,r:z.r,col:'#ff6a3a',t0:now,dur:.45});fx.push({k:'critburst',x:z.x,y:z.y-6,t0:now,dur:.35});
+  const dz=P?Math.hypot(P.x-z.x,P.y-z.y):1e9;if(dz<700)sfx('slam');if(dz<z.r+150)shakeUntil=Math.max(shakeUntil,now+.2);
+  if(P&&!P.dead&&Math.hypot(P.x-z.x,P.y-z.y)<z.r+PR)hurtPlayer(Math.max(1,Math.round(z.m.d.atk*1.3*rnd(.9,1.1)-S.def*.6)),z.m.d.name);}}
 function slamLand(m){fx.push({k:'ring',x:m.x,y:m.y,r:130,col:'#ff7a3a',t0:now,dur:.4});sfx('slam');shakeUntil=now+.35;
   if(!P.dead&&dist(m,P)<130+PR){hurtPlayer(Math.round(m.d.atk*1.5-S.def*.6),m.d.name);tryAilment(['stun',1,1.5]);}}
 /* v1.45.3 monsters walk around trees and rocks: a straight step when the way is clear, otherwise they follow a
@@ -363,6 +372,8 @@ function updateMob(m,dt,T){
     if(Math.hypot(m.x-m.sx,m.y-m.sy)>520||dp>600){m.state='return';m.aggroed=false;m.retT=0;}
     else{
       if(d.boss&&now>m.slamT&&dp<160){m.slamAt=now+1.1;fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});netEvent('w',m);return;}
+      // (v1.50.1) the boss marks the ground under you (within 420 px); it erupts 1.2 s later (js/combat.js bossZone)
+      if(d.boss&&now>(m.zoneT||0)&&dp<420){m.zoneT=now+rnd(7,10);const r=d.world?110:85,zx=Math.round(tg.x),zy=Math.round(tg.y);bossZone(m,zx,zy,r);netEvent('z',m,null,{x:zx,y:zy,r});}
       const reach=(d.range||0)+d.size+PR+4;
       m.atkT-=dt;
       if(dp<=reach){m.face=sface(tg.x-m.x,tg.y-m.y);m.moving=false;if(m.atkT<=0){m.atkT=d.boss?1.3:1.6;m.lunge=now;
@@ -387,7 +398,7 @@ function zoneHost(){
   return best;}
 // when each shared hit/event was made (not sent): updates only carry the last few seconds of them
 const NET_AGE=new WeakMap(),netStamp=o=>(NET_AGE.set(o,now),o),netFresh=a=>(a||[]).filter(o=>now-(NET_AGE.has(o)?NET_AGE.get(o):now)<4);
-function netEvent(k,m,t){if(!NET.room)return;NET.evs=[...NET.evs,netStamp({i:++NET.evId,k,m:m.idx,t:t||null})].slice(-24);NET.lastSent='';NET.sendT=0;}
+function netEvent(k,m,t,extra){if(!NET.room)return;NET.evs=[...NET.evs,netStamp({i:++NET.evId,k,m:m.idx,t:t||null,...(extra||{})})].slice(-24);NET.lastSent='';NET.sendT=0;}
 function sendHit(m,d,sl,ex){NET.hits=[...NET.hits,netStamp({i:++NET.hitId,m:m.idx,d,sl,...(ex||{})})].slice(-24);NET.lastSent='';NET.sendT=0;}
 // a hit others only need to SEE (we run the monsters, so it is already applied); kept apart from hx so nobody applies it twice
 function showHit(m,d){if(!NET.room)return;NET.vh=[...(NET.vh||[]),netStamp({i:++NET.hitId,m:m.idx,d})].slice(-12);NET.lastSent='';NET.sendT=0;}
@@ -445,6 +456,7 @@ function syncMobs(host,dt){
       else if(m.d.range){for(const o of NET.others.values())if(o.id===e.t){shoot(m,{x:o.rx,y:o.ry},'arrow','#d8d0b8',()=>{},true);break;}}}
     else if(e.k==='w')fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});
     else if(e.k==='s')slamLand(m);
+    else if(e.k==='z')bossZone(m,fin(e.x),fin(e.y),clamp(fin(e.r)||85,20,200));
     else if(e.k==='c')callMinions(m,true);
     else if(typeof mobSkillEvent==='function')mobSkillEvent(m,e);}
   NET.evSeen.set(host.id,seen);}

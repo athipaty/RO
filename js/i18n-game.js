@@ -311,3 +311,5 @@ if(typeof TH!=='undefined'){Object.assign(TH,{'Open PvP':'PvP แบบเปิ
 if(typeof TH!=='undefined')Object.assign(TH,{'ATK %':'ATK เพิ่ม %','MATK %':'MATK เพิ่ม %','Damage taken −%':'ความเสียหายที่ได้รับ −%','Max SP %':'SP สูงสุด %',
   'Crit damage %':'ความเสียหายคริติคอล %','Double attack %':'โจมตีสองครั้ง %','Attack speed %':'ความเร็วโจมตี %','Cast time −%':'เวลาร่าย −%',
   'Healing %':'การรักษา %','HP regen':'ฟื้น HP','SP regen':'ฟื้น SP'});
+// v1.50.1 boss area strike
+if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(.+) marks the ground under you: step out of the glowing circle!$/,'$1 ทำเครื่องหมายบนพื้นใต้ตัวคุณ: ออกจากวงที่เรืองแสงเร็ว!']);
