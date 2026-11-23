@@ -10,10 +10,10 @@ module.exports = async t => {
 
     // no pair of bonuses on more than two sigils
     const u = await A.ev(() => { const g = {}; for (const m of Object.values(MOBS)) { const it = ITEMS[m.id + '_sig']; if (!m.sig || !it) continue;
-      const k = m.sig.kind + ':' + Object.keys(it.b).sort().join('+'); (g[k] = g[k] || []).push(m.id); }
-      const over = Object.entries(g).filter(([, v]) => v.length > 2).map(([k, v]) => k + ' ' + v.join(','));
+      const k = Object.keys(it.b).sort().join('+'); (g[k] = g[k] || []).push(m.id); }
+      const over = Object.entries(g).filter(([, v]) => v.length > 1).map(([k, v]) => k + ' ' + v.join(','));
       return { n: Object.keys(g).length, over, bat: ITEMS.cavebat_sig.desc, boss: ITEMS.voltaris_sig.desc }; });
-    t.ok(u.over.length === 0, `no two-bonus pattern is on more than two sigils (${u.n} patterns) ` + u.over.join('; '));
+    t.ok(u.over.length === 0, `every sigil has a set of bonuses no other sigil has (${u.n} sets) ` + u.over.join('; '));
     t.ok(/Life steal/.test(u.bat) && /Last Stand|Giant Slayer|Ambush/.test(u.boss), 'a bat sigil steals life; a boss sigil has a boss-only ability (' + u.bat + ' | ' + u.boss + ')');
 
     // no sigil percentage above 8% (a Radiant twin 10%)
