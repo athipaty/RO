@@ -634,8 +634,8 @@ function drawLookPreview(){if(!newLook)return;const sv=typeof CS!=='undefined'&&
 function initCreator(){
   setNewLook(lookFor('Wanderer'));
   $('#nameIn').addEventListener('input',()=>{if(!lookTouched)setNewLook(lookFor($('#nameIn').value.trim()||'Wanderer'));});
-  document.querySelectorAll('[data-build]').forEach(b=>b.addEventListener('click',()=>{sfx('click');setNewLook({...newLook,body:((newLook.body|0)+(+b.dataset.build)+3)%3},true);}));
-  document.querySelectorAll('[data-style]').forEach(b=>b.addEventListener('click',()=>{sfx('click');setNewLook({...newLook,style:(newLook.style+(+b.dataset.style)+6)%6},true);}));
+  document.querySelectorAll('[data-build]').forEach(b=>b.addEventListener('click',()=>{sfx('click');setNewLook({...newLook,body:((newLook.body|0)+(+b.dataset.build)+BUILD_NAMES.length)%BUILD_NAMES.length},true);}));
+  document.querySelectorAll('[data-style]').forEach(b=>b.addEventListener('click',()=>{sfx('click');setNewLook({...newLook,style:(newLook.style+(+b.dataset.style)+STYLE_NAMES.length)%STYLE_NAMES.length},true);}));
   $('#lkRand').addEventListener('click',()=>{sfx('click');const r=a=>a[Math.floor(Math.random()*a.length)];setNewLook({style:Math.floor(Math.random()*6),hair:r(HAIRS),eye:r(EYES),skin:r(SKINS),body:Math.floor(Math.random()*3)},true);});
   $('#verT').textContent=`Embervale v${VERSION}`+(ROOM?` · private room "${ROOM}"`:'');}
 function boot(hot){

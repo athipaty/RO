@@ -8,7 +8,7 @@
    hairstyles (6 Braid, 7 Short). */
 /* HERO2_HI: set while a big portrait is drawn (portrait.js): extra detail that only shows at large size */
 let HERO2_HI=false;
-const HERO2_STYLE_NAMES=['Spiky','Long','Ponytail','Twin tails','Bob','Curly','Braid','Short'];
+const HERO2_STYLE_NAMES=['Spiky','Long','Ponytail','Twin tails','Bob','Curly','Braid','Short','Top bun','Mohawk','Side sweep','Wavy'];
 const HERO2_DRESS={
   npc:{pant:'#4a3a2e',boot:'#3a2a20',trim:'#e8d8b0',belt:'#6b4423'},
   novice:{pant:'#5a4632',boot:'#4a3020',trim:'#efe2c0',belt:'#6b4423'},
@@ -43,6 +43,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   // ---- back layer: long hair, tails, braid, cape, hood, quiver ----
   const backLayer=()=>{ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=hair;
     if(st===1){ctx.beginPath();ctx.roundRect(x-12.5,hy-4,25,25,8);fs();}
+    if(st===11){ctx.beginPath();ctx.roundRect(x-13,hy-4,26,27,9);fs();for(const k of [-1,1])for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(x+k*12.5,hy+5+i*7+Math.sin(now*3+i+k)*.6,3.6,0,7);fs();}} // (v1.52.5) Wavy
     if(st===4){ctx.beginPath();ctx.roundRect(x-13.5,hy-6,27,17,8);fs();}
     if(st===2){ctx.beginPath();ctx.ellipse(bk?x:x-f*13,hy+(bk?7:3)+Math.sin(now*4+sd)*.8,4.5,10,f*.35+sway*.04,0,7);fs();}
     if(st===3)for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*14,hy+5+Math.sin(now*4+k)*.8,4.5,10.5,k*-.25+sway*.03,0,7);fs();}
@@ -260,10 +261,10 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
       ctx.fillStyle=L.eye;ctx.beginPath();ctx.ellipse(cx+f*.4,ey+.5,w,3.6,0,0,7);ctx.fill();
       ctx.fillStyle='#14100c';ctx.beginPath();ctx.ellipse(cx+f*.5,ey+1,w*.5,1.9,0,0,7);ctx.fill();
       ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx-.6,ey-1.2,1.1,0,7);ctx.fill();ctx.beginPath();ctx.arc(cx+1,ey+2,.5,0,7);ctx.fill();
-      ctx.strokeStyle=OL;ctx.lineWidth=(L.body|0)===1?2.3:1.6;ctx.beginPath();ctx.moveTo(cx-w-.8,ey-3.4);ctx.quadraticCurveTo(cx,ey-4.8,cx+w+.8,ey-3.4);ctx.stroke();
+      ctx.strokeStyle=OL;ctx.lineWidth=(L.body|0)===1||(L.body|0)===3?2.3:1.6;ctx.beginPath();ctx.moveTo(cx-w-.8,ey-3.4);ctx.quadraticCurveTo(cx,ey-4.8,cx+w+.8,ey-3.4);ctx.stroke();
       if(HERO2_HI){ctx.strokeStyle=OL;ctx.lineWidth=.7;const o=k===f?1:-1;ctx.beginPath();ctx.moveTo(cx+o*(w+.5),ey-3.1);ctx.lineTo(cx+o*(w+1.7),ey-4.3);ctx.moveTo(cx+o*(w+.2),ey-2);ctx.lineTo(cx+o*(w+1.4),ey-2.6);ctx.stroke();
         ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.ellipse(cx+f*.6,ey+2.1,w*.55,.55,0,0,7);ctx.fill();}
-      if((L.body|0)===2){const o=k===f?1:-1;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(cx+o*(w+.4),ey-2.6);ctx.lineTo(cx+o*(w+2),ey-4);ctx.moveTo(cx+o*(w+.6),ey-1.4);ctx.lineTo(cx+o*(w+2.3),ey-2.2);ctx.stroke();}}
+      if((L.body|0)===2||(L.body|0)===4){const o=k===f?1:-1;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(cx+o*(w+.4),ey-2.6);ctx.lineTo(cx+o*(w+2),ey-4);ctx.moveTo(cx+o*(w+.6),ey-1.4);ctx.lineTo(cx+o*(w+2.3),ey-2.2);ctx.stroke();}}
     ctx.fillStyle='rgba(240,120,120,.35)';for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(ex+k*6.5,hy+6.5,2.2,1.2,0,0,7);ctx.fill();}
     ctx.strokeStyle='#7a3a2a';ctx.lineWidth=1.1;ctx.beginPath();ctx.arc(ex,hy+7,1.4,.2,Math.PI-.2);ctx.stroke();
     // fringe: zig-zag bangs swept to the facing side (Short: a neat, even fringe)
@@ -273,7 +274,11 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
     ctx.lineTo(x+13,hy+2);ctx.arc(x,hy-1,13.2,0.15,Math.PI-0.15,true);ctx.closePath();fs();}
   if(st===0)for(let i=-2;i<=2;i++){const px=x+i*5;ctx.beginPath();ctx.moveTo(px-3.5,hy-11+Math.abs(i));ctx.lineTo(px+f*2+i*1.5,hy-18-(i%2?0:2)+Math.abs(i)*1.5);ctx.lineTo(px+3.5,hy-11+Math.abs(i));ctx.closePath();fs();}
   if(st===5)for(let i=-1;i<=1;i++){ctx.beginPath();ctx.arc(x+i*6,hy-12+Math.abs(i)*2,4.5,0,7);fs();}
-  if(!bk&&(st===1||st===3||st===4))for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(x+k*12.5,hy-3);ctx.quadraticCurveTo(x+k*14,hy+4,x+k*11,hy+(st===4?9:11));ctx.lineTo(x+k*10.5,hy);ctx.closePath();fs();}
+  // (v1.52.5) Top bun, Mohawk, Side sweep
+  if(st===8){ctx.beginPath();ctx.arc(x-f*1,hy-15.5,5.8,0,7);fs();ctx.fillStyle='#e04a6a';ctx.beginPath();ctx.ellipse(x-f*1,hy-10.6,4,1.4,0,0,7);fs();ctx.fillStyle=hair;}
+  if(st===9)for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(x+i*4-2.6,hy-11.5);ctx.lineTo(x+i*4+f*1.5,hy-22+Math.abs(i)*3);ctx.lineTo(x+i*4+2.6,hy-11.5);ctx.closePath();fs();}
+  if(st===10&&!bk){ctx.beginPath();ctx.moveTo(x-f*13.4,hy-4);ctx.quadraticCurveTo(x+f*3,hy-11,x+f*13.6,hy+7);ctx.lineTo(x+f*9,hy+3.5);ctx.quadraticCurveTo(x-f*1,hy-3,x-f*13,hy+1);ctx.closePath();fs();}
+  if(!bk&&(st===1||st===3||st===4||st===11))for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(x+k*12.5,hy-3);ctx.quadraticCurveTo(x+k*14,hy+4,x+k*11,hy+(st===4?9:11));ctx.lineTo(x+k*10.5,hy);ctx.closePath();fs();}
   // Braid: one plait over the shoulder on the side away from the viewer's facing
   if(st===6&&!bk){const bx=x-f*10;for(let i=0;i<4;i++){ctx.beginPath();ctx.ellipse(bx+f*i*.6+Math.sin(now*3+i)*.4,hy+4+i*4.2,3.6-i*.3,2.8,0,0,7);fs();}
     ctx.fillStyle='#e04a6a';ctx.beginPath();ctx.arc(bx+f*2.4,hy+20,1.8,0,7);fs();ctx.fillStyle=hair;}

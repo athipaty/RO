@@ -312,21 +312,22 @@ function bubble(txt,x,y){
 function shadow(x,y,r){ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(x,y+2,r,r*.42,0,0,7);ctx.fill();}
 function eyes(x,y,s,face,col='#fff',pupil='#1a1a1a'){for(const k of [-1,1]){ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(x+k*s*.32+face*s*.12,y,s*.17,s*.22,0,0,7);ctx.fill();ctx.fillStyle=pupil;ctx.beginPath();ctx.arc(x+k*s*.32+face*s*.18,y+s*.04,s*.09,0,7);ctx.fill();}}
 /* ---- chibi look: every name gets its own hairstyle, hair, eye and skin colour ---- */
-const HAIRS=['#2b1d16','#5a3a22','#8a5a2b','#c98a3a','#ecd9a0','#e8e4f0','#b8473a','#d86a9a','#4f6fc0','#3f8a6a','#7a4fb0','#1f2a44'];
-const EYES=['#3a6fd0','#2f8f5a','#8a4a22','#b03a5a','#6a4ac0','#2a9aa8','#c07a1a'];
-const SKINS=['#fbe3cc','#f6d6b8','#efc6a0','#d9a77c','#b9805a'];
+// (v1.52.5) more choices, added at the end so saved looks and other players' codes keep their colours
+const HAIRS=['#2b1d16','#5a3a22','#8a5a2b','#c98a3a','#ecd9a0','#e8e4f0','#b8473a','#d86a9a','#4f6fc0','#3f8a6a','#7a4fb0','#1f2a44','#a8adb8','#f6eccf','#8a2e1c','#e07a2a','#2fa0a0','#c43a6a'];
+const EYES=['#3a6fd0','#2f8f5a','#8a4a22','#b03a5a','#6a4ac0','#2a9aa8','#c07a1a','#7a8494','#e0a92a','#c83030','#e070a8','#2a2226'];
+const SKINS=['#fbe3cc','#f6d6b8','#efc6a0','#d9a77c','#b9805a','#fff1e4','#e8c39a','#c69466','#9c6a44','#6e4a30'];
 const LOOKS=new Map();
 function lookFor(name){name=name||'?';let L=LOOKS.get(name);if(L)return L;
   let h=2166136261;for(const c of name)h=Math.imul(h^c.charCodeAt(0),16777619);h>>>=0;
   L={style:h%6,hair:HAIRS[(h>>>3)%HAIRS.length],eye:EYES[(h>>>8)%EYES.length],skin:SKINS[(h>>>12)%SKINS.length],seed:(h%1000)/97};
   LOOKS.set(name,L);return L;}
-const STYLE_NAMES=['Spiky','Long','Ponytail','Twin tails','Bob','Curly'];
+const STYLE_NAMES=['Spiky','Long','Ponytail','Twin tails','Bob','Curly','Braid','Short','Top bun','Mohawk','Side sweep','Wavy'];
 // #1 build: 0 Standard, 1 Broad (wider shoulders, heavier brows), 2 Slender (narrower, lashes); presence field bt
-const BUILD_NAMES=['Standard','Broad','Slender'];const BUILD_W=[1,1.14,.86];
+const BUILD_NAMES=['Standard','Broad','Slender','Stocky','Lithe'];const BUILD_W=[1,1.14,.86,1.26,.8];
 function lookOf(name,lk){const b=lookFor(name);return lk?{...b,...lk}:b;}
 function lookCode(lk){return lk?[lk.style,HAIRS.indexOf(lk.hair),EYES.indexOf(lk.eye),SKINS.indexOf(lk.skin)]:null;}
 function lookDecode(a){if(!Array.isArray(a)||a.length!==4)return null;const[st,h,e,k]=a.map(v=>Math.floor(fin(v)));
-  if(!(st>=0&&st<6)||!HAIRS[h]||!EYES[e]||!SKINS[k])return null;return {style:st,hair:HAIRS[h],eye:EYES[e],skin:SKINS[k]};}
+  if(!(st>=0&&st<STYLE_NAMES.length)||!HAIRS[h]||!EYES[e]||!SKINS[k])return null;return {style:st,hair:HAIRS[h],eye:EYES[e],skin:SKINS[k]};}
 // the body armour you wear shows over the class outfit (others see it too)
 function drawArmor(x,by,f,bk,id,OL){const it=ITEMS[id];if(!it||it.type!=='armor'||id==='tunic')return;const c=it.col||'#888';
   ctx.lineWidth=1.5;ctx.strokeStyle=OL;const fs=()=>{ctx.fill();ctx.stroke();};
@@ -391,7 +392,7 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
   else if(out==='ranger'){ctx.fillStyle='#2f6a3a';ctx.beginPath();ctx.ellipse(x,by-11,9,3.5,0,0,7);fs();ctx.strokeStyle='#6b4423';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-6,by-10);ctx.lineTo(x+6,by);ctx.stroke();}
   else{ctx.fillStyle='#6b4423';ctx.fillRect(x-8,by-3,16,3);ctx.fillStyle='#e8c25a';ctx.fillRect(x-1.5,by-3.5,3,4);ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.moveTo(x-4,by-12);ctx.lineTo(x,by-8);ctx.lineTo(x+4,by-12);ctx.closePath();ctx.fill();}
   if(opt.armor)drawArmor(x,by,f,bk,opt.armor,OL);
-  if((L.body|0)===2&&!bk&&!robe){ctx.fillStyle='rgba(0,0,0,.13)';for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(x+k*8,by-6);ctx.quadraticCurveTo(x+k*5.5,by-3,x+k*8,by);ctx.closePath();ctx.fill();}}
+  if(((L.body|0)===2||(L.body|0)===4)&&!bk&&!robe){ctx.fillStyle='rgba(0,0,0,.13)';for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(x+k*8,by-6);ctx.quadraticCurveTo(x+k*5.5,by-3,x+k*8,by);ctx.closePath();ctx.fill();}}
   ctx.restore();
   // hands (the one on the side the hero faces was drawn behind the body, above)
   for(const k of leadBehind?[-f]:[-f,f])handAt(k);
@@ -409,8 +410,8 @@ function drawHuman(x,y,body,hair,face,walk,opt={}){
     ctx.fillStyle=L.eye;ctx.beginPath();ctx.ellipse(cx+f*.4,ey+.5,w,3.6,0,0,7);ctx.fill();
     ctx.fillStyle='#14100c';ctx.beginPath();ctx.ellipse(cx+f*.5,ey+1,w*.5,1.9,0,0,7);ctx.fill();
     ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx-.6,ey-1.2,1.1,0,7);ctx.fill();ctx.beginPath();ctx.arc(cx+1,ey+2,.5,0,7);ctx.fill();
-    ctx.strokeStyle=OL;ctx.lineWidth=(L.body|0)===1?2.3:1.6;ctx.beginPath();ctx.moveTo(cx-w-.8,ey-3.4);ctx.quadraticCurveTo(cx,ey-4.8,cx+w+.8,ey-3.4);ctx.stroke();
-    if((L.body|0)===2){const o=k===f?1:-1;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(cx+o*(w+.4),ey-2.6);ctx.lineTo(cx+o*(w+2),ey-4);ctx.moveTo(cx+o*(w+.6),ey-1.4);ctx.lineTo(cx+o*(w+2.3),ey-2.2);ctx.stroke();}}
+    ctx.strokeStyle=OL;ctx.lineWidth=(L.body|0)===1||(L.body|0)===3?2.3:1.6;ctx.beginPath();ctx.moveTo(cx-w-.8,ey-3.4);ctx.quadraticCurveTo(cx,ey-4.8,cx+w+.8,ey-3.4);ctx.stroke();
+    if((L.body|0)===2||(L.body|0)===4){const o=k===f?1:-1;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(cx+o*(w+.4),ey-2.6);ctx.lineTo(cx+o*(w+2),ey-4);ctx.moveTo(cx+o*(w+.6),ey-1.4);ctx.lineTo(cx+o*(w+2.3),ey-2.2);ctx.stroke();}}
   ctx.fillStyle='rgba(240,120,120,.35)';for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(ex+k*6.5,hy+6.5,2.2,1.2,0,0,7);ctx.fill();}
   ctx.strokeStyle='#7a3a2a';ctx.lineWidth=1.1;ctx.beginPath();ctx.arc(ex,hy+7,1.4,.2,Math.PI-.2);ctx.stroke();
   // fringe: hair cap with zig-zag bangs, swept toward the facing side

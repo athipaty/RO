@@ -20,10 +20,10 @@ module.exports = async t => {
       const hair = HAIRS.findIndex(c => c !== L0.hair); panel.querySelector(`[data-act="stycol"][data-arg="hair:${hair}"]`).click();
       const prev = { ...STY.lk }; const still = JSON.stringify(lookOf(P.name, P.look)) === JSON.stringify(L0);
       const btn = panel.querySelector('[data-act="stybuy"]'); const label = btn.textContent; btn.click();
-      return { still, label, gold: P.gold, look: lookOf(P.name, P.look), prev, L0 }; });
+      return { still, label, gold: P.gold, look: lookOf(P.name, P.look), prev, L0, n: STYLE_NAMES.length }; });
     t.ok(pick.still, 'picking only changes the preview');
     t.ok(/300 gold/.test(pick.label) && pick.gold === 700, `paying ${1000 - pick.gold} gold makes it real`);
-    t.ok(pick.look.style === (pick.L0.style + 1) % 6 && pick.look.hair === pick.prev.hair && pick.look.hair !== pick.L0.hair, 'you get the new hairstyle and colour');
+    t.ok(pick.look.style === (pick.L0.style + 1) % pick.n && pick.look.hair === pick.prev.hair && pick.look.hair !== pick.L0.hair, 'you get the new hairstyle and colour');
     t.ok(await poll(B, b => JSON.stringify([...NET.others.values()][0].look) !== b, before), 'other players see the new look');
     t.ok(await A.ev(() => { save(); const s = JSON.parse(localStorage.getItem(SAVE_KEY)).p.look; return s && s.style === lookOf(P.name, P.look).style; }), 'and it is saved');
     const poor = await A.ev(() => { P.gold = 100; panel.querySelector('[data-act="stystyle"][data-arg="1"]').click(); const b = panel.querySelector('[data-act="stybuy"]'); return b.disabled && /Needs 300 gold/.test(b.textContent); });

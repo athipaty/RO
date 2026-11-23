@@ -18,7 +18,7 @@ PANELS.stylist=()=>{if(!STY.lk)STY.lk=curLook();const L=STY.lk,changed=!sameLook
     `<button class="btn" data-act="stybuy" ${changed&&afford?'':'disabled'}>${changed?(afford?`Change my look · ${STYLE_COST} gold`:`Needs ${STYLE_COST} gold`):'Pick something new first'}</button></div>`;};
 PANEL_ACTS.stystyle=d=>{STY.lk.style=(STY.lk.style+(+d)+STYLE_NAMES.length)%STYLE_NAMES.length;sfx('click');refreshPanel();};
 PANEL_ACTS.stycol=arg=>{const [k,i]=arg.split(':'),list={hair:HAIRS,eye:EYES,skin:SKINS}[k];if(!list||!list[+i])return;STY.lk[k]=list[+i];sfx('click');refreshPanel();};
-PANEL_ACTS.stybuild=d=>{STY.lk.body=((STY.lk.body|0)+(+d)+3)%3;sfx('click');refreshPanel();};
+PANEL_ACTS.stybuild=d=>{STY.lk.body=((STY.lk.body|0)+(+d)+BUILD_NAMES.length)%BUILD_NAMES.length;sfx('click');refreshPanel();};
 PANEL_ACTS.styreset=()=>{STY.lk=curLook();refreshPanel();};
 PANEL_ACTS.stybuy=()=>{if(sameLook(STY.lk,curLook())||P.gold<STYLE_COST)return;P.gold-=STYLE_COST;P.look={...STY.lk};
   NET.lastSent='';NET.sendT=0;

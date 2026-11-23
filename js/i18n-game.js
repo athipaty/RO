@@ -350,3 +350,5 @@ if(typeof TH!=='undefined')Object.assign(TH,{'away':'ไม่อยู่'});
 // v1.52.3 quest rewards list only what a hero can still use (no EXP at Lv 99, no job EXP at the job's top level)
 if(typeof TH_PAT!=='undefined'){const thRew=s=>s.replace(/ job EXP/g,' EXP อาชีพ').replace(/ gold\b/g,' โกลด์');
   TH_PAT.unshift([/^Rewards: (.+)$/,(m,a)=>'รางวัล: '+thRew(a)],[/^Quest complete: (.+?)! (.+)$/,(m,a,b)=>`เควสสำเร็จ: ${typeof thText==='function'?thText(a):a}! ${thRew(b)}`]);}
+// v1.52.5 more looks: hairstyles and builds
+if(typeof TH!=='undefined'){for(const [en,th] of [['Braid','เปีย'],['Short','สั้น'],['Top bun','มวยผม'],['Mohawk','โมฮอว์ก'],['Side sweep','ปัดข้าง'],['Wavy','ลอนยาว'],['Stocky','ล่ำสัน'],['Lithe','ปราดเปรียว']])if(!TH[en])TH[en]=th;}

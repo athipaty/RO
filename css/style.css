@@ -1845,3 +1845,40 @@ body.touchui #panel.npcsheet .sheetacts{background:linear-gradient(180deg,rgba(1
 .picb svg.pic{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
 #muteBtn.picb svg.pic{width:20px;height:20px}
 #pVoice.on{color:#fff}#pMic.off{color:#ff9a8a}
+/* v1.52.5 the title screen: one hero card with arrows, a one-line account bar */
+#title .t-cv{position:relative}
+.tcArrow{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid rgba(240,181,74,.45);
+  background:rgba(20,14,10,.65);color:#f0c870;display:grid;place-items:center;cursor:pointer;padding:0;z-index:2}
+.tcArrow:hover{background:rgba(60,40,20,.8)}.tcArrow svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+#slotPrev{left:-6px}#slotNext{right:-6px}
+#slotInfo{display:flex;flex-direction:column;align-items:center;gap:2px;margin:6px 0 4px;text-align:center}
+#slotName{font-size:20px;color:#f6e6c0}#slotDesc{font-size:13px;color:var(--muted)}
+#slotDots{display:flex;gap:7px;margin-top:6px}
+.tcDot{width:10px;height:10px;border-radius:50%;border:1px solid rgba(240,181,74,.7);background:rgba(240,181,74,.75);padding:0;cursor:pointer}
+.tcDot.empty{background:transparent}.tcDot.on{transform:scale(1.35);box-shadow:0 0 6px rgba(240,181,74,.8);background:#ffcf5a}
+#slotsSec{display:none!important}#title .tag{display:none!important}
+#acct>h2{display:none}
+#acBar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}#acBar #acWho{color:var(--muted)}#acBar #acWho b{color:#f6e6c0}
+#acct #acOut{display:none!important}
+#acIn{margin-top:8px}
+/* the looks inside the hero card: compact rows, colours in one swipeable line */
+#creator.tcCreator{margin:6px 0 0;padding:0;border:0;background:none;width:100%}
+#creator.tcCreator>h2{display:none}
+#creator.tcCreator .lk{display:grid;gap:5px}
+#creator.tcCreator .lkrow{display:grid;grid-template-columns:52px 1fr;align-items:center;gap:6px;font-size:13px}
+#creator.tcCreator .lkrow>span{color:var(--muted)}
+#creator.tcCreator .sw{display:flex;gap:6px;overflow-x:auto;padding:2px 0;scrollbar-width:none}#creator.tcCreator .sw::-webkit-scrollbar{display:none}
+#creator.tcCreator #lkRand{margin-top:6px}
+#title .t-stage .t-name{margin-top:2px}
+/* making a new hero: the hero, the name and every look on one screen, no scrolling */
+#title.tcNew .t-mark{display:none}#title.tcNew .t-top{padding-top:4px;margin-bottom:4px}#title.tcNew .t-brand h1{font-size:clamp(30px,9vw,46px)}
+#title.tcNew .t-cv{width:min(150px,40%)}#title.tcNew #slotInfo{margin:2px 0}#title.tcNew #slotName{font-size:16px}#title.tcNew #slotDesc{font-size:12px}#title.tcNew #slotDots{margin-top:3px}
+#title.tcNew .t-name{display:grid;grid-template-columns:52px 1fr;align-items:center;gap:6px;width:100%}#title.tcNew .t-name>span{font-size:13px;color:var(--muted)}
+#title.tcNew #nameIn{padding:6px 10px;font-size:15px}
+#title.tcNew #creator.tcCreator .lkrow{font-size:13px;min-height:30px}
+#title.tcNew #creator.tcCreator .lkrow>span{font-size:13px}
+#title.tcNew .t-step .btn{min-width:30px;padding:3px 8px}#title.tcNew .t-step b{min-width:64px;font-size:13px}
+#title.tcNew .sw{flex-wrap:nowrap}#title.tcNew .sw button{width:24px;height:24px;flex:none}
+#title.tcNew #lkRand{padding:4px 10px;font-size:13px}
+#title.tcNew .tcArrow{width:36px;height:36px}#title.tcNew #slotPrev{left:-18px}#title.tcNew #slotNext{right:-18px}
+#title.tcNew .t-stage{padding-top:8px;padding-bottom:8px}
