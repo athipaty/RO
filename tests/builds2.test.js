@@ -50,7 +50,8 @@ module.exports = async t => {
       P.eq.accessory = { id: 'beastbane', uid: 602, s: ['hopper_sig'] }; ITEMS.beastbane.slots = ITEMS.beastbane.slots || 0; S = computeStats();
       const n = Object.keys(SIG_BUILD).filter(id => ITEMS[id + '_sig']).length;
       return { b: ITEMS.hopper_sig.b, desc: ITEMS.hopper_sig.desc, codex: MOBS.hopper.sig.txt, slower: S.delay < d0, n, warlord: ITEMS.warlord_sig.b }; });
-    t.ok(sg.b.agi === 2 && sg.b.aspd === 3 && /Attack speed \+3%/.test(sg.desc) && /Attack speed/.test(sg.codex), 'the Hopper Sigil keeps +2 AGI and adds +3% attack speed: ' + sg.desc);
+    // since v1.51.0 every sigil has its own ability: the Hopper's is move speed
+    t.ok(sg.b.agi === 2 && sg.b.move === 3 && /Move speed \+3%/.test(sg.desc) && /Move speed/.test(sg.codex), 'the Hopper Sigil keeps +2 AGI and adds +3% move speed: ' + sg.desc);
     t.ok(sg.slower, 'a socketed build sigil changes your stats');
     t.ok(sg.n >= 35 && sg.warlord.str === 5 && sg.warlord.atkpct === 5, `${sg.n} sigils now carry a build stat (old bonuses kept)`);
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
