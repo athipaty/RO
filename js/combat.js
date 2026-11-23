@@ -232,7 +232,7 @@ function spawnMob(type,m,lead){
   if(L){const lx=Math.floor(L.x/TILE),ly=Math.floor(L.y/TILE);for(let k=0;k<20;k++){const tx=lx+Math.round(rnd(-2.4,2.4)),ty=ly+Math.round(rnd(-2.4,2.4)),j=ty*Z.w+tx;
     if(tx>0&&ty>0&&tx<Z.w-1&&ty<Z.h-1&&!BLOCK[Z.t[j]]&&Z.reach[j]){i=j;break;}}}
   const d=MOBS[type];const x=(i%Z.w+.5)*TILE,y=(((i/Z.w)|0)+.5)*TILE;
-  Object.assign(m,{calls:0,d,x,y,sx:x,sy:y,hp:d.hp,state:'idle',atkT:0,wT:rnd(0,3),tx:null,ty:null,face:1,hitF:-9,dead:false,slowUntil:0,aggroed:false,ph:Math.random()*6,slamT:now+6,slamAt:0,zoneT:now+4});
+  Object.assign(m,{calls:0,d,x,y,sx:x,sy:y,hp:d.hp,state:'idle',atkT:0,wT:rnd(0,3),tx:null,ty:null,face:1,hitF:-9,dead:false,slowUntil:0,aggroed:false,ph:Math.random()*6,slamT:now+6,slamAt:0,zoneT:now+4,sigT:now+6});
   return m;
 }
 function enterZone(id,from){
@@ -375,6 +375,8 @@ function updateMob(m,dt,T){
       if(d.boss&&now>m.slamT&&dp<160){m.slamAt=now+1.1;fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});netEvent('w',m);return;}
       // (v1.50.1) the boss marks the ground under you (within 420 px); it erupts 1.2 s later (js/combat.js bossZone)
       if(d.boss&&now>(m.zoneT||0)&&dp<420){m.zoneT=now+rnd(7,10);const r=d.world?110:85,zx=Math.round(tg.x),zy=Math.round(tg.y);bossZone(m,zx,zy,r);netEvent('z',m,null,{x:zx,y:zy,r});}
+      // (v1.51.3) the boss's own signature skill (js/bosssig.js) every 10-14 s
+      if(d.boss&&typeof bossSigCast==='function'&&now>(m.sigT||0)&&dp<BOSS_SIG_RANGE){m.sigT=now+rnd(BOSS_SIG_EVERY[0],BOSS_SIG_EVERY[1]);const sx=Math.round(tg.x),sy=Math.round(tg.y),seed=Math.floor(Math.random()*1e9);bossSigCast(m,sx,sy,seed);netEvent('q',m,null,{x:sx,y:sy,s:seed});}
       const reach=(d.range||0)+d.size+PR+4;
       m.atkT-=dt;
       if(dp<=reach){m.face=sface(tg.x-m.x,tg.y-m.y);m.moving=false;if(m.atkT<=0){m.atkT=d.boss?1.3:1.6;m.lunge=now;
@@ -458,6 +460,7 @@ function syncMobs(host,dt){
     else if(e.k==='w')fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});
     else if(e.k==='s')slamLand(m);
     else if(e.k==='z')bossZone(m,fin(e.x),fin(e.y),clamp(fin(e.r)||85,20,200));
+    else if(e.k==='q'){if(typeof bossSigCast==='function')bossSigCast(m,fin(e.x),fin(e.y),fin(e.s));}
     else if(e.k==='c')callMinions(m,true);
     else if(typeof mobSkillEvent==='function')mobSkillEvent(m,e);}
   NET.evSeen.set(host.id,seen);}

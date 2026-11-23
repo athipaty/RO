@@ -290,6 +290,10 @@ const HELP_TH={
   'Click minimap':'คลิกแผนที่เล็ก','bigger / smaller':'ใหญ่ขึ้น / เล็กลง','close':'ปิด'};
 if(typeof LANG!=='undefined'&&LANG==='th'){
   Object.assign(TH,HELP_TH);TH_PAT.unshift([/^(.+) · (\S+) (Dawn|Dusk)(.*)$/,(m,a,i,d,b)=>`${thText(a)} · ${i} ${d==='Dawn'?'รุ่งเช้า':'พลบค่ำ'}${b.replace('Rain','ฝน').replace('Snow','หิมะ').replace('Fog','หมอก').replace('Blizzard','พายุหิมะ').replace('Sandstorm','พายุทราย').replace('Embers','ประกายไฟ')}`],[/^→ (.*?)(at the smithy|anywhere \(\/craft\))$/,(m,a,b)=>`→ ${a.replace(/ gold · /,' โกลด์ · ')}${b==='at the smithy'?'ที่โรงตีเหล็ก':'ที่ไหนก็ได้ (/craft)'}`],[/^(.+) · Skill points:$/,(m,a)=>`${thText(a)} · แต้มสกิล:`]);
+}
+/* (v1.51.3) skill and item texts are put into Thai last (js/hpscale.js calls this once every file that rewrites them,
+   such as the 3x HP numbers and the Radiant sigil limits, has run), so the Thai shows the final numbers */
+function thApplyLate(){if(typeof LANG==='undefined'||LANG!=='th'||thApplyLate.done)return;thApplyLate.done=true;
   for(const id in SKILL_TH){const sk=SKILLS[id];if(!sk)continue;TH[sk.name]=SKILL_TH[id][0];
     const d=sk.desc;if(typeof d==='function')sk.desc=function(){return thSkillDesc(id,d.apply(this,arguments));};else if(typeof d==='string')sk.desc=thSkillDesc(id,d);
     sk.name=SKILL_TH[id][0];}
@@ -313,3 +317,30 @@ if(typeof TH!=='undefined')Object.assign(TH,{'ATK %':'ATK เพิ่ม %','MA
   'Healing %':'การรักษา %','HP regen':'ฟื้น HP','SP regen':'ฟื้น SP'});
 // v1.50.1 boss area strike
 if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(.+) marks the ground under you: step out of the glowing circle!$/,'$1 ทำเครื่องหมายบนพื้นใต้ตัวคุณ: ออกจากวงที่เรืองแสงเร็ว!']);
+// v1.51.3 boss signature skills (js/bosssig.js)
+if(typeof TH!=='undefined'){const BS_TH={'Stomp Quake':'กระทืบแผ่นดินไหว','Horn Toss':'เขาขวิดเหวี่ยง','Wool Fog':'หมอกขนแกะ','Crow Swarm':'ฝูงกาโฉบ','Alpha Howl':'เสียงหอนจ่าฝูง',
+  'Bramble Field':'ทุ่งหนาม','Quicksand':'ทรายดูด','Thunder Hooves':'กีบอัสนี','Sandstorm':'พายุทราย','Oath of Ruin':'คำสาบานแห่งหายนะ','Spore Cloud':'เมฆสปอร์',
+  'Warcry':'เสียงคำรามศึก','Sleeping Pollen':'ละอองหลับ','Ice Field':'ลานน้ำแข็ง','Avalanche':'หิมะถล่ม','Crystal Prison':'คุกคริสตัล','Bog Grasp':'บึงรั้ง',
+  'Frost Breath':'ลมหายใจเยือกแข็ง','Soul Drain':'ดูดวิญญาณ','Tidal Pull':'คลื่นดึง','Fire Rain':'ฝนไฟ','Chain Lightning':'สายฟ้าลูกโซ่','Molten Ground':'ธรณีหลอมเหลว'};
+  Object.assign(TH,BS_TH);for(const [en,th] of Object.entries(BS_TH))TH[en+'!']=th+'!';
+  Object.assign(TH,{'Boss skills':'สกิลบอส','Ground Slam':'กระแทกพื้น','Ground Mark':'เครื่องหมายบนพื้น',
+    ': hits everyone close after a short warning, and can stun.':': โจมตีทุกคนที่อยู่ใกล้หลังการเตือนสั้นๆ และอาจทำให้มึน',
+    ': marks the ground under a player; it erupts a moment later.':': ทำเครื่องหมายบนพื้นใต้ผู้เล่น แล้วระเบิดในอีกครู่',
+    "Ailments from a boss's skills are curses: a Remedy Draught cannot cure them.":'สถานะผิดปกติจากสกิลบอสเป็นคำสาป: ยารักษาอาการรักษาไม่ได้',
+    "A Remedy Draught cannot cure a boss curse. It wears off by itself, or a healer's cure can lift it.":'ยารักษาอาการรักษาคำสาปของบอสไม่ได้ จะหายไปเอง หรือให้ผู้รักษาช่วยถอน'});
+  const BSD_TH={'three shockwaves hop toward you; each one stuns':'คลื่นกระแทกสามลูกกระโดดเข้าหาคุณ แต่ละลูกทำให้มึน',
+    'gores everyone close and throws them back, stunned':'ขวิดทุกคนที่อยู่ใกล้แล้วเหวี่ยงออกไปจนมึน','a thick fog around it blinds anyone inside':'หมอกหนารอบตัวทำให้ทุกคนข้างในตาบอด',
+    'crows dive at the ground around you and peck your eyes':'กาโฉบลงพื้นรอบตัวคุณและจิกตา','a howl that silences everyone near it':'เสียงหอนที่ทำให้ทุกคนที่อยู่ใกล้ใช้สกิลไม่ได้',
+    'brambles burst from the ground under you: they hurt and slow while you stand in them':'หนามผุดจากพื้นใต้ตัวคุณ: ทำร้ายและทำให้ช้าขณะยืนอยู่ในนั้น',
+    'the sand under you turns to quicksand: it slows you, and stuns you if you are still in it when it closes':'ทรายใต้ตัวคุณกลายเป็นทรายดูด: ทำให้ช้า และทำให้มึนถ้ายังอยู่ข้างในตอนที่มันปิด',
+    'a line of stamping shockwaves runs at you; each one stuns':'แนวคลื่นกระแทกวิ่งเข้าหาคุณ แต่ละลูกทำให้มึน','a sandstorm around it hurts and blinds anyone inside':'พายุทรายรอบตัวทำร้ายและทำให้ทุกคนข้างในตาบอด',
+    'a fallen oath brands the ground under you and silences you':'คำสาบานที่แตกสลายประทับพื้นใต้ตัวคุณและทำให้ใช้สกิลไม่ได้','a cloud of poison spores lingers where you stand':'เมฆสปอร์พิษลอยค้างอยู่ตรงที่คุณยืน',
+    'a war cry that stuns everyone near it':'เสียงคำรามศึกที่ทำให้ทุกคนที่อยู่ใกล้มึน','pollen settles around you: still inside when it settles, you fall asleep':'ละอองเกสรโปรยรอบตัวคุณ: ถ้ายังอยู่ข้างในตอนที่มันตกลง คุณจะหลับ',
+    'the ground under you freezes: it slows you, and freezes you if you are still on it when it sets':'พื้นใต้ตัวคุณเยือกแข็ง: ทำให้ช้า และแช่แข็งถ้ายังอยู่บนนั้นตอนที่มันแข็งตัว',
+    'ice falls all around you; each block freezes':'น้ำแข็งร่วงลงรอบตัวคุณ แต่ละก้อนแช่แข็ง','crystal grows under you and encases you: frozen for 3 s':'คริสตัลงอกใต้ตัวคุณและห่อหุ้มคุณ: แช่แข็ง 3 วินาที',
+    'the bog grabs at you: it slows and poisons you while you stand in it':'บึงรั้งตัวคุณ: ทำให้ช้าและติดพิษขณะยืนอยู่ในนั้น','a long line of frost breath runs at you; it freezes':'ลมหายใจเยือกแข็งพุ่งเป็นแนวยาวเข้าหาคุณ: แช่แข็ง',
+    'marks you for its soul drain: poisoned and silenced':'ทำเครื่องหมายดูดวิญญาณบนตัวคุณ: ติดพิษและใช้สกิลไม่ได้','a wave drags everyone near it to its side and slows them':'คลื่นลากทุกคนที่อยู่ใกล้เข้าไปหาและทำให้ช้า',
+    'fireballs rain around you and leave burning ground':'ลูกไฟตกรอบตัวคุณและทิ้งพื้นที่ลุกไหม้','lightning strikes you and the ground near you; each strike stuns':'สายฟ้าฟาดคุณและพื้นใกล้ตัว แต่ละครั้งทำให้มึน',
+    'lava pools open around you and the ground under you erupts':'บ่อลาวาเปิดรอบตัวคุณและพื้นใต้ตัวคุณปะทุ'};
+  for(const [en,th] of Object.entries(BSD_TH)){TH[': '+en[0].toUpperCase()+en.slice(1)+'.']=': '+th;}
+  if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(?:(.+): )?you are (\w+) by a boss curse \(a Remedy Draught cannot cure it\)\.$/,(m,who,st)=>`${who?who+': ':''}คุณติดคำสาปของบอส (${(typeof thText==='function'?thText(st[0].toUpperCase()+st.slice(1)):st)}) ยารักษาอาการรักษาไม่ได้`]);}

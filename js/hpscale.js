@@ -18,7 +18,7 @@
   // the texts written before this point: Max HP bonuses, tonics and HP regen
   const k=v=>String(Math.round(+v*HP_K));
   const fix=t=>typeof t!=='string'?t:t
-    .replace(/\+(\d+) Max HP/g,(_,v)=>`+${k(v)} Max HP`).replace(/Max HP \+(\d+)/g,(_,v)=>`Max HP +${k(v)}`).replace(/MAXHP \+(\d+)/g,(_,v)=>`Max HP +${k(v)}`)
+    .replace(/\+(\d+) Max HP/g,(_,v)=>`+${k(v)} Max HP`).replace(/Max HP \+(\d+)(?![\d%])/g,(_,v)=>`Max HP +${k(v)}`).replace(/MAXHP \+(\d+)(?![\d%])/g,(_,v)=>`Max HP +${k(v)}`)
     .replace(/Restores (\d+) HP/g,(_,v)=>`Restores ${k(v)} HP`).replace(/HP regen \+(\d+)/g,(_,v)=>`HP regen +${k(v)}`).replace(/\+(\d+) HP regen/g,(_,v)=>`+${k(v)} HP regen`);
   for(const it of Object.values(ITEMS)){it.desc=fix(it.desc);if(it.txt)it.txt=fix(it.txt);}
   for(const m of Object.values(MOBS))if(m.sig&&m.sig.txt)m.sig.txt=fix(m.sig.txt);
@@ -40,3 +40,5 @@
     .replace(/\b(regenerate|regain) (\d+) HP/g,(_,a,v)=>`${a} ${k(v)} HP`);
   for(const s of Object.values(SKILLS))if(typeof s.desc==='function'){const d=s.desc;s.desc=function(){return skFix(d.apply(this,arguments));};}
 }
+// Thai: skill and item texts are translated now that every rewrite of them is done (js/i18n-game.js)
+if(typeof thApplyLate==='function')thApplyLate();
