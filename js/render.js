@@ -65,14 +65,26 @@ function drawObj(o){
   ctx.drawImage(sp.c,p.x-sp.ax*o.sc,p.y-sp.ay*o.sc,w,h);}
 // v1.27.0 a district signpost in Hearthvale: a wooden post with a painted board and the district's name
 const DSIGN_TH={'Market Row':'ย่านตลาด',"Adventurers' Yard":'ลานนักผจญภัย','Chapel Close':'ย่านโบสถ์',"Travellers' Green":'ลานนักเดินทาง',"Scholars' Quarter":'ย่านปราชญ์','Noble Gardens':'สวนขุนนาง','Grand Gate':'ประตูใหญ่'};
-function drawDistrictSign(o){const p=proj(o.x,o.y),name=typeof LANG!=='undefined'&&LANG==='th'&&DSIGN_TH[o.name]||o.name;
-  ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(p.x,p.y,10,4,0,0,7);ctx.fill();
-  ctx.fillStyle='#6a4a2a';ctx.fillRect(p.x-3,p.y-44,6,44);ctx.fillStyle='#4a3220';ctx.fillRect(p.x+1,p.y-44,2,44);
-  ctx.font='700 11px "Alegreya Sans",sans-serif';const tw=ctx.measureText(name).width+16,by=p.y-58;
-  ctx.fillStyle='#8a6034';ctx.strokeStyle='#3a2716';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(p.x-tw/2,by-9,tw,18,3);ctx.fill();ctx.stroke();
-  ctx.fillStyle='#a8784a';ctx.fillRect(p.x-tw/2+3,by-7,tw-6,3);
-  ctx.fillStyle='#3a2716';for(const dx of [-tw/2+5,tw/2-5]){ctx.beginPath();ctx.arc(p.x+dx,by,1.6,0,7);ctx.fill();}
-  ctx.fillStyle='#f4e6c8';ctx.textAlign='center';ctx.fillText(name,p.x,by+4);}
+// (v1.49.2) each sign is drawn once into a small picture at the current resolution and reused: measuring and
+// painting text every frame cost about 5% of a frame in Hearthvale on desktop
+const DSIGN_CACHE=new Map();
+function dsignImg(name){const k=name+'|'+DPR;let c=DSIGN_CACHE.get(k);if(c)return c;
+  if(DSIGN_CACHE.size>40)DSIGN_CACHE.clear();
+  const m=document.createElement('canvas').getContext('2d');m.font='700 11px "Alegreya Sans",sans-serif';const tw=Math.ceil(m.measureText(name).width+16);
+  const W=tw+8,H=72,cv2=document.createElement('canvas');cv2.width=Math.ceil(W*DPR);cv2.height=Math.ceil(H*DPR);const g=cv2.getContext('2d');g.scale(DPR,DPR);
+  const x=W/2,y=H-6,by=y-58;
+  g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse(x,y,10,4,0,0,7);g.fill();
+  g.fillStyle='#6a4a2a';g.fillRect(x-3,y-44,6,44);g.fillStyle='#4a3220';g.fillRect(x+1,y-44,2,44);
+  g.font='700 11px "Alegreya Sans",sans-serif';g.fillStyle='#8a6034';g.strokeStyle='#3a2716';g.lineWidth=1.5;g.beginPath();g.roundRect(x-tw/2,by-9,tw,18,3);g.fill();g.stroke();
+  g.fillStyle='#a8784a';g.fillRect(x-tw/2+3,by-7,tw-6,3);
+  g.fillStyle='#3a2716';for(const dx of [-tw/2+5,tw/2-5]){g.beginPath();g.arc(x+dx,by,1.6,0,7);g.fill();}
+  g.fillStyle='#f4e6c8';g.textAlign='center';g.fillText(name,x,by+4);
+  c={cv:cv2,W,H,ax:x,ay:y};
+  // the font may still be loading the first time: draw it again later so the name uses the right letters
+  if(!(document.fonts&&document.fonts.check&&document.fonts.check('700 11px "Alegreya Sans"')))setTimeout(()=>DSIGN_CACHE.delete(k),1500);
+  DSIGN_CACHE.set(k,c);return c;}
+function drawDistrictSign(o){const p=proj(o.x,o.y),name=typeof LANG!=='undefined'&&LANG==='th'&&DSIGN_TH[o.name]||o.name,c=dsignImg(name);
+  ctx.drawImage(c.cv,p.x-c.ax,p.y-c.ay,c.W,c.H);}
 // draw order for things standing in the world and the buildings between them (a small topological sort):
 // a point west or north of a building's footprint (x<X1 and y<Y1) is behind it; anything else near it is in front.
 // Among themselves, things go back to front (x+y). Buildings entirely west/north of another come first.

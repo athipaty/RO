@@ -313,7 +313,12 @@ function openNpc(n){P.face=sface(n.x-P.x,n.y-P.y);shopTab='buy';openPanel(n.role
 
 /* ================= input ================= */
 let hoverMob=null;
-function screenAt(ev){const r=cv.getBoundingClientRect();return{x:ev.clientX-r.left+camX,y:ev.clientY-r.top+camY};}
+// (v1.49.2) the canvas's place on the page is kept for a moment instead of measured on every pointer event: measuring
+// forces the browser to lay the page out again, and desktop mice send many moves per frame
+const CV_RECT={r:null,t:0};
+function cvRect(){const t=performance.now();if(!CV_RECT.r||t-CV_RECT.t>500){CV_RECT.r=cv.getBoundingClientRect();CV_RECT.t=t;}return CV_RECT.r;}
+addEventListener('resize',()=>{CV_RECT.r=null;});addEventListener('scroll',()=>{CV_RECT.r=null;},true);document.addEventListener('fullscreenchange',()=>{CV_RECT.r=null;});
+function screenAt(ev){const r=cvRect();return{x:ev.clientX-r.left+camX,y:ev.clientY-r.top+camY};}
 function worldAt(ev){const s=screenAt(ev);return unproj(s.x,s.y);}
 let touchPick=false;
 function mobAt(sc){let best=null,bd=1e9;const pad=touchPick?28:14;for(const m of mobs){if(m.dead)continue;const p=proj(m.x,m.y);const d=Math.hypot(p.x-sc.x,p.y-m.d.size*.9-sc.y);if(d<m.d.size+pad&&d<bd){bd=d;best=m;}}return best;}
@@ -333,7 +338,11 @@ cv.addEventListener('pointerdown',ev=>{
   P.target=null;P.queued=null;P.npcGoal=null;clickMark={x:w.x,y:w.y,t:now};pathTo(w.x,w.y,true);
 });
 let hoverNpc=null;
-cv.addEventListener('pointermove',ev=>{if(!P)return;const sc=screenAt(ev);hoverNpc=null;if(Z)for(const n of Z.npcs){const np=proj(n.x,n.y);if(Math.hypot(np.x-sc.x,np.y-22-sc.y)<26){hoverNpc=n;break;}}hoverMob=mobAt(sc);hoverLoot=hoverMob?null:lootAt(sc);const gh=!hoverMob&&!hoverLoot&&typeof ghostAt==='function'?ghostAt(sc):null;cv.style.cursor=hoverMob?'crosshair':hoverLoot?'grab':'pointer';if(gh)hoverLoot=gh;});
+// hover (desktop mouse): worked out at most once a frame from the latest position, and the cursor is only set when it changes
+const HOVER={ev:null,on:false,cur:''};
+function hoverRun(){HOVER.on=false;const ev=HOVER.ev;if(!ev||!P)return;const sc=screenAt(ev);hoverNpc=null;if(Z)for(const n of Z.npcs){const np=proj(n.x,n.y);if(Math.hypot(np.x-sc.x,np.y-22-sc.y)<26){hoverNpc=n;break;}}hoverMob=mobAt(sc);hoverLoot=hoverMob?null:lootAt(sc);const gh=!hoverMob&&!hoverLoot&&typeof ghostAt==='function'?ghostAt(sc):null;
+  const cur=hoverMob?'crosshair':hoverLoot?'grab':'pointer';if(cur!==HOVER.cur){HOVER.cur=cur;cv.style.cursor=cur;}if(gh)hoverLoot=gh;}
+cv.addEventListener('pointermove',ev=>{if(!P)return;HOVER.ev={clientX:ev.clientX,clientY:ev.clientY};if(!HOVER.on){HOVER.on=true;requestAnimationFrame(hoverRun);}});
 window.addEventListener('keydown',ev=>{
   if(!running||ev.target.tagName==='INPUT')return;const k=ev.key.toLowerCase();
   // classic MMO desktop shortcuts (the single-letter keys below keep working too)

@@ -13,7 +13,13 @@
 const BS={level:0,deltas:[],lastTs:0,lastChange:0,goodSince:0,bossOn:false,lastStop:0,refresh:16.7,recent:[],upWait:3000,lastUp:0};
 const BS_STEPS=[1,.8,.62,.5];
 const bsMaxDPR=()=>Math.min(2,window.devicePixelRatio||1);
-function bsDPR(level){const base=SETS&&SETS.lite?1:bsMaxDPR();return Math.max(Math.min(.75,base),+(base*BS_STEPS[level]).toFixed(2));}
+// (v1.49.2) a pixel budget: a big desktop window on a scaled or 4K screen asked for up to 8 million pixels a frame
+// (3840x2160), which is what made desktop feel less smooth than phones. The full-quality step now draws at most
+// about 4.2 million (a 1920x1080 window at 1.4x); phones are far below it and keep their full sharpness.
+const BS_PIX_MAX=4.2e6;
+function bsBase(){const raw=SETS&&SETS.lite?1:bsMaxDPR(),w=Math.max(1,cv.clientWidth||innerWidth),h=Math.max(1,cv.clientHeight||innerHeight);
+  return Math.max(1,Math.min(raw,Math.sqrt(BS_PIX_MAX/(w*h))));}
+function bsDPR(level){const base=bsBase();return Math.max(Math.min(.75,base),+(base*BS_STEPS[level]).toFixed(2));}
 // size the canvas for the current level (the drawing code reads DPR every frame)
 function bsApply(){const want=bsDPR(BS.level);
   if(Math.abs(DPR-want)>.01||cv.width!==Math.round(cv.clientWidth*want)){DPR=want;VW=cv.clientWidth;VH=cv.clientHeight;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR);}
@@ -32,9 +38,12 @@ function bsTick(ts){
     const R=BS.refresh;
     // missing frames (median a third longer than the screen's frame) for half a second: one step down, at most every 0.6 s.
     // If that happens soon after stepping up, wait longer before the next try (3 s, 6 s, 12 s ... up to 30 s).
-    if(med>R*1.35&&since>600&&BS.level<3){if(BS.lastUp&&ts-BS.lastUp<2500)BS.upWait=Math.min(30000,BS.upWait*2);bsSet(BS.level+1);BS.goodSince=0;}
+    // (v1.49.2) or many scattered missed frames: a quarter of the last 30 took over 1.6 screen frames. A steady 60 with
+    // a dropped frame every few beats feels like stutter (common on desktop) but never moved the median.
+    const miss=BS.deltas.reduce((n,d)=>n+(d>R*1.6?1:0),0);
+    if((med>R*1.35||miss>=8)&&since>600&&BS.level<3){if(BS.lastUp&&ts-BS.lastUp<2500)BS.upWait=Math.min(30000,BS.upWait*2);bsSet(BS.level+1);BS.goodSince=0;}
     // hitting every frame again: after upWait, one step up
-    else if(med<R*1.12&&BS.level>0){if(!BS.goodSince)BS.goodSince=ts;else if(ts-BS.goodSince>BS.upWait&&since>BS.upWait){bsSet(BS.level-1);BS.lastUp=ts;BS.goodSince=0;}}
+    else if(med<R*1.12&&miss<=2&&BS.level>0){if(!BS.goodSince)BS.goodSince=ts;else if(ts-BS.goodSince>BS.upWait&&since>BS.upWait){bsSet(BS.level-1);BS.lastUp=ts;BS.goodSince=0;}}
     else BS.goodSince=0;
     // a long calm spell: forget the backoff
     if(BS.level===0&&BS.lastUp&&ts-BS.lastUp>60000){BS.upWait=3000;BS.lastUp=0;}}
@@ -58,3 +67,5 @@ hitStop=function(sec){const t=performance.now();
   if(BS.bossOn&&sec<.1)return;           // crits and small kills while a boss is on you: no freeze
   if(t-BS.lastStop<500&&sec<.1)return;    // at most one small freeze every half second
   BS.lastStop=t;return _hitStopBS.apply(this,arguments);};
+// (v1.49.2) apply the pixel budget from the start, not only after the first change of level
+try{bsApply();}catch(e){}setTimeout(()=>{try{bsApply();}catch(e){}},600);
