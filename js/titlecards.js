@@ -15,7 +15,9 @@ function tcStep(d){const open=tcOpenSlots();if(open.length<2)return;const i=open
 (()=>{const cv=document.querySelector('#title .t-cv'),stage=document.querySelector('#title .t-stage');if(!cv||!stage)return;
   const mk=(id,d,label,path)=>{const b=document.createElement('button');b.type='button';b.id=id;b.className='tcArrow';b.setAttribute('aria-label',label);b.title=label;
     b.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${path}"/></svg>`;b.addEventListener('click',ev=>{ev.stopPropagation();tcStep(d);});return b;};
-  cv.append(mk('slotPrev',-1,'Previous character','M15 5l-7 7 7 7'),mk('slotNext',1,'Next character','M9 5l7 7-7 7'));
+  // (v1.52.6) the arrows sit at the card's left and right edges, level with the hero; delete goes to its top-right corner
+  stage.append(mk('slotPrev',-1,'Previous character','M15 5l-7 7 7 7'),mk('slotNext',1,'Next character','M9 5l7 7-7 7'));
+  const del=document.getElementById('slotDel');if(del)stage.appendChild(del);
   const info=document.createElement('div');info.id='slotInfo';info.innerHTML='<b id="slotName"></b><span id="slotDesc"></span><div id="slotDots" role="tablist" aria-label="Character slots"></div>';
   cv.after(info);
   // swipe across the hero to change slot
@@ -27,6 +29,11 @@ function tcStep(d){const open=tcOpenSlots();if(open.length<2)return;const i=open
 /* ---- a new hero: the looks sit in the card right under the hero, so every change shows without scrolling ---- */
 (()=>{const cr=document.getElementById('creator'),stage=document.querySelector('#title .t-stage');if(!cr||!stage)return;
   const name=stage.querySelector('.t-name');if(name)name.after(cr);else stage.appendChild(cr);cr.classList.add('tcCreator');})();
+
+// the arrows level with the middle of the hero picture
+function tcPlaceArrows(){const cv=document.querySelector('#title .t-cv'),stage=document.querySelector('#title .t-stage');if(!cv||!stage)return;
+  const top=cv.offsetTop+cv.offsetHeight/2;for(const id of ['slotPrev','slotNext']){const b=document.getElementById(id);if(b)b.style.top=top+'px';}}
+addEventListener('resize',()=>{try{tcPlaceArrows();}catch(e){}});
 
 /* ---- the account line ---- */
 (()=>{const acct=document.getElementById('acct');if(!acct)return;
@@ -45,6 +52,7 @@ function tcStep(d){const open=tcOpenSlots();if(open.length<2)return;const i=open
       d.addEventListener('click',()=>{if(CS.slot===n)return;sfx('click');setSlot(n);acMsg('');refreshTitle();});dots.appendChild(d);}}
   for(const id of ['slotPrev','slotNext']){const b=q(id);if(b)b.hidden=open.length<2;}
   {const t=q('title');if(t)t.classList.toggle('tcNew',!s);} // making a new hero: everything fits one screen (css)
+  tcPlaceArrows();
   // account line
   const inAcct=!!ACC.token,who=q('acWho'),ob=q('acOpen');
   if(who)who.innerHTML=inAcct?`Signed in as <b>${esc(ACC.username)}</b>`:'Playing as a guest';

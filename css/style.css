@@ -1882,3 +1882,7 @@ body.touchui #panel.npcsheet .sheetacts{background:linear-gradient(180deg,rgba(1
 #title.tcNew #lkRand{padding:4px 10px;font-size:13px}
 #title.tcNew .tcArrow{width:36px;height:36px}#title.tcNew #slotPrev{left:-18px}#title.tcNew #slotNext{right:-18px}
 #title.tcNew .t-stage{padding-top:8px;padding-bottom:8px}
+/* v1.52.6 arrows at the card's edges, delete in its top-right corner */
+#title .t-stage>.tcArrow{position:absolute;transform:translateY(-50%)}
+#title .t-stage>#slotPrev,#title.tcNew .t-stage>#slotPrev{left:8px}#title .t-stage>#slotNext,#title.tcNew .t-stage>#slotNext{right:8px}
+#title .t-stage>#slotDel{top:10px;right:10px;z-index:3}
