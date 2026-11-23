@@ -14,7 +14,10 @@ function updateHud(){
   setT('ailT',ailText());
   {const wt=`Weight ${fmt(carryWeight())} / ${fmt(maxWeight())}`+(P.heavy===2?' · too heavy to fight':P.heavy?' · no regen':'');
     // phones hide the gold line to keep the box small, so the gold rides at the end of the weight line
-    const gl=document.getElementById('gold'),glShown=!!(gl&&gl.getClientRects().length&&getComputedStyle(gl).display!=='none');
+    /* v1.47.1 asking whether the gold line shows makes the browser lay the page out (the HP/SP text was just written):
+       on a slow phone that was most of the HUD's cost, ~16 times a second. Once a second is plenty. */
+    const ht=performance.now();if(!(ht-(hudCache.glT||0)<1000&&ht>=(hudCache.glT||0))){hudCache.glT=ht;const gl=document.getElementById('gold');hudCache.glShown=!!(gl&&gl.getClientRects().length&&getComputedStyle(gl).display!=='none');}
+    const glShown=hudCache.glShown;
     const g=document.body.classList.contains('touchui')&&!P.heavy&&!glShown?`${goldShort(P.gold)} gold`:'',key=wt+'|'+g;
     if(hudCache.weight!==key){hudCache.weight=key;const el=document.getElementById('weight');el.textContent=wt;if(g){const s=document.createElement('span');s.className='wgold';s.textContent=g;el.appendChild(s);}}}
   {const we=$('#weight'),hv=!!P.heavy;if(we.classList.contains('heavy')!==hv)we.classList.toggle('heavy',hv);}

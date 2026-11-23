@@ -42,9 +42,15 @@ function hpPlace(){const on=hpPhone()&&running&&!!P;pageBtn.hidden=!on;if(!on)re
   const atk=$('#atkBtn'),ar=atk&&vis(atk)?atk.getBoundingClientRect():{left:innerWidth-90,top:innerHeight-90,width:80,height:80};
   const sig=innerWidth+'x'+innerHeight+'|'+Math.round(ar.left)+','+Math.round(ar.top)+'|'+busy.map(r=>Math.round(r.left)+','+Math.round(r.top)+','+Math.round(r.width)+','+Math.round(r.height)).join(';');
   if(sig===hpPlace.sig)return;hpPlace.sig=sig;
-  const ax=ar.left+ar.width/2,ay=ar.top+ar.height/2,S=40,m=6;
-  const free=(x,y)=>x-S/2>=8&&x+S/2<=innerWidth-8&&y-S/2>=8&&y+S/2<=innerHeight-8&&busy.every(r=>x+S/2+m<=r.left||x-S/2-m>=r.right||y+S/2+m<=r.top||y-S/2-m>=r.bottom);
-  let best=null,bd=1e9;for(let x=innerWidth-8-S/2;x>innerWidth*.5;x-=8)for(let y=8+S/2;y<innerHeight-8-S/2;y+=8){if(!free(x,y))continue;const d=Math.hypot(x-ax,y-ay);if(d<bd){bd=d;best=[x,y];}}
+  const ax=ar.left+ar.width/2,ay=ar.top+ar.height/2,S=40,m=6,W=innerWidth,H=innerHeight,h=S/2+m;
+  /* v1.47.1 the grid spots, nearest the Attack button first (kept until the screen or the button moves); the first free
+     one wins. Testing every spot against every box took 80-150 ms on a slow phone, a visible hitch every 2 s. */
+  const ck=W+'x'+H+'|'+Math.round(ax)+','+Math.round(ay);
+  if(hpPlace.ck!==ck){hpPlace.ck=ck;const c=[];for(let x=W-8-S/2;x>W*.5;x-=8)for(let y=8+S/2;y<H-8-S/2;y+=8)c.push([x,y,(x-ax)*(x-ax)+(y-ay)*(y-ay)]);c.sort((a,b)=>a[2]-b[2]);hpPlace.cands=c;}
+  let best=null;
+  for(const c of hpPlace.cands){const x=c[0],y=c[1];let ok=true;
+    for(let i=0;i<busy.length;i++){const r=busy[i];if(!(x+h<=r.left||x-h>=r.right||y+h<=r.top||y-h>=r.bottom)){ok=false;break;}}
+    if(ok){best=c;break;}}
   if(best){pageBtn.style.left=Math.round(best[0]-S/2)+'px';pageBtn.style.top=Math.round(best[1]-S/2)+'px';}}
 hpDraw();setInterval(hpPlace,2000); /* v1.40.7 was 0.7 s: each run measures ~30 elements and forces a layout */addEventListener('resize',()=>setTimeout(hpPlace,120));
 // a new hero starts on page 1

@@ -41,7 +41,7 @@ function goalPoint(w){if(!w||!w.zone||!Z)return null;
   if(w.mob){let best=null,bd=1e9;for(const m of mobs)if(!m.dead&&m.d.id===w.mob){const d=Math.hypot(m.x-P.x,m.y-P.y);if(d<bd){bd=d;best=m;}}return best?{x:best.x,y:best.y,m:best}:null;}
   return null;}
 // the chip (refreshed twice a second)
-function goalChip(){let el=GOAL.el;const w=goalOn()&&running?goalWhat():null;GOAL.t=w;
+function goalChip(timer){let el=GOAL.el;const w=goalOn()&&running?goalWhat():null;GOAL.t=w;
   if(!el){el=GOAL.el=document.createElement('button');el.id='goalChip';el.type='button';el.addEventListener('click',()=>{if(typeof QS==='function')openPanel('quests');});document.body.appendChild(el);}
   if(!w){if(!el.hidden)el.hidden=true;return;}
   const pt=goalPoint(w);GOAL.pt=pt;const far=pt?Math.round(Math.hypot(pt.x-P.x,pt.y-P.y)/TILE):null;
@@ -50,7 +50,10 @@ function goalChip(){let el=GOAL.el;const w=goalOn()&&running?goalWhat():null;GOA
   el.setAttribute('aria-label',w.text+where);el.hidden=false;
   // just under the minimap box, right-aligned with it
   // phones: in the free strip at the top centre (under the minimap the round buttons sit); desktop: under the minimap
-  if(document.body.classList.contains('touchui')){goalPlacePhone(el);return;}
+  /* v1.47.1 phones: finding a free spot measures ~40 buttons and boxes (10-20 ms on a slow phone). The twice-a-second
+     refresh only does it when the text or screen size changed, or every 2 s; a direct call always does it. */
+  if(document.body.classList.contains('touchui')){const k=html+'|'+innerWidth+'x'+innerHeight,t=performance.now();
+    if(!timer||k!==GOAL.pk||t-(GOAL.pt0||0)>2000){GOAL.pk=k;GOAL.pt0=t;goalPlacePhone(el);GOAL.phHide=el.hidden;}else if(GOAL.phHide)el.hidden=true;return;}
   const mb=document.getElementById('minibox');if(mb&&!mb.hidden){const r=mb.getBoundingClientRect(),top=Math.round(r.bottom+6)+'px',right=Math.round(innerWidth-r.right)+'px',mw=Math.round(Math.max(150,r.width))+'px';
     if(el.style.top!==top)el.style.top=top;if(el.style.right!==right)el.style.right=right;if(el.style.maxWidth!==mw)el.style.maxWidth=mw;}}
 // phones: try a few spots (the top strip next to the menu button, under the quick buttons, under the status box,
@@ -67,7 +70,7 @@ function goalPlacePhone(el){const obs=[];for(const e of document.querySelectorAl
     if(obs.some(o=>Math.min(o.right,box.right)-Math.max(o.left,box.left)>2&&Math.min(o.bottom,box.bottom)-Math.max(o.top,box.top)>2))continue;
     const left=Math.round(c.l)+'px',top=Math.round(c.t)+'px',mw=Math.round(right-c.l)+'px';if(el.style.left!==left)el.style.left=left;if(el.style.top!==top)el.style.top=top;if(el.style.maxWidth!==mw)el.style.maxWidth=mw;if(el.style.right)el.style.right='';return;}
   el.hidden=true;}
-setInterval(()=>{try{goalChip();}catch(e){}},500);
+setInterval(()=>{try{goalChip(true);}catch(e){}},500);
 // the arrow: at the screen edge when the goal is off screen, a small bouncing marker over it when it is on screen
 {const _rG=render;render=function(){const r=_rG.apply(this,arguments);try{if(!running||!goalOn()||!P||P.dead||!GOAL.t)return r;
     let pt=GOAL.pt;if(pt&&pt.m){if(pt.m.dead)return r;pt={x:pt.m.x,y:pt.m.y};}if(!pt)return r;
