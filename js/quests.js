@@ -125,11 +125,16 @@ PANELS.talk=()=>{if(!talk)return '';const key=talk.npc,n=npcName(key);let h=`<di
 const SERVICE={shop:'Browse the store',job:'Guild business',heal:'Ask for a blessing',warp:'Travel or rest',smith:'Smithing',storage:'Open storage'};
 function greeting(key){return {hollis:'This old plaza has seen a lot of heroes come and go. Sit a while.',pell:'Keep your eyes on the grass. The Hoppers bite.',
   ysolde:'Step softly. The woods are listening.',kade:'Sand gets everywhere. Watch your footing.',brannoc:'Mind the sparks.',ilsa:'Welcome back, friend!'}[key]||'Well met, traveller.';}
+/* (v1.52.3) the rewards a hero can still use: no EXP once base level 99, no job EXP once the job is at its top level
+   (they would be wasted); gold and items always. th: the words in Thai (the daily quest list writes its own) */
+const qExpUseful=()=>!!(P&&P.lv<99),qJobUseful=()=>!!(P&&typeof jobMax==='function'&&P.jl<jobMax(P.cls));
+function rewardBits(r,th){const b=[];if(r.exp&&qExpUseful())b.push(`${fmt(r.exp)} EXP`);if(r.jexp&&qJobUseful())b.push(`${fmt(r.jexp)} ${th?'EXP อาชีพ':'job EXP'}`);
+  if(r.gold)b.push(`${fmt(r.gold)} ${th?'โกลด์':'gold'}`);for(const [i,n] of r.items||[])b.push(`${ITEMS[i].name}${n>1?' ×'+n:''}`);return b;}
 function questBox(id,reward){const q=QUESTS[id],r=q.reward;let h=`<div class="qbox">`;
   const on=!!QS().active[id];
   if(q.obj.length)h+=`<div class="ds qobjs">${q.obj.map(o=>objLineHTML(id,o,on)).join('')}${q.to!==q.from?npcLine(q.to,'Then talk to'):''}</div>`;
   else if(q.to!==q.from)h+=`<div class="ds qobjs">${npcLine(q.to,'Talk to')}</div>`;
-  h+=`<div class="ds qrew">Rewards: ${fmt(r.exp)} EXP · ${fmt(r.jexp)} job EXP · ${fmt(r.gold)} gold${(r.items||[]).map(([i,n])=>` · ${ITEMS[i].name}${n>1?' ×'+n:''}`).join('')}</div></div>`;return h;}
+  h+=`<div class="ds qrew">Rewards: ${rewardBits(r).join(' · ')}</div></div>`;return h;}
 PANEL_ACTS.tnext=()=>{talk.page++;refreshPanel();};
 PANEL_ACTS.tback=()=>{talk.id=null;talk.page=0;refreshPanel();};
 PANEL_ACTS.topen=arg=>{const[mode,id]=arg.split(':');if(!QUESTS[id])return;talk.id=id;talk.mode=mode;talk.page=0;sfx('click');refreshPanel();};
@@ -142,7 +147,7 @@ PANEL_ACTS.qfinish=id=>{const q=QUESTS[id],s=QS();if(!qReady(id)||q.to!==talk.np
   if(q.daily)s.daily[id]=today();else if(!s.done.includes(id))s.done.push(id);
   if(P.track===id)P.track=Object.keys(s.active)[0]||null;
   const r=q.reward;P.gold+=r.gold;for(const[i,n]of r.items||[])giveItem(i,n);
-  addLog(`Quest complete: ${q.name}! ${fmt(r.exp)} EXP, ${fmt(r.gold)} gold${(r.items||[]).map(([i,n])=>`, ${ITEMS[i].name}${n>1?' ×'+n:''}`).join('')}.`,'l-rare');
+  addLog(`Quest complete: ${q.name}! ${rewardBits(r).join(', ')}.`,'l-rare');
   sfx('fanfare');fx.push({k:'lvl',x:P.x,y:P.y-30,t0:now,dur:1.6,txt:'QUEST COMPLETE',col:'#ffcf5a'});if(id==='warlord')announce('story',id);
   gainExp(r.exp,r.jexp);talk.id=null;talk.page=0;questHud();refreshPanel();save(true);};
 

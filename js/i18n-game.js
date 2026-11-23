@@ -347,3 +347,6 @@ if(typeof TH!=='undefined'){const BS_TH={'Stomp Quake':'กระทืบแผ
 // v1.52.2 the party keeps members who are away
 if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(.+) is back in the party\.$/,'$1 กลับเข้าปาร์ตี้แล้ว']);
 if(typeof TH!=='undefined')Object.assign(TH,{'away':'ไม่อยู่'});
+// v1.52.3 quest rewards list only what a hero can still use (no EXP at Lv 99, no job EXP at the job's top level)
+if(typeof TH_PAT!=='undefined'){const thRew=s=>s.replace(/ job EXP/g,' EXP อาชีพ').replace(/ gold\b/g,' โกลด์');
+  TH_PAT.unshift([/^Rewards: (.+)$/,(m,a)=>'รางวัล: '+thRew(a)],[/^Quest complete: (.+?)! (.+)$/,(m,a,b)=>`เควสสำเร็จ: ${typeof thText==='function'?thText(a):a}! ${thRew(b)}`]);}

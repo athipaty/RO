@@ -1840,3 +1840,8 @@ body.touchui #panel.npcsheet .sheetacts{background:linear-gradient(180deg,rgba(1
 .sndtog{min-width:52px}.sndtog.on,.btn.sndall.on,.btn.small.on{border-color:#8fe0a0}
 /* v1.52.2 party members away (their place is kept) */
 #partyBox .pmr.away{opacity:.55}#partyBox .pmr.away .pz{font-style:italic}
+/* v1.52.3 line icons on the party box buttons and the sound button */
+.picb{display:inline-grid;place-items:center;padding:2px 5px!important;min-width:28px}
+.picb svg.pic{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
+#muteBtn.picb svg.pic{width:20px;height:20px}
+#pVoice.on{color:#fff}#pMic.off{color:#ff9a8a}

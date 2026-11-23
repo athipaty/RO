@@ -43,8 +43,8 @@ module.exports = async t => {
     await A.evaluate(() => { if (VC.muted) vcMute(); });
     await B.evaluate(() => { window.__gum = 0; const g = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices); navigator.mediaDevices.getUserMedia = c => { window.__gum++; return g(c); }; vcJoin(true); });
     await wait(5000);
-    const li = await B.evaluate(() => ({ on: VC.on, listen: VC.listen, gum: window.__gum, pc: [...VC.pcs.values()].map(e => e.pc.connectionState), hear: [...VC.pcs.values()].some(e => e.audio && e.audio.srcObject && e.audio.srcObject.getAudioTracks().length > 0), icon: document.getElementById('pMic').textContent }));
-    t.ok(li.on && li.listen && li.gum === 0 && li.pc[0] === 'connected' && li.hear && li.icon === '🎧', 'listen only: you hear the party and the microphone is never asked for ' + JSON.stringify(li));
+    const li = await B.evaluate(() => ({ on: VC.on, listen: VC.listen, gum: window.__gum, pc: [...VC.pcs.values()].map(e => e.pc.connectionState), hear: [...VC.pcs.values()].some(e => e.audio && e.audio.srcObject && e.audio.srcObject.getAudioTracks().length > 0), icon: document.getElementById('pMic')._pic }));
+    t.ok(li.on && li.listen && li.gum === 0 && li.pc[0] === 'connected' && li.hear && li.icon === 'listen', 'listen only: you hear the party and the microphone is never asked for ' + JSON.stringify(li));
     t.ok(A.errs.length === 0 && B.errs.length === 0, 'no script errors' + [...A.errs, ...B.errs].map(e => ': ' + e).join(''));
   } finally { await browser.close(); }
 };

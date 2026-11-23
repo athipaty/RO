@@ -102,5 +102,5 @@ function dqEnsure(){if(!P)return;
   const ids=Object.keys(g.list).filter(id=>QUESTS[id]);const open=ids.filter(id=>qAvailable(id)),done=ids.filter(id=>s.daily[id]===today()).length;
   h+=`<h3>${th?'ภารกิจประจำวันวันนี้':"Today's daily quests"}</h3><div class="ds">${th?`ทำแล้ว ${done}/${ids.length} · ภารกิจใหม่ทุกวัน`:`${done}/${ids.length} done · new ones every day`}</div>`;
   for(const id of open){const q=QUESTS[id];h+=`<div class="row qrow"><div class="grow"><div class="nm">${esc(q.name)}</div><div class="ds qobjs"><span class="qwait">${esc(q.wait)}</span>${npcLine(q.from,th?'รับจาก':'From')}</div>`+
-    `<div class="ds qrew">${th?'รางวัล':'Rewards'}: ${fmt(q.reward.exp)} EXP · ${fmt(q.reward.jexp)} ${th?'EXP อาชีพ':'job EXP'} · ${fmt(q.reward.gold)} ${th?'โกลด์':'gold'}${(q.reward.items||[]).map(([i,n])=>` · ${esc(ITEMS[i].name)}${n>1?' ×'+n:''}`).join('')}</div></div></div>`;}
+    `<div class="ds qrew">${th?'รางวัล':'Rewards'}: ${esc(rewardBits(q.reward,th).join(' · '))}</div></div></div>`;}
   }catch(e){}return h;};}
