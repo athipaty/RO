@@ -8,7 +8,7 @@
    without playing together. Nothing changes on the server. */
 const PK={sent:new Map()};
 const pkKey=()=>P&&P.name?'embervale.partyKeep.'+P.name.toLowerCase():null;
-function pkLoad(){try{const k=pkKey();if(!k)return null;const d=JSON.parse(localStorage.getItem(k)||'null');if(!d||!Array.isArray(d.mates)||Date.now()-d.ts>3600e3)return null;return d;}catch(e){return null;}}
+function pkLoad(){try{const k=pkKey();if(!k)return null;const d=JSON.parse(localStorage.getItem(k)||'null');if(!d||!Array.isArray(d.mates)||Date.now()-d.ts>24*3600e3)return null;return d;}catch(e){return null;}}
 function pkSave(d){try{const k=pkKey();if(!k)return;if(!d)localStorage.removeItem(k);else localStorage.setItem(k,JSON.stringify(d));}catch(e){}}
 const pkLow=s=>String(s||'').toLowerCase();
 // remember who you are with, whenever the party changes

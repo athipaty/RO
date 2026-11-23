@@ -344,3 +344,6 @@ if(typeof TH!=='undefined'){const BS_TH={'Stomp Quake':'กระทืบแผ
     'lava pools open around you and the ground under you erupts':'บ่อลาวาเปิดรอบตัวคุณและพื้นใต้ตัวคุณปะทุ'};
   for(const [en,th] of Object.entries(BSD_TH)){TH[': '+en[0].toUpperCase()+en.slice(1)+'.']=': '+th;}
   if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(?:(.+): )?you are (\w+) by a boss curse \(a Remedy Draught cannot cure it\)\.$/,(m,who,st)=>`${who?who+': ':''}คุณติดคำสาปของบอส (${(typeof thText==='function'?thText(st[0].toUpperCase()+st.slice(1)):st)}) ยารักษาอาการรักษาไม่ได้`]);}
+// v1.52.2 the party keeps members who are away
+if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(.+) is back in the party\.$/,'$1 กลับเข้าปาร์ตี้แล้ว']);
+if(typeof TH!=='undefined')Object.assign(TH,{'away':'ไม่อยู่'});

@@ -13,7 +13,7 @@ function socialAttach(sock){SOCK=sock;tradeAttach(sock);
   sock.on('partyInvite',m=>{if(m&&m.fromPeer&&!(typeof isMuted==='function'&&isMuted(m.from)))showInvite(String(m.fromPeer),clean(m.from,16)||'Someone');});
   sock.on('party',st=>{const was=SOC.party;
     SOC.party=st&&Array.isArray(st.members)?{id:String(st.id),leader:String(st.leader),mode:st.mode==='each'?'each':'share',loot:st.loot==='turns'?'turns':st.loot==='each'?'each':null,
-      members:st.members.slice(0,12).map(x=>({peer:String(x.peer),name:clean(x.name,16)}))}:null;
+      members:st.members.slice(0,12).map(x=>({peer:String(x.peer),name:clean(x.name,16)})),away:Array.isArray(st.away)?st.away.slice(0,12).map(n=>clean(n,16)).filter(Boolean):[]}:null;
     if(!was&&SOC.party){addLog(`You are in a party with ${SOC.party.members.filter(x=>x.peer!==selfPeer()).map(x=>x.name).join(', ')}.`,'l-good');sfx('jobup');}
     else if(was&&!SOC.party)addLog('You are no longer in a party.');
     renderParty();});
@@ -61,7 +61,7 @@ function renderParty(){const box=$('#partyBox'),p=SOC.party;box.hidden=!p;if(!p)
   // the rows are rebuilt only when something in them changes (rebuilding twice a second wasted work and could swallow a tap
   // on Follow); otherwise just the HP bars move
   const fol=m=>typeof following==='function'&&following(m.peer);
-  const key=p.leader+'|'+lead+'|'+p.members.map(m=>{const o=NET.others.get(m.peer);return m.peer+':'+m.name+':'+(!o?'a':o.dead?'d':o.z===zoneId?'':o.z)+':'+(fol(m)?1:0);}).join(',');
+  const key=p.leader+'|'+lead+'|'+(p.away||[]).join(',')+'|'+p.members.map(m=>{const o=NET.others.get(m.peer);return m.peer+':'+m.name+':'+(!o?'a':o.dead?'d':o.z===zoneId?'':o.z)+':'+(fol(m)?1:0);}).join(',');
   if(list._key===key&&list.children.length===p.members.length){p.members.forEach((m,i)=>{const isMe=m.peer===me,o=NET.others.get(m.peer),hp=isMe?(S?P.hp/S.maxhp:1):o?(o.hp||0)/100:0;
       const bar=list.children[i].querySelector('.ph'),v=(clamp(hp,0,1)*100).toFixed(0)+'%';if(bar&&bar._hp!==v){bar._hp=v;bar.style.setProperty('--hp',v);}});return;}
   list._key=key;
@@ -79,8 +79,21 @@ function renderParty(){const box=$('#partyBox'),p=SOC.party;box.hidden=!p;if(!p)
       f.addEventListener('click',ev=>{ev.stopPropagation();if(following(m.peer))followStop(`You stopped following ${m.name}.`);else followAsk(m.peer);});row.append(f);}
     if(lead&&!isMe){const k=document.createElement('button');k.className='btn small';k.textContent='×';k.title=`Remove ${m.name} from the party`;
       k.setAttribute('aria-label',`Remove ${m.name} from the party`);k.addEventListener('click',()=>soc('partyKick',{peer:m.peer}));row.append(k);}
+    list.append(row);}
+  // (v1.52.2) members away (a restart or a lost connection): their place is kept until they come back
+  for(const n of p.away||[]){const row=document.createElement('div');row.className='pmr away';
+    const nm=document.createElement('span');nm.className='pn';nm.textContent=n;const bar=document.createElement('i');bar.className='ph';bar.style.setProperty('--hp','0%');
+    const where=document.createElement('span');where.className='pz';where.textContent='away';row.append(nm,bar,where);
+    if(lead){const k=document.createElement('button');k.className='btn small';k.textContent='×';k.title=`Remove ${n} from the party`;k.setAttribute('aria-label',k.title);
+      k.addEventListener('click',()=>soc('partyKick',{away:n}));row.append(k);}
     list.append(row);}}
 setInterval(()=>{if(SOC.party)renderParty();},500);
+/* (v1.52.2) your hero's own id (kept in this browser), sent on every connection: the server keeps your place in your
+   party while you are away and puts you back in when this hero connects again */
+function heroPid(){if(!P||!P.name)return null;const k='embervale.pid.'+P.name.toLowerCase();try{let v=localStorage.getItem(k);
+  if(!v||!/^[A-Za-z0-9_-]{8,40}$/.test(v)){v=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>'abcdefghijklmnopqrstuvwxyz0123456789'[b%36]).join('');localStorage.setItem(k,v);}return v;}catch(e){return null;}}
+{let sentFor='';setInterval(()=>{try{if(typeof SOCK==='undefined'||!SOCK||!SOCK.connected||!P)return;const pid=heroPid(),key=SOCK.id+'|'+pid;
+  if(pid&&key!==sentFor){sentFor=key;SOCK.emit('pid',{pid});}}catch(e){}},700);}
 
 /* ---- friends (saved with your character) ---- */
 function friendToggle(name,add){name=clean(name,16);if(!name){addLog(add?'Usage: /friend Name':'Usage: /unfriend Name');return;}

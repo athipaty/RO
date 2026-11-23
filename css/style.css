@@ -1838,3 +1838,5 @@ body.touchui #panel.npcsheet .sheetacts{background:linear-gradient(180deg,rgba(1
 /* v1.52.1 the Sound window */
 .sndrow{gap:8px}.sndrow input[type=range]{flex:1;min-width:90px;max-width:220px}.sndrow .val{min-width:38px;text-align:right;font-size:12px;color:var(--muted)}
 .sndtog{min-width:52px}.sndtog.on,.btn.sndall.on,.btn.small.on{border-color:#8fe0a0}
+/* v1.52.2 party members away (their place is kept) */
+#partyBox .pmr.away{opacity:.55}#partyBox .pmr.away .pz{font-style:italic}
