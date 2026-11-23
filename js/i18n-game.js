@@ -300,7 +300,7 @@ if(typeof TH!=='undefined'){Object.assign(TH,{'Open PvP':'PvP แบบเปิ
   'Enter the arena':'เข้าสู่อารีน่า','Leave the arena':'ออกจากอารีน่า','The arena is full. Try again in a moment.':'อารีน่าเต็มแล้ว ลองใหม่อีกครั้งในอีกสักครู่',
   'The arena needs the game server, which is not reachable right now.':'อารีน่าต้องใช้เซิร์ฟเวอร์เกม ซึ่งตอนนี้เชื่อมต่อไม่ได้',
   'Auto mode is off in player fights. Fight by hand!':'ปิดโหมดออโต้ในการต่อสู้กับผู้เล่น สู้ด้วยมือเลย!','Open fight · no queue':'สู้แบบเปิด · ไม่ต้องรอคิว',
-  'Finish your duel first.':'จบการดวลก่อน','KO!':'KO!'});
+  'Finish your duel first.':'จบการดวลก่อน','No opponent nearby.':'ไม่มีคู่ต่อสู้อยู่ใกล้ๆ','KO!':'KO!'});
   TH_PAT.unshift(
     [/^An open fight with no queue: walk in and fight anyone inside, up to (\d+) fighters at a time\. Fall to 1 HP and you are knocked down for a moment, then you stand up somewhere else in the arena at full HP\. Nobody dies or loses EXP\. Auto mode is off in the arena\.$/,'สู้แบบเปิด ไม่ต้องรอคิว: เดินเข้าไปสู้กับใครก็ได้ที่อยู่ข้างใน ได้สูงสุด $1 คนพร้อมกัน ถ้า HP เหลือ 1 คุณจะล้มลงครู่หนึ่ง แล้วลุกขึ้นที่จุดอื่นในอารีน่าพร้อม HP เต็ม ไม่มีใครตายหรือเสีย EXP ในอารีน่าปิดโหมดออโต้'],
     [/^You are in a ranked (\w+) match\. Finish it first\.$/,'คุณอยู่ในแมตช์จัดอันดับ $1 จบแมตช์ก่อน'],

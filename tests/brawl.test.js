@@ -25,6 +25,16 @@ module.exports = async t => {
     const spot = await A.ev(() => ({ x: P.x, y: P.y }));
     await B.ev(p => { P.x = p.x + 40; P.y = p.y; BRW.safeUntil = 0; }, spot);
     await wait(2000);
+    // the Attack button goes for the nearest fighter (the arena is a safe area, where it used to refuse)
+    const hp0 = await B.ev(() => P.hp);
+    await A.ev(() => { P.target = null; document.getElementById('atkBtn').click(); });
+    t.ok(await A.ev(() => !!(P.target && P.target.brawl)), 'the Attack button targets the nearest fighter');
+    await wait(3000);
+    t.ok(await B.ev(h => P.hp < h, hp0), 'and the hero attacks them');
+    // a target skill with nothing targeted picks the nearest fighter too
+    t.ok(await A.ev(() => { P.target = null; const id = Object.keys(SKILLS).find(k => SKILLS[k].kind === 'target'); useSkill(id); return !!(P.target && P.target.brawl); }), 'a target skill with nothing selected goes for the nearest fighter');
+    await B.ev(() => { S = computeStats(); P.hp = S.maxhp; });
+    await wait(500);
     const hit = await A.ev(() => { const e = [...BRW.ents.values()][0]; if (!e) return 'no stand-in'; P.target = e; hurtMob(e, 5000, false, 'phys'); return 'ok'; });
     await wait(2000);
     const b1 = await B.ev(() => ({ down: pvpDowned(), dead: P.dead, falls: BRW.falls }));

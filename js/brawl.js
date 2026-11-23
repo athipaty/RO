@@ -89,3 +89,25 @@ function pvpNoAuto(){return !!(P&&((typeof DUEL!=='undefined'&&DUEL)||zoneId==='
 {let said=-99;const _upNA=update;update=function(dt){_upNA(dt);if(P&&P.auto&&pvpNoAuto()){P.auto=false;const b=document.getElementById('autoBtn');if(b)b.classList.remove('on');
   if(now-said>5){said=now;addLog('Auto mode is off in player fights. Fight by hand!','l-sys');}}};}
 CMD_HELP.forEach(c=>{if(c[0]==='/arena')c[1]='open arena: walk in and fight, up to 20 fighters';});
+
+/* ---- (v1.49.3) the Attack button, Tab and skills go for the nearest opponent in any player fight ----
+   Before, they only looked for monsters, and in the arena (a safe area like town) they refused outright. Now, while a
+   duel, a ranked match, the open arena or a guild war gives you opponents, the nearest one standing is taken first. */
+function pvpCands(){const c=[];
+  if(typeof DUEL!=='undefined'&&DUEL&&DUEL.ent&&now>=DUEL.fightAt-.5)c.push(DUEL.ent);
+  const M=typeof AR!=='undefined'?AR.match:null;if(M&&!M.out&&now>=M.fightAt-.5)for(const f of M.foes)if(!f.out)c.push(f.ent);
+  if(typeof gwFighting==='function'&&gwFighting())for(const e of GW.ents.values())c.push(e);
+  if(brawlOn())for(const e of BRW.ents.values())c.push(e);
+  return c.filter(e=>e&&!e.dead);}
+const pvpActive=()=>!!((typeof DUEL!=='undefined'&&DUEL)||(typeof AR!=='undefined'&&AR.match&&!AR.match.out)||brawlOn()||(typeof gwFighting==='function'&&gwFighting()));
+{const _tnBR=targetNearest;targetNearest=function(keep){
+  if(!P||P.dead||!running||!pvpActive())return _tnBR(keep);
+  if(pvpDowned())return;if(keep&&P.target&&!P.target.dead)return;
+  let best=null,bd=700;for(const e of pvpCands())if(e!==P.target||keep){const d=dist(e,P);if(d<bd){bd=d;best=e;}}
+  if(best){P.target=best;P.queued=null;P.npcGoal=null;P.sitting=false;return;}
+  // nobody to fight nearby: in a field (a duel or the keep) fall back to monsters; in the arena just say so
+  if(Z.D.safe){addLog('No opponent nearby.');return;}
+  return _tnBR(keep);};}
+{const _usBR2=useSkill;useSkill=function(id){const sk=SKILLS[id];
+  if(sk&&sk.kind==='target'&&P&&!P.dead&&(!P.target||P.target.dead)&&pvpActive())targetNearest(true);
+  return _usBR2.apply(this,arguments);};}
