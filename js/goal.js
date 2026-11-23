@@ -52,12 +52,15 @@ function goalChip(timer){let el=GOAL.el;const w=goalOn()&&running?goalWhat():nul
   // phones: in the free strip at the top centre (under the minimap the round buttons sit); desktop: under the minimap
   /* v1.47.1 phones: finding a free spot measures ~40 buttons and boxes (10-20 ms on a slow phone). The twice-a-second
      refresh only does it when the text or screen size changed, or every 2 s; a direct call always does it. */
-  if(document.body.classList.contains('touchui')){const k=html+'|'+innerWidth+'x'+innerHeight,t=performance.now();
+  if(document.body.classList.contains('touchui')){const k=html+'|'+innerWidth+'x'+innerHeight+'|'+goalLayoutKey(),t=performance.now();
     if(!timer||k!==GOAL.pk||t-(GOAL.pt0||0)>2000){GOAL.pk=k;GOAL.pt0=t;goalPlacePhone(el);GOAL.phHide=el.hidden;}else if(GOAL.phHide)el.hidden=true;return;}
   const mb=document.getElementById('minibox');if(mb&&!mb.hidden){const r=mb.getBoundingClientRect(),top=Math.round(r.bottom+6)+'px',right=Math.round(innerWidth-r.right)+'px',mw=Math.round(Math.max(150,r.width))+'px';
     if(el.style.top!==top)el.style.top=top;if(el.style.right!==right)el.style.right=right;if(el.style.maxWidth!==mw)el.style.maxWidth=mw;}}
 // phones: try a few spots (the top strip next to the menu button, under the quick buttons, under the status box,
 // under the map) and take the first where the chip covers no button or box; with none free it hides (the arrow stays)
+// which boxes are open or folded (class names, hidden flags, counts: reading these never makes the browser lay out)
+const GOAL_KEYS=['hud','partyBox','target','quest','qtrack','minibox','log','buffs','quickL','quick','hotrows','actions','rideBtn','onlineBadge'];
+function goalLayoutKey(){let k=document.body.className;for(const id of GOAL_KEYS){const e=document.getElementById(id);k+=e?'|'+e.className+(e.hidden?'h':'')+e.childElementCount:'|-';}return k;}
 const GOAL_OBST='#hud,#minibox,#partyBox,#log,#onlineBadge,#quick .qk,#quickL .qk,#quickL>button,#actions>.act,#hotbar .slot,#buffs .buff,#rideBtn,#hotrows .hrow,#target,#quest,#qtrack';
 function goalPlacePhone(el){const obs=[];for(const e of document.querySelectorAll(GOAL_OBST)){if(!e.getClientRects().length||e.closest('#panel'))continue;const s=getComputedStyle(e);if(s.visibility==='hidden'||+s.opacity===0)continue;const r=e.getBoundingClientRect();if(r.width>2&&r.height>2)obs.push(r);}
   const R=id=>{const e=document.getElementById(id);return e&&e.getClientRects().length?e.getBoundingClientRect():null;},H=34,W=Math.min(300,innerWidth-20),cands=[];

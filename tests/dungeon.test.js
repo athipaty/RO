@@ -31,7 +31,7 @@ module.exports = async t => {
 
     const kill = await g.ev(() => { const k = mobs.find(m => m.d.id === 'gloomking'); k.myDmg = 1; killMob(k); return { log: document.getElementById('log').textContent, respawn: k.respawnAt - now }; });
     t.ok(/rise again in 2.5 minutes/.test(kill.log) && kill.respawn > 140, 'defeating it says when it comes back');
-    t.ok(await g.ev(() => !!QUESTS.d_deep && QUESTS.d_deep.from === 'ysolde'), 'Ysolde has a daily quest for the Gloomcap King');
+    t.ok(await g.ev(() => dqBosses(34).some(m => m.id === 'gloomking')), 'the Gloomcap King can come up as a daily boss quest');
     t.ok(await g.ev(() => { const s = document.createElement('canvas').getContext('2d'); const main = ctx; ctx = s; try { drawHat('gloomhat', 20, 20, 1); } finally { ctx = main; } return true; }), 'the Gloomcap Hat can be drawn');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }

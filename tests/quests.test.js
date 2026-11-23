@@ -43,16 +43,26 @@ module.exports = async t => {
 
     const wild = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); P.lv = 3; P.qs.done.push('watch'); enterZone('meadow'); await w(300);
       const n = Z.npcs.find(n => n.name === 'Warden Pell'); const tile = Z.t[Math.floor(n.y / TILE) * Z.w + Math.floor(n.x / TILE)];
-      return { ok: !!n, walk: !BLOCK[tile], near: Math.hypot(n.x - Z.spawn.x, n.y - Z.spawn.y) < 8 * TILE, daily: questsAt('pell').offer.includes('d_patrol') }; });
+      return { ok: !!n, walk: !BLOCK[tile], near: Math.hypot(n.x - Z.spawn.x, n.y - Z.spawn.y) < 8 * TILE }; });
     t.ok(wild.ok && wild.walk && wild.near, 'Warden Pell stands near the meadow entrance on open ground');
-    t.ok(wild.daily, 'Pell offers a daily quest');
 
-    const daily = await g.ev(() => { const n = Z.npcs.find(n => n.name === 'Warden Pell'); openNpc(n);
-      panel.querySelector('[data-act="topen"][data-arg="offer:d_patrol"]').click(); while (panel.querySelector('[data-act="tnext"]')) panel.querySelector('[data-act="tnext"]').click();
-      panel.querySelector('[data-act="qaccept"]').click(); for (let i = 0; i < 15; i++) questKill('hopper'); closePanel(); openNpc(n);
-      panel.querySelector('[data-act="topen"][data-arg="done:d_patrol"]').click(); while (panel.querySelector('[data-act="tnext"]')) panel.querySelector('[data-act="tnext"]').click();
-      panel.querySelector('[data-act="qfinish"]').click(); closePanel(); const again = qAvailable('d_patrol');
-      P.qs.daily.d_patrol = '2000-01-01'; const tomorrow = qAvailable('d_patrol'); return { again, tomorrow }; });
+    // v1.48.0 five random dailies a day from Elder Hollis
+    const dq = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); P.lv = 14; P.qs.dq = null; enterZone('town'); await w(300);
+      const ids = Object.keys(QS().dq.list), q = ids.map(i => QUESTS[i]);
+      return { n: ids.length, daily: q.every(x => x.daily && /^Daily: /.test(x.name)), lucky: q.filter(x => /★/.test(x.name)).length,
+        givers: q.every(x => Z.npcs.some(n => NPC_KEY[n.name] === x.from)), offered: ids.every(i => questsAt(QUESTS[i].from).offer.includes(i)),
+        other: (() => { const a = JSON.stringify(ids.map(i => QUESTS[i].obj)); const nm = P.name; P.name = 'Someone else'; P.qs.dq = null; QS(); const b = JSON.stringify(Object.keys(P.qs.dq.list).map(i => QUESTS[i].obj)); P.name = nm; P.qs.dq = null; QS(); return a !== b; })() }; });
+    t.ok(dq.n === 5 && dq.daily && dq.lucky === 1, `five daily quests today, one of them a lucky one (${dq.n}, ${dq.lucky})`);
+    t.ok(dq.givers && dq.offered, 'Elder Hollis in Hearthvale hands them out');
+    t.ok(dq.other, 'the picks are random (another hero gets other quests)');
+
+    const daily = await g.ev(() => { const id = Object.keys(QS().dq.list).find(i => QUESTS[i].obj.every(o => o.kill)) || Object.keys(QS().dq.list)[0], q = QUESTS[id];
+      const n = Z.npcs.find(n => NPC_KEY[n.name] === q.from); openNpc(n);
+      panel.querySelector(`[data-act="topen"][data-arg="offer:${id}"]`).click(); while (panel.querySelector('[data-act="tnext"]')) panel.querySelector('[data-act="tnext"]').click();
+      panel.querySelector('[data-act="qaccept"]').click(); for (const o of q.obj) { if (o.kill) for (let i = 0; i < o.n; i++) questKill(o.kill); else giveItem(o.item, o.n); } closePanel(); openNpc(n);
+      panel.querySelector(`[data-act="topen"][data-arg="done:${id}"]`).click(); while (panel.querySelector('[data-act="tnext"]')) panel.querySelector('[data-act="tnext"]').click();
+      panel.querySelector('[data-act="qfinish"]').click(); closePanel(); const again = qAvailable(id);
+      P.qs.daily[id] = '2000-01-01'; const tomorrow = qAvailable(id); return { again, tomorrow }; });
     t.ok(!daily.again && daily.tomorrow, 'a daily quest can be done once per day');
 
     const sv = await g.ev(() => { const s = snapshot(); return { done: s.p.qs.done, has: 'track' in s.p }; });
