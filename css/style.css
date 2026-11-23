@@ -253,6 +253,10 @@ button{font:inherit;color:inherit}
 #buffs .buff .bg{font-size:15px;color:#ffe7a0}
 #buffs .buff b{position:absolute;right:-2px;bottom:-4px;font-size:9.5px;line-height:1;padding:1px 2px;border-radius:3px;background:rgba(0,0,0,.8);color:#fff;font-variant-numeric:tabular-nums}
 #buffs .buff.ending{animation:buffBlink .5s steps(2) infinite}
+/* ailments (stun, freeze, poison...) in the buff row: their colour as the ring and glyph; a boss curse has a red ring */
+#buffs .buff.ail{border-color:var(--ac)!important;box-shadow:0 0 8px color-mix(in srgb,var(--ac) 55%,transparent)}
+#buffs .buff.ail .bg{color:var(--ac);font-weight:800;font-size:17px}
+#buffs .buff.ail.curse{outline:2px solid #e0503a;outline-offset:1px}
 @keyframes buffBlink{50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){#buffs .buff.ending{animation:none;opacity:.6}}
 /* #61 draggable windows (desktop) */

@@ -13,7 +13,7 @@ const BB={el:null,m:null,q:4};
 function bossNow(){if(!P||P.dead||typeof mobs==='undefined')return null;const t=P.target;if(t&&!t.dead&&t.d&&t.d.boss)return t;
   for(const m of mobs)if(!m.dead&&m.d.boss&&m.state==='chase'&&Math.hypot(m.x-P.x,m.y-P.y)<700)return m;return null;}
 function bossBar(){const m=running?bossNow():null;let el=BB.el;
-  if(!m){if(el&&!el.hidden){el.hidden=true;BB.m=null;}return;}
+  if(!m){if(el&&!el.hidden){el.hidden=true;BB.m=null;if(window.phoneLayout)setTimeout(window.phoneLayout,0);}return;}
   if(!el){el=BB.el=document.createElement('div');el.id='bossBar';el.setAttribute('role','status');el.innerHTML='<div class="bbn"></div><div class="bbt"><i></i><em></em></div><div class="bbv"></div>';document.body.appendChild(el);}
   const f=Math.max(0,Math.min(1,m.hp/m.d.hp)),q=Math.ceil(f*4);
   if(BB.m!==m){BB.m=m;BB.q=q;el.querySelector('.bbn').textContent=`${m.d.name} · Lv ${m.d.lv}`;}
@@ -23,7 +23,8 @@ function bossBar(){const m=running?bossNow():null;let el=BB.el;
   // under whatever sits at the top (goal chip, status box, map)
   let top=12;for(const id of ['goalChip','topBars']){const e=document.getElementById(id);if(e&&!e.hidden&&e.getClientRects().length){const r=e.getBoundingClientRect();if(r.top<80)top=Math.max(top,r.bottom+6);}}
   if(innerHeight>innerWidth)for(const id of ['hud','minibox']){const e=document.getElementById(id);if(e&&e.getClientRects().length)top=Math.max(top,e.getBoundingClientRect().bottom+8);}
-  const t=Math.round(top)+'px';if(el.style.top!==t)el.style.top=t;el.hidden=false;}
+  const t=Math.round(top)+'px';if(el.style.top!==t)el.style.top=t;
+  if(el.hidden){el.hidden=false;if(window.phoneLayout)setTimeout(window.phoneLayout,0);}} // the buff row moves out from under it at once
 setInterval(()=>{try{bossBar();}catch(e){}},120);
 
 /* ---- 2. auto-hunt summary ---- */

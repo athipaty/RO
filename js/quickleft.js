@@ -50,7 +50,10 @@
     if(bf){const tops=['menuBtn'].map(id=>document.getElementById(id)).filter(vis).map(e=>e.getBoundingClientRect());
       bf.style.flexDirection='row';bf.style.right='auto';
       if(tops.length){const l=Math.min(...tops.map(r=>r.left)),r=Math.max(...tops.map(r=>r.right)),b=Math.max(...tops.map(r=>r.bottom));
-        const w=bf.getBoundingClientRect().width||0;bf.style.top=Math.round(b+6)+'px';bf.style.left=Math.round(Math.max(8,(l+r)/2-w/2))+'px';}}}
+        const w=bf.getBoundingClientRect().width||0;let top=b+6;const left=Math.max(8,(l+r)/2-w/2);
+        // (v1.53.2) a boss HP bar across the top: the buff row goes under it instead of over it
+        const bb=document.getElementById('bossBar');if(vis(bb)){const br=bb.getBoundingClientRect();if(left<br.right&&left+w>br.left&&top<br.bottom+6&&top+(bf.getBoundingClientRect().height||32)>br.top)top=br.bottom+6;}
+        bf.style.top=Math.round(top)+'px';bf.style.left=Math.round(left)+'px';}}}
   // upright: the party box goes below the quick buttons if they would meet; buffs start under the online badge
   function stackUpright(){
     const pb=document.getElementById('partyBox'),hud=document.getElementById('hud'),q=document.getElementById('quick'),ob=document.getElementById('onlineBadge'),bf=document.getElementById('buffs'),mb=document.getElementById('minibox');

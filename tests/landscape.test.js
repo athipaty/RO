@@ -31,6 +31,17 @@ module.exports = async t => {
     const online = await ev(() => { const b = document.getElementById('onlineBadge'), r = b.getBoundingClientRect(), h = document.getElementById('hud').getBoundingClientRect(), l = document.getElementById('log').getBoundingClientRect();
       return { shown: getComputedStyle(b).display !== 'none' && r.width > 0, under: r.top >= h.bottom && r.top - h.bottom < 14 && Math.abs(r.left - h.left) < 2, clear: r.bottom <= l.top, text: b.textContent }; });
     t.ok(online.shown && online.under && online.clear, `the online badge shows sideways, just under the status box ("${online.text}")`);
+    // (v1.53.2) fighting a boss: its HP bar and the buff row (with a boss's freeze in it) do not overlap
+    const boss = await ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms));
+      const d = Object.values(MOBS).find(m => m.boss); P.target = { d, hp: d.hp * .6, x: P.x + 60, y: P.y, dead: false };
+      buff('ironwill', 'Iron Will', 60, { def: 4 }); bsCurse('freeze', 6, P.target); await w(700);
+      const bb = document.getElementById('bossBar').getBoundingClientRect(), bf = document.getElementById('buffs').getBoundingClientRect();
+      const over = bf.left < bb.right && bf.right > bb.left && bf.top < bb.bottom && bf.bottom > bb.top;
+      const ail = document.querySelector('#buffs .buff.ail'); const res = { over, bbH: bb.height, bfH: bf.height, ail: ail ? ail.title : '', curse: !!(ail && ail.classList.contains('curse')), first: document.querySelector('#buffs .buff') === ail };
+      P.target = null; P.buffs.ironwill.until = now - 1; P.ail = {}; P.curse = {}; await w(500); res.gone = !document.querySelector('#buffs .buff.ail'); return res; });
+    t.ok(boss.bbH > 0 && boss.bfH > 0 && !boss.over, 'sideways, the buff row sits under the boss HP bar, not on top of it');
+    t.ok(/Frozen/.test(boss.ail) && boss.curse && boss.first, `a boss's freeze shows first in the buff row, marked as a curse (${boss.ail})`);
+    t.ok(boss.gone, 'the ailment leaves the row when it wears off');
     t.ok(errors.length === 0, 'no script errors' + errors.map(e => ': ' + e).join(''));
   } finally { await browser.close(); }
 };

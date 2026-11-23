@@ -33,6 +33,10 @@ module.exports = async t => {
       const r = box ? box.getBoundingClientRect().top >= hud.bottom - 1 : null; P.buffs.ironwill.until = now - 1; SOC.party = null; renderParty(); return r; });
     t.ok(pb === true, 'the party box moves down when buffs appear, so it does not cover the status box');
     t.ok(/Well rested/.test(r.rest), 'Well rested from the inn shows as well');
+    const ail = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); const was = Math.random; Math.random = () => 0;
+      try { tryAilment(['stun', 1, 3]); } finally { Math.random = was; } await w(200);
+      const c = document.querySelector('#buffs .buff.ail'); const r = c ? { tip: c.title, txt: c.textContent } : null; P.ail = {}; await w(300); return r; });
+    t.ok(ail && /Stunned/.test(ail.tip) && /✦\d+s/.test(ail.txt), `being stunned shows in the buff row with a countdown (${ail && ail.txt})`);
     if (process.env.SHOTS) { await g.ev(() => { buff('ironwill', 'Iron Will', 60, { def: 4 }); buff('blessing', 'Blessing', 120, { str: 1 }); P.buffs.blessing.from = 'Pal'; }); await wait(300); await g.page.screenshot({ path: process.env.SHOTS + '/buffs.png', clip: { x: 0, y: 0, width: 300, height: 260 } }); }
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
