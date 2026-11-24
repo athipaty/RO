@@ -39,6 +39,12 @@ module.exports = async t => {
       P.storage = [{ id: Object.keys(ITEMS).find(id => ITEMS[id].type === 'use'), n: 2 }]; openPanel('storage'); PANEL_ACTS.stotab('equip');
       out.sto = !!panel.querySelector('.stotabs') && ![...panel.querySelectorAll('[data-act="take"]')].length && /Nothing of this kind/.test(panel.textContent);
       PANEL_ACTS.stotab('use'); out.sto = out.sto && panel.querySelectorAll('[data-act="take"]').length === 1; PANEL_ACTS.stotab('all'); closePanel();
+      // (v1.55.0) the Waystone Shard shows the same map; Go takes you there and uses the shard
+      enterZone('town'); P.visited = ['town', 'meadow', 'woods', 'deep1']; giveItem('waystone', 2); openPanel('waystone');
+      out.shardMap = panel.querySelectorAll('.wsm .wsmt').length === Object.keys(WORLD_GRID).filter(id => ZONES[id]).length && !!panel.querySelector('.wsmfl [data-arg="deep1"]');
+      panel.querySelector('.wsmt[data-arg="woods"]').click(); const shards = (invFind('waystone') || {}).n || 0;
+      panel.querySelector('#wsDet [data-act="waygo"][data-arg="woods"]').click();
+      out.shardGo = zoneId === 'woods' && ((invFind('waystone') || {}).n || 0) === shards - 1;
       return out;
     });
     t.ok(r.allPlaces && r.roads, 'the Waystation shows every region on one map, joined by roads');
@@ -50,6 +56,7 @@ module.exports = async t => {
     t.ok(r.store, 'the General Store\'s Equip tab has Job chips: only the weapons that job can use');
     t.ok(r.forge, 'the Forge uses the same Job choice');
     t.ok(r.sto, 'storage has Use / Equip / Sigils / Etc tabs');
+    t.ok(r.shardMap && r.shardGo, 'the Waystone Shard shows the same map (dungeon floors under it), and Go takes you there');
     // sideways phone: the map and the details side by side, the whole map on screen
     await g.page.setViewport({ width: 844, height: 390, isMobile: true, hasTouch: true }); await wait(1500);
     await g.ev(() => { if (!P) { document.getElementById('nameIn').value = 'Mapper'; document.getElementById('newBtn').click(); } }); await wait(2000);

@@ -45,13 +45,18 @@ function wsmMapHtml(best){const ids=Object.keys(WORLD_GRID).filter(id=>ZONES[id]
   h+=arm('North road','N')+arm('East road','E')+arm('South road','S')+arm('West road','W');
   for(const id of ids)h+=wsmTile(id,best,box);
   return h+`</div><div class="wsmkey"><span>⭐ best for you</span><span>📍 you</span><span>📜 quest</span><span>👑 world boss</span><span>grey: walk there first</span><span>numbers: lowest monster level</span></div>`;}
-function wsmDetailHtml(id,ids,best){const D=ZONES[id],here=zoneId===id,seen=P.visited.includes(id)||here,L=D.links||{};
+function wsmDetailHtml(id,ids,best,shard){const D=ZONES[id],here=zoneId===id,seen=P.visited.includes(id)||here,L=D.links||{};
   const road=wsmRoad(id),ring=WORLD_GRID[id]?worldRing(id):0;
   let x=`<div class="wsmwhere">${road?`${road} · ${ring===1?'next to the city':`${ring} regions from the city`}`:(id==='capital'?'The capital, west of Hearthvale':'Home: the middle of the world')}</div>`;
-  const roads=WSM_DIRS.filter(([d])=>L[d]&&ZONES[L[d]]).map(([d,a])=>`<button type="button" class="wsmhop${P.visited.includes(L[d])||zoneId===L[d]?'':' locked'}" data-act="wsmsel" data-arg="${L[d]}">${a} ${esc(ZONES[L[d]].name)}</button>`).join('');
+  const roads=WSM_DIRS.filter(([d])=>L[d]&&ZONES[L[d]]).map(([d,a])=>`<button type="button" class="wsmhop${P.visited.includes(L[d])||zoneId===L[d]?'':' locked'}" data-act="wsmsel" data-arg="${L[d]}"><i aria-hidden="true">${a}</i> ${esc(ZONES[L[d]].name)}</button>`).join('');
   if(roads)x+=`<div class="wsmroads"><span>Roads to</span>${roads}</div>`;
   if(typeof WORLD_BRANCH!=='undefined'&&WORLD_BRANCH[id]){const fl=WORLD_BRANCH[id].filter(z=>ZONES[z]);if(fl.length)x+=`<div class="wsmdown">▼ Stairs down inside: ${fl.map(z=>esc(ZONES[z].name)).join(' → ')}</div>`;}
   if(!seen){const g=wsmGate(id);x+=`<div class="wsmgate">🚶 ${g?`Walk out of the ${g.d} gate of <b>${esc(ZONES[g.n].name)}</b> to get here.`:'Walk there along the roads from a place you know.'}</div>`;}
+  // (v1.55.0) the Waystone Shard: the same card, with one Go button (no fare: the shard is the fare)
+  if(shard){const th=typeof tcBanner==='function'?tcBanner(id):'',known=P.visited.includes(id);
+    const btn=here?'<div class="tclock">📍 You are here</div>':known?`<button class="btn tctravel primary" data-act="waygo" data-arg="${id}">✦ Go · the shard crumbles</button>`:'<div class="tclock">🔒 Walk there once first</div>';
+    if(id==='town'||!ids.includes(id))return `<div class="tccard wsmcard"><div class="tcban" style="background-image:url(${th})"><b>${esc(D.name)}</b></div><div class="tcbody">${x}${btn}</div></div>`;
+    return tcCardHtml(id,ids,best,x).replace('class="tccard','class="tccard wsmcard').replace(/<button class="btn tctravel[^>]*>[^<]*<\/button>|<div class="tclock">[^<]*<\/div>/,btn);}
   if(id==='town'||!ids.includes(id)){ // Hearthvale: no fare, Tobin lives here
     const th=typeof tcBanner==='function'?tcBanner(id):'';
     return `<div class="tccard wsmcard"><div class="tcban" style="background-image:url(${th})"><b>${esc(D.name)}</b></div><div class="tcbody">${x}<div class="tclock">${here?'📍 You are here':'Walk home through the city gates'}</div></div></div>`;}
@@ -101,6 +106,7 @@ PANEL_ACTS.wsmsel=id=>{if(!ZONES[id])return;WSMAP.sel=id;sfx('click');refreshPan
 #panel .wsmkey{display:flex;flex-wrap:wrap;justify-content:center;gap:3px 10px;font-size:11px;color:var(--muted);margin:2px auto 8px;max-width:440px}
 #panel .wsmwhere{font-size:12px;color:#c9d2e4;font-weight:600}
 #panel .wsmroads{display:flex;flex-wrap:wrap;align-items:center;gap:5px}#panel .wsmroads>span{font-size:11.5px;color:var(--muted);margin-right:2px}
+#panel .wsmhop i,#panel .cxchip i{font-style:normal}
 #panel .wsmhop{padding:4px 9px;min-height:30px;border-radius:14px;border:1px solid rgba(217,191,134,.5);background:rgba(217,191,134,.12);color:#f1e2bd;font:700 12px var(--ui,system-ui);cursor:pointer}
 #panel .wsmhop.locked{opacity:.6;border-style:dashed}
 #panel .wsmdown{font-size:12px;color:#ffcf8a}
@@ -127,3 +133,33 @@ if(typeof TH!=='undefined'){Object.assign(TH,{'North road':'ถนนเหน�
   'Home: the middle of the world':'บ้าน: ใจกลางโลก','⭐ best for you':'⭐ เหมาะกับคุณที่สุด','📍 you':'📍 คุณ','📜 quest':'📜 เควส','👑 world boss':'👑 บอสโลก','grey: walk there first':'สีเทา: ต้องเดินไปก่อน',
   'numbers: lowest monster level':'ตัวเลข: เลเวลมอนสเตอร์ต่ำสุด','Walk there along the roads from a place you know.':'เดินไปตามถนนจากที่ที่คุณเคยไป'});
   if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(North|East|South|West) road · (\d+) regions from the city$/,(m,a,n)=>`${({North:'ถนนเหนือ',East:'ถนนตะวันออก',South:'ถนนใต้',West:'ถนนตะวันตก'})[a]} · ห่างจากเมือง ${n} ภูมิภาค`]);}
+
+/* ---- (v1.55.0) the Waystone Shard shows the same map: tap a place, then Go; dungeon floors you know sit under the map ---- */
+if(typeof PANELS!=='undefined'&&PANELS.waystone&&typeof WORLD_GRID!=='undefined'){const _pw=PANELS.waystone;PANELS.waystone=function(){if(typeof tcCardHtml!=='function')return _pw.apply(this,arguments);
+  const ids=ZONE_ORDER.slice(1),best=tcBest(ids.filter(id=>P.visited.includes(id)));
+  if(!WSMAP.sel||!ZONES[WSMAP.sel]||!WORLD_GRID[WSMAP.sel])WSMAP.sel=best||(WORLD_GRID[zoneId]?zoneId:'town');
+  let h=`<h2>Waystone Shard</h2><div class="say">Hold the shard and picture the place. It crumbles once it carries you.</div>`;
+  const floors=Object.keys(ZONES).filter(id=>!WORLD_GRID[id]&&P.visited.includes(id)&&id!==zoneId);
+  h+=`<div class="wsmw"><div class="wsmcol">`+wsmMapHtml(best)+
+    (floors.length?`<div class="wsmfl"><span>Floors below</span>${floors.map(id=>`<button type="button" class="wsmhop" data-act="waygo" data-arg="${id}"><i aria-hidden="true">▼</i> ${esc(ZONES[id].name)}</button>`).join('')}</div>`:'')+`</div>`+
+    `<div class="wsdcol"><div class="wshint">Tap a place on the map. The shard takes you to any place you have walked to.</div><div id="wsDet">${wsmDetailHtml(WSMAP.sel,ids,best,true)}</div></div></div>`;
+  return h;};}
+(()=>{const st=document.createElement('style');st.textContent=`
+#panel .wsmfl{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:0 0 8px}#panel .wsmfl>span{font-size:11.5px;color:var(--muted);margin-right:2px}
+@media (orientation:landscape) and (max-height:520px){
+  body.touchui #panel.npcfull[data-kind="waystone"]>.say{display:none}
+  body.touchui #panel.npcfull[data-kind="waystone"] .wsmw{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:0 18px;align-items:start}
+  body.touchui #panel.npcfull[data-kind="waystone"] .wsmcol{position:sticky;top:0}
+  body.touchui #panel.npcfull[data-kind="waystone"] .wsmkey{display:none}
+}`;document.head.appendChild(st);})();
+if(typeof TH!=='undefined')Object.assign(TH,{'Floors below':'ชั้นใต้ดิน','✦ Go · the shard crumbles':'✦ ไป · ศิลาแตกสลาย','🔒 Walk there once first':'🔒 ต้องเดินไปก่อนหนึ่งครั้ง',
+  'Tap a place on the map. The shard takes you to any place you have walked to.':'แตะสถานที่บนแผนที่ ศิลาพาคุณไปได้ทุกที่ที่เคยเดินไปแล้ว'});
+// the shard's window fills the screen on phones like the Waystation (it was a small sheet at the bottom), with the same cards
+if(typeof NPC_SHEET!=='undefined')NPC_SHEET.delete('waystone');
+(()=>{const st=document.createElement('style');st.textContent=`
+#panel[data-kind="waystone"] .tccard{display:flex;flex-direction:column}
+#panel[data-kind="waystone"] .tcban{height:70px}#panel[data-kind="waystone"] .tcban b{font-size:15px}
+#panel[data-kind="waystone"] .tcbody{flex:1;display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:8px 10px 10px}
+#panel[data-kind="waystone"] .tcfit .tcbadge{font-size:12px;padding:2px 9px}
+#panel[data-kind="waystone"] .tcmobs,#panel[data-kind="waystone"] .tcmarks{margin-top:0}
+#panel[data-kind="waystone"] .tccard.locked .tcban{filter:grayscale(.85) brightness(.7)}`;document.head.appendChild(st);})();

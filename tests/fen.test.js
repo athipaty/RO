@@ -14,7 +14,7 @@ module.exports = async t => {
       out.lantern = ITEMS.fenlantern && ITEMS.fenlantern.type === 'accessory';
       out.album = ALBUM.some(pg => pg.id === 'fen' && albumMobs(pg).length === 7);
       out.order = ZONE_ORDER.includes('fen') && WORLD_ROAD.includes('fen');
-      P.visited = [...new Set([...P.visited, 'fen'])]; enterZone('town'); openPanel('warp'); out.warp = /Mirelight Fen/.test(panel.textContent); closePanel();
+      P.visited = [...new Set([...P.visited, 'fen'])]; enterZone('town'); openPanel('warp'); out.warp = !!panel.querySelector('.wsmt[data-arg="fen"]') || /Mirelight Fen/.test(panel.textContent); /* (v1.54.0) the Waystation is a map: Fen is a square on it */ closePanel();
       openPanel('worldmap'); out.map = /Mirelight Fen/.test(panel.textContent); closePanel();
       // guild war chip: small outside the keep
       const keepWar = GW.war; GW.war = { holder: null, contested: false, capture: null, top: [{ name: 'Reds', pts: 5 }], end: Date.now() + 600000, left: 600 };

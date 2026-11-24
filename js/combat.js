@@ -287,8 +287,8 @@ function update(dt){if(BZONES.length)bossZoneTick();
     const need=P.queued?SKILLS[P.queued].range:S.range;
     const d=dist(P,t)-t.d.size;
     if(stickWalk){ // walking by hand: swing when in reach, never chase
-      if(d<=S.range+24&&P.atkT<=0&&!P.casting&&P.heavy<=1){faceTo(P,t.x-P.x,t.y-P.y);basicAttack(t);P.atkT=S.delay;}}
-    else if(d<=need&&(!S.ranged&&!P.queued?true:clearLine(P.x,P.y,t.x,t.y)||d<60)){
+      if(d<=S.range+24&&P.atkT<=0&&!P.casting&&P.heavy<=1&&(S.ranged||typeof lvReach!=='function'||lvReach(P,t))){faceTo(P,t.x-P.x,t.y-P.y);basicAttack(t);P.atkT=S.delay;}}
+    else if(d<=need&&(!S.ranged&&!P.queued?(typeof lvReach!=='function'||lvReach(P,t)):clearLine(P.x,P.y,t.x,t.y)||d<60)){
       P.path=[];faceTo(P,t.x-P.x,t.y-P.y);
       if(P.queued){useSkill(P.queued);}
       else if(P.atkT<=0&&!P.casting&&!P.assist){if(P.heavy>1){tooHeavy();P.atkT=1;}else{basicAttack(t);P.atkT=S.delay;}}
@@ -384,7 +384,7 @@ function updateMob(m,dt,T){
       if(d.boss&&typeof bossSigCast==='function'&&now>(m.sigT||0)&&dp<BOSS_SIG_RANGE){m.sigT=now+rnd(BOSS_SIG_EVERY[0],BOSS_SIG_EVERY[1]);const sx=Math.round(tg.x),sy=Math.round(tg.y),seed=Math.floor(Math.random()*1e9);bossSigCast(m,sx,sy,seed);netEvent('q',m,null,{x:sx,y:sy,s:seed});}
       const reach=(d.range||0)+d.size+PR+4;
       m.atkT-=dt;
-      if(dp<=reach){m.face=sface(tg.x-m.x,tg.y-m.y);m.moving=false;if(m.atkT<=0){m.atkT=d.boss?1.3:1.6;m.lunge=now;
+      if(dp<=reach&&(d.range||typeof lvReach!=='function'||lvReach(m,tg))){m.face=sface(tg.x-m.x,tg.y-m.y);m.moving=false;if(m.atkT<=0){m.atkT=d.boss?1.3:1.6;m.lunge=now;
           if(tg===P){if(d.range)shoot(m,P,'arrow','#d8d0b8',()=>mobAttack(m),true);else mobAttack(m);}
           else{netEvent('a',m,tg.id);if(d.range)shoot(m,tg,'arrow','#d8d0b8',()=>{},true);}}}
       else if(!(m.stunUntil>now)){const s=d.spd*slow*dt*1.15,st=mobStep(m,tg.x,tg.y,s,Math.min(d.size*.6,11)),v=st||[tg.x-m.x,tg.y-m.y];m.face=sface(v[0],v[1]);m.moving=true;}

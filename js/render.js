@@ -5,8 +5,12 @@ function resize(){DPR=window.LITE?1:Math.min(2,window.devicePixelRatio||1);VW=cv
 window.addEventListener('resize',resize);
 /* ---------- isometric camera: world stays a flat grid, the screen shows it at an angle ---------- */
 const ISO=.78;
-const proj=(x,y)=>({x:(x-y)*ISO,y:(x+y)*ISO/2});
-const unproj=(sx,sy)=>{const a=sx/ISO,b=2*sy/ISO;return{x:(a+b)/2,y:(b-a)/2};};
+// (v1.55.0) raised ground (js/heights.js): a point on a plateau or its stairs is drawn higher by the ground's height
+const proj=(x,y)=>{const L=Z&&Z.lvd;return{x:(x-y)*ISO,y:(x+y)*ISO/2-(L?lvH(L,x,y):0)};};
+const unprojFlat=(sx,sy)=>{const a=sx/ISO,b=2*sy/ISO;return{x:(a+b)/2,y:(b-a)/2};};
+// a tap on a plateau's top lands on the top; on stairs, on the step; on a cliff wall, at its foot
+const unproj=(sx,sy)=>{const L=Z&&Z.lvd;if(!L)return unprojFlat(sx,sy);const t=unprojFlat(sx,sy+L.H);if(lvH(L,t.x,t.y)>=L.H-.5)return t;
+  let h=0,w=unprojFlat(sx,sy);for(let i=0;i<6;i++){const nh=lvH(L,w.x,w.y);if(Math.abs(nh-h)<.5)return w;h=nh;w=unprojFlat(sx,sy+h);}return t;};
 // draw something written in world coordinates at its isometric screen spot, standing upright
 function faceTo(e,dx,dy){if(Math.abs(dx-dy)>.5)e.face=sface(dx,dy);if(Math.abs(dx+dy)>.5)e.back=(dx+dy)<0;}
 function at(x,y,fn){const s=proj(x,y);ctx.save();ctx.translate(s.x-x,s.y-y);fn();ctx.restore();}
@@ -94,7 +98,8 @@ function drawOrder(items,blds){
   const N=[];for(const it of items)N.push({it,k:it.x+it.y,deg:0,out:[]});
   const B=blds.map(b=>({b,X0:b.x*TILE,Y0:b.y*TILE,X1:(b.x+b.w)*TILE,Y1:(b.y+b.h)*TILE,deg:0,out:[]}));for(const n of B){n.k=n.X0+n.Y0;N.push(n);}
   for(const bn of B)for(const n of N){if(n.b||n.it.x<bn.X0-320||n.it.x>bn.X1+320||n.it.y<bn.Y0-320||n.it.y>bn.Y1+320)continue;
-    if(n.it.x<bn.X1&&n.it.y<bn.Y1){n.out.push(bn);bn.deg++;}else{bn.out.push(n);n.deg++;}}
+    const on=bn.b.cliff&&n.it.x>=bn.X0&&n.it.y>=bn.Y0&&n.it.x<bn.X1&&n.it.y<bn.Y1; // (v1.55.0) standing on a plateau or its stairs: drawn after it
+    if(!on&&n.it.x<bn.X1&&n.it.y<bn.Y1){n.out.push(bn);bn.deg++;}else{bn.out.push(n);n.deg++;}}
   for(const a of B)for(const c of B)if(a!==c&&(a.X1<=c.X0||a.Y1<=c.Y0)&&!(c.X1<=a.X0||c.Y1<=a.Y0)){a.out.push(c);c.deg++;}
   // Kahn's order, always taking the ready item furthest back (smallest x+y) from a small heap (was a scan of the whole list per item)
   const out=[],done=new Set(),H=[];
@@ -182,7 +187,7 @@ function render(){
     if(typeof ghostLoot==='function')for(const l of ghostLoot(o))if(now>=l.t0&&onScr(l.x,l.y))items.push({l,x:l.x,y:l.y});}
   if(typeof petItems==='function')for(const it of petItems())if(onScr(it.x,it.y))items.push(it);
   for(const ob of Z.objs){const p=proj(ob.x,ob.y);if(p.x>camX-90&&p.x<camX+VW+90&&p.y>camY-30&&p.y<camY+VH+130)items.push({ob,x:ob.x,y:ob.y});}
-  const order=drawOrder(items,Z.buildings);
+  const order=drawOrder(items,Z.lvd?Z.buildings.concat(Z.lvd.nodes):Z.buildings);
   const pp=proj(P.x,P.y);
   const drawItem=it=>{if(it.ob){const op=proj(it.ob.x,it.ob.y);const cover=!P.dead&&it.ob.x+it.ob.y>P.x+P.y&&Math.abs(op.x-pp.x)<34&&op.y-pp.y<95&&op.y>pp.y;
       if(cover){ctx.save();ctx.globalAlpha=.4;drawObj(it.ob);ctx.restore();}else drawObj(it.ob);}
@@ -193,7 +198,7 @@ function render(){
   // everything in one pass, in an order that respects each building: what is behind a building is drawn
   // before it, what is beside or in front of it after it. A building that would still hide your hero fades.
   let heroHidden=false;
-  for(const n of order){if(n.b){const hide=bldHides(n.b,P.x,P.y);if(hide){heroHidden=true;ctx.save();ctx.globalAlpha=.55;}drawBuilding(n.b);if(hide)ctx.restore();}else drawItem(n.it);}
+  for(const n of order){if(n.b&&n.b.cliff)drawCliff(n.b);else if(n.b){const hide=bldHides(n.b,P.x,P.y);if(hide){heroHidden=true;ctx.save();ctx.globalAlpha=.55;}drawBuilding(n.b);if(hide)ctx.restore();}else drawItem(n.it);}
   // your hero is never lost behind a building: the building turns see-through so you show through it (v1.33.1: no longer drawn on top of it)
   // target ring
   if(P.target&&!P.target.dead){const t=P.target;at(t.x,t.y,()=>{ctx.strokeStyle='rgba(255,90,70,.9)';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.lineDashOffset=-now*20;ctx.beginPath();ctx.ellipse(t.x,t.y+2,t.d.size+9,(t.d.size+9)*.5,0,0,7);ctx.stroke();ctx.setLineDash([]);});}

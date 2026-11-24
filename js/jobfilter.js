@@ -12,7 +12,7 @@ function jobFits(id,job){const it=ITEMS[id];if(!it||job==='all'||!CLASSES[job])r
 function gearJobFilter(list,idOf){const jobs=jobList();if(gearJob!=='all'&&!jobs.includes(gearJob))gearJob='all';if(!jobs.length)return ['',list];
   const mine=myBaseJob(),chip=(k,l,n)=>`<button type="button" class="cxchip${gearJob===k?' on':''}" aria-pressed="${gearJob===k}" data-act="gearjob" data-arg="${k}">${l} <span>${n}</span></button>`;
   const h=`<div class="gjrow"><span class="cxlbl">Job</span><div class="cxchips">`+chip('all','All',list.length)+
-    jobs.map(j=>chip(j,esc(CLASSES[j].name)+(j===mine?' ★':''),list.filter(x=>jobFits(idOf(x),j)).length)).join('')+`</div></div>`;
+    jobs.map(j=>chip(j,esc(CLASSES[j].name)+(j===mine?' <i aria-hidden="true">★</i>':''),list.filter(x=>jobFits(idOf(x),j)).length)).join('')+`</div></div>`;
   return [h,list.filter(x=>jobFits(idOf(x),gearJob))];}
 PANEL_ACTS.gearjob=k=>{gearJob=k;try{localStorage.setItem('embervale.gearJob',k);}catch(e){}sfx('click');refreshPanel();};
 

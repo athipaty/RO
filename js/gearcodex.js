@@ -47,7 +47,7 @@ function gearCodexHtml(){
   const dropN=all.filter(x=>x.src.length).length;
   let h=`<div class="sub">${all.length} pieces of equipment · ${dropN} drop from monsters.</div>`;
   const myJob=P&&P.cls&&P.cls!=='novice'?((CLASSES[P.cls]&&CLASSES[P.cls].base)||P.cls):null;
-  if(jobs.length)h+=`<div class="cxrow"><span class="cxlbl">Job</span><div class="cxchips">`+chip('gxjob','all','All',CODEX.gjob==='all')+jobs.map(j=>chip('gxjob',j,esc(CLASSES[j].name)+(j===myJob?' ★':''),CODEX.gjob===j,all.filter(x=>(x.it.type!=='weapon'||CLASSES[j].weapons.includes(x.it.wt))&&bySrc[CODEX.gsrc](x)).length)).join('')+`</div></div>`;
+  if(jobs.length)h+=`<div class="cxrow"><span class="cxlbl">Job</span><div class="cxchips">`+chip('gxjob','all','All',CODEX.gjob==='all')+jobs.map(j=>chip('gxjob',j,esc(CLASSES[j].name)+(j===myJob?' <i aria-hidden="true">★</i>':''),CODEX.gjob===j,all.filter(x=>(x.it.type!=='weapon'||CLASSES[j].weapons.includes(x.it.wt))&&bySrc[CODEX.gsrc](x)).length)).join('')+`</div></div>`;
   h+=`<div class="cxrow"><span class="cxlbl">Source</span><div class="cxchips">`+GEAR_SRCS.map(([k,l])=>chip('gxsrc',k,l,CODEX.gsrc===k,all.filter(x=>bySlot(x)&&bySrc[k](x)).length)).join('')+`</div></div>`;
   h+=`<div class="cxrow"><span class="cxlbl">Slot</span><div class="cxchips">`+GEAR_SLOTS.map(([k,l])=>{const n=all.filter(x=>(k==='all'||x.it.type===k)&&byJob(x)&&bySrc[CODEX.gsrc](x)).length;return n||k==='all'||CODEX.gslot===k?chip('gxslot',k,l,CODEX.gslot===k,n):'';}).join('')+`</div></div>`;
   if(abs.length)h+=`<div class="cxrow"><span class="cxlbl">Ability</span><div class="cxchips">`+chip('gxab','all','All',CODEX.gab==='all')+abs.map(([k,l])=>chip('gxab',k,l,CODEX.gab===k,pool.filter(x=>gearStat(x.it,k)).length)).join('')+`</div></div>`;

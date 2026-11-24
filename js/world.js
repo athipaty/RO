@@ -234,7 +234,7 @@ function findPath(sx,sy,tx,ty){
   let it=0;
   while(heap.length&&it++<8000){const i=pop()[1];if(closed[i])continue;closed[i]=1;if(i===goal)break;const x=i%W,y=(i/W)|0;
     for(const [dx,dy] of DIRS){const nx=x+dx,ny=y+dy;if(blockedT(nx,ny))continue;if(dx&&dy&&(blockedT(x+dx,y)||blockedT(x,y+dy)))continue;
-      const ni=ny*W+nx;if(closed[ni])continue;const ng=g[i]+(dx&&dy?1.414:1);if(ng<g[ni]){g[ni]=ng;from[ni]=i;push(ng+h(ni),ni);}}}
+      const ni=ny*W+nx;if(closed[ni])continue;if(Z.lvd&&!lvTiles(Z.lvd,i,ni))continue;/* (v1.55.0) cliffs: only the stairs join two levels */const ng=g[i]+(dx&&dy?1.414:1);if(ng<g[ni]){g[ni]=ng;from[ni]=i;push(ng+h(ni),ni);}}}
   if(goal!==s&&from[goal]===-1)return null;
   const out=[];let c=goal;while(c!==s&&c!==-1){out.push({x:(c%W+.5)*TILE,y:(((c/W)|0)+.5)*TILE});c=from[c];}
   return out.reverse();
