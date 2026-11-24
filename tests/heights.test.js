@@ -1,7 +1,7 @@
 // (v1.56.0) The shape of the land (js/heights.js): Greenmoss Meadow's rolling hills. Gentle slopes are walked up, the
 // earthen bank of Chieftain's Knoll cannot be climbed or stepped off, paths go round it, things on a hill are drawn at
 // its height, a tap lands on the slope, melee does not reach across the bank, and the Hopper Chieftain keeps its den
-// on the knoll. Regions without a design of their own stay flat (no more stone stairs everywhere).
+// on the knoll; a brook below the meadow with a bridge and fords (v1.56.1). Regions without a design of their own stay flat (no more stone stairs everywhere).
 const { player, newRoom, wait } = require('./helpers');
 module.exports = async t => {
   const g = await player('Climber', newRoom(), { server: 'http://127.0.0.1:9' });
@@ -32,6 +32,13 @@ module.exports = async t => {
       out.melee = !lvReach(at(50, 10), at(50, 11)) && lvReach(at(50, 9), at(51, 9));
       // the Hopper Chieftain keeps its den on the knoll
       const chief = mobs.find(m => m.d.id === 'hopperchief' && !m.dead); out.den = !!chief && lvH(L, chief.x, chief.y) > 45;
+      // (v1.56.1) the brook: below the meadow, a bank you cannot step down, a bridge on the road, fords to wade, slower in the water, dewdrops live there
+      const w = at(29, 13); out.low = lvH(L, w.x, w.y) < -15 && L.wet[13 * L.W + 29] === 1 && L.wet[23 * L.W + 29] === 2;
+      const bk = at(28, 12); P.path = []; P.x = bk.x; P.y = bk.y; for (let k = 0; k < 25; k++) moveEnt(P, 3, 0, PR); out.brookBank = lvH(L, P.x, P.y) === 0 && P.x <= 29 * T - PR + 1;
+      out.ford = !!findPath(27, 14, 29, 14) && (findPath(27, 14, 29, 14) || []).length <= 4;
+      out.bridge = (findPath(26, 23, 33, 23) || []).every(q => lvH(L, q.x, q.y) === 0);
+      const st = at(29, 13); P.x = st.x; P.y = st.y; const yw = P.y; moveEnt(P, 0, 10, PR); const wade = P.y - yw; const dry = at(20, 13); P.x = dry.x; P.y = dry.y; const yd = P.y; moveEnt(P, 0, 10, PR); out.slow = wade > 0 && wade < (P.y - yd) * .8;
+      out.dew = mobs.filter(m => m.d.id === 'dewdrop' && !m.dead).every(m => L.wet[lvTile(L, m.x, m.y)] === 1);
       // nothing you could reach before is cut off
       const a = lvReachable(Z, null), b = lvReachable(Z, L); let cut = 0; for (let i = 0; i < a.length; i++) if (a[i] && !b[i]) cut++; out.cut = cut;
       return out;
@@ -44,6 +51,9 @@ module.exports = async t => {
     t.ok(r.edge, 'nobody steps off the bank from the top');
     t.ok(r.melee, 'melee does not reach across the bank, but does side by side');
     t.ok(r.den, 'the Hopper Chieftain keeps its den on Chieftain\'s Knoll');
+    t.ok(r.low && r.brookBank, 'the brook lies below the meadow, and its bank cannot be stepped down');
+    t.ok(r.ford && r.bridge, 'a ford leads down into the water, and the road crosses it on a bridge');
+    t.ok(r.slow && r.dew, 'wading is slower, and the dewdrops live in the brook');
     t.ok(r.cut === 0, `no place is cut off by the hills (${r.cut})`);
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }

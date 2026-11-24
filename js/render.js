@@ -159,6 +159,8 @@ function render(){
   {const g=isoGround(Z);if(g){const sx=Math.max(0,camX+g._ox),sy=Math.max(0,camY),sw=Math.min(g.width-sx,VW+2),sh=Math.min(g.height-sy,VH+2);
       if(sw>0&&sh>0)ctx.drawImage(g,sx,sy,sw,sh,sx-g._ox,sy,sw,sh);}
     else{ctx.save();ctx.transform(ISO,ISO/2,-ISO,ISO/2,0,0);ctx.drawImage(Z.img,0,0);ctx.restore();}}
+  // the shape of the land (hills, a brook: js/heights.js) is part of the ground, under everyone standing on it
+  if(typeof drawLowLand==='function')drawLowLand();
   // lava glow: paint only the screen (tinting the whole map through the diamond transform was the costliest fill in the crypt)
   if(THEMES[Z.D.theme].lava){ctx.fillStyle=`rgba(255,120,40,${.05+.04*Math.sin(now*2)})`;ctx.fillRect(camX-8,camY-8,VW+16,VH+16);}
   // portals
@@ -196,8 +198,9 @@ function render(){
     else{const e=it.e;at(e.x,e.y,()=>{if(e===P)drawPlayer(P,P.eq.weapon&&P.eq.weapon.id);else if(e.d)drawMob(e);else drawNpc(e);});}};
   // everything in one pass, in an order that respects each building: what is behind a building is drawn
   // before it, what is beside or in front of it after it. A building that would still hide your hero fades.
-  let heroHidden=false;
+  let heroHidden=false;window.LV_IP=true;
   for(const n of order){if(n.b&&n.b.cliff)drawCliff(n.b);else if(n.b){const hide=bldHides(n.b,P.x,P.y);if(hide){heroHidden=true;ctx.save();ctx.globalAlpha=.55;}drawBuilding(n.b);if(hide)ctx.restore();}else drawItem(n.it);}
+  window.LV_IP=false;
   // your hero is never lost behind a building: the building turns see-through so you show through it (v1.33.1: no longer drawn on top of it)
   // target ring
   if(P.target&&!P.target.dead){const t=P.target;at(t.x,t.y,()=>{ctx.strokeStyle='rgba(255,90,70,.9)';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.lineDashOffset=-now*20;ctx.beginPath();ctx.ellipse(t.x,t.y+2,t.d.size+9,(t.d.size+9)*.5,0,0,7);ctx.stroke();ctx.setLineDash([]);});}
