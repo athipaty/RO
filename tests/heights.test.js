@@ -11,7 +11,7 @@ module.exports = async t => {
       const sleep = ms => new Promise(r => setTimeout(r, ms)), out = {}, T = TILE, at = (x, y) => ({ x: (x + .5) * T, y: (y + .5) * T });
       enterZone('meadow'); const L = Z.lvd;
       out.hills = L ? L.hills.map(h => h.name).join(', ') : 'none';
-      out.flat = ['town', 'capital', 'dunes', 'frost'].every(id => { const z = getZone(id); if (z.lvd === undefined) lvGen(z); return !z.lvd; });
+      out.flat = ['town', 'capital', 'dunes', 'frost', 'heights'].every(id => { const z = getZone(id); if (z.lvd === undefined) lvGen(z); return !z.lvd; });
       // the top of the knoll is drawn high, and a tap on it lands there
       const top = at(50, 9), hTop = lvH(L, top.x, top.y);
       out.raised = hTop > 50 && Math.round(proj(top.x, top.y).y) === Math.round((top.x + top.y) * ISO / 2 - hTop);
@@ -50,6 +50,14 @@ module.exports = async t => {
       out.log = (findPath(28, 37, 28, 42) || []).every(q => lvH(W2, q.x, q.y) === 0) && W2.log[39 * W2.W + 28] === 1;
       out.spiders = mobs.filter(m => m.d.id === 'webspinner' && !m.dead).every(m => W2.wet[lvTile(W2, m.x, m.y)] === 3);
       const a2 = lvReachable(Z, null), b2 = lvReachable(Z, W2); let cut2 = 0; for (let i = 0; i < a2.length; i++) if (a2[i] && !b2[i]) cut2++; out.cut2 = cut2;
+      // (v1.58.0) Willowmere Farms: three terraces up to the Grand Scarecrow, earthen steps between them, stone walls, the canal
+      enterZone('farms'); const F = Z.lvd; out.farms = F ? F.feats.map(f => f.name).join(', ') : 'none';
+      out.shelves = [[20, 14], [12, 8], [5, 4]].map(([x, y]) => Math.round(lvH(F, (x + .5) * T, (y + .5) * T))).join(',');
+      const crow = mobs.find(m => m.d.id === 'grandscarecrow' && !m.dead); out.crow = !!crow && lvH(F, crow.x, crow.y) === 42;
+      const up = findPath(10, 21, 6, 4) || []; out.steps = up.length > 0 && up.filter(q => F.ramp[lvTile(F, q.x, q.y)] === 2).length >= 3;
+      const wf = at(20, 17); P.x = wf.x; P.y = wf.y; P.path = []; for (let k = 0; k < 25; k++) moveEnt(P, 0, -3, PR); out.stoneWall = lvH(F, P.x, P.y) === 0;
+      const cn = at(43, 15); out.canal = lvH(F, cn.x, cn.y) < -15 && mobs.filter(m => m.d.id === 'reedsnapper' && !m.dead).every(m => F.wet[lvTile(F, m.x, m.y)] === 1);
+      const a3 = lvReachable(Z, null), b3 = lvReachable(Z, F); let cut3 = 0; for (let i = 0; i < a3.length; i++) if (a3[i] && !b3[i]) cut3++; out.cut3 = cut3;
       return out;
     });
     t.ok(r.hills === "Chieftain's Knoll, Lookout Hill, South Rise" && r.flat, `Greenmoss Meadow has its own hills (${r.hills}); other regions stay flat`);
@@ -68,6 +76,10 @@ module.exports = async t => {
     t.ok(r.hollow && r.alpha && r.rootPath && r.wall, 'the Hollow lies deep, the Wolf Alpha keeps its den at the bottom, root paths lead down, and its walls cannot be stepped off');
     t.ok(r.log && r.spiders, 'a fallen log crosses the gully at the forest level, and the web-spinners nest down in it');
     t.ok(r.cut2 === 0, `no place in the woods is cut off (${r.cut2})`);
+    t.ok(r.farms === 'The Canal, The Terraces' && r.shelves === '14,28,42', `Willowmere Farms has its own land (${r.farms}; terraces at ${r.shelves})`);
+    t.ok(r.crow && r.steps && r.stoneWall, 'earthen steps lead up the terraces to the Grand Scarecrow on the top one, and the stone walls cannot be climbed');
+    t.ok(r.canal, 'the canal lies below the fields, and the reed snappers lurk in it');
+    t.ok(r.cut3 === 0, `no place on the farms is cut off (${r.cut3})`);
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };
