@@ -27,10 +27,17 @@ module.exports = async t => {
       PANEL_ACTS.gxslot('all'); PANEL_ACTS.gxsort('slots'); const sc = [...panel.querySelectorAll('.gxcard')].map(c => c.querySelectorAll('.gxslots .pip.on').length);
       const slotsShown = sc.length > 0 && sc.every((v, i) => !i || sc[i - 1] >= v) && [...panel.querySelectorAll('.gxcard .ds')].every(d => !/Slots:/.test(d.textContent));
       PANEL_ACTS.gxsrc('drop'); const rollNote = [...panel.querySelectorAll('.gxcard')].every(c => c.querySelector('.gxroll'));
-      PANEL_ACTS.gxsort('lv');
+      PANEL_ACTS.gxsort('lv'); PANEL_ACTS.gxsrc('all'); PANEL_ACTS.gxslot('weapon');
+      // (v1.53.3) Job: only the weapons that job can use; armour and the rest still show
+      const allW = panel.querySelectorAll('.gxcard').length; PANEL_ACTS.gxjob('ranger');
+      const rW = [...panel.querySelectorAll('.gxcard .nm')].map(n => Object.values(ITEMS).find(it => it.name === n.textContent));
+      const jobOk = !!panel.querySelector('[data-act="gxjob"][data-arg="ranger"].on') && rW.length > 0 && rW.length < allW && rW.every(it => it && CLASSES.ranger.weapons.includes(it.wt));
+      PANEL_ACTS.gxslot('armor'); const armorAll = panel.querySelectorAll('.gxcard').length; PANEL_ACTS.gxjob('all'); const jobArmor = armorAll === panel.querySelectorAll('.gxcard').length && armorAll > 0;
+      PANEL_ACTS.gxslot('all'); PANEL_ACTS.gxsrc('drop');
       PANEL_ACTS.cxtab('beast'); const back = /Bestiary:/.test(panel.textContent);
-      return { tabs, total, expect, weaponsOnly, best, atk, first, abc, kept, back, pics, quiet, gearOk, n: gcards.length, expectDrop, byChance, shop, heads, slotsShown, rollNote };
+      return { tabs, total, expect, weaponsOnly, best, atk, first, abc, kept, back, pics, quiet, gearOk, n: gcards.length, expectDrop, byChance, shop, heads, slotsShown, rollNote, jobOk, jobArmor };
     });
+    t.ok(r.jobOk && r.jobArmor, 'the Job filter shows only the weapons that job can use, and every armour');
     t.ok(r.tabs && r.total === r.expect, `the library has a Sigil Codex tab listing every sigil (${r.total} of ${r.expect}; world-boss ones hidden until defeated)`);
     t.ok(r.weaponsOnly, 'the Weapon filter shows only weapon sigils');
     t.ok(r.best, `choosing ATK sorts by the biggest ATK bonus (${r.atk.join(', ')})`);

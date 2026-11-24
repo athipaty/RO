@@ -176,6 +176,8 @@ PANEL_ACTS.openguide=()=>{GUIDE.job=null;openPanel('buildguide');};
 // the Status window: which stat to raise next
 {const _rpG=refreshPanel;refreshPanel=function(){const r=_rpG.apply(this,arguments);try{if(panelKind==='skills'&&P&&P.build){const nx=buildNextSkill(buildById(P.build));const btn=nx&&panel.querySelector(`[data-act="learn"][data-arg="${nx.id}"]`);const node=btn&&btn.closest('.snode');if(node)node.classList.add('bgnextnode');}
   if(panelKind==='status'&&P&&P.build&&P.statPts>0){const b=buildById(P.build),k=buildNextStat(b);
-  if(k){const btn=panel.querySelector(`[data-act="stat"][data-arg="${k}"]`);if(btn){btn.classList.add('bgnextstat');const row=btn.closest('.st');if(row&&!row.querySelector('.bghint')){const s=document.createElement('span');s.className='bghint';s.textContent=`★ ${bName(b)}`;row.appendChild(s);}}}}}catch(e){}return r;};}
+  if(k){const btn=panel.querySelector(`[data-act="stat"][data-arg="${k}"]`);if(btn){btn.classList.add('bgnextstat');const row=btn.closest('.st');if(row&&!row.querySelector('.bghint')){const s=document.createElement('span');s.className='bghint';s.textContent=`★ ${bName(b)}`;
+  /* v1.53.3 on the stat's own line (in the description cell), so the row never grows taller and the + buttons below never move */
+  const d=row.children[1];if(d&&d!==btn){row.classList.add('bgrow');d.prepend(s);}else row.appendChild(s);}}}}}catch(e){}return r;};}
 // /build opens it
 if(typeof chatCommand==='function'){const _ccG=chatCommand;chatCommand=function(k,arg){if(k==='build'||k==='builds'||k==='guide'){PANEL_ACTS.openguide();return true;}return _ccG.apply(this,arguments);};}

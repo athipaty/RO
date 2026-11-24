@@ -1069,6 +1069,8 @@ body.touchui #gwBar.gwMini{font-size:10.5px;padding:3px 9px}
 .bgbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0;font-size:13px}
 .snode.bgnextnode{outline:2px solid #8fe0a8;box-shadow:0 0 12px rgba(143,224,168,.35)}
 .bgnextstat{outline:2px solid #8fe0a8}.bghint{font-size:11px;color:#8fe0a8;margin-left:6px}
+/* v1.53.3 the ★ build hint sits before the stat's description on one line (cut short with …), not on a line of its own */
+#panel .st.bgrow>span:nth-child(2){min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#panel .st.bgrow .bghint{margin:0 6px 0 0;font-weight:700}
 
 /* phones sideways: full-screen windows use the width (two-column lists, the skill tree spreads out) */
 @media (orientation:landscape) and (max-height:520px){
@@ -1785,10 +1787,18 @@ body.touchui #panel.npcsheet .sheetacts{background:linear-gradient(180deg,rgba(1
 }
 /* v1.45.4 phones sideways: the window buttons (Stats, Skills, Equip, Items, mount) stay during battle mode */
 @media (orientation:landscape) and (max-height:520px){body.touchui.fightui #quickL{opacity:1;pointer-events:auto;transform:none}}
+/* v1.53.3 phones upright: the "Not saved yet · Save · Undo" bar floats as a small pill just above the window tabs, so it
+   takes no room in the window and the stat rows (and their + buttons) never jump down under your finger */
+body.touchui #panel.npcfull .pendbar{position:fixed;left:50%;right:auto;top:auto;bottom:calc(max(8px,env(safe-area-inset-bottom)) + 80px);transform:translateX(-50%);
+  width:max-content;max-width:calc(100vw - 24px);box-sizing:border-box;margin:0;padding:4px 5px 4px 12px;flex-wrap:nowrap;gap:8px;border-radius:22px;z-index:6;
+  box-shadow:0 4px 14px rgba(0,0,0,.5),0 0 10px rgba(232,194,90,.25);font-size:12px}
+body.touchui #panel.npcfull .pendbar .pendtx{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.touchui #panel.npcfull .pendbar .btn{min-height:32px!important;padding:2px 12px!important;font-size:12.5px!important}
+body.touchui #panel.npcfull.wtPad:has(>.pendbar){padding-bottom:calc(max(16px,env(safe-area-inset-bottom)) + 130px)!important} /* room to scroll the last rows out from under the pill */
 /* v1.45.4 phones sideways: the "Not saved yet · Save · Undo" bar sits as a small pill in the title row (empty space
    between the title and ✕), so it no longer covers the skill tree or the stats */
 @media (orientation:landscape) and (max-height:520px){
-  body.touchui #panel.npcfull .pendbar{position:fixed;top:max(10px,env(safe-area-inset-top));right:calc(max(12px,env(safe-area-inset-right)) + 58px);left:auto;
+  body.touchui #panel.npcfull .pendbar{position:fixed;top:max(10px,env(safe-area-inset-top));right:calc(max(12px,env(safe-area-inset-right)) + 58px);left:auto;bottom:auto;transform:none;
     width:auto;max-width:min(470px,calc(100vw - 380px));margin:0;padding:4px 5px 4px 12px;flex-wrap:nowrap;gap:8px;border-radius:22px;z-index:6;
     box-shadow:0 4px 14px rgba(0,0,0,.45),0 0 10px rgba(232,194,90,.25);font-size:12px}
   body.touchui #panel.npcfull .pendbar .pendtx{flex:1 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

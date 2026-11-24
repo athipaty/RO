@@ -3,8 +3,9 @@
    Every piece of equipment and where it comes from: the monsters that drop it (picture, level, region and drop
    chance), the General Store price, and whether Brannoc forges it. Filter by slot, by source and by ability;
    sort by level, best drop chance, strongest stat, name or owned first. Monster sources that are world bosses you
-   have not defeated stay hidden, as in the Bestiary. Choices are remembered with the Sigil Codex's. */
-Object.assign(CODEX,Object.assign({gslot:'all',gsrc:'drop',gab:'all',gsort:'lv'},CODEX));
+   have not defeated stay hidden. Job (v1.53.3): only the gear that job can wear (weapons are the only job-locked
+   slot, so armour and accessories show for every job), as in the Bestiary. Choices are remembered with the Sigil Codex's. */
+Object.assign(CODEX,Object.assign({gslot:'all',gsrc:'drop',gab:'all',gsort:'lv',gjob:'all'},CODEX));
 const GEAR_SLOTS=[['all','All'],['weapon','Weapon'],['armor','Armour'],['head','Head'],['face','Face'],['mouth','Mouth'],['shoes','Shoes'],['accessory','Accessory']];
 const GEAR_SRCS=[['all','All'],['drop','Monster drop'],['shop','Shop'],['forge','Forge'],['other','Quests & events']];
 const GEAR_ABS=[...CODEX_ABS,['vs_beast','vs Beast'],['vs_insect','vs Insect'],['vs_plant','vs Plant'],['vs_spirit','vs Spirit'],['vs_undead','vs Undead']];
@@ -27,7 +28,10 @@ function gearOwned(id){let n=0;for(const e of [...P.inv,...(P.storage||[])])if(e
 function gearCodexHtml(){
   const all=gearAll(),pct=c=>typeof pctTxt==='function'?pctTxt(c):Math.round(c*1000)/10+'%';
   const bySrc={all:x=>true,drop:x=>x.src.length,shop:x=>x.shop,forge:x=>x.forge,other:x=>x.other};
-  const bySlot=x=>CODEX.gslot==='all'||x.it.type===CODEX.gslot;
+  const jobs=(typeof JOB_FIRST!=='undefined'?JOB_FIRST:[]).filter(j=>CLASSES[j]);
+  if(CODEX.gjob!=='all'&&!jobs.includes(CODEX.gjob))CODEX.gjob='all';
+  const byJob=x=>CODEX.gjob==='all'||x.it.type!=='weapon'||CLASSES[CODEX.gjob].weapons.includes(x.it.wt);
+  const bySlot=x=>(CODEX.gslot==='all'||x.it.type===CODEX.gslot)&&byJob(x);
   const pool=all.filter(x=>bySlot(x)&&bySrc[CODEX.gsrc](x));
   const abs=GEAR_ABS.filter(([k])=>pool.some(x=>gearStat(x.it,k)));
   if(CODEX.gab!=='all'&&!abs.some(a=>a[0]===CODEX.gab))CODEX.gab='all';
@@ -42,12 +46,14 @@ function gearCodexHtml(){
   const chip=(act,val,label,on,n)=>`<button type="button" class="cxchip${on?' on':''}" aria-pressed="${on}" data-act="${act}" data-arg="${val}">${label}${n!==undefined?` <span>${n}</span>`:''}</button>`;
   const dropN=all.filter(x=>x.src.length).length;
   let h=`<div class="sub">${all.length} pieces of equipment · ${dropN} drop from monsters.</div>`;
+  const myJob=P&&P.cls&&P.cls!=='novice'?((CLASSES[P.cls]&&CLASSES[P.cls].base)||P.cls):null;
+  if(jobs.length)h+=`<div class="cxrow"><span class="cxlbl">Job</span><div class="cxchips">`+chip('gxjob','all','All',CODEX.gjob==='all')+jobs.map(j=>chip('gxjob',j,esc(CLASSES[j].name)+(j===myJob?' ★':''),CODEX.gjob===j,all.filter(x=>(x.it.type!=='weapon'||CLASSES[j].weapons.includes(x.it.wt))&&bySrc[CODEX.gsrc](x)).length)).join('')+`</div></div>`;
   h+=`<div class="cxrow"><span class="cxlbl">Source</span><div class="cxchips">`+GEAR_SRCS.map(([k,l])=>chip('gxsrc',k,l,CODEX.gsrc===k,all.filter(x=>bySlot(x)&&bySrc[k](x)).length)).join('')+`</div></div>`;
-  h+=`<div class="cxrow"><span class="cxlbl">Slot</span><div class="cxchips">`+GEAR_SLOTS.map(([k,l])=>{const n=all.filter(x=>(k==='all'||x.it.type===k)&&bySrc[CODEX.gsrc](x)).length;return n||k==='all'||CODEX.gslot===k?chip('gxslot',k,l,CODEX.gslot===k,n):'';}).join('')+`</div></div>`;
+  h+=`<div class="cxrow"><span class="cxlbl">Slot</span><div class="cxchips">`+GEAR_SLOTS.map(([k,l])=>{const n=all.filter(x=>(k==='all'||x.it.type===k)&&byJob(x)&&bySrc[CODEX.gsrc](x)).length;return n||k==='all'||CODEX.gslot===k?chip('gxslot',k,l,CODEX.gslot===k,n):'';}).join('')+`</div></div>`;
   if(abs.length)h+=`<div class="cxrow"><span class="cxlbl">Ability</span><div class="cxchips">`+chip('gxab','all','All',CODEX.gab==='all')+abs.map(([k,l])=>chip('gxab',k,l,CODEX.gab===k,pool.filter(x=>gearStat(x.it,k)).length)).join('')+`</div></div>`;
   const sorts=[['lv','Level ↑'],['lvd','Level ↓'],...(CODEX.gsrc==='drop'?[['chance','Best drop chance']]:[]),...(CODEX.gab!=='all'?[['stat',`Most ${gearAbName(CODEX.gab)}`]]:[]),['slots','Most slots'],['name','Name'],['own','Owned first']];
   h+=`<div class="cxrow"><span class="cxlbl">Sort</span><div class="cxchips">`+sorts.map(([k,l])=>chip('gxsort',k,l,CODEX.gsort===k)).join('')+`</div></div>`;
-  if(!list.length)return h+`<p class="muted">No equipment matches. Try another slot, source or ability.</p>`;
+  if(!list.length)return h+`<p class="muted">No equipment matches. Try another job, slot, source or ability.</p>`;
   h+=`<div class="cxlist gxlist">`;
   for(const x of list){const it=x.it,own=gearOwned(x.id),slot=(GEAR_SLOTS.find(s=>s[0]===it.type)||[0,it.type])[1];
     let desc='';try{desc=itemDesc({id:x.id,s:[]});}catch(e){desc='';} // slots get their own line below
@@ -60,9 +66,10 @@ function gearCodexHtml(){
       (srcs?`<div class="gxsrcs">${srcs}</div>`:'')+(tags?`<div class="gxtags">${tags}</div>`:'')+`</div>`;}
   return h+`</div>`;}
 PANEL_ACTS.gxsrc=v=>{CODEX.gsrc=v;saveCodex();sfx('click');refreshPanel();};
+PANEL_ACTS.gxjob=v=>{CODEX.gjob=v;saveCodex();sfx('click');refreshPanel();};
 PANEL_ACTS.gxslot=v=>{CODEX.gslot=v;saveCodex();sfx('click');refreshPanel();};
 PANEL_ACTS.gxab=v=>{CODEX.gab=v;if(v!=='all')CODEX.gsort='stat';else if(CODEX.gsort==='stat')CODEX.gsort='lv';saveCodex();sfx('click');refreshPanel();};
 PANEL_ACTS.gxsort=v=>{CODEX.gsort=v;saveCodex();sfx('click');refreshPanel();};
-if(typeof TH!=='undefined')Object.assign(TH,{'Source':'แหล่งที่มา','Slot':'ช่อง','Monster drop':'ดรอปจากมอนสเตอร์','Shop':'ร้านค้า','Forge':'ตีขึ้น','Quests & events':'เควสและอีเวนต์',
+if(typeof TH!=='undefined')Object.assign(TH,{'Source':'แหล่งที่มา','Job':'อาชีพ','No equipment matches. Try another job, slot, source or ability.':'ไม่มีอุปกรณ์ที่ตรงกัน ลองเลือกอาชีพ ช่อง แหล่งที่มา หรือความสามารถอื่น','Slot':'ช่อง','Monster drop':'ดรอปจากมอนสเตอร์','Shop':'ร้านค้า','Forge':'ตีขึ้น','Quests & events':'เควสและอีเวนต์',
   'Face':'ใบหน้า','Most slots':'ช่องมากที่สุด','No sigil slots':'ไม่มีช่องซิกิล','Mouth':'ปาก','Best drop chance':'โอกาสดรอปสูงสุด','Forged by Brannoc':'แบรนน็อกตีให้ได้','Quests, festivals or bosses':'เควส เทศกาล หรือบอส',
   'No equipment matches. Try another slot, source or ability.':'ไม่มีอุปกรณ์ที่ตรงกัน ลองเลือกช่อง แหล่งที่มา หรือความสามารถอื่น'});
