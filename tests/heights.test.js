@@ -72,6 +72,15 @@ module.exports = async t => {
         const a = lvReachable(Z, null), b = lvReachable(Z, A); let cut = 0; for (let i = 0; i < a.length; i++) if (a[i] && !b[i] && !(A.wet[i] === 1 && A.lava)) cut++;
         const dens = A.dens.every(d => { const m = mobs.find(m => m.d.id === d.mob && !m.dead); return m && Math.abs(lvH(A, m.x, m.y)) > 10; });
         return got === want && cut === 0 && dens ? '' : `${id}:${got}/${want} cut ${cut} dens ${dens}`; }).filter(Boolean).join(' ');
+      // (v1.60.1) every bridge spans water or a drop on two opposite sides; a tap on a pond says it is too deep
+      out.bridges = Object.keys(LV_DESIGNS).map(id => { enterZone(id); const B = Z.lvd; if (!B) return ''; const W = Z.w, bad = [];
+        for (let i = 0; i < B.wet.length; i++) { if (B.wet[i] !== 2 || B.log[i]) continue; const low = k => B.wet[k] === 1 || B.wet[k] === 3 || Z.t[k] === 3 || B.wet[k] === 2;
+          if (!((low(i - W) && low(i + W)) || (low(i - 1) && low(i + 1)))) bad.push((i % W) + ',' + ((i / W) | 0)); }
+        return bad.length ? id + ':' + bad.join(' ') : ''; }).filter(Boolean).join(' ');
+      enterZone('meadow'); texts.length = 0; LV_HINT.t = 0; const pond = (() => { for (let i = 0; i < Z.t.length; i++) if (Z.t[i] === 3) return i; })();
+      const pp = proj((pond % Z.w + .5) * T, (((pond / Z.w) | 0) + .5) * T), rc = cv.getBoundingClientRect();
+      cv.dispatchEvent(new PointerEvent('pointerdown', { clientX: rc.left + pp.x - camX, clientY: rc.top + pp.y - camY, bubbles: true }));
+      out.deep = texts.some(x => /Too deep/.test(x.txt));
       return out;
     });
     t.ok(r.hills === "Chieftain's Knoll, Lookout Hill, South Rise" && r.flat, `Greenmoss Meadow has its own hills (${r.hills}); towns, dungeons and the arena stay flat`);
@@ -99,6 +108,8 @@ module.exports = async t => {
     t.ok(r.queen, 'the Scarab Queen nests at the bottom of the Scarab Pit');
     t.ok(r.cut4 === 0, `no place in the dunes is cut off (${r.cut4})`);
     t.ok(r.all === '', 'every other wild region has its own land: all its pieces fitted, nothing cut off, each boss in its den ' + r.all);
+    t.ok(r.bridges === '', 'every bridge spans water or a drop on both sides ' + r.bridges);
+    t.ok(r.deep, 'a tap on a pond says it is too deep to wade, and where to cross');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };
