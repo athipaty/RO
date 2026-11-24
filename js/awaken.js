@@ -44,6 +44,8 @@ function fusePool(ins){const lv=ins.reduce((a,id)=>a+((sigMob(id)||{}).lv||10),0
 const fuseRadChance=ins=>.12+.08*ins.filter(id=>ITEMS[id].radiant).length;
 function fuseResult(ins){const {pool}=fusePool(ins),m=pool[Math.floor(Math.random()*pool.length)],rad=Math.random()<fuseRadChance(ins);return rad?radId(m.id+'_sig'):m.id+'_sig';}
 const FUSE_GOLD=2000;
+// (v1.54.0) only the gear you are wearing can be awakened: put a piece on to awaken it
+const awList=()=>gemList().filter(x=>x.where==='equipped');
 const looseSigils=()=>P.inv.filter(e=>ITEMS[e.id]&&ITEMS[e.id].type==='sigil'&&e.n>0);
 const trayCount=id=>AWK.tray.filter(x=>x===id).length;
 
@@ -58,12 +60,12 @@ let SELA_TABS=[]; // v1.38.3 fusing moved to the Sigil Forge (Sigilwright Dorn);
   if(tab==='awaken'){
     h+=`<div class="say">"Every blade has a voice it hasn't used yet. Step into the circle and I will wake it. If you don't like what it says, I'll put it back to sleep and you keep the old one." — Awakener Liora</div>`+tabs;
     const pd=AWK.pending;
-    if(pd){const found=gemList().find(x=>x.e.uid===pd.uid);if(!found){AWK.pending=null;return PANELS.awaken();}
+    if(pd){const found=awList().find(x=>x.e.uid===pd.uid);if(!found){AWK.pending=null;return PANELS.awaken();}
       h+=`<div class="awbox"><div class="nm">${esc(itemName(found.e))}</div><div class="awrow"><span class="muted">Now</span><b>${pd.old?esc(awText(pd.old)):'<span class="muted">nothing</span>'}</b></div>`+
         `<div class="awrow"><span class="muted">New</span><b style="color:${AW_Q[pd.roll.q].col}">${esc(awText(pd.roll))}</b></div>`+
         `<div class="tbtns"><button class="btn small" data-act="awkeep" data-arg="new">Keep the new one</button><button class="btn small ghost" data-act="awkeep" data-arg="old">Keep ${pd.old?'the old one':'it asleep'}</button></div></div>`;return h;}
-    const list=gemList();if(!list.length)return h+`<div class="sub">You have no gear to awaken.</div>`;
-    h+=`<div class="sub">${fmt(P.gold)} gold · lines: Faint, Bright, Radiant (rare, the top value)</div>`;
+    const list=awList();if(!list.length)return h+`<div class="sub">You have no gear equipped. Put a piece on to awaken it.</div>`;
+    h+=`<div class="sub">${fmt(P.gold)} gold · lines: Faint, Bright, Radiant (rare, the top value)</div>`;h+=`<div class="ds">Only the gear you are wearing is shown. Put a piece on to awaken it.</div>`;
     for(const {e,where} of list){h+=`<div class="row">${icon({id:e.id})}<div class="grow"><div class="nm">${esc(itemName(e))}</div>`+
       `<div class="ds">${where} · ${e.aw?`<span style="color:${AW_Q[e.aw.q||0].col}">${esc(awText(e.aw))}</span>`:'not awakened'}</div><div class="cms">${awCostChips(e)}</div></div>`+
       `<button class="btn small" data-act="awaken" data-arg="${e.uid}" ${awCan(e)?'':'disabled'}>${e.aw?'Re-awaken':'Awaken'}</button></div>`;}
@@ -98,12 +100,12 @@ const SIG_KN={weapon:'Weapon',armor:'Armor',head:'Head',accessory:'Accessory'};
 PANEL_ACTS.fusekind=k=>{AWK.fk=k;sfx('click');refreshPanel();};
 PANEL_ACTS.fusesort=k=>{AWK.fs=k;sfx('click');refreshPanel();};
 PANEL_ACTS.gemtab=k=>{AWK.tab=k;AWK.pending=null;sfx('click');refreshPanel();};
-PANEL_ACTS.awaken=uid=>{const found=gemList().find(x=>String(x.e.uid)===String(uid));if(!found)return;const e=found.e;if(!awCan(e)){refreshPanel();return;}
+PANEL_ACTS.awaken=uid=>{const found=awList().find(x=>String(x.e.uid)===String(uid));if(!found)return;const e=found.e;if(!awCan(e)){refreshPanel();return;}
   const c=AW_COST[awTier(e)];for(const [id,n] of Object.entries(c.mats))takeItem(id,n);P.gold-=c.gold;
   const roll=awRoll(e);AWK.pending={uid:e.uid,old:e.aw||null,roll};sfx(roll.q===2?'rare':'jobup');
   fx.push({k:'ring',x:P.x,y:P.y,r:36,col:AW_Q[roll.q].col,t0:now,dur:.6});if(roll.q===2){fx.push({k:'critburst',x:P.x,y:P.y-30,t0:now,dur:.5});addLog(`A Radiant line! ${statLabel(roll.k,roll.v)}.`,'l-rare');}
   save();refreshPanel();};
-PANEL_ACTS.awkeep=which=>{const pd=AWK.pending;if(!pd)return;const found=gemList().find(x=>x.e.uid===pd.uid);AWK.pending=null;
+PANEL_ACTS.awkeep=which=>{const pd=AWK.pending;if(!pd)return;const found=awList().find(x=>x.e.uid===pd.uid);AWK.pending=null;
   if(found&&which==='new'){found.e.aw=pd.roll;addLog(`${ITEMS[found.e.id].name} awakens: ${awText(pd.roll)}.`,'l-good');}
   S=computeStats();save();refreshPanel();};
 PANEL_ACTS.fusein=id=>{const e=invFind(id);if(!e||AWK.tray.length>=3||trayCount(id)>=e.n)return;AWK.tray.push(id);sfx('click');refreshPanel();};
@@ -126,3 +128,4 @@ if(typeof TH!=='undefined')for(const [k,v] of [['Hall of Awakening','หอป�
   ['"Every blade has a voice it hasn\'t used yet. Step into the circle and I will wake it. If you don\'t like what it says, I\'ll put it back to sleep and you keep the old one." — Awakener Liora','"อาวุธทุกเล่มมีเสียงที่ยังไม่เคยเปล่ง ก้าวเข้ามาในวงเวท แล้วข้าจะปลุกมัน ถ้าเจ้าไม่ชอบสิ่งที่มันบอก ข้าจะให้มันหลับต่อและเจ้าเก็บของเดิมไว้" — ผู้ปลุกพลังลิโอรา']])if(!TH[k])TH[k]=v;
 if(typeof TH!=='undefined')for(const [k,v] of [['Sigilwright Dorn','ช่างซิกิลดอร์น'],['Sigil Forge','โรงหลอมซิกิล']])if(!TH[k])TH[k]=v;
 if(typeof TH!=='undefined'&&!TH['The Hall of Awakening and the Sigil Forge'])TH['The Hall of Awakening and the Sigil Forge']='หอปลุกพลังและโรงหลอมซิกิล';
+if(typeof TH!=='undefined')Object.assign(TH,{'You have no gear equipped. Put a piece on to awaken it.':'คุณยังไม่ได้สวมอุปกรณ์ สวมชิ้นที่ต้องการก่อนแล้วจึงปลุกพลัง','Only the gear you are wearing is shown. Put a piece on to awaken it.':'แสดงเฉพาะอุปกรณ์ที่สวมอยู่ สวมชิ้นที่ต้องการก่อนแล้วจึงปลุกพลัง'});

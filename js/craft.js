@@ -75,12 +75,14 @@ PANELS.craft=()=>{if(panelArg==='forge'){CRAFT.tab='forge';panelArg=null;}
       `<button class="btn small" data-act="craftmake" data-arg="${forge?'f':'b'}:${i}" ${ok?'':'disabled'}>${forge?'Forge':'Brew'}</button></div>`;};
   if(!forge)return h+list.map(row).join('');
   // forge: tabs by gear type (with a dot when something there can be forged now); "All" is split into sections
-  const typeOf=r=>ITEMS[r[0]].type,types=FORGE_TYPES.filter(([k])=>FORGES.some(r=>typeOf(r)===k));
+  // (v1.54.0) Job chips first (js/jobfilter.js): only the weapons that job can use
+  let FL=FORGES;if(typeof gearJobFilter==='function'){const [jh,jl]=gearJobFilter(FORGES,r=>r[0]);h+=jh;FL=jl;}
+  const typeOf=r=>ITEMS[r[0]].type,types=FORGE_TYPES.filter(([k])=>FL.some(r=>typeOf(r)===k));
   if(CRAFT.ftype!=='all'&&!types.some(([k])=>k===CRAFT.ftype))CRAFT.ftype='all';
-  const ready=k=>FORGES.some(r=>(k==='all'||typeOf(r)===k)&&canMake(r));
-  h+=`<div class="ftabs" role="tablist" aria-label="Gear type">`+[['all','All'],...types].map(([k,l])=>{const n=k==='all'?FORGES.length:FORGES.filter(r=>typeOf(r)===k).length,on=CRAFT.ftype===k;
+  const ready=k=>FL.some(r=>(k==='all'||typeOf(r)===k)&&canMake(r));
+  h+=`<div class="ftabs" role="tablist" aria-label="Gear type">`+[['all','All'],...types].map(([k,l])=>{const n=k==='all'?FL.length:FL.filter(r=>typeOf(r)===k).length,on=CRAFT.ftype===k;
     return `<button class="cxchip${on?' on':''}" role="tab" aria-selected="${on}" data-act="forgetype" data-arg="${k}">${l} <span>${n}</span>${ready(k)?'<i class="fdot" title="You can forge something here now"></i>':''}</button>`;}).join('')+`</div>`;
-  const idx=FORGES.map((r,i)=>[r,i]);
+  const idx=FORGES.map((r,i)=>[r,i]).filter(([r])=>FL.includes(r));
   if(CRAFT.ftype==='all')for(const [k,l] of types){const part=idx.filter(([r])=>typeOf(r)===k);h+=`<h3 class="fsec">${l} <span class="muted">${part.length}</span></h3>`+part.map(([r,i])=>row(r,i)).join('');}
   else h+=idx.filter(([r])=>typeOf(r)===CRAFT.ftype).map(([r,i])=>row(r,i)).join('');
   return h;};

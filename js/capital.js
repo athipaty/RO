@@ -21,7 +21,7 @@ setInterval(()=>{try{if(!running||!P||zoneId!=='capital'){districtNow=null;retur
 
 /* ---- Gemcutter Sela: add a sigil slot (up to 4); each extra slot is harder and dearer ---- */
 const GEM_CHANCE=[.9,.7,.5,.3],GEM_GOLD=[2000,5000,12000,30000];
-function gemList(){const out=[];for(const s of GEAR)if(P.eq[s]&&Array.isArray(P.eq[s].s))out.push({e:P.eq[s],where:'equipped'});
+function gemList(){const out=[];for(const s of [...GEAR,'acc2'])if(P.eq[s]&&Array.isArray(P.eq[s].s))out.push({e:P.eq[s],where:'equipped'}); // (v1.54.0) the second accessory too
   for(const e of P.inv)if(e.uid&&Array.isArray(e.s)&&GEAR.includes(ITEMS[e.id].type))out.push({e,where:'in bag'});return out;}
 PANELS.gemcut=()=>{let h=`<h2>Gemcutter Sela</h2><div class="say">"Every piece of gear can hold up to four sigils, if you trust my hand. I cut one new slot at a time. The deeper I go, the likelier the stone resists, but I never break your gear, only my fee."</div>`;
   const gl=invFind('glintstone'),haveG=gl?gl.n:0;h+=`<div class="sub">${fmt(P.gold)} gold</div><div class="cms">${itemHaveChip('glintstone')}</div>`;

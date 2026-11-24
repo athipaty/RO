@@ -156,10 +156,11 @@ function refreshPanel(){
     h+=`<h2>Wenna the Keeper</h2><div class="say">"Leave it with me, love. It'll be right here when you come back."</div>`;
     h+=`<div class="sub">Storage ${P.storage.length}/${STORAGE_MAX} · Weight ${fmt(carryWeight())}/${fmt(maxWeight())}</div>`;
     if(CS.shared)h+=`<p class="muted">${CS.busy||CS.oldSt?'Saving…':'Shared by all your characters.'}</p>`;
-    h+=`<h3>Your bag</h3>`;if(!P.inv.length)h+=`<p class="muted">Empty.</p>`;
-    P.inv.forEach((e,i)=>{h+=`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><button class="btn small" data-act="store" data-arg="${i}">Store</button></div>`;});
-    h+=`<h3>In storage</h3>`;if(!P.storage.length)h+=`<p class="muted">Nothing stored yet.</p>`;
-    P.storage.forEach((e,i)=>{h+=`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><button class="btn small" data-act="take" data-arg="${i}">Take</button></div>`;});
+    const show=typeof stoShow==='function'?stoShow:()=>true;if(typeof stoTabsHtml==='function')h+=stoTabsHtml(); // (v1.54.0) Use · Equip · Sigils · Etc
+    h+=`<h3>Your bag</h3>`;if(!P.inv.length)h+=`<p class="muted">Empty.</p>`;else if(!P.inv.some(show))h+=`<p class="muted">Nothing of this kind here.</p>`;
+    P.inv.forEach((e,i)=>{if(!show(e))return;h+=`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><button class="btn small" data-act="store" data-arg="${i}">Store</button></div>`;});
+    h+=`<h3>In storage</h3>`;if(!P.storage.length)h+=`<p class="muted">Nothing stored yet.</p>`;else if(!P.storage.some(show))h+=`<p class="muted">Nothing of this kind here.</p>`;
+    P.storage.forEach((e,i)=>{if(!show(e))return;h+=`<div class="row">${icon(ITEMS[e.id])}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div></div><button class="btn small" data-act="take" data-arg="${i}">Take</button></div>`;});
   }
   else if(panelKind==='equip'){S=computeStats();
     const slotBox=s=>{const e=P.eq[s];return `<div class="eqslot" data-slot="${s}">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="eqk">${SLOT_NAME[s]||s}</div>`+
@@ -219,14 +220,14 @@ function refreshPanel(){
     if(shopTab==='buy'){const buyRow=id=>{const it=ITEMS[id];const why=it.type==='use'?null:canEquip(it);
       return `<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name}</div><div class="ds">${itemDesc({id,s:it.slots?Array(it.slots).fill(null):[]})}${why&&it.type!=='use'?` · <span style="color:#ef7a6f">${why.replace('Requires ','')}</span>`:''}</div></div><span class="gold" style="font-variant-numeric:tabular-nums">${fmt(it.price)}</span><button class="btn small" data-act="buy" data-arg="${id}" ${P.gold<it.price?'disabled':''}>Buy</button></div>`;};
       const ids=shopStock().filter(id=>itemCat(id)===shopCat);
-      if(shopCat==='equip')h+=gearTabsHtml(ids,id=>ITEMS[id].type,buyRow,id=>P.gold>=ITEMS[id].price&&!canEquip(ITEMS[id]));
+      if(shopCat==='equip'){const [jh,jl]=typeof gearJobFilter==='function'?gearJobFilter(ids,id=>id):['',ids];h+=jh+gearTabsHtml(jl,id=>ITEMS[id].type,buyRow,id=>P.gold>=ITEMS[id].price&&!canEquip(ITEMS[id]));} // (v1.54.0) Job chips, js/jobfilter.js
       else h+=ids.map(buyRow).join('');}
     else{const etc=P.inv.filter(e=>ITEMS[e.id].type==='etc'&&!ITEMS[e.id].keep);const tot=etc.reduce((a,e)=>a+sellValue(e.id)*e.n,0);
       if(shopCat==='etc')h+=`<div class="row"><div class="grow">Sell all monster loot</div><span class="gold">${fmt(tot)}</span><button class="btn small" data-act="sellall" ${tot?'':'disabled'}>Sell all</button></div>`;
       if(!P.inv.length)h+=`<p class="muted">Nothing to sell.</p>`;
       const sellRow=([e,i])=>{const it=ITEMS[e.id];return `<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div>${typeof itemUsesHtml==='function'?itemUsesHtml(e.id):''}</div><span class="gold">${fmt((typeof sellValueOf==='function'?sellValueOf(e):sellValue(e.id)))}</span><button class="btn small" data-act="sell" data-arg="${i}">Sell</button>${e.n>1?`<button class="btn small" data-act="sellstack" data-arg="${i}" title="Sell all ${e.n} for ${fmt((typeof sellValueOf==='function'?sellValueOf(e):sellValue(e.id))*e.n)} gold">Sell all</button>`:''}</div>`;};
       const mine=P.inv.map((e,i)=>[e,i]).filter(([e])=>itemCat(e.id)===shopCat);
-      if(shopCat==='equip')h+=gearTabsHtml(mine,([e])=>ITEMS[e.id].type,sellRow,null);else h+=mine.map(sellRow).join('');}
+      if(shopCat==='equip'){const [jh,jl]=typeof gearJobFilter==='function'?gearJobFilter(mine,([e])=>e.id):['',mine];h+=jh+gearTabsHtml(jl,([e])=>ITEMS[e.id].type,sellRow,null);}else h+=mine.map(sellRow).join('');}
   }
   else if(panelKind==='job'){
     h+=`<h2>Guild Hall</h2>`;
