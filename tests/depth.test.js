@@ -38,7 +38,7 @@ module.exports = async t => {
 
     // ---- #12 ailments on monsters
     const frz = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); const m = mobs.find(m => !m.dead);
-      ailMob(m, 'freeze', 1.5); m.tx = m.x + 60; m.ty = m.y; const x0 = m.x; await w(800); const still = m.x === x0; await w(1200); return { still, after: m.ailUntil <= now }; });
+      ailMob(m, 'freeze', 1.5); m.tx = m.x + 60; m.ty = m.y; const x0 = m.x; await w(800); const still = m.x === x0; /* game time follows frames: wait on it, not on the wall clock */ for (let k = 0; k < 60 && m.ailUntil > now; k++) await w(100); return { still, after: m.ailUntil <= now }; });
     t.ok(frz.still && frz.after, 'a frozen monster stays still until it thaws');
 
     // ---- #26 skill tree

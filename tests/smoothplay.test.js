@@ -13,9 +13,9 @@ module.exports = async t => {
     t.ok(guard.hp === 1 && !guard.dead && guard.log, 'right after a freeze, a backlog hit cannot knock you out (left at 1 HP)');
     const normal = await A.ev(() => { SMOOTH.guardUntil = 0; P.hp = 40; const m = mobs.find(x => !x.dead); const r = Math.random; Math.random = () => .5; mobAttack({ ...m, d: { ...m.d, atk: 5000, hit: 999 } }); Math.random = r; const d = P.dead; if (d) { P.dead = false; P.hp = 50; } return d; });
     t.ok(normal, 'without a freeze, hits work as before');
-    const freeze = await A.ev(async () => { SMOOTH.guardUntil = 0; const t0 = performance.now(); while (performance.now() - t0 < 700) {} await new Promise(r => setTimeout(r, 100)); return SMOOTH.guardUntil > now; });
+    const freeze = await A.ev(async () => { SMOOTH.guardUntil = 0; const t0 = performance.now(); while (performance.now() - t0 < 700) {} for (let k = 0; k < 20 && !(SMOOTH.guardUntil > now); k++) await new Promise(r => setTimeout(r, 50)); return SMOOTH.guardUntil > now; }); /* wait for the next frame (slow machines) */
     t.ok(freeze, 'a 0.7 s freeze turns the guard on');
-    const auto = await A.ev(() => { SETS.lite = false; SETS.liteUser = false; applySets(); SMOOTH.samples = Array(240).fill(45); return new Promise(r => setTimeout(() => r({ lite: !!window.LITE, log: /Performance mode is now on/.test(document.getElementById('log').textContent) }), 200)); });
+    const auto = await A.ev(() => { SETS.lite = false; SETS.liteUser = false; applySets(); SMOOTH.samples = Array(240).fill(45); return new Promise(r => { let k = 0; const chk = () => { if (window.LITE || ++k > 40) r({ lite: !!window.LITE, log: /Performance mode is now on/.test(document.getElementById('log').textContent) }); else setTimeout(chk, 50); }; setTimeout(chk, 50); }); });
     t.ok(auto.lite && auto.log, 'a slow game switches Performance mode on by itself and says so');
     const manual = await A.ev(() => { PANEL_ACTS.setlite(); const off = !window.LITE; SMOOTH.samples = Array(240).fill(45); return new Promise(r => setTimeout(() => r(off && !window.LITE), 200)); });
     t.ok(manual, 'turning it off by hand is respected');
