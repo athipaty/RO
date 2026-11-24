@@ -18,6 +18,8 @@
    (v1.58.0) Willowmere Farms: The Terraces, three shelves of crop rows behind dry-stone walls rising to the north-west
    corner, where the Grand Scarecrow keeps watch, with earthen steps between them; The Canal, straight and stone-edged,
    from the big pond to the east pond, crossed by the road's bridge and one ford, where the reed snappers lurk.
+   (v1.59.0) The Ashen Dunes: great dunes, a gentle windward slope and a steep sand slip face to the east, wind ripples
+   on their backs; The Scarab Pit, a sunken crater of sand with two slopes down, the Scarab Queen's nest at the bottom.
 
    Z.lvd = {W, Hh, H (highest), lo (lowest), wet (1 water, 2 bridge or log, 3 dry gully, 4 hollow floor), hc: Float32Array(W*Hh*4) corner heights [top-left, top-right, bottom-right, bottom-left],
             hills, nodes, den} */
@@ -44,7 +46,15 @@ const LV_DESIGNS={
   farms:{
     terraces:{name:'The Terraces',shelves:[[2,2,24,16,14],[2,2,16,10,28],[2,2,8,6,42]],
       ramps:[[10,17,11,19,'n',0,14],[25,8,27,9,'w',0,14],[12,11,13,13,'n',14,28],[9,4,11,5,'w',28,42]],den:[5,4,'grandscarecrow']},
-    brook:{name:'The Canal',D:20,wet:[[43,14,44,26]],bridge:[[43,20,44,23]],fords:[[42,17,'e'],[45,17,'w']],dwellers:'reedsnapper',canal:1}}};
+    brook:{name:'The Canal',D:20,wet:[[43,14,44,26]],bridge:[[43,20,44,23]],fords:[[42,17,'e'],[45,17,'w']],dwellers:'reedsnapper',canal:1}},
+  // (v1.59.0) the Ashen Dunes, shaped by the wind: great dunes with a gentle windward slope and a steep slip face to the
+  // east that nobody can climb; the Scarab Pit, a sunken sand crater where the Scarab Queen nests, two sandy slopes down
+  dunes:{
+    hills:[{name:'Great Dune',cx:48,cy:8,rx:8,ry:3.2,H:38,top:.15,bank:{ax:'x',at:.3},sand:1},
+      {name:'Great Dune',cx:58,cy:14,rx:6.5,ry:2.8,H:30,top:.15,bank:{ax:'x',at:.3},sand:1},
+      {name:'Great Dune',cx:18,cy:10,rx:8.5,ry:3.2,H:40,top:.15,bank:{ax:'x',at:.25},sand:1},
+      {name:'Great Dune',cx:10,cy:38,rx:6,ry:2.6,H:28,top:.15,bank:{ax:'x',at:.3},sand:1}],
+    bowls:[{name:'The Scarab Pit',cx:52,cy:34,rx:6,ry:4,D:30,sand:1,ramps:[[43,33,45,34,'e'],[51,27,52,29,'s']],den:[52,34,'scarabqueen']}]}};
 const lvTile=(L,x,y)=>{const tx=Math.floor(x/TILE),ty=Math.floor(y/TILE);return !(tx>=0&&ty>=0&&tx<L.W&&ty<L.Hh)?-1:ty*L.W+tx;}; // NaN-safe
 // height of the ground at a world point: the tile's four corners, blended
 function lvH(L,x,y){const i=lvTile(L,x,y);if(i<0)return 0;const k=i*4,a=L.hc[k],b=L.hc[k+1],c=L.hc[k+2],d=L.hc[k+3];if(!(a||b||c||d))return 0;
@@ -90,7 +100,7 @@ function lvReachable(z,L){const W=z.w,H=z.h,N=W*H,seen=new Uint8Array(N),free=i=
     if(seen[j]||!free(j))continue;if(L&&!lvStep(L,i,j,dx,dy))continue;seen[j]=1;q.push(j);}}
   return seen;}
 function lvGen(z){z.lvd=null;const des=LV_DESIGNS[z.id];if(!des)return;
-  const W=z.w,H=z.h,hc=new Float32Array(W*H*4),L={W,Hh:H,H:0,lo:0,hc,hills:[],nodes:[],feats:[],wet:new Uint8Array(W*H),log:new Uint8Array(W*H),crop:new Uint8Array(W*H),stone:new Uint8Array(W*H),dens:[],dwell:[]};
+  const W=z.w,H=z.h,hc=new Float32Array(W*H*4),L={W,Hh:H,H:0,lo:0,hc,hills:[],nodes:[],feats:[],wet:new Uint8Array(W*H),log:new Uint8Array(W*H),sand:new Uint8Array(W*H),crop:new Uint8Array(W*H),stone:new Uint8Array(W*H),dens:[],dwell:[]};
   for(const h of des.hills||[]){const own=[];let x0=1e9,y0=1e9,x1=-1,y1=-1;
     for(let ty=Math.max(1,Math.floor(h.cy-h.ry));ty<=Math.min(H-2,Math.ceil(h.cy+h.ry));ty++)for(let tx=Math.max(1,Math.floor(h.cx-h.rx));tx<=Math.min(W-2,Math.ceil(h.cx+h.rx));tx++){
       // the bank: past this line the hill is cut off sharply (its face looks toward you)
@@ -98,7 +108,7 @@ function lvGen(z){z.lvd=null;const des=LV_DESIGNS[z.id];if(!des)return;
       const c=[lvHill(h,tx,ty),lvHill(h,tx+1,ty),lvHill(h,tx+1,ty+1),lvHill(h,tx,ty+1)];if(!(c[0]||c[1]||c[2]||c[3]))continue;
       const i=(ty*W+tx)*4;for(let k=0;k<4;k++)hc[i+k]=Math.max(hc[i+k],c[k]);own.push(ty*W+tx);x0=Math.min(x0,tx);y0=Math.min(y0,ty);x1=Math.max(x1,tx);y1=Math.max(y1,ty);}
     if(!own.length)continue;L.H=Math.max(L.H,h.H);
-    const hill={...h,tiles:own,x:x0,y:y0,w:x1-x0+1,hh:y1-y0+1};L.hills.push(hill);L.feats.push(hill);
+    const hill={...h,tiles:own,x:x0,y:y0,w:x1-x0+1,hh:y1-y0+1};L.hills.push(hill);L.feats.push(hill);if(h.sand)for(const i of own)L.sand[i]=1;
     // the old oak on the top (a tree tile, so nobody walks through it); the chieftain's den beside it
     if(h.oak){const [ox,oy]=h.oak;z.t[oy*W+ox]=2;z.objs.push({x:(ox+.5)*TILE,y:(oy+.5)*TILE,kind:'tree',v:1,sc:1.75,oak:1});}
     if(h.den)L.dens.push({x:(h.den[0]+.5)*TILE,y:(h.den[1]+.5)*TILE,mob:h.den[2]});}
@@ -137,9 +147,9 @@ function lvTerraces(z,L,b){const W=L.W,hc=L.hc,tiles=new Set();L.ramp=L.ramp||ne
 function lvBowl(z,L,b){const W=L.W,hc=L.hc,D=b.D,tiles=new Set();L.ramp=L.ramp||new Uint8Array(W*L.Hh);
   for(let y=Math.floor(b.cy-b.ry);y<=Math.ceil(b.cy+b.ry);y++)for(let x=Math.floor(b.cx-b.rx);x<=Math.ceil(b.cx+b.rx);x++){
     if(Math.hypot((x+.5-b.cx)/b.rx,(y+.5-b.cy)/b.ry)>1)continue;const i=y*W+x;lvClear(z,i);for(let k=0;k<4;k++)hc[i*4+k]=-D; /* an open glade: no trees on its floor */L.wet[i]=4;tiles.add(i);}
-  for(const rp of b.ramps||[]){for(let y=rp[1];y<=rp[3];y++)for(let x=rp[0];x<=rp[2];x++)lvClear(z,y*W+x);lvRampSet(L,rp,D,tiles);}
+  for(const rp of b.ramps||[]){for(let y=rp[1];y<=rp[3];y++)for(let x=rp[0];x<=rp[2];x++)lvClear(z,y*W+x);lvRampSet(L,rp,D,tiles,b.sand?3:1);}
   for(const [x,y] of b.clear||[])lvClear(z,y*W+x); // a tree that would wall a corner in
-  lvBehind(L,tiles);L.lo=Math.min(L.lo,-D);
+  lvBehind(L,tiles);L.lo=Math.min(L.lo,-D);if(b.sand)for(const i of tiles)L.sand[i]=1;
   if(b.den){const [x,y,mob]=b.den;lvClear(z,y*W+x);L.dens.push({x:(x+.5)*TILE,y:(y+.5)*TILE,mob});}
   L.feats.push({name:b.name,tiles:[...tiles],bowl:b});}
 // a dry gully: a sunken strip of dead leaves and webs, a fallen log across it at the forest's level, a slope down at one end
@@ -153,6 +163,7 @@ function lvGully(z,L,b){const W=L.W,hc=L.hc,D=b.D,tiles=new Set();L.ramp=L.ramp|
 function lvMini(z){const L=z.lvd,m=z.mini&&z.mini.getContext&&z.mini.getContext('2d');if(!L||!m)return;const th=THEMES[z.D.theme]||{};
   for(let i=0;i<L.wet.length;i++)if(L.wet[i]){m.fillStyle=L.wet[i]===1?(th.water||'#3f7fb8'):L.wet[i]===2?(L.log[i]?'#6a4a2a':'#a07a4a'):L.wet[i]===3?'#3e3020':'rgba(10,20,10,.45)';m.fillRect(i%L.W,(i/L.W)|0,1,1);}
   for(const f of L.feats)if(f.terraces)for(const i of f.tiles){const a=L.hc[i*4]/L.H;m.fillStyle=`rgba(255,250,200,${(a*.35).toFixed(3)})`;m.fillRect(i%L.W,(i/L.W)|0,1,1);}
+  for(const f of L.feats)if(f.bowl)for(const i of f.tiles)if(L.wet[i]===4){m.fillStyle=L.sand[i]?'rgba(120,70,20,.35)':'rgba(10,20,10,.45)';m.fillRect(i%L.W,(i/L.W)|0,1,1);}
   for(const h of L.hills)for(const i of h.tiles){const x=i%L.W,y=(i/L.W)|0,a=(L.hc[i*4]+L.hc[i*4+2])/2/L.H;m.fillStyle=`rgba(255,255,220,${(a*.32).toFixed(3)})`;m.fillRect(x,y,1,1);
     if(!lvStep(L,i,i+L.W,0,1)){m.fillStyle='rgba(60,40,20,.7)';m.fillRect(x,y+.7,1,.3);}if(!lvStep(L,i,i+1,1,0)){m.fillStyle='rgba(60,40,20,.7)';m.fillRect(x+.7,y,.3,1);}}}
 
@@ -210,7 +221,10 @@ function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?DPR:1,T=TI
       g.strokeStyle='#5a3d22';g.lineWidth=2;for(const ex of [X0,X1])if(L.wet[ty*W+(ex===X0?tx-1:tx+1)]!==2){const a=lvS(ex,Y0,0),b2=lvS(ex,Y1,0);g.beginPath();g.moveTo(a.x,a.y-9);g.lineTo(b2.x,b2.y-9);g.stroke();
         for(const p of [a,b2]){g.beginPath();g.moveTo(p.x,p.y);g.lineTo(p.x,p.y-11);g.stroke();}}}
     else{tri([C[0],C[1],C[2]],[S[0],S[1],S[2]],sh);tri([C[0],C[2],C[3]],[S[0],S[2],S[3]],sh);
-      if(wt===4)quad('rgba(5,15,5,.3)'); // the hollow's floor lies in shadow
+      if(wt===4)quad(L.sand[i]?'rgba(90,50,15,.18)':'rgba(5,15,5,.3)'); // a hollow's floor lies in shadow
+      if(L.sand[i]){g.lineCap='round';for(let q=0;q<2;q++){const v=.25+q*.45+R()*.1,a=lvS(X0+2,Y0+v*T,h[0]*(1-v)+h[3]*v),b2=lvS(X1-2,Y0+v*T+3,h[1]*(1-v)+h[2]*v); // wind ripples
+        g.strokeStyle='rgba(120,85,40,.32)';g.lineWidth=1.2;g.beginPath();g.moveTo(a.x,a.y);g.quadraticCurveTo((a.x+b2.x)/2,(a.y+b2.y)/2-2.5,b2.x,b2.y);g.stroke();
+        g.strokeStyle='rgba(255,240,200,.35)';g.lineWidth=1;g.beginPath();g.moveTo(a.x,a.y-1.4);g.quadraticCurveTo((a.x+b2.x)/2,(a.y+b2.y)/2-3.9,b2.x,b2.y-1.4);g.stroke();}}
       if(L.crop[i]){ // crop rows: dark furrows with little green sprouts along them
         g.lineCap='round';for(let q=0;q<3;q++){const v=(q+.5)/3,a=lvS(X0+1,Y0+v*T,h[0]),b2=lvS(X1-1,Y0+v*T,h[1]);
           g.strokeStyle='rgba(70,48,22,.55)';g.lineWidth=3;g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b2.x,b2.y);g.stroke();
@@ -218,6 +232,7 @@ function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?DPR:1,T=TI
       if(L.ramp&&L.ramp[i]===2){ // earthen steps cut into the slope
         for(let q=1;q<4;q++){const v=q/4,ax=L.ramp&&(h[0]!==h[3])?0:1,a=ax?lvS(X0+v*T,Y0,h[0]*(1-v)+h[1]*v):lvS(X0,Y0+v*T,h[0]*(1-v)+h[3]*v),b2=ax?lvS(X0+v*T,Y1,h[3]*(1-v)+h[2]*v):lvS(X1,Y0+v*T,h[1]*(1-v)+h[2]*v);
           g.strokeStyle='rgba(90,62,30,.7)';g.lineWidth=2;g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b2.x,b2.y);g.stroke();g.strokeStyle='rgba(255,235,190,.25)';g.lineWidth=1;g.beginPath();g.moveTo(a.x,a.y-1.5);g.lineTo(b2.x,b2.y-1.5);g.stroke();}}
+      else if(L.ramp&&L.ramp[i]===3){} // a sand slope: just the ripples
       else if(L.ramp&&L.ramp[i]){g.strokeStyle='rgba(60,38,18,.85)';g.lineWidth=2;g.lineCap='round'; // roots across the path down
         for(let q=0;q<2;q++){const v=.2+q*.45+R()*.15,a=lvS(X0,Y0+v*T,h[0]*(1-v)+h[3]*v),b2=lvS(X1,Y0+v*T,h[1]*(1-v)+h[2]*v);g.beginPath();g.moveTo(a.x,a.y);g.quadraticCurveTo((a.x+b2.x)/2+R()*4-2,(a.y+b2.y)/2+R()*4-3,b2.x,b2.y);g.stroke();}}
       if(hill.roots&&R()<.35){g.strokeStyle='rgba(70,45,20,.7)';g.lineWidth=1.6;const a=lvS(X0+R()*T,Y0+R()*T,(h[0]+h[2])/2);g.beginPath();g.moveTo(a.x-7,a.y);g.quadraticCurveTo(a.x,a.y-3,a.x+7,a.y+1);g.stroke();}}
@@ -236,6 +251,13 @@ function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?DPR:1,T=TI
       g.strokeStyle=lvHex(grass,-30);g.lineWidth=1;for(let q=0;q<3;q++){const t=R(),p={x:pts[0].x+(pts[1].x-pts[0].x)*t,y:pts[0].y+(pts[1].y-pts[0].y)*t};g.beginPath();g.moveTo(p.x,p.y+1);g.lineTo(p.x+R()*2-1,p.y+4+R()*3);g.stroke();}};
     const dn=ty+1<L.Hh?i+W:-1,rt=tx+1<W?i+1:-1,nh=(j,e)=>j<0?0:hc[j*4+e];
     const wood=wt===2&&!L.log[i],stone=!!L.stone[i]&&!wood;
+    if(L.sand[i]){ // a slip face of sand: pale at the crest, shadowed at the foot, streaks where sand has run down
+      const sl=(e0,e1,n0,n1,side)=>{if(Math.max(h[e0]-n0,h[e1]-n1)<=LV_STEP)return;const A=C[e0],B=C[e1];
+        const pts=[lvS(A[0],A[1],h[e0]),lvS(B[0],B[1],h[e1]),lvS(B[0],B[1],n1),lvS(A[0],A[1],n0)];g.beginPath();pts.forEach((p,j)=>j?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.closePath();
+        const gr=g.createLinearGradient(0,Math.min(pts[0].y,pts[1].y),0,Math.max(pts[2].y,pts[3].y));gr.addColorStop(0,side?'#d8b676':'#e2c387');gr.addColorStop(1,side?'#9c7a48':'#b08c56');g.fillStyle=gr;g.fill();
+        g.save();g.clip();g.strokeStyle='rgba(110,78,40,.28)';g.lineWidth=1;for(let q=0;q<3;q++){const t=R(),a=lvS(A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t,h[e0]*(1-t)+h[e1]*t);g.beginPath();g.moveTo(a.x,a.y);g.lineTo(a.x+(R()*2-1),a.y+8+R()*14);g.stroke();}g.restore();
+        g.strokeStyle='rgba(255,244,210,.7)';g.lineWidth=1.5;g.lineCap='round';g.beginPath();g.moveTo(pts[0].x,pts[0].y);g.lineTo(pts[1].x,pts[1].y);g.stroke();};
+      const dn=ty+1<L.Hh?i+W:-1,rt=tx+1<W?i+1:-1,nh=(j,e)=>j<0?0:hc[j*4+e];sl(3,2,nh(dn,0),nh(dn,1),0);sl(2,1,nh(rt,3),nh(rt,0),1);continue;}
     if(stone){ // dry-stone walls: grey courses of stone instead of earth
       const sface=(e0,e1,n0,n1)=>{if(Math.max(h[e0]-n0,h[e1]-n1)<=LV_STEP)return;const A=C[e0],B=C[e1],top0=h[e0],top1=h[e1];
         const pts=[lvS(A[0],A[1],top0),lvS(B[0],B[1],top1),lvS(B[0],B[1],n1),lvS(A[0],A[1],n0)];g.beginPath();pts.forEach((p,j)=>j?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.closePath();

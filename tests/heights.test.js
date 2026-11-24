@@ -11,7 +11,7 @@ module.exports = async t => {
       const sleep = ms => new Promise(r => setTimeout(r, ms)), out = {}, T = TILE, at = (x, y) => ({ x: (x + .5) * T, y: (y + .5) * T });
       enterZone('meadow'); const L = Z.lvd;
       out.hills = L ? L.hills.map(h => h.name).join(', ') : 'none';
-      out.flat = ['town', 'capital', 'dunes', 'frost', 'heights'].every(id => { const z = getZone(id); if (z.lvd === undefined) lvGen(z); return !z.lvd; });
+      out.flat = ['town', 'capital', 'frost', 'heights'].every(id => { const z = getZone(id); if (z.lvd === undefined) lvGen(z); return !z.lvd; });
       // the top of the knoll is drawn high, and a tap on it lands there
       const top = at(50, 9), hTop = lvH(L, top.x, top.y);
       out.raised = hTop > 50 && Math.round(proj(top.x, top.y).y) === Math.round((top.x + top.y) * ISO / 2 - hTop);
@@ -58,6 +58,13 @@ module.exports = async t => {
       const wf = at(20, 17); P.x = wf.x; P.y = wf.y; P.path = []; for (let k = 0; k < 25; k++) moveEnt(P, 0, -3, PR); out.stoneWall = lvH(F, P.x, P.y) === 0;
       const cn = at(43, 15); out.canal = lvH(F, cn.x, cn.y) < -15 && mobs.filter(m => m.d.id === 'reedsnapper' && !m.dead).every(m => F.wet[lvTile(F, m.x, m.y)] === 1);
       const a3 = lvReachable(Z, null), b3 = lvReachable(Z, F); let cut3 = 0; for (let i = 0; i < a3.length; i++) if (a3[i] && !b3[i]) cut3++; out.cut3 = cut3;
+      // (v1.59.0) the Ashen Dunes: dunes with a climbable windward slope and an unclimbable slip face; the Scarab Pit
+      enterZone('dunes'); const DU = Z.lvd; out.dunes = DU ? DU.feats.map(f => f.name).join(', ') : 'none';
+      const crest = at(47, 8); out.duneHigh = lvH(DU, crest.x, crest.y) > 30;
+      const up2 = findPath(38, 8, 47, 8) || []; out.windward = up2.length > 0;
+      const lee = at(51, 8); P.x = lee.x + T; P.y = lee.y; P.path = []; P.dead = false; for (let k = 0; k < 25; k++) moveEnt(P, -3, 0, PR); out.slip = lvH(DU, P.x, P.y) < 5;
+      const queen = mobs.find(m => m.d.id === 'scarabqueen' && !m.dead); out.queen = !!queen && lvH(DU, queen.x, queen.y) < -25;
+      const a4 = lvReachable(Z, null), b4 = lvReachable(Z, DU); let cut4 = 0; for (let i = 0; i < a4.length; i++) if (a4[i] && !b4[i]) cut4++; out.cut4 = cut4;
       return out;
     });
     t.ok(r.hills === "Chieftain's Knoll, Lookout Hill, South Rise" && r.flat, `Greenmoss Meadow has its own hills (${r.hills}); other regions stay flat`);
@@ -80,6 +87,10 @@ module.exports = async t => {
     t.ok(r.crow && r.steps && r.stoneWall, 'earthen steps lead up the terraces to the Grand Scarecrow on the top one, and the stone walls cannot be climbed');
     t.ok(r.canal, 'the canal lies below the fields, and the reed snappers lurk in it');
     t.ok(r.cut3 === 0, `no place on the farms is cut off (${r.cut3})`);
+    t.ok(r.dunes === 'Great Dune, Great Dune, Great Dune, Great Dune, The Scarab Pit' && r.duneHigh, `the Ashen Dunes has its own land (${r.dunes})`);
+    t.ok(r.windward && r.slip, 'a dune is climbed up its windward slope, never up its steep slip face');
+    t.ok(r.queen, 'the Scarab Queen nests at the bottom of the Scarab Pit');
+    t.ok(r.cut4 === 0, `no place in the dunes is cut off (${r.cut4})`);
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };
