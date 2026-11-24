@@ -11,7 +11,7 @@ module.exports = async t => {
       const sleep = ms => new Promise(r => setTimeout(r, ms)), out = {}, T = TILE, at = (x, y) => ({ x: (x + .5) * T, y: (y + .5) * T });
       enterZone('meadow'); const L = Z.lvd;
       out.hills = L ? L.hills.map(h => h.name).join(', ') : 'none';
-      out.flat = ['town', 'capital', 'dunes', 'frost', 'woods'].every(id => { const z = getZone(id); if (z.lvd === undefined) lvGen(z); return !z.lvd; });
+      out.flat = ['town', 'capital', 'dunes', 'frost'].every(id => { const z = getZone(id); if (z.lvd === undefined) lvGen(z); return !z.lvd; });
       // the top of the knoll is drawn high, and a tap on it lands there
       const top = at(50, 9), hTop = lvH(L, top.x, top.y);
       out.raised = hTop > 50 && Math.round(proj(top.x, top.y).y) === Math.round((top.x + top.y) * ISO / 2 - hTop);
@@ -41,6 +41,15 @@ module.exports = async t => {
       out.dew = mobs.filter(m => m.d.id === 'dewdrop' && !m.dead).every(m => L.wet[lvTile(L, m.x, m.y)] === 1);
       // nothing you could reach before is cut off
       const a = lvReachable(Z, null), b = lvReachable(Z, L); let cut = 0; for (let i = 0; i < a.length; i++) if (a[i] && !b[i]) cut++; out.cut = cut;
+      // (v1.57.0) the Whispering Woods: the Hollow (Wolf Alpha's den at the bottom, root paths down), the gully with its log, root ridges
+      enterZone('woods'); const W2 = Z.lvd; out.woods = W2 ? W2.feats.map(f => f.name).join(', ') : 'none';
+      const fl = at(54, 36); out.hollow = lvH(W2, fl.x, fl.y) < -30;
+      const alpha = mobs.find(m => m.d.id === 'lupealpha' && !m.dead); out.alpha = !!alpha && lvH(W2, alpha.x, alpha.y) < -30;
+      const down = findPath(51, 26, 54, 34) || []; out.rootPath = down.length > 0 && down.some(q => W2.ramp[lvTile(W2, q.x, q.y)]);
+      const wallFoot = at(56, 30); P.x = wallFoot.x; P.y = wallFoot.y; P.path = []; for (let k = 0; k < 30; k++) moveEnt(P, 0, 3, PR); out.wall = lvH(W2, P.x, P.y) === 0;
+      out.log = (findPath(28, 37, 28, 42) || []).every(q => lvH(W2, q.x, q.y) === 0) && W2.log[39 * W2.W + 28] === 1;
+      out.spiders = mobs.filter(m => m.d.id === 'webspinner' && !m.dead).every(m => W2.wet[lvTile(W2, m.x, m.y)] === 3);
+      const a2 = lvReachable(Z, null), b2 = lvReachable(Z, W2); let cut2 = 0; for (let i = 0; i < a2.length; i++) if (a2[i] && !b2[i]) cut2++; out.cut2 = cut2;
       return out;
     });
     t.ok(r.hills === "Chieftain's Knoll, Lookout Hill, South Rise" && r.flat, `Greenmoss Meadow has its own hills (${r.hills}); other regions stay flat`);
@@ -55,6 +64,10 @@ module.exports = async t => {
     t.ok(r.ford && r.bridge, 'a ford leads down into the water, and the road crosses it on a bridge');
     t.ok(r.slow && r.dew, 'wading is slower, and the dewdrops live in the brook');
     t.ok(r.cut === 0, `no place is cut off by the hills (${r.cut})`);
+    t.ok(r.woods === 'Root Ridge, Root Ridge, Root Ridge, The Hollow, The Fallen Giant', `the Whispering Woods has its own land (${r.woods})`);
+    t.ok(r.hollow && r.alpha && r.rootPath && r.wall, 'the Hollow lies deep, the Wolf Alpha keeps its den at the bottom, root paths lead down, and its walls cannot be stepped off');
+    t.ok(r.log && r.spiders, 'a fallen log crosses the gully at the forest level, and the web-spinners nest down in it');
+    t.ok(r.cut2 === 0, `no place in the woods is cut off (${r.cut2})`);
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };

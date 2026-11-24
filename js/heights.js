@@ -12,18 +12,29 @@
    (v1.56.1) A brook sunk below the meadow joins its three ponds: a wooden bridge carries the road over it and two fords
    lead down into the water, where you wade slower and the dewdrops live; the banks elsewhere are too steep to climb.
    All land is drawn with the ground, before anyone standing on it, so nobody is ever hidden by a slope.
+   (v1.57.0) The Whispering Woods, a hollow forest: The Hollow, a dark sunken glade with steep earth walls and two root
+   paths down to the Wolf Alpha's den; The Fallen Giant, a dry gully of webs where the web-spinners nest, crossed on a
+   huge fallen log; and long low ridges of roots between the trees.
 
-   Z.lvd = {W, Hh, H (highest), lo (lowest), wet (1 water, 2 bridge), hc: Float32Array(W*Hh*4) corner heights [top-left, top-right, bottom-right, bottom-left],
+   Z.lvd = {W, Hh, H (highest), lo (lowest), wet (1 water, 2 bridge or log, 3 dry gully, 4 hollow floor), hc: Float32Array(W*Hh*4) corner heights [top-left, top-right, bottom-right, bottom-left],
             hills, nodes, den} */
 const LV_STEP=6; // the largest height difference you can step across at a tile edge (screen px)
 const LV_DESIGNS={
   meadow:{hills:[
-    {name:"Chieftain's Knoll",cx:50.5,cy:8.5,rx:10,ry:6.5,H:58,top:.32,bank:{ax:'y',at:.42},oak:[51,7],den:[49,8]},
+    {name:"Chieftain's Knoll",cx:50.5,cy:8.5,rx:10,ry:6.5,H:58,top:.32,bank:{ax:'y',at:.42},oak:[51,7],den:[49,8,'hopperchief']},
     {name:'Lookout Hill',cx:12.5,cy:9.5,rx:7.5,ry:5.5,H:38,top:.3,bank:{ax:'x',at:.5}},
     {name:'South Rise',cx:15.5,cy:35,rx:9,ry:5.5,H:42,top:.25}],
     // (v1.56.1) a brook sunk below the meadow, joining its three ponds: under the road by a wooden bridge, two fords to wade
     brook:{D:22,wet:[[29,10,30,16],[29,26,34,27],[33,28,34,30]],bridge:[[29,22,30,25]],
-      fords:[[28,14,'e'],[31,14,'w'],[32,29,'e'],[35,29,'w']],dwellers:'dewdrop'}}};
+      fords:[[28,14,'e'],[31,14,'w'],[32,29,'e'],[35,29,'w']],dwellers:'dewdrop'}},
+  // (v1.57.0) the Whispering Woods, a hollow forest: a dark sunken glade with the Wolf Alpha's den at the bottom, reached by
+  // two root paths; a dry gully where the web-spinners nest, crossed on a fallen giant log; long low ridges of roots
+  woods:{
+    bowls:[{name:'The Hollow',cx:54,cy:36,rx:6,ry:4.5,D:34,ramps:[[51,28,52,31,'s'],[44,34,47,35,'e']],den:[54,36,'lupealpha'],clear:[[54,31]]}],
+    gullies:[{name:'The Fallen Giant',D:24,dry:[[20,39,36,40]],log:[[28,38,28,41]],ramps:[[17,39,19,40,'e'],[37,39,39,40,'w']],dwellers:'webspinner'}],
+    hills:[{name:'Root Ridge',cx:40,cy:12,rx:7,ry:2.8,H:28,top:.25,bank:{ax:'y',at:.12},roots:1},
+      {name:'Root Ridge',cx:11,cy:30,rx:4.5,ry:2.5,H:26,top:.25,bank:{ax:'y',at:.12},roots:1},
+      {name:'Root Ridge',cx:7,cy:11,rx:5,ry:2.4,H:24,top:.25,bank:{ax:'y',at:.12},roots:1}]}};
 const lvTile=(L,x,y)=>{const tx=Math.floor(x/TILE),ty=Math.floor(y/TILE);return !(tx>=0&&ty>=0&&tx<L.W&&ty<L.Hh)?-1:ty*L.W+tx;}; // NaN-safe
 // height of the ground at a world point: the tile's four corners, blended
 function lvH(L,x,y){const i=lvTile(L,x,y);if(i<0)return 0;const k=i*4,a=L.hc[k],b=L.hc[k+1],c=L.hc[k+2],d=L.hc[k+3];if(!(a||b||c||d))return 0;
@@ -69,8 +80,8 @@ function lvReachable(z,L){const W=z.w,H=z.h,N=W*H,seen=new Uint8Array(N),free=i=
     if(seen[j]||!free(j))continue;if(L&&!lvStep(L,i,j,dx,dy))continue;seen[j]=1;q.push(j);}}
   return seen;}
 function lvGen(z){z.lvd=null;const des=LV_DESIGNS[z.id];if(!des)return;
-  const W=z.w,H=z.h,hc=new Float32Array(W*H*4),L={W,Hh:H,H:0,lo:0,hc,hills:[],nodes:[],feats:[],wet:new Uint8Array(W*H),den:null};
-  for(const h of des.hills){const own=[];let x0=1e9,y0=1e9,x1=-1,y1=-1;
+  const W=z.w,H=z.h,hc=new Float32Array(W*H*4),L={W,Hh:H,H:0,lo:0,hc,hills:[],nodes:[],feats:[],wet:new Uint8Array(W*H),log:new Uint8Array(W*H),dens:[],dwell:[]};
+  for(const h of des.hills||[]){const own=[];let x0=1e9,y0=1e9,x1=-1,y1=-1;
     for(let ty=Math.max(1,Math.floor(h.cy-h.ry));ty<=Math.min(H-2,Math.ceil(h.cy+h.ry));ty++)for(let tx=Math.max(1,Math.floor(h.cx-h.rx));tx<=Math.min(W-2,Math.ceil(h.cx+h.rx));tx++){
       // the bank: past this line the hill is cut off sharply (its face looks toward you)
       if(h.bank){const off=h.bank.ax==='y'?(ty+.5-h.cy)/h.ry:(tx+.5-h.cx)/h.rx;if(off>h.bank.at)continue;}
@@ -80,8 +91,10 @@ function lvGen(z){z.lvd=null;const des=LV_DESIGNS[z.id];if(!des)return;
     const hill={...h,tiles:own,x:x0,y:y0,w:x1-x0+1,hh:y1-y0+1};L.hills.push(hill);L.feats.push(hill);
     // the old oak on the top (a tree tile, so nobody walks through it); the chieftain's den beside it
     if(h.oak){const [ox,oy]=h.oak;z.t[oy*W+ox]=2;z.objs.push({x:(ox+.5)*TILE,y:(oy+.5)*TILE,kind:'tree',v:1,sc:1.75,oak:1});}
-    if(h.den)L.den={x:(h.den[0]+.5)*TILE,y:(h.den[1]+.5)*TILE};}
+    if(h.den)L.dens.push({x:(h.den[0]+.5)*TILE,y:(h.den[1]+.5)*TILE,mob:h.den[2]});}
   if(des.brook)lvBrook(z,L,des.brook);
+  for(const b of des.bowls||[])lvBowl(z,L,b);
+  for(const b of des.gullies||[])lvGully(z,L,b);
   if(!L.feats.length)return;
   z.lvd=L;lvMini(z);}
 // the brook: its bed lies D below the meadow; the bridge stays level with the road; a ford slopes down into the water
@@ -93,10 +106,32 @@ function lvBrook(z,L,b){const W=L.W,hc=L.hc,D=b.D,set=(i,a,bb,c,d)=>{hc[i*4]=a;h
   // the banks you can see belong to the ground on the far side: add the tiles behind the water so their faces are drawn
   for(const i of [...tiles]){if(L.wet[i]!==1)continue;for(const j of [i-1,i-W,i-W-1])if(j>=0)tiles.add(j);}
   L.lo=Math.min(L.lo,-D);
-  L.feats.push({name:'Brook',tiles:[...tiles],brook:b});L.brookD=D;L.dwellers=b.dwellers||null;}
+  L.feats.push({name:'Brook',tiles:[...tiles],brook:b});L.brookD=D;if(b.dwellers)L.dwell.push({mob:b.dwellers,v:1});}
+// a strip of ground sloping from the meadow's level down to -D (dir: the way it goes down)
+function lvRampSet(L,[x0,y0,x1,y1,dir],D,tiles){const W=L.W,hc=L.hc,len=dir==='s'||dir==='n'?y1-y0+1:x1-x0+1;
+  const at=(cx,cy)=>{const t=dir==='s'?(cy-y0)/len:dir==='n'?(y1+1-cy)/len:dir==='e'?(cx-x0)/len:(x1+1-cx)/len;return -D*Math.max(0,Math.min(1,t));};
+  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const i=y*W+x;hc[i*4]=at(x,y);hc[i*4+1]=at(x+1,y);hc[i*4+2]=at(x+1,y+1);hc[i*4+3]=at(x,y+1);tiles.add(i);L.ramp[i]=1;}}
+function lvClear(z,i){if(BLOCK[z.t[i]]){const W=z.w,x=i%W,y=(i/W)|0;z.t[i]=0;z.objs=z.objs.filter(o=>!(Math.floor(o.x/TILE)===x&&Math.floor(o.y/TILE)===y));}}
+const lvBehind=(L,tiles)=>{for(const i of [...tiles]){if(L.hc[i*4]>=0&&L.hc[i*4+1]>=0&&L.hc[i*4+2]>=0&&L.hc[i*4+3]>=0)continue;for(const j of [i-1,i-L.W,i-L.W-1])if(j>=0)tiles.add(j);}};
+// a sunken glade: a flat floor D below the forest inside an ellipse, steep earth walls, root paths down into it
+function lvBowl(z,L,b){const W=L.W,hc=L.hc,D=b.D,tiles=new Set();L.ramp=L.ramp||new Uint8Array(W*L.Hh);
+  for(let y=Math.floor(b.cy-b.ry);y<=Math.ceil(b.cy+b.ry);y++)for(let x=Math.floor(b.cx-b.rx);x<=Math.ceil(b.cx+b.rx);x++){
+    if(Math.hypot((x+.5-b.cx)/b.rx,(y+.5-b.cy)/b.ry)>1)continue;const i=y*W+x;lvClear(z,i);for(let k=0;k<4;k++)hc[i*4+k]=-D; /* an open glade: no trees on its floor */L.wet[i]=4;tiles.add(i);}
+  for(const rp of b.ramps||[]){for(let y=rp[1];y<=rp[3];y++)for(let x=rp[0];x<=rp[2];x++)lvClear(z,y*W+x);lvRampSet(L,rp,D,tiles);}
+  for(const [x,y] of b.clear||[])lvClear(z,y*W+x); // a tree that would wall a corner in
+  lvBehind(L,tiles);L.lo=Math.min(L.lo,-D);
+  if(b.den){const [x,y,mob]=b.den;lvClear(z,y*W+x);L.dens.push({x:(x+.5)*TILE,y:(y+.5)*TILE,mob});}
+  L.feats.push({name:b.name,tiles:[...tiles],bowl:b});}
+// a dry gully: a sunken strip of dead leaves and webs, a fallen log across it at the forest's level, a slope down at one end
+function lvGully(z,L,b){const W=L.W,hc=L.hc,D=b.D,tiles=new Set();L.ramp=L.ramp||new Uint8Array(W*L.Hh);
+  for(const [x0,y0,x1,y1] of b.dry)for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const i=y*W+x;lvClear(z,i);for(let k=0;k<4;k++)hc[i*4+k]=-D;L.wet[i]=3;tiles.add(i);}
+  for(const [x0,y0,x1,y1] of b.log||[])for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const i=y*W+x;lvClear(z,i);for(let k=0;k<4;k++)hc[i*4+k]=0;L.wet[i]=2;L.log[i]=1;tiles.add(i);}
+  for(const rp of b.ramps||[]){for(let y=rp[1];y<=rp[3];y++)for(let x=rp[0];x<=rp[2];x++)lvClear(z,y*W+x);lvRampSet(L,rp,D,tiles);}
+  lvBehind(L,tiles);L.lo=Math.min(L.lo,-D);if(b.dwellers)L.dwell.push({mob:b.dwellers,v:3});
+  L.feats.push({name:b.name,tiles:[...tiles],gully:b});}
 // the minimap: higher ground a little lighter, banks dark
 function lvMini(z){const L=z.lvd,m=z.mini&&z.mini.getContext&&z.mini.getContext('2d');if(!L||!m)return;const th=THEMES[z.D.theme]||{};
-  for(let i=0;i<L.wet.length;i++)if(L.wet[i]){m.fillStyle=L.wet[i]===1?(th.water||'#3f7fb8'):'#a07a4a';m.fillRect(i%L.W,(i/L.W)|0,1,1);}
+  for(let i=0;i<L.wet.length;i++)if(L.wet[i]){m.fillStyle=L.wet[i]===1?(th.water||'#3f7fb8'):L.wet[i]===2?(L.log[i]?'#6a4a2a':'#a07a4a'):L.wet[i]===3?'#3e3020':'rgba(10,20,10,.45)';m.fillRect(i%L.W,(i/L.W)|0,1,1);}
   for(const h of L.hills)for(const i of h.tiles){const x=i%L.W,y=(i/L.W)|0,a=(L.hc[i*4]+L.hc[i*4+2])/2/L.H;m.fillStyle=`rgba(255,255,220,${(a*.32).toFixed(3)})`;m.fillRect(x,y,1,1);
     if(!lvStep(L,i,i+L.W,0,1)){m.fillStyle='rgba(60,40,20,.7)';m.fillRect(x,y+.7,1,.3);}if(!lvStep(L,i,i+1,1,0)){m.fillStyle='rgba(60,40,20,.7)';m.fillRect(x+.7,y,.3,1);}}}
 
@@ -132,12 +167,32 @@ function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?DPR:1,T=TI
     if(wt===1){ // the water of the brook: deeper colour by the far bank, a few ripples
       quad(th.water||'#3f7fb8');const far=(L.wet[i-1]!==1?1:0)+(L.wet[i-W]!==1?1:0);if(far){quad(`rgba(10,30,60,${.16*far})`);}
       g.strokeStyle='rgba(255,255,255,.28)';g.lineWidth=1;for(let q=0;q<2;q++){const u=R(),v=R(),p=lvS(X0+u*T,Y0+v*T,h[0]);g.beginPath();g.moveTo(p.x-5,p.y);g.quadraticCurveTo(p.x,p.y-1.6,p.x+5,p.y);g.stroke();}}
+    else if(wt===3){ // the dry gully: dark earth and dead leaves, webs in the corners
+      quad('#43361f');const far=(L.wet[i-1]!==3?1:0)+(L.wet[i-W]!==3?1:0);if(far)quad(`rgba(0,0,0,${.18*far})`);
+      for(let q=0;q<5;q++){const p=lvS(X0+R()*T,Y0+R()*T,h[0]);g.fillStyle=['#7a5a2a','#8a6a30','#5a4220'][q%3];g.fillRect(p.x-1.5,p.y-.7,3,1.4);}
+      if(R()<.45){const c=lvS(X0+T*(.3+R()*.4),Y0+T*(.3+R()*.4),h[0]);g.strokeStyle='rgba(235,235,235,.5)';g.lineWidth=.7;
+        for(let a=0;a<6;a++){g.beginPath();g.moveTo(c.x,c.y);g.lineTo(c.x+Math.cos(a)*9,c.y+Math.sin(a)*4.5);g.stroke();}
+        for(const rr of [3,6]){g.beginPath();g.ellipse(c.x,c.y,rr*1.5,rr*.75,0,0,7);g.stroke();}}}
+    else if(wt===2&&L.log[i]){ // the fallen giant: a mossy log, bark lines along it
+      tri([C[0],C[1],C[2]],[S[0],S[1],S[2]],0);tri([C[0],C[2],C[3]],[S[0],S[2],S[3]],0);
+      const a=lvS(X0+T/2,Y0,0),b2=lvS(X0+T/2,Y1,0),nx=ISO*T*.5,ny=ISO*T*.25;
+      g.beginPath();g.moveTo(a.x-nx+2,a.y-ny-12);g.lineTo(b2.x-nx+2,b2.y-ny-12);g.lineTo(b2.x+nx-2,b2.y+ny-12);g.lineTo(a.x+nx-2,a.y+ny-12);g.closePath();
+      g.fillStyle='#6e4c2c';g.fill();g.strokeStyle='#3e2814';g.lineWidth=1;g.stroke();
+      g.strokeStyle='rgba(40,24,10,.6)';for(const f of [-.5,0,.5]){g.beginPath();g.moveTo(a.x+nx*f,a.y+ny*f-12);g.lineTo(b2.x+nx*f,b2.y+ny*f-12);g.stroke();}
+      g.fillStyle='rgba(110,160,70,.55)';for(let q=0;q<3;q++){const t=R(),p={x:a.x+(b2.x-a.x)*t-nx*.3,y:a.y+(b2.y-a.y)*t-ny*.3-13};g.beginPath();g.ellipse(p.x,p.y,4,2,0,0,7);g.fill();}
+      // the log's side over the gully, and its broken end
+      g.fillStyle='#4a321c';g.beginPath();g.moveTo(b2.x-nx+2,b2.y-ny-12);g.lineTo(b2.x+nx-2,b2.y+ny-12);g.lineTo(b2.x+nx-2,b2.y+ny);g.lineTo(b2.x-nx+2,b2.y-ny);g.closePath();
+      if(L.log[i+W]!==1){g.fill();g.fillStyle='#b08a5a';g.beginPath();g.ellipse(b2.x,b2.y-6,nx*.85,7,0,0,7);g.fill();g.strokeStyle='#7a5a32';g.beginPath();g.ellipse(b2.x,b2.y-6,nx*.45,3.6,0,0,7);g.stroke();}}
     else if(wt===2){ // the bridge: planks across, the road's way over the water
       quad('#9a7448');g.strokeStyle='rgba(60,38,18,.55)';g.lineWidth=1;for(let q=1;q<4;q++){const a=lvS(X0,Y0+q*T/4,0),b2=lvS(X1,Y0+q*T/4,0);g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b2.x,b2.y);g.stroke();}
       // rails along both sides, a post at each corner
       g.strokeStyle='#5a3d22';g.lineWidth=2;for(const ex of [X0,X1])if(L.wet[ty*W+(ex===X0?tx-1:tx+1)]!==2){const a=lvS(ex,Y0,0),b2=lvS(ex,Y1,0);g.beginPath();g.moveTo(a.x,a.y-9);g.lineTo(b2.x,b2.y-9);g.stroke();
         for(const p of [a,b2]){g.beginPath();g.moveTo(p.x,p.y);g.lineTo(p.x,p.y-11);g.stroke();}}}
-    else{tri([C[0],C[1],C[2]],[S[0],S[1],S[2]],sh);tri([C[0],C[2],C[3]],[S[0],S[2],S[3]],sh);}
+    else{tri([C[0],C[1],C[2]],[S[0],S[1],S[2]],sh);tri([C[0],C[2],C[3]],[S[0],S[2],S[3]],sh);
+      if(wt===4)quad('rgba(5,15,5,.3)'); // the hollow's floor lies in shadow
+      if(L.ramp&&L.ramp[i]){g.strokeStyle='rgba(60,38,18,.85)';g.lineWidth=2;g.lineCap='round'; // roots across the path down
+        for(let q=0;q<2;q++){const v=.2+q*.45+R()*.15,a=lvS(X0,Y0+v*T,h[0]*(1-v)+h[3]*v),b2=lvS(X1,Y0+v*T,h[1]*(1-v)+h[2]*v);g.beginPath();g.moveTo(a.x,a.y);g.quadraticCurveTo((a.x+b2.x)/2+R()*4-2,(a.y+b2.y)/2+R()*4-3,b2.x,b2.y);g.stroke();}}
+      if(hill.roots&&R()<.35){g.strokeStyle='rgba(70,45,20,.7)';g.lineWidth=1.6;const a=lvS(X0+R()*T,Y0+R()*T,(h[0]+h[2])/2);g.beginPath();g.moveTo(a.x-7,a.y);g.quadraticCurveTo(a.x,a.y-3,a.x+7,a.y+1);g.stroke();}}
     // banks: an earthen face where this tile drops sharply to the one in front (+y: down-left, +x: down-right)
     const face=(e0,e1,n0,n1,col,dark)=>{if(Math.max(h[e0]-n0,h[e1]-n1)<=LV_STEP)return;
       const A=C[e0],B=C[e1],pts=[lvS(A[0],A[1],h[e0]),lvS(B[0],B[1],h[e1]),lvS(B[0],B[1],n1),lvS(A[0],A[1],n0)];
@@ -152,7 +207,7 @@ function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?DPR:1,T=TI
       g.strokeStyle=lvHex(grass,26);g.lineWidth=3;g.lineCap='round';g.beginPath();g.moveTo(pts[0].x,pts[0].y+.5);g.lineTo(pts[1].x,pts[1].y+.5);g.stroke();
       g.strokeStyle=lvHex(grass,-30);g.lineWidth=1;for(let q=0;q<3;q++){const t=R(),p={x:pts[0].x+(pts[1].x-pts[0].x)*t,y:pts[0].y+(pts[1].y-pts[0].y)*t};g.beginPath();g.moveTo(p.x,p.y+1);g.lineTo(p.x+R()*2-1,p.y+4+R()*3);g.stroke();}};
     const dn=ty+1<L.Hh?i+W:-1,rt=tx+1<W?i+1:-1,nh=(j,e)=>j<0?0:hc[j*4+e];
-    const wood=wt===2;
+    const wood=wt===2&&!L.log[i];
     face(3,2,nh(dn,0),nh(dn,1),wood?'#7a5430':'#8a6a42',wood?'#4a3018':'#5a4128');   // the face toward the bottom-left
     face(2,1,nh(rt,3),nh(rt,0),wood?'#6a4828':'#76583a',wood?'#402a14':'#4a3420');}  // the face toward the bottom-right
   return {cv,x:mnx,y:mny,w:cw,h:ch,dpr};}
@@ -171,12 +226,13 @@ function lvShimmer(L){if(!L.brookD||window.LITE)return;const W=L.W;ctx.fillStyle
 /* ---- the brook: wading is slower, the near bank hides your feet, ripples round you ---- */
 {const _me2=moveEnt;moveEnt=function(e,dx,dy,r){const L=Z&&Z.lvd;if(L&&L.brookD&&e){const i=lvTile(L,e.x,e.y);if(i>=0&&L.wet[i]===1){dx*=.62;dy*=.62;}}return _me2.call(this,e,dx,dy,r);};}
 window.LV_IP=false;
-{const _at=at;at=function(x,y,fn){const L=Z&&Z.lvd;if(!window.LV_IP||!L||!L.brookD)return _at.apply(this,arguments);const i=lvTile(L,x,y);if(i<0||L.wet[i]!==1)return _at.apply(this,arguments);
-  const W=L.W,tx=i%W,ty=(i/W)|0,T=TILE;ctx.save();
+{const _at=at;at=function(x,y,fn){const L=Z&&Z.lvd;if(!window.LV_IP||!L||!L.lo)return _at.apply(this,arguments);const i=lvTile(L,x,y);
+  if(i<0||!(L.wet[i]===1||L.wet[i]===3||L.wet[i]===4))return _at.apply(this,arguments);
+  const W=L.W,tx=i%W,ty=(i/W)|0,T=TILE,up=j=>j>=0&&L.hc[j*4]>L.hc[i*4]+LV_STEP;ctx.save();
   // only what shows above the near bank's edge (the bank toward the camera hides your feet)
-  if(L.wet[i+1]!==1){const X=(tx+1)*T,a=lvS(X,-1e4,0),b=lvS(X,1e4,0);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.lineTo(b.x,b.y-1e5);ctx.lineTo(a.x,a.y-1e5);ctx.closePath();ctx.clip();}
-  if(L.wet[i+W]!==1){const Y=(ty+1)*T,a=lvS(-1e4,Y,0),b=lvS(1e4,Y,0);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.lineTo(b.x,b.y-1e5);ctx.lineTo(a.x,a.y-1e5);ctx.closePath();ctx.clip();}
-  try{_at.apply(this,arguments);
+  if(up(i+1)){const X=(tx+1)*T,a=lvS(X,-1e4,0),b=lvS(X,1e4,0);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.lineTo(b.x,b.y-1e5);ctx.lineTo(a.x,a.y-1e5);ctx.closePath();ctx.clip();}
+  if(up(i+W)){const Y=(ty+1)*T,a=lvS(-1e4,Y,0),b=lvS(1e4,Y,0);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.lineTo(b.x,b.y-1e5);ctx.lineTo(a.x,a.y-1e5);ctx.closePath();ctx.clip();}
+  try{_at.apply(this,arguments);if(L.wet[i]!==1)return;
     // the water round your legs
     const p=lvS(x,y,-L.brookD+3),w=13+Math.sin(now*4+x)*1.5;ctx.fillStyle='rgba(63,127,184,.5)';ctx.beginPath();ctx.ellipse(p.x,p.y,w,w*.42,0,0,7);ctx.fill();
     ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(p.x,p.y,w+2,(w+2)*.42,0,0,7);ctx.stroke();}
@@ -185,6 +241,8 @@ window.LV_IP=false;
 /* ---- a region gets its land when you enter it (after everything else has built it) ---- */
 {const _ez=enterZone;enterZone=function(id){try{const z=getZone(id);if(z&&z.lvd===undefined)lvGen(z);}catch(e){console.warn('heights',e);}return _ez.apply(this,arguments);};}
 // the Hopper Chieftain keeps its den on top of Chieftain's Knoll (its pack gathers round it)
-{const _sm=spawnMob;spawnMob=function(type){const m=_sm.apply(this,arguments);try{const L=Z&&Z.lvd;if(L&&L.den&&m&&m.d&&m.d.id==='hopperchief'){m.x=m.sx=L.den.x;m.y=m.sy=L.den.y;}
-  // the dewdrops live down in the brook
-  if(L&&L.dwellers&&m&&m.d&&m.d.id===L.dwellers){const w=[];for(let i=0;i<L.wet.length;i++)if(L.wet[i]===1)w.push(i);if(w.length){const i=w[Math.floor(Math.random()*w.length)];m.x=m.sx=(i%L.W+.5)*TILE;m.y=m.sy=(((i/L.W)|0)+.5)*TILE;}}}catch(e){}return m;};}
+{const _sm=spawnMob;spawnMob=function(type){const m=_sm.apply(this,arguments);try{const L=Z&&Z.lvd;if(!L||!m||!m.d)return m;
+  // a boss keeps its den (the Hopper Chieftain on its knoll, the Wolf Alpha at the bottom of the Hollow)
+  const den=L.dens.find(d=>d.mob===m.d.id);if(den){m.x=m.sx=den.x;m.y=m.sy=den.y;}
+  // some live down in the land: the dewdrops in the brook, the web-spinners in the gully
+  const dw=L.dwell.find(d=>d.mob===m.d.id);if(dw){const w=[];for(let i=0;i<L.wet.length;i++)if(L.wet[i]===dw.v&&!BLOCK[Z.t[i]])w.push(i);if(w.length){const i=w[Math.floor(Math.random()*w.length)];m.x=m.sx=(i%L.W+.5)*TILE;m.y=m.sy=(((i/L.W)|0)+.5)*TILE;}}}catch(e){}return m;};}
