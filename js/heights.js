@@ -20,6 +20,12 @@
    from the big pond to the east pond, crossed by the road's bridge and one ford, where the reed snappers lurk.
    (v1.59.0) The Ashen Dunes: great dunes, a gentle windward slope and a steep sand slip face to the east, wind ripples
    on their backs; The Scarab Pit, a sunken crater of sand with two slopes down, the Scarab Queen's nest at the bottom.
+   (v1.60.0) Every other wild region has its own land too (designs under LV_DESIGNS: rocky crags and ravines, snow drifts
+   and ice canyons, glacier terraces and crevasses, peaks, a jungle river, a sinking bog, burial pits and lava, beach
+   dunes and sea cliffs, a caldera, rolling downs, temple ruins, crystal ridges, a shadow hollow). lvAuto fits each piece
+   near its place on the map, clear of roads, water, gates and people, and only where nothing gets cut off; a ravine or
+   stream that meets a road gets a bridge, and each region's boss keeps its den in its own piece. Cliffs take the look
+   of the land: rock, snow, ice, marsh mud, crystal or obsidian.
 
    Z.lvd = {W, Hh, H (highest), lo (lowest), wet (1 water, 2 bridge or log, 3 dry gully, 4 hollow floor), hc: Float32Array(W*Hh*4) corner heights [top-left, top-right, bottom-right, bottom-left],
             hills, nodes, den} */
@@ -54,7 +60,75 @@ const LV_DESIGNS={
       {name:'Great Dune',cx:58,cy:14,rx:6.5,ry:2.8,H:30,top:.15,bank:{ax:'x',at:.3},sand:1},
       {name:'Great Dune',cx:18,cy:10,rx:8.5,ry:3.2,H:40,top:.15,bank:{ax:'x',at:.25},sand:1},
       {name:'Great Dune',cx:10,cy:38,rx:6,ry:2.6,H:28,top:.15,bank:{ax:'x',at:.3},sand:1}],
-    bowls:[{name:'The Scarab Pit',cx:52,cy:34,rx:6,ry:4,D:30,sand:1,ramps:[[43,33,45,34,'e'],[51,27,52,29,'s']],den:[52,34,'scarabqueen']}]}};
+    bowls:[{name:'The Scarab Pit',cx:52,cy:34,rx:6,ry:4,D:30,sand:1,ramps:[[43,33,45,34,'e'],[51,27,52,29,'s']],den:[52,34,'scarabqueen']}]},
+  // (v1.60.0) every other wild region, each its own land. Positions are fractions of the map (0..1); lvAuto fits each piece
+  // near there, clear of roads, water, gates and people, and only where nothing is cut off.
+  heights:{auto:[ // Windwhistle Heights: windswept rocky knolls, a ravine, a grassy rise
+    {k:'hill',name:'Hornback Crag',at:[.25,.3],rx:8,ry:4.5,H:46,top:.25,bank:{ax:'y',at:.35},style:'rock',den:'hornback'},
+    {k:'hill',name:'Windy Knoll',at:[.78,.72],rx:6,ry:3.6,H:34,top:.2,bank:{ax:'x',at:.35},style:'rock'},
+    {k:'gully',name:'Whistling Ravine',at:[.72,.22],ax:'x',len:14,wid:2,D:28,style:'rock',dwell:'screebeetle'},
+    {k:'hill',name:'Heather Rise',at:[.25,.78],rx:7,ry:4,H:26,top:.2}]},
+  ridge:{auto:[ // Pinewatch Ridge: a long rocky spine with the Antler King on its crest, a mountain stream, a pine knoll
+    {k:'hill',name:'The Spine',at:[.28,.38],rx:4,ry:8,H:48,top:.3,bank:{ax:'x',at:.3},style:'rock',den:'antlerking'},
+    {k:'gully',name:'Pinewater',at:[.72,.62],ax:'y',len:15,wid:2,D:20,water:1},
+    {k:'hill',name:'Pine Knoll',at:[.75,.22],rx:5.5,ry:3.5,H:26,top:.2}]},
+  frost:{auto:[ // Frostpeak Pass: snow drifts, an ice canyon, the Frost Matron in a frozen hollow
+    {k:'hill',name:'Snowdrift',at:[.22,.25],rx:7.5,ry:3.5,H:34,top:.2,bank:{ax:'y',at:.3},style:'snow'},
+    {k:'hill',name:'Snowdrift',at:[.8,.7],rx:6,ry:3,H:28,top:.2,bank:{ax:'x',at:.3},style:'snow'},
+    {k:'gully',name:'Ice Canyon',at:[.7,.2],ax:'x',len:16,wid:2,D:30,style:'ice',dwell:'glacierbeetle'},
+    {k:'bowl',name:'Frozen Hollow',at:[.25,.75],rx:6,ry:4,D:30,style:'snow',den:'frostmatron'}]},
+  glacier:{auto:[ // Skyreach Glacier: ice terraces up to Hrimfang, two deep crevasses
+    {k:'shelves',name:'Ice Terraces',at:[.08,.08],steps:[[20,14,16],[12,8,32]],style:'ice',den:'hrimfang'},
+    {k:'gully',name:'Crevasse',at:[.72,.3],ax:'y',len:14,wid:2,D:36,style:'ice'},
+    {k:'gully',name:'Crevasse',at:[.6,.78],ax:'x',len:12,wid:2,D:36,style:'ice'}]},
+  peaks:{auto:[ // Stormcrown Peaks: the great peak where Voltaris waits, a lesser peak, a storm ravine
+    {k:'hill',name:'Stormcrown',at:[.7,.3],rx:9.5,ry:6,H:66,top:.22,bank:{ax:'y',at:.35},style:'rock',den:'voltaris'},
+    {k:'hill',name:'Lesser Peak',at:[.22,.7],rx:6.5,ry:4,H:46,top:.2,bank:{ax:'x',at:.3},style:'rock'},
+    {k:'gully',name:'Thunder Ravine',at:[.25,.25],ax:'y',len:12,wid:2,D:30,style:'rock'}]},
+  jungle:{auto:[ // Thornveil Jungle: a jungle river with fords, mossy mounds, the Orchid Hollow where Orchidra blooms
+    {k:'gully',name:'Jade River',at:[.5,.75],ax:'x',len:20,wid:3,D:18,water:1,dwell:'jadetoad'},
+    {k:'hill',name:'Mossy Mound',at:[.22,.25],rx:6,ry:4,H:30,top:.2,bank:{ax:'y',at:.3},roots:1},
+    {k:'hill',name:'Mossy Mound',at:[.8,.3],rx:5,ry:3.5,H:26,top:.2,roots:1},
+    {k:'bowl',name:'Orchid Hollow',at:[.3,.62],rx:4.5,ry:3.2,D:28,den:'orchidra'}]},
+  fen:{auto:[ // Mirelight Fen: a sunken bog where the Mire Matriarch lurks, a mud channel, low hummocks
+    {k:'bowl',name:'The Sinking Bog',at:[.72,.3],rx:6,ry:4,D:24,style:'marsh',den:'mirematriarch'},
+    {k:'gully',name:'Mud Channel',at:[.3,.7],ax:'x',len:14,wid:2,D:16,water:1,style:'marsh',dwell:'bogling'},
+    {k:'hill',name:'Hummock',at:[.25,.25],rx:5,ry:3,H:18,top:.2},
+    {k:'hill',name:'Hummock',at:[.75,.78],rx:4.5,ry:3,H:16,top:.2}]},
+  crypt:{auto:[ // Cinder Crypt: burial pits, raised crypt terraces where the Warlord holds court, a channel of lava
+    {k:'shelves',name:'Crypt Terraces',at:[.6,.08],steps:[[18,12,14],[10,7,28]],style:'stone',den:'warlord'},
+    {k:'bowl',name:'Burial Pit',at:[.25,.3],rx:5,ry:3.5,D:26,style:'stone',dwell:'gravehound'},
+    {k:'bowl',name:'Burial Pit',at:[.3,.75],rx:4.5,ry:3,D:24,style:'stone'},
+    {k:'gully',name:'Lava Channel',at:[.75,.72],ax:'x',len:12,wid:2,D:20,water:1,lava:1,style:'obsidian'}]},
+  coast:{auto:[ // Saltspray Coast: beach dunes, sea cliffs, a tidal channel full of crabs
+    {k:'hill',name:'Beach Dune',at:[.25,.25],rx:7,ry:3,H:28,top:.15,bank:{ax:'x',at:.3},style:'sand'},
+    {k:'hill',name:'Beach Dune',at:[.7,.78],rx:6,ry:2.8,H:24,top:.15,bank:{ax:'x',at:.3},style:'sand'},
+    {k:'shelves',name:'Sea Cliffs',at:[.08,.6],steps:[[14,10,18],[8,6,34]],style:'rock'},
+    {k:'gully',name:'Tidal Channel',at:[.6,.3],ax:'y',len:12,wid:2,D:16,water:1,dwell:'tidecrab'}]},
+  caldera:{auto:[ // Cinderpeak Caldera: the crater where the Cinder Wyrm sleeps, obsidian ridges, a lava channel
+    {k:'bowl',name:'The Caldera',at:[.55,.45],rx:6,ry:4,D:36,style:'obsidian',den:'cinderwyrm'},
+    {k:'hill',name:'Obsidian Ridge',at:[.1,.2],rx:5,ry:2.6,H:34,top:.2,bank:{ax:'y',at:.3},style:'obsidian'},
+    {k:'hill',name:'Obsidian Ridge',at:[.4,.8],rx:4.5,ry:2.6,H:28,top:.2,bank:{ax:'x',at:.3},style:'obsidian'},
+    {k:'gully',name:'Lava Run',at:[.8,.2],ax:'y',len:9,wid:2,D:22,water:1,lava:1,style:'obsidian'}]},
+  downs:{auto:[ // Goldleaf Downs: rolling downs, the Woolhorn on the tallest, a chalk bank
+    {k:'hill',name:'Woolhorn Down',at:[.7,.3],rx:8,ry:5,H:40,top:.25,den:'woolhorn'},
+    {k:'hill',name:'Down',at:[.25,.25],rx:7,ry:4.5,H:30,top:.2},
+    {k:'hill',name:'Down',at:[.3,.75],rx:7.5,ry:4.5,H:32,top:.2},
+    {k:'hill',name:'Chalk Bank',at:[.75,.75],rx:6.5,ry:3.5,H:30,top:.25,bank:{ax:'y',at:.3},style:'stone'}]},
+  ruins:{auto:[ // Old Aurel Ruins: raised temple platforms, a sunken courtyard where the Fallen Paladin stands, a collapsed trench
+    {k:'shelves',name:'Temple Platforms',at:[.08,.08],steps:[[18,12,14],[10,7,28]],style:'stone'},
+    {k:'bowl',name:'Sunken Courtyard',at:[.7,.68],rx:6,ry:4,D:26,style:'stone',den:'fallenpaladin'},
+    {k:'gully',name:'Collapsed Trench',at:[.72,.22],ax:'x',len:14,wid:2,D:22,style:'stone',dwell:'relicrat'}]},
+  steppe:{auto:[ // Crystal Steppe: crystal ridges, a dry riverbed, the crater of the Geode Colossus
+    {k:'hill',name:'Crystal Ridge',at:[.25,.25],rx:7,ry:3,H:36,top:.2,bank:{ax:'y',at:.3},style:'crystal'},
+    {k:'hill',name:'Crystal Ridge',at:[.75,.25],rx:6,ry:3,H:32,top:.2,bank:{ax:'x',at:.3},style:'crystal'},
+    {k:'gully',name:'Dry Riverbed',at:[.3,.75],ax:'x',len:18,wid:2,D:20,dwell:'geodetortoise'},
+    {k:'bowl',name:'Geode Crater',at:[.72,.7],rx:6,ry:4,D:30,style:'crystal',den:'geodecolossus'}]},
+  dusk:{auto:[ // Duskwood: a shadow hollow where the Hollow King waits, ridges of roots, a dark brook
+    {k:'bowl',name:'Shadow Hollow',at:[.7,.35],rx:6,ry:4.5,D:32,den:'hollowking'},
+    {k:'hill',name:'Root Ridge',at:[.25,.25],rx:6.5,ry:2.8,H:28,top:.25,bank:{ax:'y',at:.12},roots:1},
+    {k:'hill',name:'Root Ridge',at:[.25,.72],rx:6,ry:2.6,H:26,top:.25,bank:{ax:'y',at:.12},roots:1},
+    {k:'gully',name:'Dark Brook',at:[.7,.78],ax:'x',len:16,wid:2,D:18,water:1,dwell:'duskweaver'}]}};
 const lvTile=(L,x,y)=>{const tx=Math.floor(x/TILE),ty=Math.floor(y/TILE);return !(tx>=0&&ty>=0&&tx<L.W&&ty<L.Hh)?-1:ty*L.W+tx;}; // NaN-safe
 // height of the ground at a world point: the tile's four corners, blended
 function lvH(L,x,y){const i=lvTile(L,x,y);if(i<0)return 0;const k=i*4,a=L.hc[k],b=L.hc[k+1],c=L.hc[k+2],d=L.hc[k+3];if(!(a||b||c||d))return 0;
@@ -90,6 +164,11 @@ function lvWalkLine(x0,y0,x1,y1,r,step){const L=Z.lvd,d=Math.hypot(x1-x0,y1-y0),
 if(typeof mobClear==='function'){const _mc=mobClear;mobClear=function(x0,y0,x1,y1,r){if(!(Z&&Z.lvd))return _mc.apply(this,arguments);return lvWalkLine(x0,y0,x1,y1,r,8);};}
 
 /* ---- building a region's land from its design ---- */
+const LV_STY={earth:0,rock:3,snow:4,ice:5,marsh:6,crystal:7,obsidian:8};
+// cliff faces by style: [face toward the bottom-left top, its foot, face toward the bottom-right top, its foot, floor tint]
+const LV_FACE={3:['#9a8f80','#5e564c','#857b6d','#4a433b','rgba(40,30,20,.22)'],4:['#f4f8ff','#a8bed6','#dfe8f4','#8ea6c2','rgba(120,150,190,.18)'],
+  5:['#cfeeff','#7fb8dc','#b2def6','#5f9cc8','rgba(60,120,170,.2)'],6:['#5a5030','#2e2a18','#4c4428','#262212','rgba(20,30,10,.35)'],
+  7:['#c4a8f4','#7a5ab8','#a88ae0','#5e4096','rgba(90,50,150,.22)'],8:['#3a2e34','#1a1216','#2e2428','#140c10','rgba(60,10,0,.3)']};
 const lvSmooth=t=>t<=0?0:t>=1?1:t*t*(3-2*t);
 function lvHill(h,x,y){const dx=(x-h.cx)/h.rx,dy=(y-h.cy)/h.ry,d=Math.hypot(dx,dy);if(d>=1)return 0;if(d<=h.top)return h.H;return h.H*lvSmooth((1-d)/(1-h.top));}
 function lvReachable(z,L){const W=z.w,H=z.h,N=W*H,seen=new Uint8Array(N),free=i=>!BLOCK[z.t[i]];let start=-1;
@@ -100,24 +179,84 @@ function lvReachable(z,L){const W=z.w,H=z.h,N=W*H,seen=new Uint8Array(N),free=i=
     if(seen[j]||!free(j))continue;if(L&&!lvStep(L,i,j,dx,dy))continue;seen[j]=1;q.push(j);}}
   return seen;}
 function lvGen(z){z.lvd=null;const des=LV_DESIGNS[z.id];if(!des)return;
-  const W=z.w,H=z.h,hc=new Float32Array(W*H*4),L={W,Hh:H,H:0,lo:0,hc,hills:[],nodes:[],feats:[],wet:new Uint8Array(W*H),log:new Uint8Array(W*H),sand:new Uint8Array(W*H),crop:new Uint8Array(W*H),stone:new Uint8Array(W*H),dens:[],dwell:[]};
-  for(const h of des.hills||[]){const own=[];let x0=1e9,y0=1e9,x1=-1,y1=-1;
-    for(let ty=Math.max(1,Math.floor(h.cy-h.ry));ty<=Math.min(H-2,Math.ceil(h.cy+h.ry));ty++)for(let tx=Math.max(1,Math.floor(h.cx-h.rx));tx<=Math.min(W-2,Math.ceil(h.cx+h.rx));tx++){
-      // the bank: past this line the hill is cut off sharply (its face looks toward you)
-      if(h.bank){const off=h.bank.ax==='y'?(ty+.5-h.cy)/h.ry:(tx+.5-h.cx)/h.rx;if(off>h.bank.at)continue;}
-      const c=[lvHill(h,tx,ty),lvHill(h,tx+1,ty),lvHill(h,tx+1,ty+1),lvHill(h,tx,ty+1)];if(!(c[0]||c[1]||c[2]||c[3]))continue;
-      const i=(ty*W+tx)*4;for(let k=0;k<4;k++)hc[i+k]=Math.max(hc[i+k],c[k]);own.push(ty*W+tx);x0=Math.min(x0,tx);y0=Math.min(y0,ty);x1=Math.max(x1,tx);y1=Math.max(y1,ty);}
-    if(!own.length)continue;L.H=Math.max(L.H,h.H);
-    const hill={...h,tiles:own,x:x0,y:y0,w:x1-x0+1,hh:y1-y0+1};L.hills.push(hill);L.feats.push(hill);if(h.sand)for(const i of own)L.sand[i]=1;
-    // the old oak on the top (a tree tile, so nobody walks through it); the chieftain's den beside it
-    if(h.oak){const [ox,oy]=h.oak;z.t[oy*W+ox]=2;z.objs.push({x:(ox+.5)*TILE,y:(oy+.5)*TILE,kind:'tree',v:1,sc:1.75,oak:1});}
-    if(h.den)L.dens.push({x:(h.den[0]+.5)*TILE,y:(h.den[1]+.5)*TILE,mob:h.den[2]});}
+  const W=z.w,H=z.h,hc=new Float32Array(W*H*4),L={W,Hh:H,H:0,lo:0,hc,hills:[],nodes:[],feats:[],wet:new Uint8Array(W*H),log:new Uint8Array(W*H),sand:new Uint8Array(W*H),style:new Uint8Array(W*H),used:new Uint8Array(W*H),crop:new Uint8Array(W*H),stone:new Uint8Array(W*H),dens:[],dwell:[]};
+  for(const h of des.hills||[])lvAddHill(z,L,h);
   if(des.brook)lvBrook(z,L,des.brook);
   for(const b of des.bowls||[])lvBowl(z,L,b);
   for(const b of des.gullies||[])lvGully(z,L,b);
   if(des.terraces)lvTerraces(z,L,des.terraces);
+  if(des.auto)lvAuto(z,L,des.auto);
   if(!L.feats.length)return;
   z.lvd=L;lvMini(z);}
+function lvAddHill(z,L,h){const W=L.W,H=L.Hh,hc=L.hc,own=[];let x0=1e9,y0=1e9,x1=-1,y1=-1;
+  for(let ty=Math.max(1,Math.floor(h.cy-h.ry));ty<=Math.min(H-2,Math.ceil(h.cy+h.ry));ty++)for(let tx=Math.max(1,Math.floor(h.cx-h.rx));tx<=Math.min(W-2,Math.ceil(h.cx+h.rx));tx++){
+    // the bank: past this line the hill is cut off sharply (its face looks toward you)
+    if(h.bank){const off=h.bank.ax==='y'?(ty+.5-h.cy)/h.ry:(tx+.5-h.cx)/h.rx;if(off>h.bank.at)continue;}
+    const c=[lvHill(h,tx,ty),lvHill(h,tx+1,ty),lvHill(h,tx+1,ty+1),lvHill(h,tx,ty+1)];if(!(c[0]||c[1]||c[2]||c[3]))continue;
+    const i=(ty*W+tx)*4;for(let k=0;k<4;k++)hc[i+k]=Math.max(hc[i+k],c[k]);own.push(ty*W+tx);x0=Math.min(x0,tx);y0=Math.min(y0,ty);x1=Math.max(x1,tx);y1=Math.max(y1,ty);}
+  if(!own.length)return null;L.H=Math.max(L.H,h.H);
+  const hill={...h,tiles:own,x:x0,y:y0,w:x1-x0+1,hh:y1-y0+1};L.hills.push(hill);L.feats.push(hill);
+  if(h.sand||h.style==='sand')for(const i of own)L.sand[i]=1;if(h.style==='stone')for(const i of own)L.stone[i]=1;if(LV_STY[h.style])for(const i of own)L.style[i]=LV_STY[h.style];
+  // the old oak on the top (a tree tile, so nobody walks through it); the chieftain's den beside it
+  if(h.oak){const [ox,oy]=h.oak;z.t[oy*W+ox]=2;z.objs.push({x:(ox+.5)*TILE,y:(oy+.5)*TILE,kind:'tree',v:1,sc:1.75,oak:1});}
+  if(h.den)L.dens.push({x:(h.den[0]+.5)*TILE,y:(h.den[1]+.5)*TILE,mob:h.den[2]});return hill;}
+// mark a piece's tiles with its style (the faces and floor take the look of the land)
+function lvStyle(L,tiles,st){for(const i of tiles){if(st==='sand')L.sand[i]=1;else if(st==='stone')L.stone[i]=1;else if(LV_STY[st])L.style[i]=LV_STY[st];}}
+
+/* ---- lvAuto: fit each designed piece near its place on the map ---- */
+function lvAuto(z,L,specs){const W=z.w,H=z.h,snap=()=>({hc:L.hc.slice(),wet:L.wet.slice(),ramp:L.ramp?L.ramp.slice():null,log:L.log.slice(),sand:L.sand.slice(),style:L.style.slice(),stone:L.stone.slice(),crop:L.crop.slice(),
+    t:z.t.slice(),objs:z.objs.slice(),feats:L.feats.length,hills:L.hills.length,dens:L.dens.length,dwell:L.dwell.length,lo:L.lo,Hm:L.H});
+  const back=S=>{L.hc.set(S.hc);L.wet.set(S.wet);if(S.ramp)L.ramp.set(S.ramp);L.log.set(S.log);L.sand.set(S.sand);L.style.set(S.style);L.stone.set(S.stone);L.crop.set(S.crop);z.t.set(S.t);z.objs=S.objs;
+    L.feats.length=S.feats;L.hills.length=S.hills;L.dens.length=S.dens;L.dwell.length=S.dwell;L.lo=S.lo;L.H=S.Hm;};
+  L.ramp=L.ramp||new Uint8Array(W*H);const before=lvReachable(z,null);
+  const near=(x,y)=>{for(const p of z.portals)if(Math.abs(p.x/TILE-x)<5&&Math.abs(p.y/TILE-y)<5)return true;for(const n of z.npcs)if(Math.abs(n.x/TILE-x)<3&&Math.abs(n.y/TILE-y)<3)return true;
+    if(z.spawn&&Math.abs(z.spawn.x/TILE-x)<4&&Math.abs(z.spawn.y/TILE-y)<4)return true;for(const b of z.buildings)if(x>=b.x-2&&x<b.x+b.w+2&&y>=b.y-2&&y<b.y+b.h+2)return true;return false;};
+  for(const sp of specs){const cx0=Math.round(sp.at[0]*W),cy0=Math.round(sp.at[1]*H);const cand=[];
+    for(let dy=-26;dy<=26;dy++)for(let dx=-26;dx<=26;dx++)cand.push([dx,dy]);cand.sort((a,b)=>(a[0]*a[0]+a[1]*a[1])-(b[0]*b[0]+b[1]*b[1]));
+    // the piece's box, to rule out a place quickly before building it there
+    const rx=sp.k==='gully'?(sp.ax==='x'?(sp.len>>1)+4:(sp.wid>>1)+1):sp.k==='shelves'?0:Math.ceil(sp.rx)+(sp.k==='bowl'?1:0),ry=sp.k==='gully'?(sp.ax==='y'?(sp.len>>1)+4:(sp.wid>>1)+1):sp.k==='shelves'?0:Math.ceil(sp.ry)+(sp.k==='bowl'?1:0);
+    const box=(cx,cy)=>{if(sp.k==='shelves'){const [w,h]=sp.steps[0];return [cx,cy,cx+w-1,cy+h+3];}return [cx-rx,cy-ry,cx+rx,cy+ry];};
+    let tries=0;
+    for(const [dx,dy] of cand){const [bx0,by0,bx1,by1]=box(cx0+dx,cy0+dy);if(bx0<2||by0<2||bx1>W-3||by1>H-3)continue;
+      let clear=true;for(let y=by0;y<=by1&&clear;y++)for(let x=bx0;x<=bx1;x++){const i=y*W+x,v=z.t[i];if(L.used[i]||v===3||(sp.k!=='gully'&&(v===1||v===6))){clear=false;break;}}
+      if(!clear)continue;if(++tries>120)break;
+      const S=snap(),piece=lvBuild(z,L,sp,cx0+dx,cy0+dy);if(!piece){back(S);continue;}
+      // its ground: inside the map, no water, no road (a ravine may cross one on a bridge), away from gates, people, buildings and other pieces
+      let ok=true;for(const i of piece.core){const x=i%W,y=(i/W)|0;if(x<2||y<2||x>W-3||y>H-3||S.t[i]===3||L.used[i]||near(x,y)||(!piece.road&&(S.t[i]===1||S.t[i]===6))){ok=false;break;}}
+      if(ok){const after=lvReachable(z,L),skip=piece.lava?new Set(piece.core.filter(i=>L.wet[i]===1)):null; // lava is not meant to be walked into
+        for(let i=0;i<before.length;i++)if(before[i]&&!after[i]&&!BLOCK[z.t[i]]&&!(skip&&skip.has(i))){ok=false;break;}}
+      if(!ok){back(S);continue;}
+      for(const i of piece.core){const x=i%W,y=(i/W)|0;for(let yy=y-2;yy<=y+2;yy++)for(let xx=x-2;xx<=x+2;xx++)if(xx>=0&&yy>=0&&xx<W&&yy<H)L.used[yy*W+xx]=1;}
+      break;}}}
+// build one piece at (cx,cy); returns its core tiles (or null if it does not fit the map)
+function lvBuild(z,L,sp,cx,cy){const W=z.w,H=z.h;
+  if(sp.k==='hill'){const h=lvAddHill(z,L,{...sp,cx:cx+.5,cy:cy+.5,den:sp.den?[cx,cy,sp.den]:null});if(!h)return null;if(sp.den)lvClear(z,cy*W+cx);return {core:h.tiles};}
+  if(sp.k==='bowl'){if(cx-sp.rx-5<1||cy-sp.ry-5<1||cx+sp.rx+2>W-2||cy+sp.ry+2>H-2)return null;
+    // two paths down: from the north and from the west, where the walls face you
+    const inside=(x,y)=>Math.hypot((x-cx)/sp.rx,(y-cy)/sp.ry)<=1;let top=cy,left=cx;while(inside(cx-1,top-1)&&inside(cx,top-1))top--;while(inside(left-1,cy-1)&&inside(left-1,cy))left--;
+    const b={...sp,cx:cx+.5,cy:cy+.5,ramps:[[cx-1,top-3,cx,top-1,'s'],[left-3,cy-1,left-1,cy,'e']],den:sp.den?[cx,cy,sp.den]:null};
+    const n0=L.feats.length;lvBowl(z,L,b);const f=L.feats[n0];if(sp.style)lvStyle(L,f.tiles,sp.style);
+    if(sp.dwell)L.dwell.push({mob:sp.dwell,v:4,feat:f});return {core:f.tiles};}
+  if(sp.k==='gully'){const ax=sp.ax,len=sp.len,wid=sp.wid,x0=ax==='x'?cx-(len>>1):cx-(wid>>1),y0=ax==='x'?cy-(wid>>1):cy-(len>>1),x1=ax==='x'?x0+len-1:x0+wid-1,y1=ax==='x'?y0+wid-1:y0+len-1;
+    if(x0-4<1||y0-4<1||x1+4>W-2||y1+4>H-2)return null;
+    const tiles=new Set(),D=sp.D,hc=L.hc,water=!!sp.water;let road=false;
+    for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const i=y*W+x;if(z.t[i]===1||z.t[i]===6){L.wet[i]=2;road=true;tiles.add(i);continue;} // the road crosses on a bridge
+      lvClear(z,i);for(let k=0;k<4;k++)hc[i*4+k]=-D;L.wet[i]=water?1:3;tiles.add(i);}
+    // a slope down at each end (not into lava)
+    if(!sp.lava){const rps=ax==='x'?[[x0-3,y0,x0-1,y1,'e'],[x1+1,y0,x1+3,y1,'w']]:[[x0,y0-3,x1,y0-1,'s'],[x0,y1+1,x1,y1+3,'n']];
+      for(const rp of rps){let bad=false;for(let y=rp[1];y<=rp[3];y++)for(let x=rp[0];x<=rp[2];x++)if(z.t[y*W+x]===3||z.t[y*W+x]===1||z.t[y*W+x]===6)bad=true;if(bad)continue;
+        for(let y=rp[1];y<=rp[3];y++)for(let x=rp[0];x<=rp[2];x++)lvClear(z,y*W+x);lvRampSet(L,rp,D,tiles,sp.style&&sp.style!=='earth'?3:1);}}
+    lvBehind(L,tiles);L.lo=Math.min(L.lo,-D);if(water){L.brookD=L.brookD||D;if(sp.lava)L.lava=1;}
+    const f={name:sp.name,tiles:[...tiles],gully:sp};L.feats.push(f);if(sp.style)lvStyle(L,f.tiles,sp.style);
+    if(sp.dwell)L.dwell.push({mob:sp.dwell,v:water?1:3,feat:f});return {core:[...tiles],road,lava:!!sp.lava};}
+  if(sp.k==='shelves'){const x0=cx,y0=cy,st=sp.steps;const w0=st[0][0],h0=st[0][1];if(x0<2||y0<2||x0+w0+1>W-2||y0+h0+4>H-2)return null;
+    const shelves=st.map(([w,h,Ht])=>[x0,y0,x0+w-1,y0+h-1,Ht]),ramps=[];
+    // steps up the south face of each shelf, from the one below
+    st.forEach(([w,h,Ht],k)=>{const mx=x0+Math.floor(w/2)-1,from=k?st[k-1][2]:0;ramps.push([mx,y0+h,mx+1,y0+h+2,'n',from,Ht]);});
+    const n0=L.feats.length;lvTerraces(z,L,{name:sp.name,shelves,ramps,den:sp.den?[x0+Math.floor(st[st.length-1][0]/2),y0+Math.floor(st[st.length-1][1]/2),sp.den]:null});
+    const f=L.feats[n0];for(const i of f.tiles)L.crop[i]=0;L.stone.fill(0,0,0);for(const i of f.tiles)L.stone[i]=0;lvStyle(L,f.tiles,sp.style||'stone');
+    return {core:f.tiles};}
+  return null;}
 // the brook: its bed lies D below the meadow; the bridge stays level with the road; a ford slopes down into the water
 function lvBrook(z,L,b){const W=L.W,hc=L.hc,D=b.D,set=(i,a,bb,c,d)=>{hc[i*4]=a;hc[i*4+1]=bb;hc[i*4+2]=c;hc[i*4+3]=d;},tiles=new Set();
   for(const [x0,y0,x1,y1] of b.wet)for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const i=y*W+x;set(i,-D,-D,-D,-D);L.wet[i]=1;
@@ -161,7 +300,7 @@ function lvGully(z,L,b){const W=L.W,hc=L.hc,D=b.D,tiles=new Set();L.ramp=L.ramp|
   L.feats.push({name:b.name,tiles:[...tiles],gully:b});}
 // the minimap: higher ground a little lighter, banks dark
 function lvMini(z){const L=z.lvd,m=z.mini&&z.mini.getContext&&z.mini.getContext('2d');if(!L||!m)return;const th=THEMES[z.D.theme]||{};
-  for(let i=0;i<L.wet.length;i++)if(L.wet[i]){m.fillStyle=L.wet[i]===1?(th.water||'#3f7fb8'):L.wet[i]===2?(L.log[i]?'#6a4a2a':'#a07a4a'):L.wet[i]===3?'#3e3020':'rgba(10,20,10,.45)';m.fillRect(i%L.W,(i/L.W)|0,1,1);}
+  for(let i=0;i<L.wet.length;i++)if(L.wet[i]){m.fillStyle=L.wet[i]===1?(th.water||'#3f7fb8'):L.wet[i]===2?(L.log[i]?'#6a4a2a':'#a07a4a'):L.wet[i]===3?(L.style[i]?LV_FACE[L.style[i]][3]:'#3e3020'):'rgba(10,20,10,.45)';m.fillRect(i%L.W,(i/L.W)|0,1,1);}
   for(const f of L.feats)if(f.terraces)for(const i of f.tiles){const a=L.hc[i*4]/L.H;m.fillStyle=`rgba(255,250,200,${(a*.35).toFixed(3)})`;m.fillRect(i%L.W,(i/L.W)|0,1,1);}
   for(const f of L.feats)if(f.bowl)for(const i of f.tiles)if(L.wet[i]===4){m.fillStyle=L.sand[i]?'rgba(120,70,20,.35)':'rgba(10,20,10,.45)';m.fillRect(i%L.W,(i/L.W)|0,1,1);}
   for(const h of L.hills)for(const i of h.tiles){const x=i%L.W,y=(i/L.W)|0,a=(L.hc[i*4]+L.hc[i*4+2])/2/L.H;m.fillStyle=`rgba(255,255,220,${(a*.32).toFixed(3)})`;m.fillRect(x,y,1,1);
@@ -196,9 +335,14 @@ function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?DPR:1,T=TI
     // light from the upper left: slopes facing down-left are lit, those facing down-right are in shade; the top is a touch brighter
     const dhx=((h[1]-h[0])+(h[2]-h[3]))/2/T,dhy=((h[3]-h[0])+(h[2]-h[1]))/2/T,sh=(dhx-dhy)*.95+(L.H?((h[0]+h[2])/2/L.H)*.07:0);
     const wt=L.wet[i],quad=(fill)=>{g.beginPath();S.forEach((p,j)=>j?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.closePath();g.fillStyle=fill;g.fill();};
-    if(wt===1){ // the water of the brook: deeper colour by the far bank, a few ripples
+    if(wt===1&&th.lava){ // lava: glowing, with dark crust
+      quad(th.water||'#e8541a');quad('rgba(255,200,60,.25)');g.fillStyle='rgba(40,10,0,.55)';for(let q=0;q<3;q++){const p=lvS(X0+R()*T,Y0+R()*T,h[0]);g.beginPath();g.ellipse(p.x,p.y,4+R()*4,2,0,0,7);g.fill();}}
+    else if(wt===1){ // the water of the brook: deeper colour by the far bank, a few ripples
       quad(th.water||'#3f7fb8');const far=(L.wet[i-1]!==1?1:0)+(L.wet[i-W]!==1?1:0);if(far){quad(`rgba(10,30,60,${.16*far})`);}
       g.strokeStyle='rgba(255,255,255,.28)';g.lineWidth=1;for(let q=0;q<2;q++){const u=R(),v=R(),p=lvS(X0+u*T,Y0+v*T,h[0]);g.beginPath();g.moveTo(p.x-5,p.y);g.quadraticCurveTo(p.x,p.y-1.6,p.x+5,p.y);g.stroke();}}
+    else if(wt===3&&L.style[i]){ // a dry ravine of rock, ice, crystal...: its floor in the land's colour, rubble on it
+      const F=LV_FACE[L.style[i]];quad(F[3]);quad('rgba(0,0,0,.15)');for(let q=0;q<4;q++){const p=lvS(X0+R()*T,Y0+R()*T,h[0]);g.fillStyle=F[q%2?0:2];g.beginPath();g.ellipse(p.x,p.y,2.5+R()*2.5,1.4+R(),0,0,7);g.fill();}}
+    else if(wt===3&&L.stone[i]){quad('#6a6458');quad('rgba(0,0,0,.18)');}
     else if(wt===3){ // the dry gully: dark earth and dead leaves, webs in the corners
       quad('#43361f');const far=(L.wet[i-1]!==3?1:0)+(L.wet[i-W]!==3?1:0);if(far)quad(`rgba(0,0,0,${.18*far})`);
       for(let q=0;q<5;q++){const p=lvS(X0+R()*T,Y0+R()*T,h[0]);g.fillStyle=['#7a5a2a','#8a6a30','#5a4220'][q%3];g.fillRect(p.x-1.5,p.y-.7,3,1.4);}
@@ -221,7 +365,7 @@ function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?DPR:1,T=TI
       g.strokeStyle='#5a3d22';g.lineWidth=2;for(const ex of [X0,X1])if(L.wet[ty*W+(ex===X0?tx-1:tx+1)]!==2){const a=lvS(ex,Y0,0),b2=lvS(ex,Y1,0);g.beginPath();g.moveTo(a.x,a.y-9);g.lineTo(b2.x,b2.y-9);g.stroke();
         for(const p of [a,b2]){g.beginPath();g.moveTo(p.x,p.y);g.lineTo(p.x,p.y-11);g.stroke();}}}
     else{tri([C[0],C[1],C[2]],[S[0],S[1],S[2]],sh);tri([C[0],C[2],C[3]],[S[0],S[2],S[3]],sh);
-      if(wt===4)quad(L.sand[i]?'rgba(90,50,15,.18)':'rgba(5,15,5,.3)'); // a hollow's floor lies in shadow
+      if(wt===4)quad(L.style[i]?LV_FACE[L.style[i]][4]:L.stone[i]?'rgba(30,25,20,.28)':L.sand[i]?'rgba(90,50,15,.18)':'rgba(5,15,5,.3)'); // a hollow's floor lies in shadow
       if(L.sand[i]){g.lineCap='round';for(let q=0;q<2;q++){const v=.25+q*.45+R()*.1,a=lvS(X0+2,Y0+v*T,h[0]*(1-v)+h[3]*v),b2=lvS(X1-2,Y0+v*T+3,h[1]*(1-v)+h[2]*v); // wind ripples
         g.strokeStyle='rgba(120,85,40,.32)';g.lineWidth=1.2;g.beginPath();g.moveTo(a.x,a.y);g.quadraticCurveTo((a.x+b2.x)/2,(a.y+b2.y)/2-2.5,b2.x,b2.y);g.stroke();
         g.strokeStyle='rgba(255,240,200,.35)';g.lineWidth=1;g.beginPath();g.moveTo(a.x,a.y-1.4);g.quadraticCurveTo((a.x+b2.x)/2,(a.y+b2.y)/2-3.9,b2.x,b2.y-1.4);g.stroke();}}
@@ -231,7 +375,8 @@ function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?DPR:1,T=TI
           g.fillStyle=q%2?'#8fd060':'#a6dd6e';for(let k=0;k<3;k++){const f=(k+.3+R()*.4)/3,p={x:a.x+(b2.x-a.x)*f,y:a.y+(b2.y-a.y)*f};g.fillRect(p.x-1,p.y-3,2,3);g.fillRect(p.x-2.5,p.y-3.5,2,1.2);g.fillRect(p.x+.5,p.y-3.5,2,1.2);}}}
       if(L.ramp&&L.ramp[i]===2){ // earthen steps cut into the slope
         for(let q=1;q<4;q++){const v=q/4,ax=L.ramp&&(h[0]!==h[3])?0:1,a=ax?lvS(X0+v*T,Y0,h[0]*(1-v)+h[1]*v):lvS(X0,Y0+v*T,h[0]*(1-v)+h[3]*v),b2=ax?lvS(X0+v*T,Y1,h[3]*(1-v)+h[2]*v):lvS(X1,Y0+v*T,h[1]*(1-v)+h[2]*v);
-          g.strokeStyle='rgba(90,62,30,.7)';g.lineWidth=2;g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b2.x,b2.y);g.stroke();g.strokeStyle='rgba(255,235,190,.25)';g.lineWidth=1;g.beginPath();g.moveTo(a.x,a.y-1.5);g.lineTo(b2.x,b2.y-1.5);g.stroke();}}
+          const cold=L.style[i]===4||L.style[i]===5,dark=L.style[i]===8,cry=L.style[i]===7; // steps take the land's colour
+          g.strokeStyle=cold?'rgba(90,140,190,.75)':dark?'rgba(20,10,12,.8)':cry?'rgba(90,60,150,.75)':'rgba(90,62,30,.7)';g.lineWidth=2;g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b2.x,b2.y);g.stroke();g.strokeStyle=cold?'rgba(255,255,255,.6)':'rgba(255,235,190,.25)';g.lineWidth=1;g.beginPath();g.moveTo(a.x,a.y-1.5);g.lineTo(b2.x,b2.y-1.5);g.stroke();}}
       else if(L.ramp&&L.ramp[i]===3){} // a sand slope: just the ripples
       else if(L.ramp&&L.ramp[i]){g.strokeStyle='rgba(60,38,18,.85)';g.lineWidth=2;g.lineCap='round'; // roots across the path down
         for(let q=0;q<2;q++){const v=.2+q*.45+R()*.15,a=lvS(X0,Y0+v*T,h[0]*(1-v)+h[3]*v),b2=lvS(X1,Y0+v*T,h[1]*(1-v)+h[2]*v);g.beginPath();g.moveTo(a.x,a.y);g.quadraticCurveTo((a.x+b2.x)/2+R()*4-2,(a.y+b2.y)/2+R()*4-3,b2.x,b2.y);g.stroke();}}
@@ -251,6 +396,20 @@ function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?DPR:1,T=TI
       g.strokeStyle=lvHex(grass,-30);g.lineWidth=1;for(let q=0;q<3;q++){const t=R(),p={x:pts[0].x+(pts[1].x-pts[0].x)*t,y:pts[0].y+(pts[1].y-pts[0].y)*t};g.beginPath();g.moveTo(p.x,p.y+1);g.lineTo(p.x+R()*2-1,p.y+4+R()*3);g.stroke();}};
     const dn=ty+1<L.Hh?i+W:-1,rt=tx+1<W?i+1:-1,nh=(j,e)=>j<0?0:hc[j*4+e];
     const wood=wt===2&&!L.log[i],stone=!!L.stone[i]&&!wood;
+    if(L.style[i]){ // a cliff in the land's own look: rock, snow, ice, marsh mud, crystal or obsidian
+      const F=LV_FACE[L.style[i]],stl=L.style[i];
+      const cf=(e0,e1,n0,n1,side)=>{if(Math.max(h[e0]-n0,h[e1]-n1)<=LV_STEP)return;const A=C[e0],B=C[e1];
+        const pts=[lvS(A[0],A[1],h[e0]),lvS(B[0],B[1],h[e1]),lvS(B[0],B[1],n1),lvS(A[0],A[1],n0)];g.beginPath();pts.forEach((p,j)=>j?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.closePath();
+        const gr=g.createLinearGradient(0,Math.min(pts[0].y,pts[1].y),0,Math.max(pts[2].y,pts[3].y));gr.addColorStop(0,F[side?2:0]);gr.addColorStop(1,F[side?3:1]);g.fillStyle=gr;g.fill();
+        g.save();g.clip();const hh=Math.max(h[e0]-n0,h[e1]-n1);
+        if(stl===3||stl===8){g.strokeStyle=stl===8?'rgba(255,90,40,.35)':'rgba(30,24,18,.45)';g.lineWidth=1;for(let q=0;q<3;q++){const t=R(),a=lvS(A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t,h[e0]*(1-t)+h[e1]*t);g.beginPath();g.moveTo(a.x,a.y);g.lineTo(a.x+R()*4-2,a.y+hh*.35);g.lineTo(a.x+R()*4-2,a.y+hh*.75);g.stroke();}
+          for(const f of [.4,.7]){const a=lvS(A[0],A[1],h[e0]*(1-f)+n0*f),b2=lvS(B[0],B[1],h[e1]*(1-f)+n1*f);g.strokeStyle='rgba(0,0,0,.2)';g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b2.x,b2.y);g.stroke();}}
+        else if(stl===4||stl===5){g.strokeStyle='rgba(255,255,255,.55)';g.lineWidth=1.2;for(let q=0;q<2;q++){const t=R(),a=lvS(A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t,h[e0]*(1-t)+h[e1]*t);g.beginPath();g.moveTo(a.x,a.y+3);g.lineTo(a.x+6,a.y+hh*.6);g.stroke();}
+          g.fillStyle=stl===4?'rgba(255,255,255,.9)':'rgba(220,245,255,.85)';for(let q=0;q<4;q++){const t=(q+R())/4,a=lvS(A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t,h[e0]*(1-t)+h[e1]*t),ln=3+R()*6;g.beginPath();g.moveTo(a.x-1.6,a.y);g.lineTo(a.x+1.6,a.y);g.lineTo(a.x,a.y+ln);g.closePath();g.fill();}}
+        else if(stl===7){g.strokeStyle='rgba(255,240,255,.6)';g.lineWidth=1;for(let q=0;q<3;q++){const t=R(),a=lvS(A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t,h[e0]*(1-t)+h[e1]*t);g.beginPath();g.moveTo(a.x,a.y);g.lineTo(a.x+4,a.y+hh*.3);g.lineTo(a.x-2,a.y+hh*.6);g.lineTo(a.x+3,a.y+hh*.9);g.stroke();}}
+        else if(stl===6){g.fillStyle='rgba(20,30,10,.5)';for(let q=0;q<3;q++){const t=R(),a=lvS(A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t,h[e0]*(1-t)+h[e1]*t);g.fillRect(a.x-1,a.y,2,4+R()*hh*.6);}}
+        g.restore();g.strokeStyle=stl===4||stl===5?'rgba(255,255,255,.95)':stl===8?'#4a3a40':stl===6?'#5a6a38':stl===7?'#e8d8ff':lvHex(grass,18);g.lineWidth=2.5;g.lineCap='round';g.beginPath();g.moveTo(pts[0].x,pts[0].y+.5);g.lineTo(pts[1].x,pts[1].y+.5);g.stroke();};
+      const dn=ty+1<L.Hh?i+W:-1,rt=tx+1<W?i+1:-1,nh=(j,e)=>j<0?0:hc[j*4+e];cf(3,2,nh(dn,0),nh(dn,1),0);cf(2,1,nh(rt,3),nh(rt,0),1);continue;}
     if(L.sand[i]){ // a slip face of sand: pale at the crest, shadowed at the foot, streaks where sand has run down
       const sl=(e0,e1,n0,n1,side)=>{if(Math.max(h[e0]-n0,h[e1]-n1)<=LV_STEP)return;const A=C[e0],B=C[e1];
         const pts=[lvS(A[0],A[1],h[e0]),lvS(B[0],B[1],h[e1]),lvS(B[0],B[1],n1),lvS(A[0],A[1],n0)];g.beginPath();pts.forEach((p,j)=>j?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.closePath();
@@ -303,4 +462,4 @@ window.LV_IP=false;
   // a boss keeps its den (the Hopper Chieftain on its knoll, the Wolf Alpha at the bottom of the Hollow)
   const den=L.dens.find(d=>d.mob===m.d.id);if(den){m.x=m.sx=den.x;m.y=m.sy=den.y;}
   // some live down in the land: the dewdrops in the brook, the web-spinners in the gully
-  const dw=L.dwell.find(d=>d.mob===m.d.id);if(dw){const w=[];for(let i=0;i<L.wet.length;i++)if(L.wet[i]===dw.v&&!BLOCK[Z.t[i]])w.push(i);if(w.length){const i=w[Math.floor(Math.random()*w.length)];m.x=m.sx=(i%L.W+.5)*TILE;m.y=m.sy=(((i/L.W)|0)+.5)*TILE;}}}catch(e){}return m;};}
+  const dw=L.dwell.find(d=>d.mob===m.d.id);if(dw){const w=[];if(dw.feat){for(const i of dw.feat.tiles)if(L.wet[i]===dw.v&&!BLOCK[Z.t[i]])w.push(i);}else for(let i=0;i<L.wet.length;i++)if(L.wet[i]===dw.v&&!BLOCK[Z.t[i]])w.push(i);if(w.length){const i=w[Math.floor(Math.random()*w.length)];m.x=m.sx=(i%L.W+.5)*TILE;m.y=m.sy=(((i/L.W)|0)+.5)*TILE;}}}catch(e){}return m;};}
