@@ -300,7 +300,11 @@ function update(dt){if(BZONES.length)bossZoneTick();
   P.atkT-=dt;
   // follow path
   if(P.path.length&&!held){const w=P.path[0];const dx=w.x-P.x,dy=w.y-P.y,d=Math.hypot(dx,dy),st=S.speed*dt;
-    if(d<=st){if(!moveEnt(P,dx,dy,PR))P.path=[];else P.path.shift();}else{moveEnt(P,dx/d*st,dy/d*st,PR);}
+    // (v1.60.2) a blocked step (a bank's corner, a tree) no longer freezes you or drops the walk: after a moment the way
+    // is worked out again from where you stand, toward the same place; only if that fails too do you stop
+    const ok=d<=st?moveEnt(P,dx,dy,PR):moveEnt(P,dx/d*st,dy/d*st,PR);if(ok&&d<=st)P.path.shift();
+    if(ok)P.blockN=0;else if((P.blockN=(P.blockN||0)+1)>(d<=st?1:6)){P.blockN=0;const goal=P.path[P.path.length-1];P.path=[];if(goal&&(P.reTries=(P.reTries||0)+1)<=2)pathTo(goal.x,goal.y,true);}
+    if(!P.path.length)P.reTries=0;
     P.moving=true;if(d>2)faceTo(P,dx,dy);}
   if(P.moving)P.walkT+=dt;
   castTick();

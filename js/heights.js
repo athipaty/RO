@@ -29,6 +29,8 @@
    (v1.60.1) Water you can wade looks shallow (a sandy, pebbly bed shows through, stones in it); ponds stay deep blue and
    a tap on one says it is too deep. The ways down into the water are gravel fords with stepping stones. A ravine or
    stream only meets a road partway along, full width, so every bridge spans water or a drop on both sides.
+   (v1.60.2) Fewer long walks round: terraces have steps on two sides, and a long ravine or stream has a way across in
+   the middle (a natural bridge in the land's own stone, ice or crystal, or a causeway of flat stones over water).
 
    Z.lvd = {W, Hh, H (highest), lo (lowest), wet (1 water, 2 bridge or log, 3 dry gully, 4 hollow floor), hc: Float32Array(W*Hh*4) corner heights [top-left, top-right, bottom-right, bottom-left],
             hills, nodes, den} */
@@ -72,7 +74,7 @@ const LV_DESIGNS={
     {k:'gully',name:'Whistling Ravine',at:[.72,.22],ax:'x',len:14,wid:2,D:28,style:'rock',dwell:'screebeetle'},
     {k:'hill',name:'Heather Rise',at:[.25,.78],rx:7,ry:4,H:26,top:.2}]},
   ridge:{auto:[ // Pinewatch Ridge: a long rocky spine with the Antler King on its crest, a mountain stream, a pine knoll
-    {k:'hill',name:'The Spine',at:[.28,.38],rx:4,ry:8,H:48,top:.3,bank:{ax:'x',at:.3},style:'rock',den:'antlerking'},
+    {k:'hill',name:'The Spine',at:[.28,.38],rx:4,ry:8,H:48,top:.3,bank:{ax:'x',at:.3,pass:[-.2,.15]},style:'rock',den:'antlerking'},
     {k:'gully',name:'Pinewater',at:[.72,.62],ax:'y',len:15,wid:2,D:20,water:1},
     {k:'hill',name:'Pine Knoll',at:[.75,.22],rx:5.5,ry:3.5,H:26,top:.2}]},
   frost:{auto:[ // Frostpeak Pass: snow drifts, an ice canyon, the Frost Matron in a frozen hollow
@@ -106,7 +108,7 @@ const LV_DESIGNS={
   coast:{auto:[ // Saltspray Coast: beach dunes, sea cliffs, a tidal channel full of crabs
     {k:'hill',name:'Beach Dune',at:[.25,.25],rx:7,ry:3,H:28,top:.15,bank:{ax:'x',at:.3},style:'sand'},
     {k:'hill',name:'Beach Dune',at:[.7,.78],rx:6,ry:2.8,H:24,top:.15,bank:{ax:'x',at:.3},style:'sand'},
-    {k:'shelves',name:'Sea Cliffs',at:[.08,.6],steps:[[14,10,18],[8,6,34]],style:'rock'},
+    {k:'shelves',name:'Sea Cliffs',at:[.3,.72],steps:[[14,10,18],[8,6,34]],style:'rock'},
     {k:'gully',name:'Tidal Channel',at:[.6,.3],ax:'y',len:12,wid:2,D:16,water:1,dwell:'tidecrab'}]},
   caldera:{auto:[ // Cinderpeak Caldera: the crater where the Cinder Wyrm sleeps, obsidian ridges, a lava channel
     {k:'bowl',name:'The Caldera',at:[.55,.45],rx:6,ry:4,D:36,style:'obsidian',den:'cinderwyrm'},
@@ -182,7 +184,7 @@ function lvReachable(z,L){const W=z.w,H=z.h,N=W*H,seen=new Uint8Array(N),free=i=
     if(seen[j]||!free(j))continue;if(L&&!lvStep(L,i,j,dx,dy))continue;seen[j]=1;q.push(j);}}
   return seen;}
 function lvGen(z){z.lvd=null;const des=LV_DESIGNS[z.id];if(!des)return;
-  const W=z.w,H=z.h,hc=new Float32Array(W*H*4),L={W,Hh:H,H:0,lo:0,hc,hills:[],nodes:[],feats:[],wet:new Uint8Array(W*H),log:new Uint8Array(W*H),sand:new Uint8Array(W*H),ford:new Uint8Array(W*H),style:new Uint8Array(W*H),used:new Uint8Array(W*H),crop:new Uint8Array(W*H),stone:new Uint8Array(W*H),dens:[],dwell:[]};
+  const W=z.w,H=z.h,hc=new Float32Array(W*H*4),L={W,Hh:H,H:0,lo:0,hc,hills:[],nodes:[],feats:[],wet:new Uint8Array(W*H),log:new Uint8Array(W*H),sand:new Uint8Array(W*H),arch:new Uint8Array(W*H),ford:new Uint8Array(W*H),style:new Uint8Array(W*H),used:new Uint8Array(W*H),crop:new Uint8Array(W*H),stone:new Uint8Array(W*H),dens:[],dwell:[]};
   for(const h of des.hills||[])lvAddHill(z,L,h);
   if(des.brook)lvBrook(z,L,des.brook);
   for(const b of des.bowls||[])lvBowl(z,L,b);
@@ -194,7 +196,9 @@ function lvGen(z){z.lvd=null;const des=LV_DESIGNS[z.id];if(!des)return;
 function lvAddHill(z,L,h){const W=L.W,H=L.Hh,hc=L.hc,own=[];let x0=1e9,y0=1e9,x1=-1,y1=-1;
   for(let ty=Math.max(1,Math.floor(h.cy-h.ry));ty<=Math.min(H-2,Math.ceil(h.cy+h.ry));ty++)for(let tx=Math.max(1,Math.floor(h.cx-h.rx));tx<=Math.min(W-2,Math.ceil(h.cx+h.rx));tx++){
     // the bank: past this line the hill is cut off sharply (its face looks toward you)
-    if(h.bank){const off=h.bank.ax==='y'?(ty+.5-h.cy)/h.ry:(tx+.5-h.cx)/h.rx;if(off>h.bank.at)continue;}
+    if(h.bank){const off=h.bank.ax==='y'?(ty+.5-h.cy)/h.ry:(tx+.5-h.cx)/h.rx,cross=h.bank.ax==='y'?(tx+.5-h.cx)/h.rx:(ty+.5-h.cy)/h.ry;
+      // a pass: a gap in the bank where the hill slopes down gently, so nobody walks all the way round
+      const inPass=h.bank.pass&&cross>=h.bank.pass[0]&&cross<=h.bank.pass[1];if(off>h.bank.at&&!inPass)continue;}
     const c=[lvHill(h,tx,ty),lvHill(h,tx+1,ty),lvHill(h,tx+1,ty+1),lvHill(h,tx,ty+1)];if(!(c[0]||c[1]||c[2]||c[3]))continue;
     const i=(ty*W+tx)*4;for(let k=0;k<4;k++)hc[i+k]=Math.max(hc[i+k],c[k]);own.push(ty*W+tx);x0=Math.min(x0,tx);y0=Math.min(y0,ty);x1=Math.max(x1,tx);y1=Math.max(y1,ty);}
   if(!own.length)return null;L.H=Math.max(L.H,h.H);
@@ -207,13 +211,14 @@ function lvAddHill(z,L,h){const W=L.W,H=L.Hh,hc=L.hc,own=[];let x0=1e9,y0=1e9,x1
 function lvStyle(L,tiles,st){for(const i of tiles){if(st==='sand')L.sand[i]=1;else if(st==='stone')L.stone[i]=1;else if(LV_STY[st])L.style[i]=LV_STY[st];}}
 
 /* ---- lvAuto: fit each designed piece near its place on the map ---- */
-function lvAuto(z,L,specs){const W=z.w,H=z.h,snap=()=>({hc:L.hc.slice(),wet:L.wet.slice(),ramp:L.ramp?L.ramp.slice():null,log:L.log.slice(),sand:L.sand.slice(),style:L.style.slice(),ford:L.ford.slice(),stone:L.stone.slice(),crop:L.crop.slice(),
+function lvAuto(z,L,specs){const W=z.w,H=z.h,snap=()=>({hc:L.hc.slice(),wet:L.wet.slice(),ramp:L.ramp?L.ramp.slice():null,log:L.log.slice(),sand:L.sand.slice(),style:L.style.slice(),arch:L.arch.slice(),ford:L.ford.slice(),stone:L.stone.slice(),crop:L.crop.slice(),
     t:z.t.slice(),objs:z.objs.slice(),feats:L.feats.length,hills:L.hills.length,dens:L.dens.length,dwell:L.dwell.length,lo:L.lo,Hm:L.H});
-  const back=S=>{L.hc.set(S.hc);L.wet.set(S.wet);if(S.ramp)L.ramp.set(S.ramp);L.log.set(S.log);L.sand.set(S.sand);L.style.set(S.style);L.ford.set(S.ford);L.stone.set(S.stone);L.crop.set(S.crop);z.t.set(S.t);z.objs=S.objs;
+  const back=S=>{L.hc.set(S.hc);L.wet.set(S.wet);if(S.ramp)L.ramp.set(S.ramp);L.log.set(S.log);L.sand.set(S.sand);L.style.set(S.style);L.arch.set(S.arch);L.ford.set(S.ford);L.stone.set(S.stone);L.crop.set(S.crop);z.t.set(S.t);z.objs=S.objs;
     L.feats.length=S.feats;L.hills.length=S.hills;L.dens.length=S.dens;L.dwell.length=S.dwell;L.lo=S.lo;L.H=S.Hm;};
   L.ramp=L.ramp||new Uint8Array(W*H);const before=lvReachable(z,null);
   const near=(x,y)=>{for(const p of z.portals)if(Math.abs(p.x/TILE-x)<5&&Math.abs(p.y/TILE-y)<5)return true;for(const n of z.npcs)if(Math.abs(n.x/TILE-x)<3&&Math.abs(n.y/TILE-y)<3)return true;
     if(z.spawn&&Math.abs(z.spawn.x/TILE-x)<4&&Math.abs(z.spawn.y/TILE-y)<4)return true;for(const b of z.buildings)if(x>=b.x-2&&x<b.x+b.w+2&&y>=b.y-2&&y<b.y+b.h+2)return true;return false;};
+  const bad=i=>{const x=i%W,y=(i/W)|0;return x<2||y<2||x>W-3||y>H-3||z.t[i]===3||z.t[i]===1||z.t[i]===6||L.used[i]||near(x,y)||L.hc[i*4]||L.wet[i];};L.bad=bad;
   for(const sp of specs){const cx0=Math.round(sp.at[0]*W),cy0=Math.round(sp.at[1]*H);const cand=[];
     for(let dy=-26;dy<=26;dy++)for(let dx=-26;dx<=26;dx++)cand.push([dx,dy]);cand.sort((a,b)=>(a[0]*a[0]+a[1]*a[1])-(b[0]*b[0]+b[1]*b[1]));
     // the piece's box, to rule out a place quickly before building it there
@@ -226,7 +231,7 @@ function lvAuto(z,L,specs){const W=z.w,H=z.h,snap=()=>({hc:L.hc.slice(),wet:L.we
       const S=snap(),piece=lvBuild(z,L,sp,cx0+dx,cy0+dy);if(!piece){back(S);continue;}
       // its ground: inside the map, no water, no road (a ravine may cross one on a bridge), away from gates, people, buildings and other pieces
       let ok=true;for(const i of piece.core){const x=i%W,y=(i/W)|0;if(x<2||y<2||x>W-3||y>H-3||S.t[i]===3||L.used[i]||near(x,y)||(!piece.road&&(S.t[i]===1||S.t[i]===6))){ok=false;break;}}
-      if(ok){const after=lvReachable(z,L),skip=piece.lava?new Set(piece.core.filter(i=>L.wet[i]===1)):null; // lava is not meant to be walked into
+      if(ok){const before=lvReachable(z,null),after=lvReachable(z,L),skip=piece.lava?new Set(piece.core.filter(i=>L.wet[i]===1)):null; // lava is not meant to be walked into
         for(let i=0;i<before.length;i++)if(before[i]&&!after[i]&&!BLOCK[z.t[i]]&&!(skip&&skip.has(i))){ok=false;break;}}
       if(!ok){back(S);continue;}
       for(const i of piece.core){const x=i%W,y=(i/W)|0;for(let yy=y-2;yy<=y+2;yy++)for(let xx=x-2;xx<=x+2;xx++)if(xx>=0&&yy>=0&&xx<W&&yy<H)L.used[yy*W+xx]=1;}
@@ -237,7 +242,10 @@ function lvBuild(z,L,sp,cx,cy){const W=z.w,H=z.h;
   if(sp.k==='bowl'){if(cx-sp.rx-5<1||cy-sp.ry-5<1||cx+sp.rx+2>W-2||cy+sp.ry+2>H-2)return null;
     // two paths down: from the north and from the west, where the walls face you
     const inside=(x,y)=>Math.hypot((x-cx)/sp.rx,(y-cy)/sp.ry)<=1;let top=cy,left=cx;while(inside(cx-1,top-1)&&inside(cx,top-1))top--;while(inside(left-1,cy-1)&&inside(left-1,cy))left--;
-    const b={...sp,cx:cx+.5,cy:cy+.5,ramps:[[cx-1,top-3,cx,top-1,'s'],[left-3,cy-1,left-1,cy,'e']],den:sp.den?[cx,cy,sp.den]:null};
+    let bot=cy;while(inside(cx-1,bot+1)&&inside(cx,bot+1))bot++;
+    const free=(x0,y0,x1,y1)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(!L.bad||L.bad(y*W+x))return false;return true;};
+    const ramps=[[cx-1,top-3,cx,top-1,'s'],[left-3,cy-1,left-1,cy,'e']];if(sp.ry>=4&&free(cx-1,bot+1,cx,bot+4))ramps.push([cx-1,bot+1,cx,bot+3,'n']); // a third way down on the bigger ones, where there is room
+    const b={...sp,cx:cx+.5,cy:cy+.5,ramps,den:sp.den?[cx,cy,sp.den]:null};
     const n0=L.feats.length;lvBowl(z,L,b);const f=L.feats[n0];if(sp.style)lvStyle(L,f.tiles,sp.style);
     if(sp.dwell)L.dwell.push({mob:sp.dwell,v:4,feat:f});return {core:f.tiles};}
   if(sp.k==='gully'){const ax=sp.ax,len=sp.len,wid=sp.wid,x0=ax==='x'?cx-(len>>1):cx-(wid>>1),y0=ax==='x'?cy-(wid>>1):cy-(len>>1),x1=ax==='x'?x0+len-1:x0+wid-1,y1=ax==='x'?y0+wid-1:y0+len-1;
@@ -252,13 +260,25 @@ function lvBuild(z,L,sp,cx,cy){const W=z.w,H=z.h;
     if(!sp.lava){const rps=ax==='x'?[[x0-3,y0,x0-1,y1,'e'],[x1+1,y0,x1+3,y1,'w']]:[[x0,y0-3,x1,y0-1,'s'],[x0,y1+1,x1,y1+3,'n']];
       for(const rp of rps){let bad=false;for(let y=rp[1];y<=rp[3];y++)for(let x=rp[0];x<=rp[2];x++)if(z.t[y*W+x]===3||z.t[y*W+x]===1||z.t[y*W+x]===6)bad=true;if(bad)continue;
         for(let y=rp[1];y<=rp[3];y++)for(let x=rp[0];x<=rp[2];x++){lvClear(z,y*W+x);if(water)L.ford[y*W+x]=1;}lvRampSet(L,rp,D,tiles,sp.style&&sp.style!=='earth'?3:1);}}
+    // a long one gets a way across in the middle, at the land's level (not over lava, not next to a road bridge)
+    if(len>=12&&!sp.lava){const m=(ax==='x'?x0:y0)+(len>>1);let clear=true;for(let a=m-3;a<=m+3;a++)for(let b=0;b<wid;b++){const x=ax==='x'?a:x0+b,y=ax==='x'?y0+b:a;if(L.wet[y*W+x]===2)clear=false;}
+      if(clear)for(let b=0;b<wid;b++){const x=ax==='x'?m:x0+b,y=ax==='x'?y0+b:m,i=y*W+x;for(let k=0;k<4;k++)hc[i*4+k]=0;L.wet[i]=2;L.arch[i]=water?2:1;}}
     lvBehind(L,tiles);L.lo=Math.min(L.lo,-D);if(water){L.brookD=L.brookD||D;if(sp.lava)L.lava=1;}
     const f={name:sp.name,tiles:[...tiles],gully:sp};L.feats.push(f);if(sp.style)lvStyle(L,f.tiles,sp.style);
     if(sp.dwell)L.dwell.push({mob:sp.dwell,v:water?1:3,feat:f});return {core:[...tiles],road,lava:!!sp.lava};}
   if(sp.k==='shelves'){const x0=cx,y0=cy,st=sp.steps;const w0=st[0][0],h0=st[0][1];if(x0<2||y0<2||x0+w0+1>W-2||y0+h0+4>H-2)return null;
     const shelves=st.map(([w,h,Ht])=>[x0,y0,x0+w-1,y0+h-1,Ht]),ramps=[];
     // steps up the south face of each shelf, from the one below
-    st.forEach(([w,h,Ht],k)=>{const mx=x0+Math.floor(w/2)-1,from=k?st[k-1][2]:0;ramps.push([mx,y0+h,mx+1,y0+h+2,'n',from,Ht]);});
+    // steps up the south face of each shelf and, where there is room, up its east face too
+    const roomE=(k,my)=>{if(k)return true;for(let y=my;y<=my+1;y++)for(let x=x0+st[0][0];x<=x0+st[0][0]+3;x++)if(!L.bad||L.bad(y*W+x))return false;return true;};
+    st.forEach(([w,h,Ht],k)=>{const mx=x0+Math.floor(w/2)-1,my=y0+Math.floor(h/2)-1,from=k?st[k-1][2]:0;ramps.push([mx,y0+h,mx+1,y0+h+2,'n',from,Ht]);if(roomE(k,my))ramps.push([x0+w,my,x0+w+2,my+1,'w',from,Ht]);});
+    // the lowest shelf: steps up its north and west sides too, where there is room (no walking all the way round)
+    // (sliding along the face to the free spot nearest its middle; 3 tiles of steps, or 2 where it is tight)
+    {const [w,h,Ht]=st[0],room=(a,b,c,d)=>{for(let y=b;y<=d;y++)for(let x=a;x<=c;x++)if(!L.bad||L.bad(y*W+x))return false;return true;};
+      const offs=[];for(let o=0;o<Math.max(w,h);o++){offs.push(o);if(o)offs.push(-o);}
+      const side=(mk)=>{for(const n of [3,2])for(const o of offs){const rp=mk(o,n);if(rp)return ramps.push(rp);}};
+      side((o,n)=>{const x=x0+Math.floor(w/2)-1+o;return x>=x0&&x+1<x0+w&&room(x,y0-n-1,x+1,y0-1)?[x,y0-n,x+1,y0-1,'s',0,Ht]:null;});
+      side((o,n)=>{const y=y0+Math.floor(h/2)-1+o;return y>=y0&&y+1<y0+h&&room(x0-n-1,y,x0-1,y+1)?[x0-n,y,x0-1,y+1,'e',0,Ht]:null;});}
     const n0=L.feats.length;lvTerraces(z,L,{name:sp.name,shelves,ramps,den:sp.den?[x0+Math.floor(st[st.length-1][0]/2),y0+Math.floor(st[st.length-1][1]/2),sp.den]:null});
     const f=L.feats[n0];for(const i of f.tiles)L.crop[i]=0;L.stone.fill(0,0,0);for(const i of f.tiles)L.stone[i]=0;lvStyle(L,f.tiles,sp.style||'stone');
     return {core:f.tiles};}
@@ -307,7 +327,7 @@ function lvGully(z,L,b){const W=L.W,hc=L.hc,D=b.D,tiles=new Set();L.ramp=L.ramp|
 // the minimap: higher ground a little lighter, banks dark
 function lvMini(z){const L=z.lvd,m=z.mini&&z.mini.getContext&&z.mini.getContext('2d');if(!L||!m)return;const th=THEMES[z.D.theme]||{};
   for(let i=0;i<L.wet.length;i++)if(L.wet[i]){m.fillStyle=L.wet[i]===1?(th.water||'#3f7fb8'):L.wet[i]===2?(L.log[i]?'#6a4a2a':'#a07a4a'):L.wet[i]===3?(L.style[i]?LV_FACE[L.style[i]][3]:'#3e3020'):'rgba(10,20,10,.45)';m.fillRect(i%L.W,(i/L.W)|0,1,1);}
-  for(let i=0;i<L.ford.length;i++)if(L.ford[i]){m.fillStyle='#c4b08a';m.fillRect(i%L.W,(i/L.W)|0,1,1);}
+  for(let i=0;i<L.ford.length;i++)if(L.ford[i]||L.arch[i]){m.fillStyle=L.arch[i]?'#b0a898':'#c4b08a';m.fillRect(i%L.W,(i/L.W)|0,1,1);}
   for(const f of L.feats)if(f.terraces)for(const i of f.tiles){const a=L.hc[i*4]/L.H;m.fillStyle=`rgba(255,250,200,${(a*.35).toFixed(3)})`;m.fillRect(i%L.W,(i/L.W)|0,1,1);}
   for(const f of L.feats)if(f.bowl)for(const i of f.tiles)if(L.wet[i]===4){m.fillStyle=L.sand[i]?'rgba(120,70,20,.35)':'rgba(10,20,10,.45)';m.fillRect(i%L.W,(i/L.W)|0,1,1);}
   for(const h of L.hills)for(const i of h.tiles){const x=i%L.W,y=(i/L.W)|0,a=(L.hc[i*4]+L.hc[i*4+2])/2/L.H;m.fillStyle=`rgba(255,255,220,${(a*.32).toFixed(3)})`;m.fillRect(x,y,1,1);
@@ -367,6 +387,12 @@ function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?DPR:1,T=TI
       // the log's side over the gully, and its broken end
       g.fillStyle='#4a321c';g.beginPath();g.moveTo(b2.x-nx+2,b2.y-ny-12);g.lineTo(b2.x+nx-2,b2.y+ny-12);g.lineTo(b2.x+nx-2,b2.y+ny);g.lineTo(b2.x-nx+2,b2.y-ny);g.closePath();
       if(L.log[i+W]!==1){g.fill();g.fillStyle='#b08a5a';g.beginPath();g.ellipse(b2.x,b2.y-6,nx*.85,7,0,0,7);g.fill();g.strokeStyle='#7a5a32';g.beginPath();g.ellipse(b2.x,b2.y-6,nx*.45,3.6,0,0,7);g.stroke();}}
+    else if(wt===2&&L.arch[i]){ // a natural bridge in the land's stone, ice or crystal; over water, a causeway of flat stones
+      const F=L.style[i]?LV_FACE[L.style[i]]:L.stone[i]?['#b0a48c','#6a6050','#9c907a']:['#a8a090','#6a6458','#958d7e'];
+      quad(F[0]);g.strokeStyle='rgba(0,0,0,.22)';g.lineWidth=1;g.stroke();
+      if(L.arch[i]===2){g.fillStyle=th.water||'#3f7fb8';for(const [u,v] of [[.5,.0],[.0,.5],[1,.5],[.5,1]]){const p=lvS(X0+u*T,Y0+v*T,0);g.globalAlpha=.55;g.beginPath();g.ellipse(p.x,p.y,6,3,0,0,7);g.fill();}g.globalAlpha=1;
+        for(const [u,v] of [[.3,.3],[.7,.3],[.3,.7],[.7,.7]]){const p=lvS(X0+u*T,Y0+v*T,0);g.fillStyle=F[2];g.beginPath();g.ellipse(p.x,p.y,7,3.6,0,0,7);g.fill();g.strokeStyle='rgba(0,0,0,.3)';g.stroke();}}
+      else for(let q=0;q<3;q++){const a=lvS(X0+R()*T,Y0+R()*T,0);g.strokeStyle='rgba(0,0,0,.25)';g.beginPath();g.moveTo(a.x,a.y);g.lineTo(a.x+R()*8-4,a.y+R()*4-2);g.stroke();}}
     else if(wt===2){ // the bridge: planks across, the road's way over the water
       quad('#9a7448');g.strokeStyle='rgba(60,38,18,.55)';g.lineWidth=1;for(let q=1;q<4;q++){const a=lvS(X0,Y0+q*T/4,0),b2=lvS(X1,Y0+q*T/4,0);g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b2.x,b2.y);g.stroke();}
       // rails along both sides, a post at each corner
@@ -407,7 +433,7 @@ function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?DPR:1,T=TI
       g.strokeStyle=lvHex(grass,26);g.lineWidth=3;g.lineCap='round';g.beginPath();g.moveTo(pts[0].x,pts[0].y+.5);g.lineTo(pts[1].x,pts[1].y+.5);g.stroke();
       g.strokeStyle=lvHex(grass,-30);g.lineWidth=1;for(let q=0;q<3;q++){const t=R(),p={x:pts[0].x+(pts[1].x-pts[0].x)*t,y:pts[0].y+(pts[1].y-pts[0].y)*t};g.beginPath();g.moveTo(p.x,p.y+1);g.lineTo(p.x+R()*2-1,p.y+4+R()*3);g.stroke();}};
     const dn=ty+1<L.Hh?i+W:-1,rt=tx+1<W?i+1:-1,nh=(j,e)=>j<0?0:hc[j*4+e];
-    const wood=wt===2&&!L.log[i],stone=!!L.stone[i]&&!wood;
+    const wood=wt===2&&!L.log[i]&&!L.arch[i],stone=!!L.stone[i]&&!wood;
     if(L.style[i]){ // a cliff in the land's own look: rock, snow, ice, marsh mud, crystal or obsidian
       const F=LV_FACE[L.style[i]],stl=L.style[i];
       const cf=(e0,e1,n0,n1,side)=>{if(Math.max(h[e0]-n0,h[e1]-n1)<=LV_STEP)return;const A=C[e0],B=C[e1];
@@ -474,7 +500,8 @@ window.LV_IP=false;
   // a boss keeps its den (the Hopper Chieftain on its knoll, the Wolf Alpha at the bottom of the Hollow)
   const den=L.dens.find(d=>d.mob===m.d.id);if(den){m.x=m.sx=den.x;m.y=m.sy=den.y;}
   // some live down in the land: the dewdrops in the brook, the web-spinners in the gully
-  const dw=L.dwell.find(d=>d.mob===m.d.id);if(dw){const w=[];if(dw.feat){for(const i of dw.feat.tiles)if(L.wet[i]===dw.v&&!BLOCK[Z.t[i]])w.push(i);}else for(let i=0;i<L.wet.length;i++)if(L.wet[i]===dw.v&&!BLOCK[Z.t[i]])w.push(i);if(w.length){const i=w[Math.floor(Math.random()*w.length)];m.x=m.sx=(i%L.W+.5)*TILE;m.y=m.sy=(((i/L.W)|0)+.5)*TILE;}}}catch(e){}return m;};}
+  // (v1.60.2) at most four of a kind make their home there; the rest roam the region (a channel full of crabs is no fun)
+  const dw=L.dwell.find(d=>d.mob===m.d.id&&mobs.filter(o=>o!==m&&o.d&&o.d.id===d.mob&&o.dwell).length<4);if(dw){m.dwell=1;const w=[];if(dw.feat){for(const i of dw.feat.tiles)if(L.wet[i]===dw.v&&!BLOCK[Z.t[i]])w.push(i);}else for(let i=0;i<L.wet.length;i++)if(L.wet[i]===dw.v&&!BLOCK[Z.t[i]])w.push(i);if(w.length){const i=w[Math.floor(Math.random()*w.length)];m.x=m.sx=(i%L.W+.5)*TILE;m.y=m.sy=(((i/L.W)|0)+.5)*TILE;}}}catch(e){}return m;};}
 
 // (v1.60.1) a tap on a pond: too deep to wade, here is how to cross (only where some water can be waded)
 if(typeof cv!=='undefined')cv.addEventListener('pointerdown',ev=>{try{const L=Z&&Z.lvd;if(!L||!L.brookD||L.lava||!P||P.dead||!running)return;

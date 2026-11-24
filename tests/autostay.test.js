@@ -19,6 +19,7 @@ module.exports = async t => {
       card.querySelector('.apOpt[data-loot="1"]').click(); await sleep(300);
       out.on = P.auto === true;
       // stay: the near monster is fought; when it is gone, the far one (500 px from the spot) is left alone
+      for (let k = 0; k < 15 && P.target !== near; k++) await sleep(100); // auto-hunt picks on its next frame (slow machines)
       out.tookNear = P.target === near;
       near.dead = true; P.target = null; await sleep(800);
       out.ignoredFar = P.target !== far;

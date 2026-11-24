@@ -38,7 +38,7 @@ module.exports = async t => {
       out.ford = !!findPath(27, 14, 29, 14) && (findPath(27, 14, 29, 14) || []).length <= 4;
       out.bridge = (findPath(26, 23, 33, 23) || []).every(q => lvH(L, q.x, q.y) === 0);
       const st = at(29, 13); P.x = st.x; P.y = st.y; const yw = P.y; moveEnt(P, 0, 10, PR); const wade = P.y - yw; const dry = at(20, 13); P.x = dry.x; P.y = dry.y; const yd = P.y; moveEnt(P, 0, 10, PR); out.slow = wade > 0 && wade < (P.y - yd) * .8;
-      out.dew = mobs.filter(m => m.d.id === 'dewdrop' && !m.dead).every(m => L.wet[lvTile(L, m.sx, m.sy)] === 1); // their home: one may wander up a ford
+      out.dew = (ms => ms.length > 0 && ms.length <= 4 && ms.every(m => L.wet[lvTile(L, m.sx, m.sy)] === 1))(mobs.filter(m => m.d.id === 'dewdrop' && !m.dead && m.dwell)); // their home: one may wander up a ford
       // nothing you could reach before is cut off
       const a = lvReachable(Z, null), b = lvReachable(Z, L); let cut = 0; for (let i = 0; i < a.length; i++) if (a[i] && !b[i]) cut++; out.cut = cut;
       // (v1.57.0) the Whispering Woods: the Hollow (Wolf Alpha's den at the bottom, root paths down), the gully with its log, root ridges
@@ -48,7 +48,7 @@ module.exports = async t => {
       const down = findPath(51, 26, 54, 34) || []; out.rootPath = down.length > 0 && down.some(q => W2.ramp[lvTile(W2, q.x, q.y)]);
       const wallFoot = at(56, 30); P.x = wallFoot.x; P.y = wallFoot.y; P.path = []; for (let k = 0; k < 30; k++) moveEnt(P, 0, 3, PR); out.wall = lvH(W2, P.x, P.y) === 0;
       out.log = (findPath(28, 37, 28, 42) || []).every(q => lvH(W2, q.x, q.y) === 0) && W2.log[39 * W2.W + 28] === 1;
-      out.spiders = mobs.filter(m => m.d.id === 'webspinner' && !m.dead).every(m => W2.wet[lvTile(W2, m.sx, m.sy)] === 3);
+      out.spiders = (ms => ms.length > 0 && ms.length <= 4 && ms.every(m => W2.wet[lvTile(W2, m.sx, m.sy)] === 3))(mobs.filter(m => m.d.id === 'webspinner' && !m.dead && m.dwell));
       const a2 = lvReachable(Z, null), b2 = lvReachable(Z, W2); let cut2 = 0; for (let i = 0; i < a2.length; i++) if (a2[i] && !b2[i]) cut2++; out.cut2 = cut2;
       // (v1.58.0) Willowmere Farms: three terraces up to the Grand Scarecrow, earthen steps between them, stone walls, the canal
       enterZone('farms'); const F = Z.lvd; out.farms = F ? F.feats.map(f => f.name).join(', ') : 'none';
@@ -56,7 +56,7 @@ module.exports = async t => {
       const crow = mobs.find(m => m.d.id === 'grandscarecrow' && !m.dead); out.crow = !!crow && lvH(F, crow.x, crow.y) === 42;
       const up = findPath(10, 21, 6, 4) || []; out.steps = up.length > 0 && up.filter(q => F.ramp[lvTile(F, q.x, q.y)] === 2).length >= 3;
       const wf = at(20, 17); P.x = wf.x; P.y = wf.y; P.path = []; for (let k = 0; k < 25; k++) moveEnt(P, 0, -3, PR); out.stoneWall = lvH(F, P.x, P.y) === 0;
-      const cn = at(43, 15); out.canal = lvH(F, cn.x, cn.y) < -15 && mobs.filter(m => m.d.id === 'reedsnapper' && !m.dead).every(m => F.wet[lvTile(F, m.sx, m.sy)] === 1);
+      const cn = at(43, 15); out.canal = lvH(F, cn.x, cn.y) < -15 && (ms => ms.length > 0 && ms.length <= 4 && ms.every(m => F.wet[lvTile(F, m.sx, m.sy)] === 1))(mobs.filter(m => m.d.id === 'reedsnapper' && !m.dead && m.dwell));
       const a3 = lvReachable(Z, null), b3 = lvReachable(Z, F); let cut3 = 0; for (let i = 0; i < a3.length; i++) if (a3[i] && !b3[i]) cut3++; out.cut3 = cut3;
       // (v1.59.0) the Ashen Dunes: dunes with a climbable windward slope and an unclimbable slip face; the Scarab Pit
       enterZone('dunes'); const DU = Z.lvd; out.dunes = DU ? DU.feats.map(f => f.name).join(', ') : 'none';
