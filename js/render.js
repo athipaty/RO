@@ -5,12 +5,11 @@ function resize(){DPR=window.LITE?1:Math.min(2,window.devicePixelRatio||1);VW=cv
 window.addEventListener('resize',resize);
 /* ---------- isometric camera: world stays a flat grid, the screen shows it at an angle ---------- */
 const ISO=.78;
-// (v1.55.0) raised ground (js/heights.js): a point on a plateau or its stairs is drawn higher by the ground's height
+// (v1.55.0) the shape of the land (js/heights.js): a point on a hill is drawn higher by the ground's height
 const proj=(x,y)=>{const L=Z&&Z.lvd;return{x:(x-y)*ISO,y:(x+y)*ISO/2-(L?lvH(L,x,y):0)};};
 const unprojFlat=(sx,sy)=>{const a=sx/ISO,b=2*sy/ISO;return{x:(a+b)/2,y:(b-a)/2};};
-// a tap on a plateau's top lands on the top; on stairs, on the step; on a cliff wall, at its foot
-const unproj=(sx,sy)=>{const L=Z&&Z.lvd;if(!L)return unprojFlat(sx,sy);const t=unprojFlat(sx,sy+L.H);if(lvH(L,t.x,t.y)>=L.H-.5)return t;
-  let h=0,w=unprojFlat(sx,sy);for(let i=0;i<6;i++){const nh=lvH(L,w.x,w.y);if(Math.abs(nh-h)<.5)return w;h=nh;w=unprojFlat(sx,sy+h);}return t;};
+// a tap lands on the ground you see there: up a slope, on a hill's top, or at the foot of a bank (js/heights.js)
+const unproj=(sx,sy)=>Z&&Z.lvd?lvUnproj(sx,sy):unprojFlat(sx,sy);
 // draw something written in world coordinates at its isometric screen spot, standing upright
 function faceTo(e,dx,dy){if(Math.abs(dx-dy)>.5)e.face=sface(dx,dy);if(Math.abs(dx+dy)>.5)e.back=(dx+dy)<0;}
 function at(x,y,fn){const s=proj(x,y);ctx.save();ctx.translate(s.x-x,s.y-y);fn();ctx.restore();}
@@ -98,7 +97,7 @@ function drawOrder(items,blds){
   const N=[];for(const it of items)N.push({it,k:it.x+it.y,deg:0,out:[]});
   const B=blds.map(b=>({b,X0:b.x*TILE,Y0:b.y*TILE,X1:(b.x+b.w)*TILE,Y1:(b.y+b.h)*TILE,deg:0,out:[]}));for(const n of B){n.k=n.X0+n.Y0;N.push(n);}
   for(const bn of B)for(const n of N){if(n.b||n.it.x<bn.X0-320||n.it.x>bn.X1+320||n.it.y<bn.Y0-320||n.it.y>bn.Y1+320)continue;
-    const on=bn.b.cliff&&n.it.x>=bn.X0&&n.it.y>=bn.Y0&&n.it.x<bn.X1&&n.it.y<bn.Y1; // (v1.55.0) standing on a plateau or its stairs: drawn after it
+    const on=bn.b.cliff&&n.it.x>=bn.X0&&n.it.y>=bn.Y0&&n.it.x<bn.X1&&n.it.y<bn.Y1&&(!bn.b.on||bn.b.on(n.it.x,n.it.y)); // (v1.55.0) standing on a hill: drawn after it
     if(!on&&n.it.x<bn.X1&&n.it.y<bn.Y1){n.out.push(bn);bn.deg++;}else{bn.out.push(n);n.deg++;}}
   for(const a of B)for(const c of B)if(a!==c&&(a.X1<=c.X0||a.Y1<=c.Y0)&&!(c.X1<=a.X0||c.Y1<=a.Y0)){a.out.push(c);c.deg++;}
   // Kahn's order, always taking the ready item furthest back (smallest x+y) from a small heap (was a scan of the whole list per item)
