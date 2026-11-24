@@ -7,7 +7,7 @@
    A place you have not walked to says which gate to walk through. Squares mark the best place for your level (⭐),
    where you are (📍), a world boss (👑), a quest (📜) and places still locked (🔒). Loaded after js/travelcards.js. */
 const WSMAP={sel:null};
-const WSM_DIRS=[['north','↑','north'],['east','→','east'],['south','↓','south'],['west','←','west']];
+const WSM_DIRS=[['north','↗','north'],['east','↘','east'],['south','↙','south'],['west','↖','west']]; // arrows as on the angled map
 function wsmRoad(id){const p=WORLD_GRID[id];if(!p||id==='town'||id==='capital')return '';
   return p[1]<0?'North road':p[0]>0?'East road':p[1]>0?'South road':'West road';}
 // the gate to walk through to unlock a place: the visited neighbour nearest the city
@@ -15,22 +15,36 @@ function wsmGate(id){const L=ZONES[id].links||{};let best=null;
   for(const [d] of WSM_DIRS){const n=L[d];if(!n||!ZONES[n]||!(P.visited.includes(n)||zoneId===n))continue;
     if(!best||worldRing(n)<worldRing(best.n))best={n,d:{north:'south',south:'north',east:'west',west:'east'}[d]};}
   return best;}
-function wsmTile(id,at,best){const D=ZONES[id],here=zoneId===id,seen=P.visited.includes(id)||here,city=!!D.safe,L=D.links||{},sel=WSMAP.sel===id;
+// (v1.54.1) drawn the way the game and the minimap draw the world: at an angle, so east runs down-right, north up-right,
+// south down-left and west up-left; each region a diamond like a floor tile, the roads as lines between them
+function wsmIso(id){const [x,y]=WORLD_GRID[id];return [x-y,x+y];}
+function wsmTile(id,best,box){const D=ZONES[id],here=zoneId===id,seen=P.visited.includes(id)||here,city=!!D.safe,sel=WSMAP.sel===id;
   const lv=typeof worldLowLv==='function'?worldLowLv(id):null,mk=seen&&typeof tcMarks==='function'?tcMarks(id):[];
   const boss=mk.some(m=>m[2]==='w'),quest=mk.some(m=>m[2]==='q');
-  const both=n=>n&&ZONES[n]&&(P.visited.includes(n)||zoneId===n)&&seen;
-  const cls=['wsmt',here?'here':'',seen?'':'locked',city?'city':'',id===best?'best':'',sel?'sel':'',L.east&&ZONES[L.east]?(both(L.east)?'re':'re rdE'):'',L.south&&ZONES[L.south]?(both(L.south)?'rs':'rs rdS'):''].filter(Boolean).join(' ');
+  const cls=['wsmt',here?'here':'',seen?'':'locked',city?'city':'',id===best?'best':'',sel?'sel':''].filter(Boolean).join(' ');
   const bg=typeof tcBanner==='function'?`background-image:url(${tcBanner(id)});`:'';
-  return `<button type="button" class="${cls}" data-act="wsmsel" data-arg="${id}" style="${bg}background-color:${((THEMES[D.theme]||THEMES.meadow).g||['#555'])[0]}" aria-pressed="${sel}" aria-label="${esc(D.name)}${lv?`, level ${lv} and up`:''}${seen?'':', locked'}">`+
+  const [u,v]=wsmIso(id),X=(u-box.u0+1)/box.U*100,Y=(v-box.v0+1)/box.V*100;
+  return `<button type="button" class="${cls}" data-act="wsmsel" data-arg="${id}" style="left:${X.toFixed(3)}%;top:${Y.toFixed(3)}%;width:${(200/box.U).toFixed(3)}%;height:${(200/box.V).toFixed(3)}%" aria-pressed="${sel}" aria-label="${esc(D.name)}${lv?`, level ${lv} and up`:''}${seen?'':', locked'}">`+
+    `<span class="wsmo" aria-hidden="true"></span><span class="wsmd" aria-hidden="true" style="${bg}background-color:${((THEMES[D.theme]||THEMES.meadow).g||['#555'])[0]}"></span>`+
     `<b>${city?(id==='capital'?'♛':'⌂'):(lv||'')}</b>`+
-    (here?'<i class="wsmpin">📍</i>':id===best?'<i class="wsmbest">⭐</i>':'')+(boss?'<i class="wsmwb">👑</i>':quest?'<i class="wsmq">📜</i>':'')+(seen?'':'<i class="wsmlock">🔒</i>')+
-    (sel?`<span class="wsmtag">${esc(D.name)}</span>`:'')+`</button>`;}
-function wsmMapHtml(best){const ids=Object.keys(WORLD_GRID).filter(id=>ZONES[id]),xs=ids.map(id=>WORLD_GRID[id][0]),ys=ids.map(id=>WORLD_GRID[id][1]);
-  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),at={};for(const id of ids)at[WORLD_GRID[id].join()]=id;
-  const W=x1-x0+1,H=y1-y0+1;
-  let h=`<div class="wsm" style="--wc:${W};--wr:${H}" role="group" aria-label="World map"><span class="wsmn" aria-hidden="true">N ↑</span>`;
-  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const id=at[x+','+y];h+=id?wsmTile(id,at,best):`<span class="wsme" aria-hidden="true"></span>`;}
-  return h+`</div><div class="wsmkey"><span>⭐ best for you</span><span>📍 you</span><span>📜 quest</span><span>👑 world boss</span><span>🔒 walk there first</span><span>numbers: lowest monster level</span></div>`;}
+    (here?'<i class="wsmpin">📍</i>':id===best?'<i class="wsmbest">⭐</i>':'')+(boss?'<i class="wsmwb">👑</i>':quest?'<i class="wsmq">📜</i>':'')+
+    (sel?`<span class="wsmtag">${esc(D.name)}</span>`:city?`<span class="wsmcity wsmcity-${id}">${esc(D.name)}</span>`:'')+`</button>`;}
+function wsmMapHtml(best){const ids=Object.keys(WORLD_GRID).filter(id=>ZONES[id]),iso=ids.map(wsmIso);
+  const u0=Math.min(...iso.map(p=>p[0])),u1=Math.max(...iso.map(p=>p[0])),v0=Math.min(...iso.map(p=>p[1])),v1=Math.max(...iso.map(p=>p[1]));
+  const box={u0,v0,U:u1-u0+2,V:v1-v0+2};
+  // roads: a line between every two neighbours; dashed while one end is still unknown
+  const known=id=>P.visited.includes(id)||zoneId===id;let roads='';
+  for(const a of ids){const L=ZONES[a].links||{};for(const d of ['east','south']){const b=L[d];if(!b||!ZONES[b]||!WORLD_GRID[b])continue;
+    const [ua,va]=wsmIso(a),[ub,vb]=wsmIso(b),ok=known(a)&&known(b);
+    roads+=`<line x1="${ua-u0+1}" y1="${va-v0+1}" x2="${ub-u0+1}" y2="${vb-v0+1}" class="${ok?'ok':'dim'}"/>`;}}
+  let h=`<div class="wsm" style="--ar:${box.U}/${box.V/2}" role="group" aria-label="World map">`+
+    `<svg class="wsmr" viewBox="0 0 ${box.U} ${box.V}" preserveAspectRatio="none" aria-hidden="true">${roads}</svg>`;
+  // compass letters at the far end of each road
+  const arm=(dir,lbl)=>{const end=ids.filter(id=>wsmRoad(id)===dir).sort((a,b)=>worldRing(b)-worldRing(a))[0];if(!end)return '';
+    const [u,v]=wsmIso(end),X=(u-u0+1)/box.U*100,Y=(v-v0+1)/box.V*100;return `<span class="wsmc wsmc-${lbl}" style="left:${X.toFixed(2)}%;top:${Y.toFixed(2)}%" aria-hidden="true">${lbl}</span>`;};
+  h+=arm('North road','N')+arm('East road','E')+arm('South road','S')+arm('West road','W');
+  for(const id of ids)h+=wsmTile(id,best,box);
+  return h+`</div><div class="wsmkey"><span>⭐ best for you</span><span>📍 you</span><span>📜 quest</span><span>👑 world boss</span><span>grey: walk there first</span><span>numbers: lowest monster level</span></div>`;}
 function wsmDetailHtml(id,ids,best){const D=ZONES[id],here=zoneId===id,seen=P.visited.includes(id)||here,L=D.links||{};
   const road=wsmRoad(id),ring=WORLD_GRID[id]?worldRing(id):0;
   let x=`<div class="wsmwhere">${road?`${road} · ${ring===1?'next to the city':`${ring} regions from the city`}`:(id==='capital'?'The capital, west of Hearthvale':'Home: the middle of the world')}</div>`;
@@ -59,31 +73,31 @@ PANEL_ACTS.wsmsel=id=>{if(!ZONES[id])return;WSMAP.sel=id;sfx('click');refreshPan
   try{const d=panel.querySelector('#wsDet');if(d){const r=d.getBoundingClientRect();if(r.top>innerHeight-120||r.bottom<60)d.scrollIntoView({block:'nearest',behavior:'smooth'});}}catch(e){}};
 
 (()=>{const st=document.createElement('style');st.textContent=`
-#panel .wsm{position:relative;display:grid;grid-template-columns:repeat(var(--wc),minmax(0,1fr));grid-template-rows:repeat(var(--wr),minmax(0,1fr));gap:5px;
-  width:100%;max-width:440px;aspect-ratio:var(--wc)/var(--wr);margin:6px auto 4px;padding:8px;box-sizing:border-box;border-radius:14px;
-  background:radial-gradient(ellipse at 50% 50%,rgba(120,150,110,.16),transparent 70%),repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 22px),#121a26;
-  border:1px solid rgba(232,194,90,.28);box-shadow:inset 0 0 24px rgba(0,0,0,.5)}
-#panel .wsmn{position:absolute;left:10px;top:7px;font:800 11px var(--ui,system-ui);color:#e8c25a;opacity:.8;pointer-events:none}
-#panel .wsme{min-width:0}
-#panel .wsmt{position:relative;min-width:0;min-height:0;padding:0;border-radius:7px;border:1.5px solid rgba(0,0,0,.6);background-size:cover;background-position:center 70%;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font:800 12px var(--ui,system-ui);text-shadow:0 1px 2px #000,0 0 4px #000;
-  box-shadow:0 2px 0 rgba(0,0,0,.45);transition:transform .12s}
-#panel .wsmt b{position:relative;z-index:2;line-height:1}
-#panel .wsmt.city{border-color:#ffd77a;box-shadow:0 0 0 1px #ffd77a inset,0 2px 0 rgba(0,0,0,.45)}#panel .wsmt.city b{font-size:16px;color:#ffe9a8}
-#panel .wsmt.locked{filter:grayscale(.9) brightness(.55)}
-#panel .wsmt.best{border-color:#ffd76a;box-shadow:0 0 9px rgba(255,210,100,.55)}
-#panel .wsmt.here{outline:2px solid #8ff0ff;outline-offset:1px}
-#panel .wsmt.sel{transform:scale(1.18);z-index:4;border:2px solid #fff3c4;box-shadow:0 0 0 2px #e0a83a,0 0 16px rgba(255,200,90,.7);filter:none}
-#panel .wsmt i{position:absolute;font-style:normal;line-height:1;font-size:9px;z-index:3;filter:drop-shadow(0 1px 1px #000)}
-#panel .wsmpin,#panel .wsmbest{left:-3px;top:-4px}#panel .wsmwb,#panel .wsmq{right:-3px;top:-4px}#panel .wsmlock{right:-2px;bottom:-3px;font-size:8px}
-/* roads: to the square on the right and the one below; dashed and dim while one end is still unknown */
-#panel .wsmt.re::after{content:'';position:absolute;left:100%;top:calc(50% - 2px);width:calc(5px + 4px);margin-left:-2px;height:4px;background:#d9bf86;border-radius:2px;z-index:1}
-#panel .wsmt.rs::before{content:'';position:absolute;top:100%;left:calc(50% - 2px);height:calc(5px + 4px);margin-top:-2px;width:4px;background:#d9bf86;border-radius:2px;z-index:1}
-#panel .wsmt.rdE::after{background:repeating-linear-gradient(90deg,#8a7a58 0 2px,transparent 2px 4px)}
-#panel .wsmt.rdS::before{background:repeating-linear-gradient(0deg,#8a7a58 0 2px,transparent 2px 4px)}
-#panel .wsmt.sel::after,#panel .wsmt.sel::before{display:none}
-#panel .wsmtag{position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%) scale(.85);white-space:nowrap;padding:2px 7px;border-radius:8px;
-  background:#2a1a04;color:#ffe08a;border:1px solid #e0a83a;font:800 11px var(--ui,system-ui);text-shadow:none;pointer-events:none;z-index:5}
+#panel .wsm{position:relative;width:calc(100% - 20px);max-width:520px;aspect-ratio:var(--ar);margin:22px auto 16px;box-sizing:border-box}
+#panel .wsm::before{content:'';position:absolute;inset:-16px -10px;border-radius:14px;z-index:0;
+  background:radial-gradient(ellipse at 50% 50%,rgba(120,150,110,.18),transparent 70%),#121a26;border:1px solid rgba(232,194,90,.28);box-shadow:inset 0 0 24px rgba(0,0,0,.5)}
+#panel .wsmr{position:absolute;inset:0;width:100%;height:100%;z-index:1;overflow:visible}
+#panel .wsmr line{stroke:#d9bf86;stroke-width:4px;vector-effect:non-scaling-stroke;stroke-linecap:round}
+#panel .wsmr line.dim{stroke:#7a6c50;stroke-width:3px;stroke-dasharray:3 4}
+#panel .wsmc{position:absolute;z-index:1;transform:translate(-50%,-50%);font:900 11px var(--ui,system-ui);color:#e8c25a;opacity:.85;pointer-events:none}
+#panel .wsmc-N{margin:-12px 0 0 20px}#panel .wsmc-E{margin:12px 0 0 20px}#panel .wsmc-S{margin:12px 0 0 -20px}#panel .wsmc-W{margin:-12px 0 0 -20px}
+#panel .wsmt{position:absolute;transform:translate(-50%,-50%);z-index:2;padding:0;margin:0;border:0;background:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:#fff;font:800 11px var(--ui,system-ui);text-shadow:0 1px 2px #000,0 0 4px #000;transition:transform .12s}
+#panel .wsmo,#panel .wsmd{position:absolute;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+#panel .wsmo{inset:0;background:rgba(0,0,0,.7)}
+#panel .wsmd{inset:2px 4px;background-size:cover;background-position:center 70%}
+#panel .wsmt b{position:relative;z-index:3;line-height:1}
+#panel .wsmt.city{z-index:5}#panel .wsmt.city .wsmo{background:#ffd77a}#panel .wsmt.city b{font-size:14px;color:#ffe9a8}
+#panel .wsmt.locked .wsmd{filter:grayscale(.9) brightness(.55)}#panel .wsmt.locked b{color:#b8bfcc}
+#panel .wsmt.best .wsmo{background:#ffd76a}#panel .wsmt.best{filter:drop-shadow(0 0 5px rgba(255,210,100,.7))}
+#panel .wsmt.here .wsmo{background:#8ff0ff}
+#panel .wsmt.sel{transform:translate(-50%,-50%) scale(1.3);z-index:6;filter:drop-shadow(0 0 6px rgba(255,200,90,.9))}#panel .wsmt.sel .wsmo{background:#fff3c4}#panel .wsmt.sel .wsmd{filter:none}
+#panel .wsmt i{position:absolute;font-style:normal;line-height:1;font-size:9px;z-index:4;filter:drop-shadow(0 1px 1px #000)}
+#panel .wsmpin,#panel .wsmbest{left:2px;top:-5px}#panel .wsmwb,#panel .wsmq{right:2px;top:-5px}#panel .wsmlock{right:4px;bottom:-4px;font-size:8px}
+#panel .wsmtag,#panel .wsmcity{position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);white-space:nowrap;padding:1px 6px;border-radius:8px;font:800 10px var(--ui,system-ui);text-shadow:none;pointer-events:none;z-index:5}
+#panel .wsmtag{background:#2a1a04;color:#ffe08a;border:1px solid #e0a83a;font-size:8.5px}
+#panel .wsmcity-town{bottom:auto;top:calc(100% + 2px)}#panel .wsmcity-capital{left:auto;right:55%;transform:none}
+#panel .wsmcity{background:rgba(20,16,8,.85);color:#ffe9a8;border:1px solid rgba(255,215,122,.6)}
 #panel .wsmkey{display:flex;flex-wrap:wrap;justify-content:center;gap:3px 10px;font-size:11px;color:var(--muted);margin:2px auto 8px;max-width:440px}
 #panel .wsmwhere{font-size:12px;color:#c9d2e4;font-weight:600}
 #panel .wsmroads{display:flex;flex-wrap:wrap;align-items:center;gap:5px}#panel .wsmroads>span{font-size:11.5px;color:var(--muted);margin-right:2px}
@@ -101,8 +115,8 @@ PANEL_ACTS.wsmsel=id=>{if(!ZONES[id])return;WSMAP.sel=id;sfx('click');refreshPan
   body.touchui #panel.npcfull[data-kind="warp"] .wsmcol{position:sticky;top:0}
   body.touchui #panel.npcfull[data-kind="warp"] .wsmcol h3{display:none}
   body.touchui #panel.npcfull[data-kind="warp"]>.wsjump{position:fixed;top:max(14px,env(safe-area-inset-top));right:calc(max(12px,env(safe-area-inset-right)) + 62px);margin:0;z-index:6;flex-wrap:nowrap}
-  body.touchui #panel.npcfull[data-kind="warp"] .wsm{width:auto;max-width:none;height:calc(100dvh - 84px - env(safe-area-inset-top) - env(safe-area-inset-bottom));min-height:220px;gap:5px;padding:7px;margin:0}
-  body.touchui #panel.npcfull[data-kind="warp"] .wsmt b{font-size:10.5px}
+  body.touchui #panel.npcfull[data-kind="warp"] .wsmw{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}
+  body.touchui #panel.npcfull[data-kind="warp"] .wsm{max-width:none;margin:22px auto 12px}
   body.touchui #panel.npcfull[data-kind="warp"] .wsmkey{display:none}
   body.touchui #panel.npcfull[data-kind="warp"] .wsdcol{padding-top:4px}
   body.touchui #panel.npcfull[data-kind="warp"] .wsnL{display:inline}
@@ -110,6 +124,6 @@ PANEL_ACTS.wsmsel=id=>{if(!ZONES[id])return;WSMAP.sel=id;sfx('click');refreshPan
 
 if(typeof TH!=='undefined'){Object.assign(TH,{'North road':'ถนนเหนือ','East road':'ถนนตะวันออก','South road':'ถนนใต้','West road':'ถนนตะวันตก','next to the city':'ติดกับเมือง',
   'Roads to':'ถนนไป','📍 You are here':'📍 คุณอยู่ที่นี่','Walk home through the city gates':'เดินกลับผ่านประตูเมือง','The capital, west of Hearthvale':'เมืองหลวง ทางตะวันตกของเฮิร์ธเวล',
-  'Home: the middle of the world':'บ้าน: ใจกลางโลก','⭐ best for you':'⭐ เหมาะกับคุณที่สุด','📍 you':'📍 คุณ','📜 quest':'📜 เควส','👑 world boss':'👑 บอสโลก','🔒 walk there first':'🔒 ต้องเดินไปก่อน',
+  'Home: the middle of the world':'บ้าน: ใจกลางโลก','⭐ best for you':'⭐ เหมาะกับคุณที่สุด','📍 you':'📍 คุณ','📜 quest':'📜 เควส','👑 world boss':'👑 บอสโลก','grey: walk there first':'สีเทา: ต้องเดินไปก่อน',
   'numbers: lowest monster level':'ตัวเลข: เลเวลมอนสเตอร์ต่ำสุด','Walk there along the roads from a place you know.':'เดินไปตามถนนจากที่ที่คุณเคยไป'});
   if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(North|East|South|West) road · (\d+) regions from the city$/,(m,a,n)=>`${({North:'ถนนเหนือ',East:'ถนนตะวันออก',South:'ถนนใต้',West:'ถนนตะวันตก'})[a]} · ห่างจากเมือง ${n} ภูมิภาค`]);}

@@ -1,4 +1,4 @@
-// (v1.54.0) The Waystation's Travel part is a world map: every region a square joined by roads; a tap shows its details
+// (v1.54.0, angled like the game in v1.54.1) The Waystation's Travel part is a world map: every region a square joined by roads; a tap shows its details
 // (beside the map on a phone held sideways). Job chips in the General Store's Equip tab and Brannoc's Forge; Use /
 // Equip / Sigils / Etc tabs in storage.
 const { player, newRoom, wait } = require('./helpers');
@@ -11,7 +11,7 @@ module.exports = async t => {
       openPanel('warp');
       const tiles = [...panel.querySelectorAll('.wsm .wsmt')];
       out.allPlaces = tiles.length === Object.keys(WORLD_GRID).filter(id => ZONES[id]).length;
-      out.roads = panel.querySelectorAll('.wsmt.re').length > 0 && panel.querySelectorAll('.wsmt.rs').length > 0;
+      out.roads = panel.querySelectorAll('.wsmr line').length === Object.keys(WORLD_GRID).filter(id => ZONES[id]).length - 1;
       out.locked = !!panel.querySelector('.wsmt.locked[data-arg="frost"]') && !panel.querySelector('.wsmt.locked[data-arg="meadow"]');
       out.oneCard = panel.querySelectorAll('#wsDet .tccard').length === 1;
       panel.querySelector('.wsmt[data-arg="woods"]').click();
