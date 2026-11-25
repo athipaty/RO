@@ -35,6 +35,13 @@ module.exports = async t => {
       sl.value = 30; sl.dispatchEvent(new Event('input', { bubbles: true })); vcApplyVol();
       const vol = [...VC.pcs.values()][0].audio.volume; const all = !!panel.querySelector('input[data-snd="vall"]') && !!panel.querySelector('input[data-snd="mv"]'); closePanel(); return { open, sl: true, vol, all }; });
     t.ok(mix.open && mix.sl && mix.all && Math.abs(mix.vol - .3) < .02, "the ♪ button opens the Sound window; a party member's volume slider sets how loud you hear them " + JSON.stringify(mix));
+    // v1.60.3: relay servers from the game server reach the game, and a restarted connection comes back
+    const ice = await A.evaluate(() => VC.extraIce);
+    if (process.env.EXPECT_RELAY) t.ok(ice.length > 0 && JSON.stringify(ice).includes('turn:'), 'relay servers from the game server reach the game ' + JSON.stringify(ice));
+    await A.evaluate(() => { for (const [p, e] of VC.pcs) vcRetry(p, e); }); await B.evaluate(() => { for (const [p, e] of VC.pcs) vcRetry(p, e); }); await wait(6000);
+    const re = p => p.evaluate(() => [...VC.pcs.values()].map(e => e.pc.connectionState + ':' + (e.audio && e.audio.srcObject ? e.audio.srcObject.getAudioTracks().length : 0)));
+    const ra = await re(A), rb = await re(B);
+    t.ok(ra[0] === 'connected:1' && rb[0] === 'connected:1', 'after a connection restart both still hear each other ' + JSON.stringify([ra, rb]));
     await A.evaluate(() => document.getElementById('pMic').click());
     t.ok(await A.evaluate(() => VC.muted && VC.stream.getAudioTracks().every(x => !x.enabled)), 'the microphone button mutes you');
     await B.evaluate(() => document.getElementById('pVoice').click()); await wait(1500);

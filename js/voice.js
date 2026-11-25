@@ -5,14 +5,16 @@
    The voice goes straight between the players' browsers (WebRTC, every member to every member); the game server only
    passes the connection setup between members of the same party (routes/embervale/voice.js). The browser asks for the
    microphone the first time. Leaving the party (or the game) leaves its voice chat. */
-const VC={on:false,muted:false,stream:null,pcs:new Map(),peers:[],sock:null,ctx:null,meters:new Map(),joining:false};
+const VC={extraIce:[],on:false,muted:false,stream:null,pcs:new Map(),peers:[],sock:null,ctx:null,meters:new Map(),joining:false};
 const VC_ICE=[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}];
 const vcSend=(ev,d)=>{if(VC.sock&&VC.sock.connected){VC.sock.emit(ev,d||{});return true;}return false;};
 
 /* ---- the server connection ---- */
 {const _saVC=socialAttach;socialAttach=function(sock){_saVC.apply(this,arguments);VC.sock=sock;
   sock.on('vcState',m=>{try{vcState(m);}catch(e){}});
-  sock.on('vcSig',m=>{try{vcSig(m);}catch(e){}});
+  sock.on('vcSig',m=>{try{vcSigQ(m);}catch(e){}});
+  // (v1.60.3) relay servers from the game server, for networks that block direct connections
+  sock.on('vcIce',m=>{try{const l=Array.isArray(m&&m.iceServers)?m.iceServers:[];VC.extraIce=l.filter(x=>x&&x.urls).slice(0,6);}catch(e){}});
   sock.on('disconnect',()=>{if(VC.on)vcLeave(true);});};}
 
 /* ---- joining and leaving ---- */
@@ -44,23 +46,38 @@ function vcState(m){if(m&&m.why)addLog(clean(m.why,80),'l-bad');
   for(const p of peers)if(p!==me&&!VC.pcs.has(p)&&inParty(p))vcPeer(p,me<p);   // the lower id makes the offer
   for(const [p] of VC.pcs)if(!peers.includes(p))vcDrop(p);
   renderParty();}
-function vcPeer(peer,offer){const pc=new RTCPeerConnection({iceServers:VC_ICE});const e={pc,audio:null,failed:false};VC.pcs.set(peer,e);
+function vcPeer(peer,offer){const pc=new RTCPeerConnection({iceServers:[...VC_ICE,...VC.extraIce]});const e={pc,audio:null,failed:false,q:[],offer,tries:0,downAt:0};VC.pcs.set(peer,e);
   if(VC.stream)for(const t of VC.stream.getTracks())pc.addTrack(t,VC.stream);
   else pc.addTransceiver('audio',{direction:'recvonly'}); // listening only: receive, send nothing
   pc.onicecandidate=ev=>{if(ev.candidate)vcSend('vcSig',{to:peer,d:{c:ev.candidate.toJSON()}});};
   pc.ontrack=ev=>{const st=ev.streams[0];if(!st)return;if(!e.audio){e.audio=new Audio();e.audio.autoplay=true;e.audio.playsInline=true;}
     e.audio.srcObject=st;e.audio.play().catch(()=>{});vcMeter(peer,st);};
-  pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed'&&!e.failed){e.failed=true;
-    const nm=(SOC.party&&SOC.party.members.find(x=>x.peer===peer)||{}).name||'a party member';
-    addLog(`Voice could not reach ${nm}: one of your networks blocks direct connections.`,'l-bad');}};
+  // (v1.60.3) a drop (Wi-Fi to 4G, a short outage) or a failure: try again up to 3 times before giving up
+  pc.onconnectionstatechange=()=>{const st=pc.connectionState;
+    if(st==='connected'){e.tries=0;e.downAt=0;e.failed=false;return;}
+    if(st==='disconnected'){e.downAt=Date.now();setTimeout(()=>{if(VC.pcs.get(peer)===e&&pc.connectionState==='disconnected')vcRetry(peer,e);},5000);return;}
+    if(st==='failed')vcRetry(peer,e);};
   if(offer)pc.createOffer().then(o=>pc.setLocalDescription(o)).then(()=>vcSend('vcSig',{to:peer,d:{sdp:pc.localDescription.toJSON()}})).catch(()=>{});
   return e;}
+function vcRetry(peer,e){if(VC.pcs.get(peer)!==e||!VC.on)return;
+  if(e.tries>=3){if(!e.failed){e.failed=true;const nm=(SOC.party&&SOC.party.members.find(x=>x.peer===peer)||{}).name||'a party member';
+    addLog(`Voice could not reach ${nm}: one of your networks blocks direct connections.`,'l-bad');}return;}
+  e.tries++;
+  if(e.offer){try{e.pc.restartIce&&e.pc.restartIce();}catch(err){}
+    e.pc.createOffer({iceRestart:true}).then(o=>e.pc.setLocalDescription(o)).then(()=>vcSend('vcSig',{to:peer,d:{sdp:e.pc.localDescription.toJSON()}})).catch(()=>{});}
+  else vcSend('vcSig',{to:peer,d:{re:1}});} // the other side makes offers: ask it to restart
+// (v1.60.3) handle each member's messages one at a time, in order (a candidate used to race its offer and get lost)
+function vcSigQ(m){const k=String(m&&m.from||'');VC.sigChain=VC.sigChain||new Map();const prev=VC.sigChain.get(k)||Promise.resolve();
+  const next=prev.then(()=>vcSig(m)).catch(()=>{});VC.sigChain.set(k,next);}
+async function vcFlush(e){const q=e.q.splice(0);for(const c of q){try{await e.pc.addIceCandidate(c);}catch(err){}}}
 async function vcSig(m){if(!VC.on||!m||!m.d)return;const from=String(m.from||'');if(!from||!inParty(from))return;
   let e=VC.pcs.get(from);const d=m.d;
-  if(d.sdp&&d.sdp.type==='offer'){if(!e)e=vcPeer(from,false);await e.pc.setRemoteDescription(d.sdp);const a=await e.pc.createAnswer();await e.pc.setLocalDescription(a);
+  if(d.sdp&&d.sdp.type==='offer'){if(e&&(e.pc.connectionState==='closed'||e.pc.signalingState==='closed')){vcDrop(from);e=null;}
+    if(!e)e=vcPeer(from,false);await e.pc.setRemoteDescription(d.sdp);await vcFlush(e);const a=await e.pc.createAnswer();await e.pc.setLocalDescription(a);
     vcSend('vcSig',{to:from,d:{sdp:e.pc.localDescription.toJSON()}});}
-  else if(d.sdp&&d.sdp.type==='answer'&&e){await e.pc.setRemoteDescription(d.sdp);}
-  else if(d.c&&e){try{await e.pc.addIceCandidate(d.c);}catch(err){}}}
+  else if(d.sdp&&d.sdp.type==='answer'&&e){if(e.pc.signalingState==='have-local-offer'){await e.pc.setRemoteDescription(d.sdp);await vcFlush(e);}}
+  else if(d.c){if(!e)return;if(!e.pc.remoteDescription){e.q.push(d.c);return;}try{await e.pc.addIceCandidate(d.c);}catch(err){}}
+  else if(d.re&&e&&e.offer){vcRetry(from,e);}}
 function vcDrop(peer){const e=VC.pcs.get(peer);if(!e)return;try{e.pc.close();}catch(err){}if(e.audio){e.audio.srcObject=null;}VC.pcs.delete(peer);
   const mt=VC.meters.get(peer);if(mt){try{mt.src.disconnect();}catch(err){}VC.meters.delete(peer);}}
 
@@ -84,6 +101,9 @@ setInterval(()=>{if(!VC.on||!SOC.party)return;const box=document.getElementById(
   mb.hidden=!VC.on;mb.textContent=VC.listen?'🎧':VC.muted?'🔇':'🎤';mb.title=VC.listen?'Listening only: tap to talk too':VC.muted?'Unmute your microphone':'Mute your microphone';mb.setAttribute('aria-label',mb.title);
   for(const row of box.querySelectorAll('.pmr[data-peer]'))row.classList.toggle('vcin',VC.peers.includes(row.dataset.peer));};}
 addEventListener('pagehide',()=>{if(VC.on)vcLeave(true);});
+// (v1.60.3) iPhone Safari only plays sound a tap has unlocked: voices that arrived after your tap start on the next tap
+for(const ev of ['pointerdown','touchend','keydown'])addEventListener(ev,()=>{if(!VC.on)return;try{if(VC.ctx&&VC.ctx.state==='suspended')VC.ctx.resume().catch(()=>{});}catch(e){}
+  for(const [,e] of VC.pcs)if(e.audio&&e.audio.paused&&e.audio.srcObject)e.audio.play().catch(()=>{});},true);
 
 if(typeof TH!=='undefined')Object.assign(TH,{'Join the party voice chat':'เข้าห้องพูดคุยของปาร์ตี้','Leave the party voice chat':'ออกจากห้องพูดคุยของปาร์ตี้',
   'Mute your microphone':'ปิดไมโครโฟน','Unmute your microphone':'เปิดไมโครโฟน','Muted':'ปิดเสียง','Mic on':'เปิดไมค์',
