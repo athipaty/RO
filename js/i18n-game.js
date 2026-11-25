@@ -353,7 +353,7 @@ if(typeof TH_PAT!=='undefined'){const thRew=s=>s.replace(/ job EXP/g,' EXP อ�
 // v1.52.5 more looks: hairstyles and builds
 if(typeof TH!=='undefined'){for(const [en,th] of [['Braid','เปีย'],['Short','สั้น'],['Top bun','มวยผม'],['Mohawk','โมฮอว์ก'],['Side sweep','ปัดข้าง'],['Wavy','ลอนยาว'],['Stocky','ล่ำสัน'],['Lithe','ปราดเปรียว']])if(!TH[en])TH[en]=th;}
 // v1.53.0 shoes and a second accessory
-if(typeof TH!=='undefined')Object.assign(TH,{'Shoes':'รองเท้า','shoes':'รองเท้า','accessory II':'เครื่องประดับ II','No shoes':'ไม่มีรองเท้า','No accessory II':'ไม่มีเครื่องประดับ II'});
+if(typeof TH!=='undefined')Object.assign(TH,{'Shoes':'รองเท้า','shoes':'รองเท้า','accessory II':'เครื่องประดับ II','No shoes':'ไม่มีรองเท้า','No accessory II':'ไม่มีเครื่องประดับ II','Equip I':'สวมใส่ I','Equip II':'สวมใส่ II'});
 if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^You already wear a (.+)\.$/,'คุณสวม $1 อยู่แล้ว']);
 // v1.53.0 comma lists of names (regions a monster lives in) put into Thai name by name; bonus lists still as before
 if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^[A-Z][A-Za-z' ]{2,28}(?:, [A-Z][A-Za-z' ]{2,28})+$/,m=>{const parts=m.split(', '),out=parts.map(p=>TH[p]||(typeof thBonusPart==='function'?thBonusPart(p):null));

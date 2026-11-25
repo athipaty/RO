@@ -129,7 +129,7 @@ function refreshPanel(){
     if(!P.inv.length)h+=`<p class="muted">Your bag is empty.</p>`;
     else if(!cnt[invTab])h+=`<p class="muted">${{use:'No potions or scrolls. Ilsa sells them at the General Store.',equip:'No spare gear. What you wear is in the Equip window.',sigil:'No sigils yet. Every monster has a small chance to drop its sigil; socket it into gear with a free slot.',etc:'No monster loot yet.'}[invTab]}</p>`;
     P.inv.forEach((e,i)=>{const it=ITEMS[e.id];if(cat(e)!==invTab)return;const verb=it.type==='use'?'Use':it.type==='sigil'?'Socket':it.type==='etc'?'':'Equip';
-      h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div><div class="ds">${itemDesc(e,e.s&&e.s.length)}</div>${sigStripHtml(e)}</div>${verb?`<button class="btn small" data-act="use" data-arg="${i}">${verb}</button>`:''}</div>`;});
+      h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm" style="color:${rarityCol(e.id)}">${itemName(e)}${e.n!==undefined?` <span class="muted">×${e.n}</span>`:''}</div><div class="ds">${itemDesc(e,e.s&&e.s.length)}</div>${sigStripHtml(e)}</div>${it.type==='accessory'&&P.eq.accessory&&P.eq.acc2?`<div class="tbtns" style="flex-direction:column;gap:4px;margin:0"><button class="btn small" data-act="equipacc" data-arg="${i}:accessory" title="Swap for ${esc(ITEMS[P.eq.accessory.id].name)}">Equip I</button><button class="btn small" data-act="equipacc" data-arg="${i}:acc2" title="Swap for ${esc(ITEMS[P.eq.acc2.id].name)}">Equip II</button></div>`:verb?`<button class="btn small" data-act="use" data-arg="${i}">${verb}</button>`:''}</div>`;});
   }
   else if(panelKind==='skills'){
     h+=skillTreeHtml();
@@ -299,6 +299,7 @@ panel.addEventListener('click',ev=>{
       ()=>{if(into){into.n-=e.n;if(into.n<=0){const k=P.inv.indexOf(into);if(k>=0)P.inv.splice(k,1);}}else{const k=P.inv.indexOf(e);if(k>=0)P.inv.splice(k,1);}});return;}
   if(a==='stat'){const v=P.st[arg],c=statCost(v);if(P.statPts>=c&&v<99){P.st[arg]++;P.statPts-=c;S=computeStats();}}
   if(a==='use')useInv(+arg);
+  if(a==='equipacc'){const[i,sl]=arg.split(':');useInv(+i,sl);} // (v1.60.4) both accessory slots full: Equip I / Equip II
   if(a==='unequip')unequip(arg);
   if(a==='learn'){if(P.skillPts>0&&skillUnlocked(arg)&&(P.skills[arg]||0)<SKILLS[arg].max){P.skills[arg]=(P.skills[arg]||0)+1;P.skillPts--;rebuildHotbar();addLog(`Learned ${SKILLS[arg].name} level ${P.skills[arg]}.`,'l-good');}}
   if(a==='tab'){shopTab=arg;shopCat=arg==='sell'?'etc':'use';}

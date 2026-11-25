@@ -123,17 +123,17 @@ function canEquip(it){
   if(it.type==='weapon'&&!CLASSES[P.cls].weapons.includes(it.wt))return `A ${CLASSES[P.cls].name} cannot use ${it.wt}s.`;
   return null;
 }
-function useInv(i){
+function useInv(i,want){
   const e=P.inv[i];if(!e||P.dead)return;const it=ITEMS[e.id];
   if(it.type==='use')return useItem(e.id);
   if(it.type==='etc'){addLog(`${it.name} sells for ${sellValue(e.id)} gold at the General Store.`);return;}
   if(it.type==='sigil'){openSocket(e.id);return;} // js/socket.js: pick the gear, then OK
   const why=canEquip(it);if(why){addLog(why,'l-bad');return;}
-  // (v1.53.0) two accessory slots: a new accessory fills an empty one (the first, then the second); the same one twice is not allowed
+  // (v1.53.0) two accessory slots: a new accessory fills an empty one (the first, then the second)
+  // (v1.60.4) the same accessory can be worn twice, and with both slots full you pick which one to swap (want: 'accessory' or 'acc2')
   let slot=it.type;
   if(slot==='accessory'){const a=P.eq.accessory,b=P.eq.acc2;
-    if((a&&a.id===e.id)||(b&&b.id===e.id)){addLog(`You already wear a ${it.name}.`,'l-bad');return;}
-    if(a&&!b)slot='acc2';}
+    if(want==='accessory'||want==='acc2')slot=want;else if(a&&!b)slot='acc2';}
   const old=P.eq[slot];
   P.inv.splice(i,1);P.eq[slot]=e;if(old)P.inv.push(old);
   addLog(`Equipped ${it.name}.`);S=computeStats();P.hp=Math.min(P.hp,S.maxhp);P.sp=Math.min(P.sp,S.maxsp);refreshPanel();save();

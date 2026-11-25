@@ -8,13 +8,16 @@ module.exports = async t => {
     const r = await A.ev(() => { const o = {}; P.lv = 30; S = computeStats(); const s0 = { def: S.def, speed: S.speed };
       giveItem('windstep', 1); useInv(P.inv.findIndex(e => e.id === 'windstep')); S = computeStats();
       o.shoes = P.eq.shoes && P.eq.shoes.id; o.def = S.def - s0.def; o.speed = S.speed - s0.speed;
-      // two accessories, not the same one twice
+      // two accessories; (v1.60.4) the same one can be worn twice, and with both full you pick the slot
       giveItem('ring', 2); giveItem('charm', 1);
       useInv(P.inv.findIndex(e => e.id === 'ring')); useInv(P.inv.findIndex(e => e.id === 'charm'));
       o.acc = [P.eq.accessory && P.eq.accessory.id, P.eq.acc2 && P.eq.acc2.id];
-      const rings = P.inv.filter(e => e.id === 'ring').length; useInv(P.inv.findIndex(e => e.id === 'ring')); o.twice = P.inv.filter(e => e.id === 'ring').length === rings;
-      o.told = /You already wear a/.test(document.getElementById('log').textContent);
-      unequip('acc2'); o.off = !P.eq.acc2 && P.inv.some(e => e.id === 'charm');
+      openPanel('items'); invTab = 'equip'; refreshPanel(); o.pick = [...document.querySelectorAll('#panel [data-act="equipacc"]')].map(b => b.textContent); closePanel();
+      useInv(P.inv.findIndex(e => e.id === 'ring'), 'acc2');
+      o.twice = P.eq.accessory && P.eq.accessory.id === 'ring' && P.eq.acc2 && P.eq.acc2.id === 'ring' && P.inv.some(e => e.id === 'charm');
+      useInv(P.inv.findIndex(e => e.id === 'charm'), 'accessory');
+      o.swapI = P.eq.accessory.id === 'charm' && P.eq.acc2.id === 'ring';
+      unequip('acc2'); o.off = !P.eq.acc2 && P.inv.some(e => e.id === 'ring');
       // the equipment window and the smith know the new slots
       openPanel('equip'); o.slots = [...document.querySelectorAll('#panel .eqk')].map(x => x.textContent); closePanel();
       // a shoe sigil goes into shoes
@@ -28,7 +31,9 @@ module.exports = async t => {
       return o; });
     t.ok(r.shoes === 'windstep' && r.def > 0 && r.speed > 0, `shoes go on the new slot and add DEF and speed (+${r.def} DEF, +${r.speed} speed)`);
     t.ok(r.acc[0] === 'ring' && r.acc[1] === 'charm', 'a second accessory fills the second accessory slot ' + JSON.stringify(r.acc));
-    t.ok(r.twice && r.told, 'the same accessory cannot be worn twice, and you are told');
+    t.ok(r.pick.join() === 'Equip I,Equip II', 'with both accessory slots full the bag offers Equip I and Equip II: ' + r.pick.join());
+    t.ok(r.twice, 'the same accessory can be worn twice, swapping out the one in the slot you pick');
+    t.ok(r.swapI, 'Equip I swaps the first accessory and leaves the second');
     t.ok(r.off, 'the second accessory comes off like any other piece');
     t.ok(r.slots.includes('shoes') && r.slots.includes('accessory II') && r.slots.length === 8, 'the Equipment window has 8 slots: ' + r.slots.join(', '));
     t.ok(r.sigKind === 'shoes' && r.sockOpts >= 1, 'a shoe sigil can be socketed into shoes');
