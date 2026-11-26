@@ -24,6 +24,8 @@ module.exports = async t => {
       enterZone('town'); P.tut = TUT_STEPS.findIndex(s => s.k === 'meadow'); GOAL.t = { npc: 'Brannoc the Smith', zone: 'town' }; out.tipWaits = /Finish your quest first/.test(TUT_STEPS[P.tut].t());
       // the first time HP runs low in the wild, a word on tonics and sitting
       enterZone('meadow'); P.lowTip = 0; P.hp = Math.floor(S.maxhp * .2); await w(800); out.lowTip = P.lowTip === 1 && /Low on HP/.test(document.getElementById('log').textContent); P.hp = S.maxhp;
+      // (v1.66.2) the help page speaks of taps, not keys
+      openPanel('help'); await w(150); const ht = panel.textContent; out.helpKeys = ['WASD', 'Tab targets', 'press X', '(C)', '(K)', 'Press J', 'right-click', '(G)', '(E)', 'Enter or'].filter(k => ht.includes(k)); out.helpNew = /Drag anywhere/.test(ht) && /Tidewater Isle/.test(ht) && /✨ Recommended/.test(ht); closePanel();
       // a seasoned hero sees it all again
       P.tut = 'done'; P.lv = 20; await w(600); out.after = !document.body.classList.contains('newbie');
       return out; });
@@ -34,6 +36,7 @@ module.exports = async t => {
     t.ok(r.statBoxGone && r.skillAuto, 'the stat box hides when nothing can be bought; skill points have their own Recommended (a Novice learns First Aid)');
     t.ok(r.tipWaits, 'the first-steps tip waits while the story quest points at someone in town');
     t.ok(r.lowTip, 'the first time HP runs low in the wild, a word on tonics and sitting');
+    t.ok(!r.helpKeys.length && r.helpNew, 'the help page is written for phones and covers the world as it is now' + (r.helpKeys.length ? ': still mentions ' + r.helpKeys.join(', ') : ''));
     t.ok(r.after, 'once the first steps are done the full screen comes back');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
