@@ -62,6 +62,12 @@ module.exports = async t => {
       return { down: col('woods', 'deep1'), up: col('deep1', 'woods'), gate: col('woods', 'meadow') }; });
     t.ok(mm.down[0] > 200 && mm.down[1] > 120 && mm.down[2] < 110, 'the minimap shows the stairs down as an orange ▼ ' + mm.down);
     t.ok(mm.up[2] > 200 && mm.up[0] > 150, 'and the way back up out of a dungeon as a pale ▲ ' + mm.up);
+    // (v1.65.3) the World map window's direction pad
+    const wp = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); enterZone('meadow'); WSF.mview = 'world'; WSF.wsel = null; openPanel('worldmap'); await w(200);
+      const out = { pads: panel.querySelectorAll('.wgpad .wsmpd').length, start: WSF.wsel, cap: (panel.querySelector('.wgcap b') || {}).textContent };
+      const to = ZONES.meadow.links.east; panel.querySelector('.wgpd-E').click(); await w(200); out.moved = WSF.wsel === to && (panel.querySelector('.wgcap b') || {}).textContent === ZONES[to].name && !!panel.querySelector(`.wc.sel[data-arg="${to}"]`);
+      closePanel(); return out; });
+    t.ok(wp.pads === 4 && wp.start === 'meadow' && wp.moved, `the World map window has the direction pad too: from ${wp.cap} east to the next region, its name under the map`);
     t.ok(wm.picked === 'grotto1', 'tapping a floor square picks it in the list below (' + wm.picked + ')');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }

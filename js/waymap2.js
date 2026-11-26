@@ -49,6 +49,14 @@ function elWeakLine(ms){const els=[...new Set(ms.map(m=>m.el||'neutral'))].filte
 #panel .wsmbar{display:flex;align-items:center;gap:8px;margin:2px 0 0}
 #panel .wsmwrap{position:relative}
 #panel .wsmpad{position:absolute;left:8px;bottom:8px;width:104px;height:104px;z-index:6}
+#panel .wgwrap{position:relative}
+#panel .wgscroll.big .wgrid{margin:0 0 118px 0}
+#panel .wgpad{width:132px;height:132px;left:10px;bottom:10px}
+#panel .wgpd-N{left:45px;top:0}#panel .wgpd-S{left:45px;bottom:0}#panel .wgpd-W{left:0;top:45px}#panel .wgpd-E{right:0;top:45px}
+#panel .wgcap{display:flex;align-items:center;gap:10px;width:100%;margin:6px 0 2px;padding:8px 12px;border-radius:12px;border:1px solid rgba(232,194,90,.45);
+  background:rgba(232,194,90,.1);color:#f1e2bd;cursor:pointer;text-align:left;font:600 13px var(--ui,system-ui)}
+#panel .wgcap b{font-size:15px}#panel .wgcap span{opacity:.75}#panel .wgcap i{margin-left:auto;font-style:normal;color:#ffd77a}
+#panel .wc.sel{outline:3px solid #ffd77a;outline-offset:2px;z-index:2}
 #panel .wsmpd{position:absolute;width:42px;height:42px;border-radius:12px;border:1px solid rgba(232,194,90,.55);background:rgba(20,28,40,.88);color:#ffd77a;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0;font:800 10px var(--ui,system-ui);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5)}
 #panel .wsmpd i{font-style:normal;font-size:17px;line-height:1}
@@ -83,7 +91,20 @@ function elWeakLine(ms){const els=[...new Set(ms.map(m=>m.el||'neutral'))].filte
 {const _wgh=worldGridHtml;worldGridHtml=function(){let h=_wgh.apply(this,arguments);const cut=h.indexOf('<div class="wkey');
   let grid=cut<0?h:h.slice(0,cut);const key=cut<0?'':h.slice(cut);
   grid=grid.replace('minmax(0,1fr))','64px)');
-  return `<div class="wgscroll big">${grid}</div>`+key;};}
+  // (v1.65.3) a direction pad and a caption for the highlighted region (the pad steps along the roads)
+  if(!WSF.wsel||!WORLD_GRID[WSF.wsel])WSF.wsel=WORLD_GRID[zoneId]?zoneId:'town';
+  const L=(ZONES[WSF.wsel]&&ZONES[WSF.wsel].links)||{},D=ZONES[WSF.wsel];
+  const pad=[['north','↑','N'],['east','→','E'],['south','↓','S'],['west','←','W']].map(([d,a,k])=>{const to=L[d];
+    return `<button type="button" class="wsmpd wgpd-${k}" ${to&&WORLD_GRID[to]?`data-act="wmstep" data-arg="${to}" aria-label="${k}: ${esc(ZONES[to].name)}" title="${esc(ZONES[to].name)}"`:`disabled aria-label="${k}: no road"`}><i aria-hidden="true">${a}</i><b>${k}</b></button>`;}).join('');
+  const cap=`<button type="button" class="wgcap" data-act="wmgo" data-arg="${WSF.wsel}"><b>${esc(D.name)}</b><span>${esc(D.lvl||'')}</span><i aria-hidden="true">▸</i></button>`;
+  return `<div class="wgwrap"><div class="wgscroll big">${grid}</div><div class="wsmpad wgpad" role="group" aria-label="Move along the roads">${pad}</div></div>${cap}`+key;};}
+PANEL_ACTS.wmstep=id=>{if(!ZONES[id]||!WORLD_GRID[id])return;WSF.wsel=id;sfx('click');refreshPanel();};
+{const _wmgoS=PANEL_ACTS.wmgo;PANEL_ACTS.wmgo=id=>{if(WORLD_GRID[id]&&WSF.wsel!==id){WSF.wsel=id;refreshPanel();}return _wmgoS(id);};}
+// the highlighted square: outlined, and kept in view when it changes
+function wgMark(){const sc=panel&&panel.querySelector('.wgscroll.big');if(!sc)return;for(const b of sc.querySelectorAll('.wc.sel'))b.classList.remove('sel');
+  const t=sc.querySelector(`.wc[data-arg="${WSF.wsel}"]`);if(!t)return;t.classList.add('sel');
+  if(WSF.wcen!==WSF.wsel||!sc._centred){const a=sc.getBoundingClientRect(),b=t.getBoundingClientRect();sc.scrollLeft+=b.left+b.width/2-(a.left+a.width/2);sc.scrollTop+=b.top+b.height/2-(a.top+a.height/2);WSF.wcen=WSF.wsel;sc._centred=1;}}
+{const _rpM=refreshPanel;refreshPanel=function(){const r=_rpM.apply(this,arguments);try{if(panelKind==='worldmap')requestAnimationFrame(wgMark);}catch(e){}return r;};}
 function wgCentre(){const sc=panel&&panel.querySelector('.wgscroll.big');if(!sc||sc._centred)return;const t=sc.querySelector('.wc.here')||sc.querySelector('.wc.city');if(!t)return;
   const a=sc.getBoundingClientRect(),b=t.getBoundingClientRect();sc.scrollLeft+=b.left+b.width/2-(a.left+a.width/2);sc.scrollTop+=b.top+b.height/2-(a.top+a.height/2);sc._centred=1;}
 {const _rpG=refreshPanel;refreshPanel=function(){const r=_rpG.apply(this,arguments);try{if(panelKind==='worldmap')requestAnimationFrame(wgCentre);}catch(e){}return r;};}
