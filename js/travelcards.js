@@ -3,7 +3,7 @@
    Each place Tobin can send you to is a card: a small landscape banner in the region's own look, pictures of the
    monsters that live there (the boss's face last), a badge saying whether it suits your level (the best one first,
    with a star), and markers for why you might go: your active quest, today's bounty, a world boss up right now,
-   and the gathering spots (herbs, ore, fishing). */
+   and the gathering spots (ore veins). */
 const TC_BAN={};
 function tcLevels(id){const D=ZONES[id],l=(D.mobs||[]).map(([m])=>MOBS[m]).filter(m=>m&&!m.boss&&!m.world).map(m=>m.lv);return l.length?{lo:Math.min(...l),hi:Math.max(...l)}:null;}
 function tcBadge(id){const L=tcLevels(id);if(!L)return null;const lv=P.lv;
@@ -33,7 +33,7 @@ function tcMarks(id){const out=[],lives=m=>(ZONES[id].mobs||[]).some(([k])=>k===
   try{if(typeof bState==='function'){const b=bState();if([...(b.d||[]),b.w].some(x=>x&&!x.claimed&&x.mob&&lives(x.mob)))out.push(['✦','Bounty monster here','b']);}}catch(e){}
   if(typeof NET!=='undefined'&&NET.wb&&NET.wb.z===id&&MOBS[NET.wb.b])out.push(['👑',`World boss: ${MOBS[NET.wb.b].name}`,'w']);
   try{if(typeof GATHER_KINDS==='function')for(const k of GATHER_KINDS({D:ZONES[id]}))out.push([k==='herb'?'🌿':'⛏',k==='herb'?'Herbs':'Ore','g']);}catch(e){}
-  if(ZONES[id].ponds&&!ZONES[id].dungeon)out.push(['🎣','Fishing','g']);
+  // (v1.60.8) no fishing any more
   return out;}
 /* v1.45.4 easier to read: jump buttons for the three parts (Travel, Rest, Stable); places you can go come first (the
    best one for your level on top), then the ones you have not walked to yet; each card says in words whether it

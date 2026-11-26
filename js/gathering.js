@@ -1,5 +1,7 @@
 "use strict";
-/* ================= gathering: herbs, ore and fishing =================
+/* ================= gathering: ore =================
+   (v1.60.8) herb patches and fishing spots are gone: only ore veins remain. The herb and fish items, and the brews and
+   food made from them, stay defined so what players already carry can still be sold, brewed or eaten.
    Each field region has a few gathering spots that sparkle: herb patches (meadow, woods, caverns), ore veins (dunes,
    crypt, frost, caverns) and fishing spots at pond edges. Tap one: you walk there and a short timing game starts: stop
    the moving marker in the gold zone for the best haul (and a chance of a rare find), in the green zone for a good one.
@@ -14,7 +16,7 @@ Object.assign(ITEMS,{
   goldsoup:{name:'Golden Soup',type:'use',price:400,col:'#ffd27a',g:'◒',brew:{id:'goldsoup',s:600,b:{str:3,agi:3,vit:3,int:3,dex:3,luk:3}},desc:'For 10 minutes: +3 to every stat.'}});
 if(typeof BREWS!=='undefined')BREWS.push(['red',4,{mossherb:3},0],['blue',2,{mossherb:2,sunpetal:1},20],['grilledfish',2,{pondfish:2},10],['goldsoup',1,{goldfin:1,sunpetal:1,pondfish:2},100],['emberore',1,{ironchunk:6},300]);
 const GATHER={herb:{name:'Herb patch',item:'mossherb',rare:'sunpetal',col:'#7fd36a'},ore:{name:'Ore vein',item:'ironchunk',rare:['emberore','glintstone'],col:'#c8d0dc'},fish:{name:'Fishing spot',item:'pondfish',rare:'goldfin',col:'#9fd3ff'}};
-const GATHER_KINDS=z=>{const t=z.D.theme;return t==='heights'||t==='ruins'?['herb','ore']:['meadow','woods','fen','farms','coast','downs','pines','jungle','dusk'].includes(t)?['herb']:t==='cave'?['herb','ore']:['dunes','crypt','frost','caldera','molten','crystal','glacier','storm'].includes(t)?['ore']:[];};
+const GATHER_KINDS=z=>{const t=z.D.theme;return ['heights','ruins','cave','dunes','crypt','frost','caldera','molten','crystal','glacier','storm'].includes(t)?['ore']:[];};
 /* spot key -> time it is ready again (Date.now ms), kept on the hero and saved, so reloading the page does not reset it */
 const gRest=()=>{if(!P)return {};if(!P.gatherRest||typeof P.gatherRest!=='object')P.gatherRest={};const R=P.gatherRest,t=Date.now();for(const k in R)if(!(R[k]>t))delete R[k];return R;};
 if(typeof SAVE_EXTRA!=='undefined')SAVE_EXTRA.push('gatherRest');
@@ -23,9 +25,7 @@ function gatherPlace(z){if(!z||z.D.safe||!z.D.mobs||z._gather)return;z._gather=1
   const near=(x,y)=>z.objs.some(o=>o.kind==='gather'&&Math.abs(o.x-(x+.5)*TILE)<6*TILE&&Math.abs(o.y-(y+.5)*TILE)<6*TILE);
   const add=(kind,x,y)=>z.objs.push({x:(x+.5)*TILE,y:(y+.5)*TILE,kind:'gather',g:kind,key:z.id+':'+x+','+y,v:0,sc:1});
   for(const kind of GATHER_KINDS(z)){let n=0,tries=0;while(n<4&&tries++<400){const x=Math.floor(R()*W),y=Math.floor(R()*H);if(free(x,y)&&!near(x,y)){add(kind,x,y);n++;}}}
-  // fishing: ground right next to water
-  let n=0,tries=0;while(n<2&&tries++<3000){const x=Math.floor(R()*W),y=Math.floor(R()*H);if(!free(x,y)||near(x,y))continue;
-    if([[1,0],[-1,0],[0,1],[0,-1]].some(([a,b])=>t[(y+b)*W+x+a]===3)){add('fish',x,y);n++;}}}
+}
 {const _gzG=getZone;getZone=function(id){const z=_gzG.apply(this,arguments);try{gatherPlace(z);}catch(e){}return z;};}
 const gReady=o=>!((P&&P.gatherRest&&P.gatherRest[o.key])>Date.now());
 // drawing the spots (depth-sorted with everything else, as map objects)
