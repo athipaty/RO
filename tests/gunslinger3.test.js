@@ -29,10 +29,10 @@ module.exports = async t => {
       out.th = typeof SKILL_TH !== 'undefined' && Object.keys(GS3_SKILLS).every(id => SKILL_TH[id]);
       return out;
     });
-    t.ok(r.callings.split(',').sort().join() === 'pyrogunner,sniper,trickshot', 'the Gunslinger has three advanced callings: ' + r.callings);
-    t.ok(r.paths.split(',').sort().join() === ['gunner', 'marksman', 'marksman+gunner'].sort().join() || r.paths.split(',').sort().join() === ['gunner', 'gunner+marksman', 'marksman'].sort().join(), 'one per path and one mixing both: ' + r.paths);
+    t.ok(r.callings.split(',').sort().join() === 'pyrogunner,sniper', 'the Gunslinger has two advanced callings: ' + r.callings);
+    t.ok(r.paths.split(',').sort().join() === ['marksman', 'marksman+gunner'].sort().join() || r.paths.split(',').sort().join() === ['gunner+marksman', 'marksman'].sort().join(), 'a marksman and a mix of both: ' + r.paths);
     t.ok(r.markOnly === 'sniper', 'with only Marksman skills learned, Corvin offers just the Sniper (' + r.markOnly + ')');
-    t.ok(r.choices.split(',').sort().join() === 'pyrogunner,sniper,trickshot', 'after the Rimestalker trial Corvin offers all three: ' + r.choices);
+    t.ok(r.choices.split(',').sort().join() === 'pyrogunner,sniper', 'after the Rimestalker trial Corvin offers both: ' + r.choices);
     t.ok(r.cls === 'sniper' && r.keeps, 'confirming makes you a Sniper and you keep your Gunslinger skills');
     t.ok(r.range[1] === r.range[0] + 120, 'Eagle Sight 10 adds 120px of range with a gun: ' + r.range.join(' -> '));
     const miss = Object.entries(r.hit).filter(([, v]) => !v).map(([k]) => k);

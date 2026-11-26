@@ -26,7 +26,7 @@ module.exports = async t => {
       out.th = Object.keys(SH3_SKILLS).every(id => SKILL_TH[id]);
       JOB3_SEALED = true; return out;
     });
-    t.ok(r.from === 'soulreaper,plaguelord,umbraldancer', 'each Shade calling has its master calling: ' + r.from);
+    t.ok(r.from.replace(/,$/, '') === 'soulreaper,plaguelord', 'each Shade calling has its master calling: ' + r.from);
     t.ok(r.choices === 'soulreaper', 'after the Deepshade trial Valen offers a Nightblade the Soulreaper (' + r.choices + ')');
     t.ok(r.cls === 'soulreaper' && r.keeps, 'ascending makes you a Soulreaper and keeps every Shade and Nightblade skill');
     const miss = Object.entries(r.hit).filter(([, v]) => !v).map(([k]) => k);

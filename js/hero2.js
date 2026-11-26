@@ -21,13 +21,12 @@ function hero2Shade(hex,a){if(typeof mlShade==='function')return mlShade(hex,a);
 var WARDEN_V2=true;
 // the Warden family's outfits: the advanced callings grow out of the Warden's (pz: shoulder-guard size)
 const WARDEN_LOOKS={
-  warden:{kit:'knight',steel:'#c3cad4',steel2:'#8e96a3',cloth:'#a8281e',trim:'#e8b84a',crest:'#e8b84a',pz:1,boot:'#8e96a3',sleeve:'#8e96a3'},
+  warden:{kit:'knight',steel:'#c3cad4',steel2:'#8e96a3',cloth:'#a8281e',trim:'#e8b84a',crest:'#e8b84a',pz:.7,thin:1,boot:'#8e96a3',sleeve:'#8e96a3'},
   bulwark:{kit:'fort',steel:'#dde2ea',steel2:'#9aa4b2',cloth:'#2a4a8a',trim:'#f0c860',boot:'#9aa4b2',sleeve:'#c3cad4',pant:'#5a6270'},
-  ravager:{kit:'bers',leather:'#5a3a26',fur:'#6e4e32',iron:'#5c616a',cloth:'#7a1a12',trim:'#c8b890',boot:'#3a2a1c',pant:'#4a3426'},
+  warbringer:{kit:'bers', // (v1.68.0) swapped: the Warbringer wears the barbarian look, the Ravager the black iron (js/outfits_warden.js)
+   leather:'#5a3a26',fur:'#6e4e32',iron:'#5c616a',cloth:'#7a1a12',trim:'#c8b890',boot:'#3a2a1c',pant:'#4a3426'},
   runeguard:{kit:'rune',coat:'#22365e',steel:'#c4d4e6',trim:'#7fd3ff',boot:'#1e2236',sleeve:'#22365e',pant:'#2a2e48'},
-  // (v1.67.0) the master jobs wear their advanced job's outfit, made grander: gilded plate, ember-black iron, starlit runes
-  aegislord:{kit:'fort',steel:'#f4e6b8',steel2:'#c8a040',cloth:'#f4f0e4',trim:'#ffd76a',boot:'#c8a040',sleeve:'#f0dc9a',pant:'#8a6a2a'},
-  warbringer:{kit:'bers',leather:'#2a1410',fur:'#3a1a14',iron:'#2e2a2a',cloth:'#c8281a',trim:'#ffb36a',boot:'#1a0e0a',pant:'#2a1410'},
+  // (v1.68.0) the Warden masters have their own outfits (js/outfits_warden.js)
   runelord:{kit:'rune',coat:'#141a3a',steel:'#e8f4ff',trim:'#bfefff',boot:'#0e1228',sleeve:'#141a3a',pant:'#1a1e3a'}};
 function drawHuman2(x,y,body,hair,face,walk,opt={}){
   const L=opt.look||{style:0,eye:'#5a3a22',skin:'#f6d6b8',seed:0};hair=L.hair||hair;
@@ -66,7 +65,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
       for(const k of [-1,1]){const tx=x+k*11-f*2+sway*1.2;ctx.fillStyle=WV.coat;ctx.beginPath();ctx.moveTo(x+k*2,by-2);ctx.lineTo(x+k*8,by-3);ctx.quadraticCurveTo(x+k*12,by+6,tx,y-6);ctx.lineTo(x+k*4+sway*.6,y-8);ctx.closePath();fs();
         glow(()=>{ctx.strokeStyle=GOLD;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(x+k*8,by-2.6);ctx.quadraticCurveTo(x+k*11.6,by+6,tx,y-6.6);ctx.lineTo(x+k*4+sway*.6,y-8.4);ctx.stroke();});ctx.strokeStyle=OL;ctx.lineWidth=1.5;}}
     else if(wv2){}
-    else if(out==='warden'){ctx.fillStyle='#9a2e24';ctx.beginPath();ctx.moveTo(x-8*bw,by-14);ctx.lineTo(x+8*bw,by-14);ctx.quadraticCurveTo(x+11-f*3,by-2,x+10-f*4+sway,y-1);
+    else if(out==='warden'&&!AK){ctx.fillStyle='#9a2e24';ctx.beginPath();ctx.moveTo(x-8*bw,by-14);ctx.lineTo(x+8*bw,by-14);ctx.quadraticCurveTo(x+11-f*3,by-2,x+10-f*4+sway,y-1);
       ctx.lineTo(x-10-f*4+sway,y-1);ctx.quadraticCurveTo(x-11-f*3,by-2,x-8*bw,by-14);ctx.closePath();fs();
       ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1;for(const k of [-4,0,4]){ctx.beginPath();ctx.moveTo(x+k,by-10);ctx.lineTo(x+k*1.2-f*3+sway,y-3);ctx.stroke();}ctx.lineWidth=1.5;ctx.strokeStyle=OL;}
     if(out==='ranger'&&!AK){ctx.save();ctx.translate(x-f*7,by-9);ctx.rotate(f*.4);ctx.fillStyle='#6b4423';ctx.beginPath();ctx.roundRect(-3.5,-13,7,18,2.5);fs();
@@ -208,7 +207,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
       ctx.lineTo(x+8,by-13);ctx.quadraticCurveTo(x,by-11.5,x-8,by-13);ctx.closePath();fs();ctx.fillStyle='rgba(255,230,190,.25)';ctx.beginPath();ctx.ellipse(x-3,by-15,3,1,0,0,7);ctx.fill();}
     else{ctx.fillStyle=STEEL2;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x-4.4,by-17.2,8.8,3.4,1.6);fs();}
     // big two-layer shoulder guards with red trim and rivets
-    for(const k of [-1,1]){const pz=WV.pz||1,px=x+k*(10.6+(pz-1)*7),py=by-12-(pz-1)*3;ctx.save();ctx.translate(px,py);ctx.rotate(k*.38);ctx.scale(pz,pz);
+    for(const k of [-1,1]){const pz=WV.pz||1,px=x+k*(pz<1?9.6:10.6+(pz-1)*7),py=pz<1?by-11.2:by-12-(pz-1)*3; /* (v1.68.0) the Warden's slimmer guards (pz<1) */ctx.save();ctx.translate(px,py);ctx.rotate(k*.38);ctx.scale(pz,pz);
       ctx.fillStyle=STEEL2;ctx.strokeStyle=OL;ctx.lineWidth=1.3;ctx.beginPath();ctx.ellipse(k*1,3.4,6.6,3.6,0,0,7);fs();
       ctx.fillStyle=STEEL;ctx.beginPath();ctx.moveTo(-6.8,1.4);ctx.quadraticCurveTo(-6.6,-4.6,0,-5.2);ctx.quadraticCurveTo(6.6,-4.6,6.8,1.4);ctx.quadraticCurveTo(0,3.4,-6.8,1.4);ctx.closePath();fs();
       glow(()=>{ctx.strokeStyle=GOLD;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-6.2,1);ctx.quadraticCurveTo(0,2.8,6.2,1);ctx.stroke();
@@ -217,7 +216,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
       if(WV.spikes){ctx.fillStyle='#d8d0c0';ctx.strokeStyle=OL;ctx.lineWidth=1;for(const [sx2,h] of [[-3.6,4.6],[0,6.8],[3.6,4.6]]){ctx.beginPath();ctx.moveTo(sx2-1.5,-4.2);ctx.lineTo(sx2+k*.6,-4.2-h);ctx.lineTo(sx2+1.5,-4.2);ctx.closePath();fs();}}
       else{ctx.fillStyle=WV.glow?'#2a4a7a':RED;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-1.4,-5);ctx.lineTo(0,-7.6);ctx.lineTo(1.4,-5);ctx.closePath();fs();}ctx.restore();}
     ctx.lineWidth=1.5;ctx.strokeStyle=OL;}
-  else if(out==='warden'){ctx.fillStyle='#b9c0ca';ctx.beginPath();ctx.moveTo(x-6.5,by-14);ctx.lineTo(x+6.5,by-14);ctx.lineTo(x+6,by-5);ctx.quadraticCurveTo(x,by-2.5,x-6,by-5);ctx.closePath();fs();
+  else if(out==='warden'&&!AK){ctx.fillStyle='#b9c0ca';ctx.beginPath();ctx.moveTo(x-6.5,by-14);ctx.lineTo(x+6.5,by-14);ctx.lineTo(x+6,by-5);ctx.quadraticCurveTo(x,by-2.5,x-6,by-5);ctx.closePath();fs();
     ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,by-13);ctx.lineTo(x,by-4);ctx.stroke();
     ctx.fillStyle='#6a707c';for(const [a,b] of [[-4.5,-12],[4.5,-12],[-4,-6.5],[4,-6.5]]){ctx.beginPath();ctx.arc(x+a,by+b,.8,0,7);ctx.fill();}
     belt(D.belt,by-1);ctx.fillStyle='#9a2e24';ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-3.5,by+.5);ctx.lineTo(x+3.5,by+.5);ctx.lineTo(x+2.5,hip+3.5);ctx.lineTo(x-2.5,hip+3.5);ctx.closePath();fs();

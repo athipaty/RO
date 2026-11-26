@@ -15,7 +15,7 @@ module.exports = async t => {
         // each path can fight: its own attack, or the core attack plus its own skills
         for (const p of J.paths) if (!p.skills.some(s => SKILLS[s].kind !== 'passive')) out.bad.push(`${base}.${p.id} has nothing to cast`);
         const kinds = jobsFrom(base).map(j => jobPaths(j).map(p => p.id).join('+')).sort();
-        if (kinds.length && (kinds.filter(k => !k.includes('+')).length !== 2 || kinds.filter(k => k.includes('+')).length !== 1 || new Set(kinds).size !== 3)) out.bad.push(`${base} callings: ${kinds}`); // (a first job with no callings yet, like the new Gunslinger, is fine)
+        if (kinds.length && (kinds.length !== 2 || new Set(kinds).size !== 2)) out.bad.push(`${base} callings: ${kinds}`); // (a first job with no callings yet, like the new Gunslinger, is fine)
         // the points a first job must spend to open each calling (requirements of requirements included)
         for (const j of jobsFrom(base)) { const need = {};
           const add = (s, l) => { if ((need[s] || 0) >= l) return; need[s] = l; for (const r in SKILL_REQ[s] || {}) add(r, SKILL_REQ[s][r]); };
@@ -25,7 +25,7 @@ module.exports = async t => {
       }
       return out;
     });
-    t.ok(!d.bad.length, 'every first job has two paths, each skill sits on one path (or is core), and its three callings are path A, path B and a mix' + d.bad.map(b => ': ' + b).join(''));
+    t.ok(!d.bad.length, 'every first job has two paths, each skill sits on one path (or is core), and its two callings follow different paths' + d.bad.map(b => ': ' + b).join(''));
     const max = Math.max(...Object.values(d.cost));
     t.ok(max <= 20, `opening any advanced calling costs at most 20 of the 39 first-job skill points (most: ${max}; ${Object.entries(d.cost).map(([j, c]) => j + ' ' + c).join(', ')})`);
 

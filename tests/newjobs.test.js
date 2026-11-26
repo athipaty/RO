@@ -8,8 +8,8 @@ module.exports = async t => {
     const r = await g.ev(() => ({ adv: ['warden', 'arcanist', 'ranger', 'cleric'].map(b => jobsFrom(b).join('/')), master: ['runeguard', 'chronomancer', 'falconer', 'ascetic'].map(c => job3From(c).join('/')),
       skills: ['runeguard', 'chronomancer', 'falconer', 'ascetic', 'runelord', 'timeweaver', 'skywarden', 'lotussage'].every(c => CLASSES[c].own.every(s => SKILLS[s] && CLASSES[c].skills.includes(s))),
       inherit: CLASSES.runelord.skills.includes('runestrike') && CLASSES.runelord.skills.includes('cleave') && CLASSES.runelord.skills.includes('bladecraft') }));
-    t.ok(r.adv.join(' ') === 'bulwark/ravager/runeguard stormcaller/hexweaver/chronomancer sharpshooter/wildstalker/falconer templar/oracle/ascetic', 'each first job now has three advanced callings: ' + r.adv.join(' '));
-    t.ok(r.master.join(' ') === 'runelord timeweaver skywarden lotussage', 'and each new one rises into its own master calling: ' + r.master.join(' '));
+    t.ok(r.adv.join(' ') === 'bulwark/ravager stormcaller/hexweaver sharpshooter/falconer templar/oracle', 'each first job has two advanced callings: ' + r.adv.join(' '));
+    t.ok(r.master.join(',') === ',,skywarden,', 'the retired callings lead nowhere; the Falconer still rises to the Skywarden: ' + r.master.join(' '));
     t.ok(r.skills && r.inherit, 'their skills are in their trees, and the master keeps every earlier skill');
     // Corvin's trial offers the new calling; taking it works
     const pro = await g.ev(() => { P.cls = 'ranger'; P.jl = 40; P.skills = { twinshot: 5 }; for (const j of jobsFrom(P.cls)) for (const [r, l] of jobNeeds(j)) P.skills[r] = Math.max(P.skills[r] || 0, l); P.trial = { have: 25 }; P.inv.push({ id: 'needle', n: 10 }); P.gold = 10000; openPanel('job');
@@ -31,7 +31,7 @@ module.exports = async t => {
     const st = await g.ev(() => { P.cls = 'ascetic'; P.buffs = {}; P.skills = { innercalm: 10, stillmind: 10 }; S = computeStats(); return { dmgred: S.dmgred, cls: CLASSES.ascetic.name }; });
     t.ok(st.dmgred === 10, 'Still Mind cuts damage taken (10%)');
     // build guide routes for the new callings
-    t.ok(await g.ev(() => { P.cls = 'chronomancer'; return buildsVisible().map(b => b.id).join() === 'time'; }), 'a Chronomancer sees the Timekeeper build in the guide');
+    t.ok(await g.ev(() => { P.cls = 'chronomancer'; return buildsVisible().length === 0 && !JOB2.chronomancer; }), 'the retired Chronomancer is offered nowhere, not even in the build guide');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };

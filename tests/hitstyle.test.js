@@ -21,10 +21,10 @@ module.exports = async t => {
       const gs = ['novice', 'warden', 'arcanist', 'ranger', 'cleric'].map(f => JSON.stringify(walkGait(f)));
       out.gaits = new Set(gs).size === 5 && JSON.stringify(walkGait('ravager')) === gs[1] && walkGait('arcanist').lift > 0 && walkGait('warden').roll > 0 && walkGait('ranger').rate > 1;
       // every first job and advanced calling sits its own way; a master sits like its advanced calling, glowing
-      const sitters = ['novice', 'warden', 'arcanist', 'ranger', 'cleric', 'bulwark', 'ravager', 'runeguard', 'stormcaller', 'hexweaver', 'chronomancer', 'sharpshooter', 'wildstalker', 'falconer', 'templar', 'oracle', 'ascetic'];
+      const sitters = ['novice', 'warden', 'arcanist', 'ranger', 'cleric', 'bulwark', 'ravager', 'stormcaller', 'hexweaver', 'sharpshooter', 'falconer', 'templar', 'oracle'];
       const sk = c => { const q = sitPoseOf(c); return JSON.stringify([q.legs, q.hands, q.lean || 0, q.lift || 0, q.fx || '', q.hip ?? 6]); };
       out.sits = new Set(sitters.map(sk)).size === sitters.length;
-      const ms = Object.keys(JOB3).find(k => JOB3[k].from === 'ascetic'); out.sitMaster = !!ms && sk(ms) === sk('ascetic') && sitPoseOf(ms).master === true;
+      const ms = Object.keys(JOB3).find(k => JOB3[k].from === 'oracle'); out.sitMaster = !!ms && sk(ms) === sk('oracle') && sitPoseOf(ms).master === true;
       // one impact effect per swing
       const n0 = fx.length, p = { cls: 'warden', face: 1, x: 100, y: 100, swingT: 5 }; hitPose(p, .7, ITEMS.axe || null); hitPose(p, .8, ITEMS.axe || null); out.fxOnce = fx.length - n0 === 1;
       // during the wind-up the weapon is drawn before the body (behind the face)

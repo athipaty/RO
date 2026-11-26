@@ -6,8 +6,8 @@ module.exports = async t => {
   const g = await player('Jobber', room, { zone: 'town', server: 'http://127.0.0.1:9' });
   try {
     await wait(1200);
-    t.ok(await g.ev(() => Object.keys(CLASSES).filter(k => CLASSES[k].tier === 2).length === 18 &&
-      ['warden', 'arcanist', 'ranger', 'cleric', 'shade', 'gunslinger'].every(b => jobsFrom(b).length === 3)), 'there are 18 advanced callings, three for each first job');
+    t.ok(await g.ev(() => Object.keys(JOB2).length === 12 &&
+      ['warden', 'arcanist', 'ranger', 'cleric', 'shade', 'gunslinger'].every(b => jobsFrom(b).length === 2)), 'there are 12 advanced callings, two for each first job');
     t.ok(await g.ev(() => Object.values(JOB2).every(j => j.skills.every(s => SKILLS[s] && SKILLS[s].desc(1) && (SKILLS[s].kind === 'passive' || SKILLS[s].sp(1) > 0)))), 'every new skill is defined');
 
     const early = await g.ev(() => { P.cls = 'warden'; P.jl = 20; P.skills = { cleave: 5 }; openPanel('job'); const s = panel.textContent;
@@ -17,21 +17,21 @@ module.exports = async t => {
     const trial = await g.ev(() => { P.jl = 40; openPanel('job'); panel.querySelector('[data-act="trial"]').click();
       const started = !!P.trial; const noPromote = !panel.querySelector('[data-act="promote"]');
       for (let i = 0; i < 25; i++) questKill('bonearcher'); questKill('scarab');
-      giveItem('bone', 10); P.gold = 6000; refreshPanel(); const lockedOnly = !panel.querySelector('[data-act="promote"]') && panel.querySelectorAll('.advcard.locked').length === 3; PANEL_ACTS.promote('ravager'); const refused = !promoteAsk;
+      giveItem('bone', 10); P.gold = 6000; refreshPanel(); const lockedOnly = !panel.querySelector('[data-act="promote"]') && panel.querySelectorAll('.advcard.locked').length === 2; PANEL_ACTS.promote('ravager'); const refused = !promoteAsk;
       for (const j of jobsFrom(P.cls)) for (const [r, l] of jobNeeds(j)) P.skills[r] = Math.max(P.skills[r] || 0, l); refreshPanel(); const choices = [...panel.querySelectorAll('[data-act="promote"]')].map(b => b.dataset.arg);
       return { started, noPromote, have: P.trial.have, choices, lockedOnly, refused }; });
     t.ok(trial.started && trial.noPromote, 'at Job Lv 40 you can accept the trial, and cannot promote before finishing it');
     t.ok(trial.have === 25, `trial kills count only the right monster (${trial.have}/25)`);
     t.ok(trial.lockedOnly && trial.refused, 'a calling whose first-job skills are not learned is shown locked and cannot be chosen');
-    t.ok(trial.choices.join() === 'bulwark,ravager,runeguard', 'a finished trial offers the three Warden paths');
+    t.ok(trial.choices.join() === 'bulwark,ravager', 'a finished trial offers the two Warden paths');
 
     // tapping a calling shows a confirm card with its picture; Go back changes nothing; Yes makes the change
     const ask = await g.ev(() => { const cards = [...panel.querySelectorAll('.advcard[data-act="promote"]')];
-      const pics = cards.length === 3 && cards.every(b => b.querySelector('img') && b.querySelector('.jpname[translate="no"]'));
+      const pics = cards.length === 2 && cards.every(b => b.querySelector('img') && b.querySelector('.jpname[translate="no"]'));
       panel.querySelector('[data-act="promote"][data-arg="ravager"]').click(); const card = !!panel.querySelector('.jconfirm') && /Ravager/.test(panel.querySelector('.jconfirm').textContent), still = P.cls === 'warden';
       panel.querySelector('[data-act="promoteno"]').click(); const back = !panel.querySelector('.jconfirm') && P.cls === 'warden' && !!P.trial;
       panel.querySelector('[data-act="promote"][data-arg="ravager"]').click(); return { pics, card, still, back }; });
-    t.ok(ask.pics, 'the three callings are picture cards with their English names');
+    t.ok(ask.pics, 'the two callings are picture cards with their English names');
     t.ok(ask.card && ask.still && ask.back, 'tapping one asks to confirm first; Go back changes nothing');
     const pro = await g.ev(() => { panel.querySelector('[data-act="promoteyes"][data-arg="ravager"]').click();
       return { cls: P.cls, jl: P.jl, gold: P.gold, bones: invFind('bone') ? invFind('bone').n : 0, kept: P.skills.cleave === 5, trial: P.trial, name: document.getElementById('hCls').textContent }; });

@@ -25,10 +25,10 @@ module.exports = async t => {
       P.skills.shadowdouble = 5; SKILLS.shadowdouble.run(5); const h2 = m.hp; P.target = m; basicAttack(m); await w(400); out.dbl = h2 - m.hp;
       return out;
     });
-    t.ok(r.callings === 'nightblade,venomancer,phantom', 'the Shade has three advanced callings: ' + r.callings);
-    t.ok(r.paths === 'edge,venom,edge+venom' || r.paths.split(',').sort().join() === ['edge', 'edge+venom', 'venom'].sort().join(), 'one per path and one mixing both: ' + r.paths);
+    t.ok(r.callings === 'nightblade,venomancer', 'the Shade has two advanced callings: ' + r.callings);
+    t.ok(r.paths === 'edge,venom', 'one per path: ' + r.paths);
     t.ok(r.edgeOnly === 'nightblade', 'with only Edge skills learned, Corvin offers just the Nightblade (' + r.edgeOnly + ')');
-    t.ok(r.choices === 'nightblade,venomancer,phantom', 'after the Gloomcap trial Corvin offers all three');
+    t.ok(r.choices === 'nightblade,venomancer', 'after the Gloomcap trial Corvin offers both');
     t.ok(r.cls === 'nightblade' && r.keeps, 'confirming makes you a Nightblade and you keep your Shade skills');
     const miss = Object.entries(r.hit).filter(([, v]) => !v).map(([k]) => k);
     t.ok(!miss.length, 'every new skill hits a monster or takes effect' + (miss.length ? ': ' + miss.join(', ') : ''));
