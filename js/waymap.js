@@ -48,8 +48,7 @@ function wsmMapHtml(best){const ids=Object.keys(WORLD_GRID).filter(id=>ZONES[id]
 function wsmDetailHtml(id,ids,best,shard){const D=ZONES[id],here=zoneId===id,seen=P.visited.includes(id)||here,L=D.links||{};
   const road=wsmRoad(id),ring=WORLD_GRID[id]?worldRing(id):0;
   let x=`<div class="wsmwhere">${road?`${road} · ${ring===1?'next to the city':`${ring} regions from the city`}`:(id==='capital'?'The capital, west of Hearthvale':'Home: the middle of the world')}</div>`;
-  const roads=WSM_DIRS.filter(([d])=>L[d]&&ZONES[L[d]]).map(([d,a])=>`<button type="button" class="wsmhop${P.visited.includes(L[d])||zoneId===L[d]?'':' locked'}" data-act="wsmsel" data-arg="${L[d]}"><i aria-hidden="true">${a}</i> ${esc(ZONES[L[d]].name)}</button>`).join('');
-  if(roads)x+=`<div class="wsmroads"><span>Roads to</span>${roads}</div>`;
+  // (v1.64.2) the "Roads to" buttons are gone: the map itself shows the roads
   if(typeof WORLD_BRANCH!=='undefined'&&WORLD_BRANCH[id]){const fl=WORLD_BRANCH[id].filter(z=>ZONES[z]);if(fl.length)x+=`<div class="wsmdown">▼ Stairs down inside: ${fl.map(z=>esc(ZONES[z].name)).join(' → ')}</div>`;}
   if(!seen){const g=wsmGate(id);x+=`<div class="wsmgate">🚶 ${g?`Walk out of the ${g.d} gate of <b>${esc(ZONES[g.n].name)}</b> to get here.`:'Walk there along the roads from a place you know.'}</div>`;}
   // (v1.55.0) the Waystone Shard: the same card, with one Go button (no fare: the shard is the fare)

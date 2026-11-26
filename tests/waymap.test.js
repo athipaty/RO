@@ -19,7 +19,8 @@ module.exports = async t => {
       out.sel = !!panel.querySelector('.wsmt.sel[data-arg="woods"] .wsmtag') && /Travel ·/.test(panel.querySelector('#wsDet').textContent) && /Stairs down/.test(panel.querySelector('#wsDet').textContent);
       panel.querySelector('.wsmt[data-arg="ridge"]').click();
       out.gate = /north gate of/.test(panel.querySelector('#wsDet').textContent) && !panel.querySelector('#wsDet .tctravel');
-      const hop = panel.querySelector('#wsDet .wsmhop[data-arg="heights"]'); hop.click(); out.hop = !!panel.querySelector('.wsmt.sel[data-arg="heights"]');
+      out.hop = !panel.querySelector('#wsDet .wsmroads') && !panel.querySelector('#wsDet .wsmhop'); // (v1.64.2) the Roads to buttons are gone
+      panel.querySelector('.wsmt[data-arg="heights"]').click();
       const zb = zoneId; panel.querySelector('#wsDet .tctravel').click(); out.travel = zoneId === 'heights' && zb !== 'heights';
       out.restStable = true;
       // store: Job chips filter weapons only
@@ -52,7 +53,7 @@ module.exports = async t => {
     t.ok(r.locked && r.oneCard, 'places not walked to yet are locked squares, and one place\'s details show at a time');
     t.ok(r.sel, 'tapping a square names it and shows its details with the fare (and the stairs down in the Whispering Woods)');
     t.ok(r.gate, 'a locked place says which gate to walk through, with no Travel button');
-    t.ok(r.hop, 'the "Roads to" buttons hop to the next place on the map');
+    t.ok(r.hop, 'the place details have no "Roads to" buttons (the map shows the roads)');
     t.ok(r.travel, 'Travel still takes you there');
     t.ok(r.store, 'the General Store\'s Equip tab has Job chips: only the weapons that job can use');
     t.ok(r.forge, 'the Forge uses the same Job choice');

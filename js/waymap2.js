@@ -57,9 +57,31 @@ function elWeakLine(ms){const els=[...new Set(ms.map(m=>m.el||'neutral'))].filte
 #panel .wsmscroll.big .wsmt b{font-size:14px}
 #panel .wsmscroll.big .wsmt i{font-size:13px}
 #panel .tcmobw{position:relative;display:inline-block}
+/* (v1.64.2) bigger monster pictures, so each one is easy to make out */
+#panel .tcmobs{gap:8px}
+#panel .tcmob{width:52px;height:52px;border-radius:10px}
+#panel .tcel{width:20px;height:20px;font-size:12px}
 #panel .tcel{position:absolute;right:-4px;bottom:-4px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-style:normal;font-size:10px;line-height:1;background:#141a24;border:1.5px solid var(--ec);box-shadow:0 0 4px var(--ec);pointer-events:none}
 #panel .tcels{display:flex;flex-wrap:wrap;gap:4px 10px;margin:6px 0 2px;font-size:12px}
 #panel .tcelw{color:var(--ec);font-weight:700}
 #panel .tcelw b{color:#e8e2d4;font-weight:500;margin-left:5px}
+`;document.head.appendChild(st);})();
+/* ---- (v1.64.2) the World map window (M): the same bigger squares in a box you drag, centred on where you are ---- */
+{const _wgh=worldGridHtml;worldGridHtml=function(){let h=_wgh.apply(this,arguments);const cut=h.indexOf('<div class="wkey');
+  const th=typeof LANG!=='undefined'&&LANG==='th',lbl=WSZ.big?(th?'⤡ ดูทั้งโลก':'⤡ Whole world'):(th?'⤢ ขยายแผนที่':'⤢ Bigger map');
+  let grid=cut<0?h:h.slice(0,cut);const key=cut<0?'':h.slice(cut);
+  if(WSZ.big)grid=grid.replace('minmax(0,1fr))','64px)');
+  return `<div class="wsmbar"><button type="button" class="btn small" data-act="wsmzoom" aria-pressed="${WSZ.big}">${lbl}</button>${WSZ.big?`<span class="ds">${th?'ลากเพื่อเลื่อนดู':'Drag to look around'}</span>`:''}</div>`+
+    `<div class="wgscroll${WSZ.big?' big':''}">${grid}</div>`+key;};}
+function wgCentre(){const sc=panel&&panel.querySelector('.wgscroll.big');if(!sc||sc._centred)return;const t=sc.querySelector('.wc.here')||sc.querySelector('.wc.city');if(!t)return;
+  const a=sc.getBoundingClientRect(),b=t.getBoundingClientRect();sc.scrollLeft+=b.left+b.width/2-(a.left+a.width/2);sc.scrollTop+=b.top+b.height/2-(a.top+a.height/2);sc._centred=1;}
+{const _rpG=refreshPanel;refreshPanel=function(){const r=_rpG.apply(this,arguments);try{if(panelKind==='worldmap')requestAnimationFrame(wgCentre);}catch(e){}return r;};}
+(()=>{const st=document.createElement('style');st.textContent=`
+#panel .wgscroll.big{overflow:auto;max-height:min(58vh,460px);border-radius:12px;touch-action:pan-x pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  margin:6px 0 4px;padding:10px;background:#0e151f;border:1px solid rgba(232,194,90,.28)}
+#panel .wgscroll.big .wgrid{max-width:none;width:max-content;gap:6px;margin:0}
+#panel .wgscroll.big .wc{width:64px;font-size:15px}
+#panel .wgscroll.big .wc i{font-size:13px}
+#panel .wgscroll.big .wc.le::after{right:-7px;width:8px}#panel .wgscroll.big .wc.ls::before{bottom:-7px;height:8px}
 `;document.head.appendChild(st);})();
