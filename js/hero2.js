@@ -24,7 +24,11 @@ const WARDEN_LOOKS={
   warden:{kit:'knight',steel:'#c3cad4',steel2:'#8e96a3',cloth:'#a8281e',trim:'#e8b84a',crest:'#e8b84a',pz:1,boot:'#8e96a3',sleeve:'#8e96a3'},
   bulwark:{kit:'fort',steel:'#dde2ea',steel2:'#9aa4b2',cloth:'#2a4a8a',trim:'#f0c860',boot:'#9aa4b2',sleeve:'#c3cad4',pant:'#5a6270'},
   ravager:{kit:'bers',leather:'#5a3a26',fur:'#6e4e32',iron:'#5c616a',cloth:'#7a1a12',trim:'#c8b890',boot:'#3a2a1c',pant:'#4a3426'},
-  runeguard:{kit:'rune',coat:'#22365e',steel:'#c4d4e6',trim:'#7fd3ff',boot:'#1e2236',sleeve:'#22365e',pant:'#2a2e48'}};
+  runeguard:{kit:'rune',coat:'#22365e',steel:'#c4d4e6',trim:'#7fd3ff',boot:'#1e2236',sleeve:'#22365e',pant:'#2a2e48'},
+  // (v1.67.0) the master jobs wear their advanced job's outfit, made grander: gilded plate, ember-black iron, starlit runes
+  aegislord:{kit:'fort',steel:'#f4e6b8',steel2:'#c8a040',cloth:'#f4f0e4',trim:'#ffd76a',boot:'#c8a040',sleeve:'#f0dc9a',pant:'#8a6a2a'},
+  warbringer:{kit:'bers',leather:'#2a1410',fur:'#3a1a14',iron:'#2e2a2a',cloth:'#c8281a',trim:'#ffb36a',boot:'#1a0e0a',pant:'#2a1410'},
+  runelord:{kit:'rune',coat:'#141a3a',steel:'#e8f4ff',trim:'#bfefff',boot:'#0e1228',sleeve:'#141a3a',pant:'#1a1e3a'}};
 function drawHuman2(x,y,body,hair,face,walk,opt={}){
   const L=opt.look||{style:0,eye:'#5a3a22',skin:'#f6d6b8',seed:0};hair=L.hair||hair;
   const SHO=opt.shoes&&typeof ITEMS!=='undefined'&&ITEMS[opt.shoes]&&ITEMS[opt.shoes].type==='shoes'?ITEMS[opt.shoes]:null; // (v1.53.0) worn shoes colour the boots

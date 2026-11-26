@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='1.66.3';
+const VERSION='1.67.0';
 // chance that a normal monster drops its sigil (card); bosses set their own sigChance
 const SIG_CHANCE=.01;
 /* (v1.51.0) one damage for everyone: heroes have 3x the HP they had, and monsters hit 3x as hard, tonics and fixed heals
