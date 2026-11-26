@@ -76,13 +76,20 @@
   // which hero is being drawn (for the falcon's dive at its target)
   let ML_P=null;{const _dpbM=drawPlayerBody;drawPlayerBody=function(p){ML_P=p;try{return _dpbM.apply(this,arguments);}finally{ML_P=null;}};}
   /* the Skywarden's falcon: hovers on the far side, beside the head, never over it; glides with a few strong flaps,
-     tilts and bobs; when its hero attacks it dives at the target and flies back */
-  JSIDE.skyfalcon=function(x,y,by,f,o){let hx=x-f*27,hy=by-25+Math.sin(now*1.8)*2.6,tilt=Math.sin(now*.9)*.14;
-    const cyc=now%3.2,flap=cyc<.9?Math.sin(cyc*16):.18+Math.sin(now*2)*.06;
-    const p=ML_P,t=p&&p.target,sw=p&&p.swingT?now-p.swingT:9;let face=f;
-    if(t&&typeof t.x==='number'&&sw<.8&&Math.hypot(t.x-x,t.y-y)<320){const u=sw/.8,k=u<.5?u*2:2-u*2,e=k*k*(3-2*k);
-      hx+=(t.x-hx)*e;hy+=(t.y-22-hy)*e;face=u<.5?(t.x>=x-f*27?1:-1):(t.x>=x-f*27?-1:1);tilt=(u<.5?.5:-.3)*face;}
-    drawFalcon(hx,hy,1.5,face,o,'fly',sw<.8?Math.sin(now*20):flap,tilt);};
+     tilts and bobs. When the Skywarden shoots, the falcon IS the shot: it leaves its place and flies the projectile's own
+     path to the target (so it goes where the arrow goes), then flies back from there. */
+  const SKY_FALCON={body:'#f6f4ee',wing:'#ffffff',wing2:'#e2e8f0',tip:'#5aa8e0',belly:'#eef2f8',beak:'#e8c060',mark:'#4a5a70',leg:'#e8c060'};
+  if(typeof shoot==='function'){const _shM=shoot;shoot=function(from){const r=_shM.apply(this,arguments);const sh=shots[shots.length-1];if(sh&&from){sh.ox=from.x;sh.oy=from.y;}return r;};}
+  const skyShot=sh=>{sh._sky=true;const a=typeof fsAng==='function'?fsAng(sh):0,f=Math.cos(a)<0?-1:1;drawFalcon(0,0,1.5,f,SKY_FALCON,'fly',Math.sin(now*22)*.9,f>0?a:a-Math.PI);};
+  if(typeof FS_STYLES!=='undefined'&&FS_STYLES.skywarden)FS_STYLES.skywarden.shot=skyShot;
+  JSIDE.skyfalcon=function(x,y,by,f,o){let hx=x-f*27,hy=by-25+Math.sin(now*1.8)*2.6,tilt=Math.sin(now*.9)*.14,face=f;
+    const cyc=now%3.2;let flap=cyc<.9?Math.sin(cyc*16):.18+Math.sin(now*2)*.06;const p=ML_P;
+    if(p&&typeof shots!=='undefined'){const out=shots.find(sh=>sh._sky&&typeof sh.ox==='number'&&Math.hypot(sh.ox-x,sh.oy-y)<40);
+      if(out){p._falX=out.x;p._falY=out.y-10;p._falOut=true;return;} // in flight: the shot is the falcon
+      if(p._falOut){p._falOut=false;p._falRet=now;}
+      const u=p._falRet?(now-p._falRet)/.5:9;
+      if(u<1){const e=u*u*(3-2*u);hx=p._falX+(hx-p._falX)*e;hy=p._falY+(hy-p._falY)*e-Math.sin(u*Math.PI)*10;face=hx>=p._falX?1:-1;flap=Math.sin(now*20);tilt=0;}}
+    drawFalcon(hx,hy,1.5,face,o,'fly',flap,tilt);};
   // the Falconer's falcon: perched on the far shoulder, outside the head, the same breed in brown and cream
   JSIDE.falcon=function(x,y,by,f,o){const bob=Math.sin(now*2.4)*.4;drawFalcon(x-f*15.5,by-21+bob,1.15,f,FALCON_BROWN,'perch',0,0);
     if(Math.sin(now*.7)>.97){/* now and then it ruffles: nothing more, it stays calm */}};
