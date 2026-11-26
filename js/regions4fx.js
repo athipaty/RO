@@ -358,6 +358,72 @@ MOB_LOOKS.gnarlroot=(m,o)=>{const {x,y,s,t,f,mv}=o;shadow(x,y,s*1.3);const sw=Ma
   for(const k of [-1,1]){ln([[x+k*s*.55+sw,y-s*1.5],[x+k*s*1.2+sw,y-s*1.9+Math.sin(t*1.5+k)*s*.15],[x+k*s*1.5+sw,y-s*2.3]],'#3a2a1a',Math.max(2,s*.1));el(x+k*s*1.5+sw,y-s*2.4,s*.3,s*.18,'#4a6a2a',k*.5);}
   for(const [a,b] of [[-.3,2.1],[.2,2.15],[0,2.3]])el(x+a*s+sw,y-s*b,s*.35,s*.22,'#3a5a24',a);
   for(const k of [-.18,.2]){gl(x+f*s*.1+k*s+sw,y-s*1.45,s*.35,'#ffb040',.6);ci(x+f*s*.1+k*s+sw,y-s*1.45,s*.08,'#ffd060');}ln([[x-s*.2+sw,y-s*1.15],[x+s*.25+sw,y-s*1.12]],'#1a120a',Math.max(1.3,s*.05));};
+/* ---------- (v1.63.0) the six gap regions (js/regions5.js) ---------- */
+// a rock or clay golem with knobbly shoulders
+const rocky=(o,c,eyeC)=>biped(o,{tw:.85,th:1.05,hr:.36,round:.1,head:mlShade(c,10),leg:mlShade(c,-35),armCol:mlShade(c,-10),fist:mlShade(c,-25),eyeGlow:eyeC,eye:eyeC,
+  extra:(o,g)=>{const {x,s}=o;for(const k of [-1,1])ci(x+k*g.tw*.95,g.ty-g.th*.95,s*.26,mlShade(c,-15));for(const [a,b] of [[-.3,.4],[.25,.65]])ci(x+a*g.tw*2,g.ty-g.th*b,s*.1,mlShade(c,-30));}});
+// a scuttling many-legged thing with a raised tail
+const scuttle=(o,c,tail)=>{const {x,y,s,t,f,mv}=o;shadow(x,y,s*1.1);mlLegs(o,x,s*.3,.8,Math.max(1.2,s*.07),mlShade(c,-40));const by=y-s*.45-(mv?Math.abs(Math.sin(t*16))*s*.04:0);
+  el(x,by,s*.75,s*.42,c);el(x-f*s*.05,by-s*.08,s*.6,s*.3,mlShade(c,15));for(const k of [-1,1])el(x+f*s*.85,by+k*s*.25,s*.25,s*.13,mlShade(c,-20),k*.4);
+  if(tail){ctx.strokeStyle=mlShade(c,-15);ctx.lineWidth=Math.max(2,s*.14);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x-f*s*.6,by);ctx.quadraticCurveTo(x-f*s*1.2,by-s*1.1,x-f*s*.4,by-s*1.2+Math.sin(t*4)*s*.08);ctx.stroke();ci(x-f*s*.35,by-s*1.2,s*.12,tail);}
+  mlEye(x+f*s*.55,by-s*.15,Math.max(1.3,s*.07),'#1a1a1a');};
+MOB_LOOKS.cragling=(m,o)=>rocky(o,'#8a8a9a','#c8e0ff');
+MOB_LOOKS.cliffgoat=(m,o)=>quad(o,{legs:.75,bw:.9,bh:.5,hr:.38,hup:.5,horns:'curl',hornCol:'#a89878',ears:1.2,tail:'#e8e0d0',muzzle:'#c8c0b0',
+  extra:(o,g)=>el(g.hx+o.f*g.hr*.4,g.hy+g.hr*.85,g.hr*.18,g.hr*.4,'#e8e0d0')});
+MOB_LOOKS.cragkestrel=(m,o)=>bird(o,{wing:'#8a6a4a',belly:'#e8d8b8',head:'#a08060',beak:'#e0b040',span:1.7});
+MOB_LOOKS.stormwisp=(m,o)=>wisp(o,{glow:'#a8d8ff',eye:'#1a3a5a',extra:(o,y)=>{const {x,s,t}=o;if(Math.sin(t*7)>.4)bolt(x+Math.sin(t*13)*s*.4,y-s*.9,s*.9,'#f0f8ff');}});
+MOB_LOOKS.skyclaw=(m,o)=>bird(o,{wing:'#6a4a30',belly:'#e8d8b0',head:'#f4ead8',beak:'#e8b030',span:2.2,flap:6,hover:1.8,eyeGlow:'#ffd060',
+  extra:(o,g)=>{const {x,s,f}=o;mlCrown(x+f*s*.5,g.y-s*.62,s*.16,'#ffd060');}});
+MOB_LOOKS.mossnewt=(m,o)=>quad(o,{legs:.25,bw:.95,bh:.4,hr:.36,tail:'long',tailCol:'#4a7a3a',belly:'#c8d88a',stripes:'#3a6a2a'});
+MOB_LOOKS.brookotter=(m,o)=>quad(o,{legs:.3,bw:1.05,bh:.45,hr:.38,ears:1.05,tail:'long',tailCol:'#5a3a22',belly:'#c8a878',muzzle:'#d8c0a0'});
+MOB_LOOKS.pebblecrab=(m,o)=>scuttle(o,'#9aa8b0',null);
+MOB_LOOKS.glenpixie=(m,o)=>moth(o,{wing:'#e8d8ff',glow:'#f0e0ff',hover:1.6,extra:(o,y)=>{const {x,s,t}=o;for(let k=0;k<3;k++){const p=(t*.9+k/3)%1;ci(x+Math.sin(k*2+t*2)*s*.5,y+s*.5+p*s*.6,s*.05,`rgba(255,240,255,${1-p})`);}}});
+MOB_LOOKS.glenkeeper=(m,o)=>biped(o,{tw:.9,th:1.3,hr:.42,head:'#5a8a52',face:'#8ab070',leg:'#3a2a1a',armCol:'#4a7a4a',fist:'#3a5a2a',eye:'#e8ffd0',eyeGlow:'#c8ffa0',
+  extra:(o,g)=>{const {x,s,t}=o;for(let k=0;k<5;k++)el(x+(k-2)*g.tw*.45,g.ty-g.th*(1.02+Math.abs(k-2)*-.04),s*.2,s*.11,'#6aa050',k*.6);ln([[g.hx,g.hy-g.hr],[g.hx+s*.1,g.hy-g.hr*2.1+Math.sin(t*2)*s*.06]],'#4a3020',Math.max(1.6,s*.07));el(g.hx+s*.18,g.hy-g.hr*2.1,s*.16,s*.09,'#8ad070',.5);}});
+MOB_LOOKS.reedling=(m,o)=>sprout(o,{leaf:'#8a9a50',top:(x,y,s,t)=>{for(let k=-2;k<=2;k++)ln([[x+k*s*.1,y+s*.2],[x+k*s*.16+Math.sin(t*2+k)*s*.06,y-s*.6]],'#a8b070',Math.max(1.1,s*.05));el(x+s*.16,y-s*.62,s*.05,s*.16,'#7a5a2a');}});
+MOB_LOOKS.marshleech=(m,o)=>{const {x,y,s,t,f,mv}=o;shadow(x,y,s);const w=Math.sin(t*(mv?8:2));
+  for(let k=0;k<5;k++){const u=k/4;ci(x-f*s*(u-.5)*1.4,y-s*(.3+Math.sin(u*3+t*(mv?8:2))*.08),s*(.32-u*.1),k%2?'#5a3a3a':'#6a4444');}
+  ci(x+f*s*.75,y-s*.32,s*.28,'#7a4a4a');ci(x+f*s*.95,y-s*.3,s*.12,'#2a1414');mlEye(x+f*s*.7,y-s*.48,Math.max(1.2,s*.06),'#e8c040');void w;};
+MOB_LOOKS.firenewt=(m,o)=>quad(o,{legs:.25,bw:.95,bh:.38,hr:.36,tail:'long',tailCol:'#c8602a',belly:'#f0c060',stripes:'#a04a1a',glow:'#ff9a40',bodyGlow:true});
+MOB_LOOKS.bogmussel=(m,o)=>{const {x,y,s,t,f}=o;shadow(x,y,s);const op=.15+Math.abs(Math.sin(t*1.2))*.2;
+  el(x,y-s*.35,s*.8,s*.35,'#4a5a4a');ctx.save();ctx.translate(x,y-s*.35);ctx.rotate(-f*op);el(0,-s*.12,s*.8,s*.3,'#6a7a6a');ctx.restore();
+  ci(x+f*s*.1,y-s*.45,s*.18,'#f0f0e0');gl(x+f*s*.1,y-s*.45,s*.35,'#ffffff',.4);};
+MOB_LOOKS.marshhag=(m,o)=>biped(o,{tw:.75,th:1.15,hr:.42,head:'#7a9a6a',face:'#a8c090',leg:'#3a4a2a',armCol:'#5a7a4a',fist:'#6a8a5a',eye:'#f0e040',eyeGlow:'#d8f040',
+  back:(o,g)=>{const {x,s,t}=o;for(let k=-3;k<=3;k++)ln([[g.hx+k*g.hr*.25,g.hy-g.hr*.5],[x+k*g.tw*.45+Math.sin(t*1.5+k)*s*.06,g.ty-g.th*.1]],'#4a5a3a',Math.max(1.5,s*.06));},
+  extra:(o,g)=>{const {s,f}=o;pf([[g.hx-g.hr*1.1,g.hy-g.hr*.5],[g.hx+f*g.hr*.3,g.hy-g.hr*2.4],[g.hx+g.hr*1.1,g.hy-g.hr*.5]],'#3a4a2a');el(g.hx+f*g.hr*.75,g.hy+g.hr*.25,g.hr*.22,g.hr*.32,'#8aa070');ln([[g.hx+f*g.tw*1.4,g.ty-g.th*.3],[g.hx+f*g.tw*1.5,g.ty-g.th*1.6]],'#5a3a1a',Math.max(1.8,s*.07));ci(g.hx+f*g.tw*1.5,g.ty-g.th*1.65,s*.12,'#a8f070');}});
+MOB_LOOKS.applesprite=(m,o)=>sprout(o,{leaf:'#4a8a2a',top:(x,y,s)=>{ln([[x,y+s*.1],[x+s*.05,y-s*.3]],'#5a3a1a',Math.max(1.4,s*.07));el(x+s*.18,y-s*.28,s*.16,s*.08,'#5aa03a',-.4);ci(x-s*.25,y-s*.05,s*.14,'#d04a3a');ci(x+s*.3,y+s*.05,s*.12,'#e05a3a');}});
+MOB_LOOKS.orchardbee=(m,o)=>{const {x,s,t,f}=o,y=o.y-s*1.4+Math.sin(t*6)*s*.12;shadow(x,o.y,s*.5);const w=Math.sin(t*40);
+  for(const k of [-1,1])el(x-f*s*.1+k*s*.15,y-s*.45-Math.abs(w)*s*.1,s*.32,s*.18*(.5+Math.abs(w)*.5),'rgba(230,240,255,.75)',k*.6);
+  el(x,y,s*.5,s*.36,'#f0c850');for(const k of [-.2,.12])ln([[x+k*s,y-s*.33],[x+k*s,y+s*.33]],'#3a2a10',Math.max(1.4,s*.1));pf([[x-f*s*.48,y],[x-f*s*.75,y-s*.04],[x-f*s*.48,y+s*.1]],'#3a2a10');
+  ci(x+f*s*.45,y-s*.05,s*.2,'#3a2a10');mlEye(x+f*s*.52,y-s*.1,Math.max(1.2,s*.06),'#1a1a1a');};
+MOB_LOOKS.barkhound=(m,o)=>quad(o,{legs:.62,bw:1.05,bh:.5,hr:.42,ears:1.4,earCol:'#4a3018',muzzle:'#8a6a4a',tail:'tuft',tailTip:'#4a7a2a',eye:'#e8d040',
+  extra:(o,g)=>{const {x,s}=o;ctx.strokeStyle='#4a3018';ctx.lineWidth=Math.max(1,s*.04);for(let k=-2;k<=2;k++){ctx.beginPath();ctx.moveTo(x+k*g.bw*.3,g.by-g.bh*.8);ctx.lineTo(x+k*g.bw*.3-s*.05,g.by+g.bh*.6);ctx.stroke();}el(x,g.by-g.bh*.95,g.bw*.4,s*.1,'#5a8a3a');}});
+MOB_LOOKS.cidertoad=(m,o)=>{const {x,y,s,t,f,mv}=o;shadow(x,y,s);const j=mv?Math.abs(Math.sin(t*6))*s*.35:0,by=y-s*.5-j;
+  for(const k of [-1,1])el(x+k*s*.6,y-s*.15-j*.5,s*.38,s*.16,'#a86a2a');el(x,by,s*.85,s*.6,'#c88a3a');el(x+f*s*.1,by+s*.2,s*.55,s*.3,'#f0d090');
+  for(const [a,b] of [[-.4,-.2],[.2,-.35],[-.1,.1]])ci(x+a*s,by+b*s,s*.08,'#a86a2a');for(const k of [-.2,.35]){ci(x+f*s*k,by-s*.5,s*.18,'#c88a3a');mlEye(x+f*s*k,by-s*.54,Math.max(1.4,s*.09),'#1a1a1a');}
+  ln([[x+f*s*.05,by+s*.02],[x+f*s*.65,by+s*.06]],'#7a4a1a',1.2);};
+MOB_LOOKS.gnarledelder=(m,o)=>{const {x,y,s,t,f,mv}=o;shadow(x,y,s*1.3);const sw=Math.sin(t*(mv?6:1))*s*.05;
+  for(const k of [-1,-.35,.35,1])ln([[x+k*s*.3,y-s*.6],[x+k*s*.7+(mv?Math.sin(t*6+k*3)*s*.1:0),y]],'#4a3420',Math.max(2.4,s*.15));
+  pf([[x-s*.65,y-s*.5],[x-s*.5+sw,y-s*1.85],[x+s*.55+sw,y-s*1.9],[x+s*.65,y-s*.5]],'#5a4a2a');
+  for(const [a,b,r,c] of [[-.7,2.1,.6,'#3f7a2a'],[.5,2.2,.65,'#4a8a32'],[0,2.55,.7,'#3f7a2a'],[-.2,2.0,.5,'#5a9a3a']])ci(x+a*s+sw,y-s*b,s*r,c);
+  for(const [a,b] of [[-.5,2.3],[.6,2.0],[.1,2.7],[-.15,1.95]])ci(x+a*s+sw,y-s*b,s*.11,'#d04a3a');
+  for(const k of [-.18,.2])ci(x+f*s*.08+k*s+sw,y-s*1.4,s*.08,'#f0e060');ln([[x-s*.2+sw,y-s*1.1],[x+s*.25+sw,y-s*1.08]],'#2a1a0a',Math.max(1.3,s*.05));};
+MOB_LOOKS.claygolem=(m,o)=>rocky(o,'#b85a3a','#ffd080');
+MOB_LOOKS.canyonvulture=(m,o)=>bird(o,{wing:'#3a2e28',belly:'#6a5a50',head:'#d89a8a',beak:'#e8d8b0',span:1.9,flap:5,hover:2,
+  extra:(o,g)=>{const {x,s,f}=o;el(x+f*s*.28,g.y-s*.15,s*.22,s*.12,'#f0e8e0');}});
+MOB_LOOKS.redscorpion=(m,o)=>scuttle(o,'#c8703a','#f0e060');
+MOB_LOOKS.quartzwraith=(m,o)=>wisp(o,{glow:'#ffd8c8',eye:'#8a2a2a',extra:(o,y)=>{const {x,s,t}=o;for(let k=0;k<4;k++){const a=t*1.2+k*1.57;pf([[x+Math.cos(a)*s*.9,y+Math.sin(a)*s*.35-s*.2],[x+Math.cos(a)*s*.9+s*.1,y+Math.sin(a)*s*.35],[x+Math.cos(a)*s*.9,y+Math.sin(a)*s*.35+s*.2],[x+Math.cos(a)*s*.9-s*.1,y+Math.sin(a)*s*.35]],'#f8e0d0');}}});
+MOB_LOOKS.canyontyrant=(m,o)=>biped(o,{tw:1.0,th:1.2,hr:.4,round:.08,wide:1.2,head:'#a85a3a',leg:'#6a2a1a',armCol:'#9a4a2a',fist:'#7a3a1a',eye:'#ffe080',eyeGlow:'#ffb040',
+  extra:(o,g)=>{const {x,s}=o;for(let k=-2;k<=2;k++)ln([[x-g.tw,g.ty-g.th*(.3+k*.12)],[x+g.tw,g.ty-g.th*(.35+k*.12)]],'#c87a5a',Math.max(1,s*.04));
+    for(const k of [-1,1])pf([[x+k*g.tw*.8,g.ty-g.th],[x+k*g.tw*1.2,g.ty-g.th*1.45],[x+k*g.tw*1.3,g.ty-g.th*.85]],'#7a3a1a');mlCrown(g.hx,g.hy-g.hr*1.05,s*.2,'#e8a060');}});
+MOB_LOOKS.ashcrawler=(m,o)=>scuttle(o,'#9a8a8a',null);
+MOB_LOOKS.cinderlizard=(m,o)=>quad(o,{legs:.3,bw:1.05,bh:.4,hr:.38,tail:'long',tailCol:'#4a2a1a',belly:'#e07a3a',spikes:'#e0702a',eye:'#ffb040',eyeGlow:'#ff8a20'});
+MOB_LOOKS.emberhusker=(m,o)=>biped(o,{tw:.85,th:1.1,hr:.36,round:.15,head:'#5a3a2a',leg:'#3a2418',armCol:'#6a4430',fist:'#e0702a',eye:'#ffd060',eyeGlow:'#ff9a30',
+  extra:(o,g)=>{const {x,s,t}=o;const k=.6+Math.sin(t*4)*.3;for(const [a,b] of [[-.3,.4],[.25,.6],[0,.8]]){gl(x+a*g.tw*2,g.ty-g.th*b,s*.3,'#ff8a30',.6*k);ci(x+a*g.tw*2,g.ty-g.th*b,s*.08,'#ffd080');}}});
+MOB_LOOKS.ashwraith=(m,o)=>wisp(o,{glow:'#c8c0b8',eye:'#e04a2a',extra:(o,y)=>{const {x,s,t}=o;for(let k=0;k<5;k++){const p=(t*.5+k/5)%1;ci(x+Math.sin(k*1.7+t)*s*.7,y-s*.2-p*s*1.2,s*(.08+p*.1),`rgba(150,140,135,${.6*(1-p)})`);}}});
+MOB_LOOKS.ashcolossus=(m,o)=>biped(o,{tw:1.05,th:1.35,hr:.42,round:.1,wide:1.3,head:'#6a6060',leg:'#3a3434',armCol:'#5a5252',fist:'#4a4242',eye:'#ffb040',eyeGlow:'#ff7a20',
+  back:(o,g)=>{const {x,s,t}=o;for(let k=0;k<3;k++){const p=(t*.4+k/3)%1;gl(x+(k-1)*s*.5,g.ty-g.th*1.3-p*s*1.5,s*(.5+p*.6),'#8a8080',.45*(1-p));}},
+  extra:(o,g)=>{const {x,s,t}=o;const k=.6+Math.sin(t*3)*.3;for(const [a,b] of [[-.35,.35],[.3,.55],[-.05,.75],[.4,.2]]){ln([[x+a*g.tw*2,g.ty-g.th*b],[x+a*g.tw*2+s*.15,g.ty-g.th*b-s*.25]],'#ff7a20',Math.max(1.4,s*.05));}gl(x,g.ty-g.th*.55,s*.6,'#ff6a10',.35*k);}});
 }
 
 /* ---------- the land: upright pictures for the new themes ---------- */
@@ -449,7 +515,7 @@ if(typeof WORLD_BRANCH!=='undefined'&&ZONES.molten1)WORLD_BRANCH.caldera=['molte
     [B.ruins]:'ซากเมืองแรกของกษัตริย์ออเรล รูปปั้นยังคงเฝ้ายาม และอัศวินผู้ล่มสลายยังเดินอยู่',[B.jungle]:'ร้อน ชื้น และเสียงดัง งูในเถาวัลย์ ดอกไม้ที่กัดได้ และราชินีออร์คิดรา',
     [B.steppe]:'ทุ่งหญ้าสีม่วงและผลึกที่ร้องเพลงได้ ยักษ์หินจีโอดหลับอยู่ที่นี่',[B.glacier]:'แม่น้ำน้ำแข็งเหนือช่องเขาฟรอสต์พีค เยติ วอลรัส และฮริมแฟงมังกรธารน้ำแข็ง',
     [B.dusk]:'ป่าที่ดวงอาทิตย์ไม่เคยขึ้น ราชาผู้ว่างเปล่าครองราชย์ในความมืด',[B.peaks]:'หลังคาโลก ที่ซึ่งพายุถือกำเนิด โวลทาริส นกยักษ์แห่งพายุครองท้องฟ้า',
-    'World map':'แผนที่โลก','The city':'ตัวเมือง','North road':'ถนนสายเหนือ','Round the cities':'รอบเมือง','the country between the roads':'แผ่นดินระหว่างถนน','East road':'ถนนสายตะวันออก','South road':'ถนนสายใต้','West road':'ถนนสายตะวันตก',
+    'World map':'แผนที่โลก','The city':'ตัวเมือง','North road':'ถนนสายเหนือ','Between the roads':'ระหว่างถนน','the country off the four roads':'แผ่นดินนอกถนนสี่สาย','East road':'ถนนสายตะวันออก','South road':'ถนนสายใต้','West road':'ถนนสายตะวันตก',
     'cold hills and mountains':'เนินเขาและภูเขาอันหนาวเย็น','fields, woods and wilds':'ทุ่งหญ้า ป่าไม้ และป่าดิบ','farms, desert and sea':'ไร่นา ทะเลทราย และทะเล','past Aurelmark':'เลยออเรลมาร์กไป',
     'Hearthvale and the capital Aurelmark stand in the middle of the world. Four winding roads lead out, and the farther you go, the stronger the monsters. Tobin at the Waystation sends you to any region you have visited.':'ฮาร์ธเวลและเมืองหลวงออเรลมาร์กตั้งอยู่กลางโลก มีถนนคดเคี้ยวสี่สายออกไป ยิ่งไปไกลมอนสเตอร์ยิ่งแข็งแกร่ง โทบินที่สถานีพักส่งคุณไปที่ไหนก็ได้ที่เคยไปแล้ว',
     '⌂ Hearthvale · ♛ Aurelmark · numbers are the lowest monster level · ▼ dungeon below · tap a square':'⌂ ฮาร์ธเวล · ♛ ออเรลมาร์ก · ตัวเลขคือเลเวลมอนสเตอร์ต่ำสุด · ▼ มีดันเจี้ยนข้างล่าง · แตะที่ช่อง'};

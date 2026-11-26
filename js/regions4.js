@@ -158,12 +158,14 @@ const WORLD_GRID={town:[0,0],capital:[-1,0],
   farms:[0,1],dunes:[0,2],crypt:[1,2],coast:[1,3],caldera:[2,3],
   downs:[-2,0],ruins:[-3,0],steppe:[-3,1],dusk:[-4,1],
   // the corners round the cities (js/regions5.js)
-  bramble:[1,-1],amber:[1,1],mist:[-1,-1],thornmere:[-2,-1]};
+  bramble:[1,-1],amber:[1,1],mist:[-1,-1],thornmere:[-2,-1],
+  // (v1.63.0) six more in the gaps (js/regions5.js)
+  crags:[1,-2],glen:[2,-1],marsh:[-2,1],orchard:[-1,1],canyon:[-1,2],barrens:[2,2]};
 // neighbours with no gate between them (the levels on either side are too far apart)
-const WORLD_WALLS=[['mist','frost'],['ridge','peaks'],['amber','jungle'],['amber','crypt']];
+const WORLD_WALLS=[['mist','frost'],['ridge','peaks'],['amber','jungle'],['amber','crypt'],['marsh','steppe'],['barrens','caldera']];
 // the roads, in the order you walk them (labels, the world map's list and the travel order use these)
 const WORLD_ROADS={north:['heights','ridge','frost','glacier','peaks'],east:['meadow','woods','jungle','fen'],south:['farms','dunes','crypt','coast','caldera'],
-  west:['downs','ruins','steppe','dusk'],mid:['bramble','mist','amber','thornmere']};
+  west:['downs','ruins','steppe','dusk'],mid:['bramble','mist','amber','thornmere','marsh','orchard','glen','crags','canyon','barrens']};
 const worldRoadOf=id=>{for(const k in WORLD_ROADS)if(WORLD_ROADS[k].includes(id))return k;return '';};
 // how far a region is from the city: the number of regions you walk through to reach it
 // (v1.61.1) counted along the roads (the world has loops now), from either city

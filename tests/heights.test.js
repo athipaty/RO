@@ -66,7 +66,7 @@ module.exports = async t => {
       const queen = mobs.find(m => m.d.id === 'scarabqueen' && !m.dead); out.queen = !!queen && lvH(DU, queen.x, queen.y) < -25;
       const a4 = lvReachable(Z, null), b4 = lvReachable(Z, DU); let cut4 = 0; for (let i = 0; i < a4.length; i++) if (a4[i] && !b4[i]) cut4++; out.cut4 = cut4;
       // (v1.60.0) every other wild region: all its pieces fitted, nothing cut off (lava aside), each boss in its den
-      out.all = ['heights', 'ridge', 'frost', 'glacier', 'peaks', 'jungle', 'fen', 'crypt', 'coast', 'caldera', 'downs', 'ruins', 'steppe', 'dusk', 'bramble', 'amber', 'mist', 'thornmere'].map(id => {
+      out.all = ['heights', 'ridge', 'frost', 'glacier', 'peaks', 'jungle', 'fen', 'crypt', 'coast', 'caldera', 'downs', 'ruins', 'steppe', 'dusk', 'bramble', 'amber', 'mist', 'thornmere', 'crags', 'glen', 'marsh', 'orchard', 'canyon', 'barrens'].map(id => {
         enterZone(id); const A = Z.lvd; if (!A) return id + ':none';
         const want = LV_DESIGNS[id].auto.length, got = A.feats.length;
         const a = lvReachable(Z, null), b = lvReachable(Z, A); let cut = 0; for (let i = 0; i < a.length; i++) if (a[i] && !b[i] && !(A.wet[i] === 1 && A.lava)) cut++;

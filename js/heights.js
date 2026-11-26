@@ -146,6 +146,31 @@ const LV_DESIGNS={
     {k:'hill',name:'Gnarlroot Mound',at:[.7,.3],rx:7,ry:4.5,H:38,top:.25,den:'gnarlroot'},
     {k:'bowl',name:'Thornmere Bog',at:[.3,.72],rx:6,ry:4,D:20},
     {k:'gully',name:'Thorn Gully',at:[.25,.25],ax:'x',len:12,wid:2,D:18,dwell:'thornrat'}]},
+  // (v1.63.0) the six gap regions (js/regions5.js)
+  crags:{auto:[ // Eaglecrest Crags: the roc's crag, a lower bluff, a gully between them
+    {k:'hill',name:'Eagle Crag',at:[.7,.3],rx:6.5,ry:4,H:44,top:.2,bank:{ax:'y',at:.3},style:'stone',den:'skyclaw'},
+    {k:'hill',name:'Slate Bluff',at:[.25,.72],rx:6,ry:3.5,H:34,top:.2,style:'stone'},
+    {k:'gully',name:'Goat Gully',at:[.3,.25],ax:'x',len:12,wid:2,D:18,style:'stone',dwell:'cliffgoat'}]},
+  glen:{auto:[ // Hollowbrook Glen: the brook, the Keeper's mossy hollow, a ferny bank
+    {k:'gully',name:'Hollow Brook',at:[.5,.3],ax:'y',len:14,wid:2,D:14,water:1,dwell:'brookotter'},
+    {k:'bowl',name:'Mossy Hollow',at:[.72,.72],rx:6,ry:4,D:20,den:'glenkeeper'},
+    {k:'hill',name:'Fern Bank',at:[.2,.7],rx:5.5,ry:3.5,H:24,top:.3}]},
+  marsh:{auto:[ // Reedwater Marsh: the Hag's sunken pool, a reedy channel, a dry knoll
+    {k:'bowl',name:'Hag Pool',at:[.65,.6],rx:6,ry:4,D:20,den:'marshhag'},
+    {k:'gully',name:'Reed Channel',at:[.3,.25],ax:'x',len:12,wid:2,D:12,water:1,dwell:'marshleech'},
+    {k:'hill',name:'Dry Knoll',at:[.22,.72],rx:5,ry:3.5,H:22,top:.3}]},
+  orchard:{auto:[ // Old Orchard: the Elder's hill, an old terrace, a cider hollow
+    {k:'hill',name:'Elder Hill',at:[.7,.3],rx:7,ry:4.5,H:32,top:.3,den:'gnarledelder'},
+    {k:'hill',name:'Old Terrace',at:[.25,.25],rx:6,ry:3.5,H:24,top:.35,bank:{ax:'x',at:.3},style:'stone'},
+    {k:'bowl',name:'Cider Hollow',at:[.3,.72],rx:5.5,ry:3.5,D:18}]},
+  canyon:{auto:[ // Redrock Canyon: the Tyrant's mesa, a dry wash, a red bluff
+    {k:'hill',name:'Tyrant Mesa',at:[.7,.35],rx:7,ry:4.5,H:46,top:.4,bank:{ax:'y',at:.3},style:'stone',den:'canyontyrant'},
+    {k:'gully',name:'Dry Wash',at:[.3,.7],ax:'x',len:16,wid:2,D:22,style:'stone',dwell:'redscorpion'},
+    {k:'hill',name:'Red Bluff',at:[.22,.25],rx:5.5,ry:3.5,H:34,top:.25,style:'stone'}]},
+  barrens:{auto:[ // Ashfall Barrens: an ash crater where the Colossus stands, a cinder ridge, a cracked trench
+    {k:'bowl',name:'Ash Crater',at:[.65,.55],rx:6.5,ry:4.5,D:28,style:'obsidian',den:'ashcolossus'},
+    {k:'hill',name:'Cinder Ridge',at:[.22,.25],rx:6,ry:3,H:32,top:.2,bank:{ax:'y',at:.3},style:'obsidian'},
+    {k:'gully',name:'Cracked Trench',at:[.25,.75],ax:'x',len:12,wid:2,D:20,style:'obsidian',dwell:'cinderlizard'}]},
   dusk:{auto:[ // Duskwood: a shadow hollow where the Hollow King waits, ridges of roots, a dark brook
     {k:'bowl',name:'Shadow Hollow',at:[.7,.35],rx:6,ry:4.5,D:32,den:'hollowking'},
     {k:'hill',name:'Root Ridge',at:[.25,.25],rx:6.5,ry:2.8,H:28,top:.25,bank:{ax:'y',at:.12},roots:1},

@@ -13,12 +13,13 @@ module.exports = async t => {
     // each skill does something to a hero standing where it is aimed (the boss stands right beside them)
     const res = await A.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms));
       const boss = mobs.find(m => m.d.boss), keepD = boss.d, out = {}, hp = hurtPlayer; let hits = 0; hurtPlayer = () => { hits++; };
-      for (const id of Object.keys(BOSS_SIG)) { boss.d = { ...MOBS[id], id }; boss.x = P.x + 50; boss.y = P.y; boss.dead = false;
+      // (v1.63.0) with 50+ bosses this runs for minutes, and the region may tidy the borrowed boss away: put it back
+      for (const id of Object.keys(BOSS_SIG)) { if (!mobs.includes(boss)) mobs.push(boss); boss.d = { ...MOBS[id], id }; boss.x = P.x + 50; boss.y = P.y; boss.dead = false;
         P.ail = {}; P.curse = {}; P.slowUntil = 0; hits = 0; const x0 = P.x, y0 = P.y;
         bossSigCast(boss, P.x, P.y, 12345); const t0 = now; while (now - t0 < 3.6) await w(100); // game time (it runs slower than the clock when frames are slow)
         out[id] = hits > 0 || Object.keys(P.ail).some(ailOn) || P.slowUntil > now - 3 || Math.hypot(P.x - x0, P.y - y0) > 20;
         P.x = x0; P.y = y0; HZ.length = 0; }
-      hurtPlayer = hp; boss.d = keepD; P.ail = {}; P.curse = {}; return out; });
+      hurtPlayer = hp; boss.d = keepD; if (!mobs.includes(boss)) mobs.push(boss); P.ail = {}; P.curse = {}; return out; });
     const none = Object.entries(res).filter(([, v]) => !v).map(([k]) => k);
     t.ok(none.length === 0, 'every signature skill reaches a hero standing in it ' + none.join(','));
 

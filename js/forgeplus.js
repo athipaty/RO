@@ -39,3 +39,28 @@ for(const [id,name,wt,lv,atk,matk,b,col,mats,gold,price] of FORGE_PLUS){
   if(typeof FORGES!=='undefined'&&!FORGES.some(f=>f[0]===id))FORGES.push([id,1,mats,gold]);}
 // the forge lists its recipes by level, so each type's weapons read in order
 if(typeof FORGES!=='undefined')FORGES.sort((a,b)=>((ITEMS[a[0]]||{}).lv||0)-((ITEMS[b[0]]||{}).lv||0));
+// (v1.63.0) each forged weapon has a look of its own in the hand (js/weaponart.js, shade.js, gunslinger.js)
+if(typeof WA!=='undefined')Object.assign(WA,{
+  veilkris:()=>waDagger({len:14,blade:'#b8a8d8',gcol:'#3a2a5a',grip:'#1e1a28',wrap:'#7a6aa8',pom:'#5a4a7a',glow:'#9a80d8'}),
+  rimedirk:()=>waDagger({len:15,blade:'#e8f4ff',gcol:'#8ab8d8',grip:'#2a3a4a',wrap:'#cfe3f0',pom:'#cfe3f0',glow:'#bfe6ff'}),
+  silkkris:()=>waDagger({len:16,blade:'#5a4a6a',gcol:'#1a1222',grip:'#120e18',wrap:'#3a2a4a',pom:'#8a6ab0',glow:'#8a6ab0'}),
+  salafang:()=>waDagger({len:17,blade:'#ffb070',gcol:'#a8401a',grip:'#3a1a10',wrap:'#e8783a',pom:'#ffd060',glow:'#ff8a3a'}),
+  bonemusket:()=>waGun({len:18,grip:'#c8b89a',body:'#8a7a60',barrel:'#e8e0c8',stock:'#a89878'}),
+  quartzrifle:()=>waGun({len:20,grip:'#5a4a6a',body:'#8a7aa8',barrel:'#e8e0f8',stock:'#6a5a80'}),
+  tidecarbine:()=>waGun({len:19,grip:'#2a4a5a',body:'#3a7a8a',barrel:'#8ad8e8',stock:'#2a5a6a'}),
+  pyrecannon:()=>waGun({len:15,grip:'#3a1a10',body:'#7a2a1a',barrel:'#e86a2a',stock:'#5a2a18'}),
+  rimeaxe:()=>waAxe({head:'#cfe8f8',haft:'#3a4a5a',crack:'#ffffff',len:23}),
+  tuskaxe:()=>waAxe({double:true,head:'#f0e6d0',haft:'#5a3a22',len:25}),
+  giantaxe:()=>waAxe({double:true,head:'#8a8070',haft:'#3a2a1a',crack:'#c8c0b0',len:27}),
+  prismstaff:()=>waWand({len:22,shaft:'#e8e0f8',spiral:'rgba(180,140,255,.5)',band:'#8a6ad0',prong:'#d8b8ff',crystal:'#e8d8ff',glow:'#d8b8ff',star:true}),
+  wispstaff:()=>waWand({len:21,shaft:'#5a7a5a',spiral:'rgba(160,240,200,.5)',band:'#3a6a4a',prong:'#9fe8c8',orb:'#c8fff0'}),
+  stormscepter:()=>waWand({len:23,shaft:'#3a4a6a',spiral:'rgba(140,180,255,.6)',band:'#e8c25a',prong:'#8ab8ff',crystal:'#c8e0ff',glow:'#8ab8ff',star:true}),
+  jademaul:()=>waMace({maul:true,head:'#4ab08a',len:19,gem:'#c8ffe8'}),
+  miremaul:()=>waMace({maul:true,head:'#6a7a5a',flange:'#4a5a3a',len:20}),
+  magmamaul:()=>waMace({head:'#e0502a',flange:'#ffb060',gem:'#ffe080',glow:'#ff7a3a'}),
+  mantisedge:()=>waSword({w:3.5,len:23,curve:true,blade:'#c8f0a0',gcol:'#4a7a2a',grip:'#2a3a1a',wrap:'#7ac05a',pom:'#7ac05a'}),
+  pyreblade:()=>waSword({w:5,len:25,blade:'#ffd0a0',gcol:'#a8401a',gem:'#ffe080',glow:'#ff7a3a',wrap:'#e8783a',pom:'#ffd060'})});
+if(typeof WA_BOW!=='undefined')Object.assign(WA_BOW,{
+  viperbow:{wood:'#4a7a3a',grip:'#2a3a1a',tip:'#c8e070'},
+  saltbow:{wood:'#e8eef4',grip:'#6a8aa0',scale:1.08,tip:'#ffffff',feather:'#cfe8f8'},
+  griffinbow:{wood:'#c8a060',grip:'#5a3a1a',scale:1.15,tip:'#f0d8a0',feather:'#fff4d0'}});

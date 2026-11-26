@@ -22,7 +22,7 @@ function miniLabels(){if(!miniBig||!Z)return;mctx.font='bold 9px system-ui,sans-
 // v1.47.0 the world is a grid around the city (WORLD_GRID in regions4.js): a little map of squares on top (tap one to
 // jump to its card), then every region as a card, road by road, from the city outward; dungeon floors hang under theirs
 const WORLD_ROAD=typeof WORLD_GRID!=='undefined'?Object.keys(WORLD_GRID):['town','meadow','woods','dunes','crypt','frost','fen'],WORLD_BRANCH={woods:['deep1','deep2','deep3']};
-const WORLD_ARMS=[['north','North road','cold hills and mountains'],['east','East road','fields, woods and wilds'],['south','South road','farms, desert and sea'],['west','West road','past Aurelmark'],['mid','Round the cities','the country between the roads']];
+const WORLD_ARMS=[['north','North road','cold hills and mountains'],['east','East road','fields, woods and wilds'],['south','South road','farms, desert and sea'],['west','West road','past Aurelmark'],['mid','Between the roads','the country off the four roads']];
 function zonePeople(id){const out=[];for(const [peer,o] of NET.others)if(o.z===id&&!o.dead)out.push({n:o.n,party:inParty(peer)});return out;}
 function worldNode(id,sub){const D=ZONES[id],here=zoneId===id,seen=P.visited.includes(id)||here,th=THEMES[D.theme]||THEMES.meadow;
   const ppl=zonePeople(id),pals=ppl.filter(p=>p.party),boss=NET.wb&&NET.wb.z===id&&NET.wb.until>Date.now()?MOBS[NET.wb.b]:null;
