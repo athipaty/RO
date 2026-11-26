@@ -150,8 +150,10 @@ function refreshPanel(){
     if(inCapital())h+=`<h2>Smith Garrow</h2><div class="say">"Royal forge, royal hand. I take a blade all the way to +10, and my strikes miss less than most. Still, past +4 a bad one shatters the piece."</div>`;
     else h+=`<h2>Brannoc the Smith</h2><div class="say">"Bring me ore and gold and I'll make that blade sing. Up to +4 never fails. Past that, a bad strike shatters the piece for good."</div><div class="ds">Brannoc refines up to +${BRANNOC_MAX}. Past that, only Smith Garrow in Aurelmark has the skill.</div>`;
     h+=`<h3>Materials</h3>`;
-    for(const id of ['emberore','glintstone']){const it=ITEMS[id],have=(invFind(id)||{}).n||0;
-      h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name} <span class="muted">×${have}</span></div><div class="ds">${it.desc}</div></div><span class="gold">${it.price}</span><button class="btn small" data-act="buy" data-arg="${id}" ${P.gold<it.price?'disabled':''}>Buy</button></div>`;}
+    // (v1.65.0) a small daily stock of ore per hero (js/orestock.js): drops, ore veins, smelting and trade are the real source
+    if(typeof oreLeft==='function')h+=`<div class="arbox oreno">${typeof LANG!=='undefined'&&LANG==='th'?'เหมืองเหลือแร่น้อยแล้ว บรานน็อคขายให้คนละไม่กี่ก้อนต่อวัน หาเพิ่มได้จากมอนสเตอร์ สายแร่ และการหลอมเหล็ก':'The mines are running low: Brannoc sells each hero a few ores a day. Find more from monsters, ore veins and smelting iron.'}</div>`;
+    for(const id of ['emberore','glintstone']){const it=ITEMS[id],have=(invFind(id)||{}).n||0,left=typeof oreLeft==='function'?oreLeft(id):99;
+      h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name} <span class="muted">×${have}</span></div><div class="ds">${it.desc}</div>${typeof oreLeft==='function'?`<div class="ds orel">${left} of ${ORE_DAILY} left today</div>`:''}</div><span class="gold">${it.price}</span><button class="btn small" data-act="buyore" data-arg="${id}" ${P.gold<it.price||left<=0?'disabled':''}>${left<=0?'Sold out':'Buy'}</button></div>`;}
     if(typeof FORGES!=='undefined')h+=`<div class="tbtns" style="justify-content:flex-start;margin:6px 0"><button class="btn small" data-act="openforge">⚒ Forge gear from monster materials</button></div>`;
     h+=`<h3>Refine</h3><div class="sub">${fmt(P.gold)} gold</div>`;
     // only the gear you are wearing can be refined (bag items are left out: equip a piece to refine it)

@@ -124,7 +124,7 @@ function wsfToggle(view,act,n){const fl=view==='floors',next=fl?'world':'floors'
     `<span class="wsfarr" aria-hidden="true">⇄</span>${fl?`▼ Floors below <span class="wsn">${n}</span>`:'🗺 World map'}</button></div>`;}
 PANEL_ACTS.wsview=v=>{WSF.view=v==='floors'?'floors':'world';sfx('click');refreshPanel();};
 PANEL_ACTS.wsfsel=id=>{if(!ZONES[id])return;WSF.sel=id;sfx('click');refreshPanel();try{const d=panel.querySelector('#wsDet');if(d){const r=d.getBoundingClientRect();if(r.top>innerHeight-120)d.scrollIntoView({block:'nearest',behavior:'smooth'});}}catch(e){}};
-if(typeof TH!=='undefined')Object.assign(TH,{'🗺 World map':'🗺 แผนที่โลก','Other places':'ที่อื่น ๆ'});
+if(typeof TH!=='undefined')Object.assign(TH,{'🗺 World map':'🗺 แผนที่โลก','Other places':'ที่อื่น ๆ','▼ dungeon below':'▼ มีดันเจี้ยนด้านล่าง'});
 (()=>{const st=document.createElement('style');st.textContent=`
 #panel .wsftabs{display:flex;gap:6px;margin:4px 0 6px}
 #panel .wsftog{display:inline-flex;align-items:center;gap:8px;padding:6px 14px 6px 8px;min-height:38px;border-radius:20px;font-weight:800}
