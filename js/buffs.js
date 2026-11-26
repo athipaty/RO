@@ -57,3 +57,22 @@ if(typeof buff==='function'){const _buffNow=buff;buff=function(){const r=_buffNo
 // an ailment you just got shows at once too
 if(typeof tryAilment==='function'){const _taB=tryAilment;tryAilment=function(){const r=_taB.apply(this,arguments);if(r)buffT=0;return r;};}
 if(typeof bsCurse==='function'){const _bcB=bsCurse;bsCurse=function(){const r=_bcB.apply(this,arguments);buffT=0;return r;};}
+/* (v1.60.6) buff pictures are made ahead of time, while nothing is happening, not the moment a buff first lands.
+   Making one (drawing it and turning it into an image) waited on the graphics work in flight, which in a boss fight
+   (casting Iron Will, a Cleric's blessing landing) froze a frame for tens of ms on phones and up to a second in tests.
+   Warmed: every buff skill (your own and those others can cast on you) and the brews and food in your bag,
+   one picture per idle moment, after entering a region. */
+function buffWarmList(){if(!P||typeof SKILLS==='undefined')return [];const ids=[];
+  for(const id in SKILLS){const s=SKILLS[id];if(s&&s.kind!=='passive'&&(s.kind==='self'||s.party||s.buff))ids.push(id);}
+  for(const e of P.inv||[]){const it=ITEMS[e.id];if(it&&it.brew&&it.brew.id)ids.push(it.brew.id);}
+  for(const id in P.buffs||{})ids.push(id);
+  return [...new Set(ids)].filter(id=>BUFF_ICON[id]===undefined);}
+const BUFF_WARM={q:[],on:false};
+function buffWarmStep(){const id=BUFF_WARM.q.shift();if(id===undefined){BUFF_WARM.on=false;return;}
+  // only when the game is calm: not in a boss fight or right after a hit; otherwise try again a little later
+  const busy=(typeof BS!=='undefined'&&BS.bossOn)||(typeof P!=='undefined'&&P&&P.target&&!P.target.dead);
+  if(busy){BUFF_WARM.q.unshift(id);setTimeout(buffWarmNext,1500);return;}
+  try{if(BUFF_ICON[id]===undefined)buffIcon(id);}catch(e){}buffWarmNext();}
+function buffWarmNext(){if(typeof requestIdleCallback==='function')requestIdleCallback(buffWarmStep,{timeout:2000});else setTimeout(buffWarmStep,120);}
+function buffWarm(){BUFF_WARM.q=buffWarmList();if(!BUFF_WARM.on&&BUFF_WARM.q.length){BUFF_WARM.on=true;setTimeout(buffWarmNext,800);}}
+{const _ezW=enterZone;enterZone=function(){const r=_ezW.apply(this,arguments);try{buffWarm();}catch(e){}return r;};}

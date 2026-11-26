@@ -1,6 +1,10 @@
 "use strict";
 /* ================= render ================= */
 const cv=$('#cv');let ctx=cv.getContext('2d');let VW=0,VH=0,DPR=1,camX=0,camY=0,clickMark=null,shakeUntil=0;
+// (v1.60.6) the resolution for pictures made once and reused (buildings, land, signs, names): the full-quality one,
+// even while battlesmooth.js draws the screen at a lower resolution in a heavy fight. Before, every step down threw them
+// all away and redrew them at once, mid-fight: a freeze of up to seconds that made the next frames slower still.
+function picDPR(){return typeof bsBase==='function'?Math.max(DPR,bsBase()):DPR;}
 function resize(){DPR=window.LITE?1:Math.min(2,window.devicePixelRatio||1);VW=cv.clientWidth;VH=cv.clientHeight;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR);}
 window.addEventListener('resize',resize);
 /* ---------- isometric camera: world stays a flat grid, the screen shows it at an angle ---------- */
@@ -71,10 +75,10 @@ const DSIGN_TH={'Market Row':'ย่านตลาด',"Adventurers' Yard":'ล
 // (v1.49.2) each sign is drawn once into a small picture at the current resolution and reused: measuring and
 // painting text every frame cost about 5% of a frame in Hearthvale on desktop
 const DSIGN_CACHE=new Map();
-function dsignImg(name){const k=name+'|'+DPR;let c=DSIGN_CACHE.get(k);if(c)return c;
+function dsignImg(name){const PD=picDPR(),k=name+'|'+PD;let c=DSIGN_CACHE.get(k);if(c)return c;
   if(DSIGN_CACHE.size>40)DSIGN_CACHE.clear();
   const m=document.createElement('canvas').getContext('2d');m.font='700 11px "Alegreya Sans",sans-serif';const tw=Math.ceil(m.measureText(name).width+16);
-  const W=tw+8,H=72,cv2=document.createElement('canvas');cv2.width=Math.ceil(W*DPR);cv2.height=Math.ceil(H*DPR);const g=cv2.getContext('2d');g.scale(DPR,DPR);
+  const W=tw+8,H=72,cv2=document.createElement('canvas');cv2.width=Math.ceil(W*PD);cv2.height=Math.ceil(H*PD);const g=cv2.getContext('2d');g.scale(PD,PD);
   const x=W/2,y=H-6,by=y-58;
   g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse(x,y,10,4,0,0,7);g.fill();
   g.fillStyle='#6a4a2a';g.fillRect(x-3,y-44,6,44);g.fillStyle='#4a3220';g.fillRect(x+1,y-44,2,44);
@@ -278,13 +282,13 @@ function freePic(c){try{if(c&&c.width){c.width=0;c.height=0;}}catch(e){}}
 const PIC_BUDGET=(matchMedia&&matchMedia('(pointer:coarse)').matches)?24e6:64e6; // bytes for the crowd pictures (perfmobs/perfplayers)
 const LABELS=new (class extends Map{clear(){for(const c of this.values())freePic(c);super.clear();}})();let MEAS=null;const measCtx=()=>MEAS||(MEAS=document.createElement('canvas').getContext('2d'));
 function labelImg(txt,col,size){const k=size+'|'+col+'|'+txt;let c=LABELS.get(k);if(c)return c; // a plain lookup: names repeat every frame
-  const s=Math.max(1,Math.min(2,DPR)),f=`700 ${size}px "Alegreya Sans",sans-serif`;const m=measCtx();m.font=f;
+  const s=Math.max(1,Math.min(2,picDPR())),f=`700 ${size}px "Alegreya Sans",sans-serif`;const m=measCtx();m.font=f;
   const w=Math.ceil(m.measureText(txt).width)+8,h=Math.ceil(size*1.5)+6;c=document.createElement('canvas');c.width=w*s;c.height=h*s;c._w=w;c._h=h;c._b=Math.ceil(size*1.1)+3;
   const g=c.getContext('2d');g.scale(s,s);g.font=f;g.textAlign='center';g.lineJoin='round';g.lineWidth=3;g.strokeStyle='rgba(0,0,0,.75)';g.strokeText(txt,w/2,c._b);g.fillStyle=col;g.fillText(txt,w/2,c._b);
   if(LABELS.size>=600)LABELS.clear();LABELS.set(k,c);return c;}
 const GLYPHS=new Map();
 function glyphImg(ch,col,size,fill){const k=size+'|'+(fill?col:'#')+'|'+ch;let c=GLYPHS.get(k);if(c)return c;
-  const s=Math.max(1,Math.min(2,DPR)),f=`900 ${size}px "Alegreya Sans",sans-serif`,m=measCtx();m.font=f;const lw=Math.max(3,size/4.5),adv=m.measureText(ch).width,w=Math.ceil(adv+lw*2+4),h=Math.ceil(size*1.4+lw*2);
+  const s=Math.max(1,Math.min(2,picDPR())),f=`900 ${size}px "Alegreya Sans",sans-serif`,m=measCtx();m.font=f;const lw=Math.max(3,size/4.5),adv=m.measureText(ch).width,w=Math.ceil(adv+lw*2+4),h=Math.ceil(size*1.4+lw*2);
   c=document.createElement('canvas');c.width=w*s;c.height=h*s;c._w=w;c._h=h;c._b=Math.ceil(size+lw);c._adv=adv;const g=c.getContext('2d');g.scale(s,s);g.font=f;g.textAlign='left';g.lineJoin='round';
   if(fill){g.fillStyle=col;g.fillText(ch,lw+2,c._b);}else{g.lineWidth=lw;g.strokeStyle='rgba(25,12,4,.92)';g.strokeText(ch,lw+2,c._b);}
   GLYPHS.set(k,c);if(GLYPHS.size>600)GLYPHS.delete(GLYPHS.keys().next().value);return c;}

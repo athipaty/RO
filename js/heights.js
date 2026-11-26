@@ -342,7 +342,7 @@ function lvAffine(p,s){const [x0,y0]=p[0],[x1,y1]=p[1],[x2,y2]=p[2],d=(x1-x0)*(y
   return [a,b,c,dd,s[0].x-a*x0-c*y0,s[0].y-b*x0-dd*y0];}
 function lvHex(c,amt){let r=0,g=0,b=0;const m=/^#([0-9a-f]{6})$/i.exec(c||'');if(m){const n=parseInt(m[1],16);r=n>>16;g=n>>8&255;b=n&255;}else{r=120;g=110;b=95;}
   const f=v=>Math.max(0,Math.min(255,Math.round(v+amt))).toString(16).padStart(2,'0');return '#'+f(r)+f(g)+f(b);}
-function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?DPR:1,T=TILE,hc=L.hc,W=L.W;
+function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?picDPR():1,T=TILE,hc=L.hc,W=L.W;
   let mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9;
   for(const i of hill.tiles){const tx=i%W,ty=(i/W)|0;[[tx,ty],[tx+1,ty],[tx+1,ty+1],[tx,ty+1]].forEach(([cx,cy],k)=>{const s=lvS(cx*T,cy*T,hc[i*4+k]);mnx=Math.min(mnx,s.x);mxx=Math.max(mxx,s.x);mny=Math.min(mny,s.y-14);mxy=Math.max(mxy,s.y+30);});}
   mnx=Math.floor(mnx-4);mny=Math.floor(mny);const cw=Math.ceil(mxx+4-mnx),ch=Math.ceil(mxy-mny);
@@ -466,7 +466,7 @@ function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?DPR:1,T=TI
     face(3,2,nh(dn,0),nh(dn,1),wood?'#7a5430':'#8a6a42',wood?'#4a3018':'#5a4128');   // the face toward the bottom-left
     face(2,1,nh(rt,3),nh(rt,0),wood?'#6a4828':'#76583a',wood?'#402a14':'#4a3420');}  // the face toward the bottom-right
   return {cv,x:mnx,y:mny,w:cw,h:ch,dpr};}
-function drawFeat(f){const dpr=typeof DPR==='number'&&DPR?DPR:1;if(!f.pic||f.pic.dpr!==dpr||f.pic.src!==Z.img){f.pic=lvPaint(Z,f);if(f.pic)f.pic.src=Z.img;}
+function drawFeat(f){const dpr=typeof DPR==='number'&&DPR?picDPR():1;if(!f.pic||f.pic.dpr!==dpr||f.pic.src!==Z.img){f.pic=lvPaint(Z,f);if(f.pic)f.pic.src=Z.img;}
   const p=f.pic;if(!p)return;if(p.x+p.w<camX-20||p.x>camX+VW+20||p.y+p.h<camY-20||p.y>camY+VH+20)return;ctx.drawImage(p.cv,p.x,p.y,p.w,p.h);}
 // (v1.56.1) the land is part of the ground: drawn right after it, before anyone standing on it (js/render.js), so a
 // slope never hides a hero walking round its edge

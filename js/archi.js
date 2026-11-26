@@ -110,7 +110,7 @@ function drawArchi(b,A){
 // the sign board over the door; drawn again after the trade dressing so banners and awnings never cover it
 // v1.40.7 each sign is drawn once into a small picture and stamped (measuring and drawing text every frame was costly)
 const SIGN_CACHE=new Map();
-function signPic(name){const d=typeof DPR==='number'&&DPR?DPR:1,key=name+'|'+d;let e=SIGN_CACHE.get(key);if(e&&e.c.width)return e;
+function signPic(name){const d=typeof DPR==='number'&&DPR?picDPR():1,key=name+'|'+d;let e=SIGN_CACHE.get(key);if(e&&e.c.width)return e;
   const m=document.createElement('canvas').getContext('2d');m.font='700 12px "Alegreya Sans",sans-serif';const tw=Math.ceil(m.measureText(name).width+14);
   const c=document.createElement('canvas');c.width=Math.ceil((tw+2)*d);c.height=Math.ceil(20*d);const g=c.getContext('2d');g.scale(d,d);g.translate(1,1);
   g.fillStyle='#2b2216';g.fillRect(0,0,tw,18);g.strokeStyle='#b8924f';g.lineWidth=1;g.strokeRect(.5,.5,tw-1,17);
@@ -136,16 +136,16 @@ function drawSign(b,h){if(!b.name)return;const p=proj((b.x+b.w/2)*TILE,(b.y+b.h)
 /* ---- building pictures: each building's body drawn once and reused (it was the costliest part of a town frame) ---- */
 const BLD_CACHE={zone:null,dpr:0,map:new Map()};
 function bldCacheBlit(b,draw){if(window.__bldLive||typeof DPR!=='number'||!DPR)return false;
-  if(BLD_CACHE.zone!==zoneId||BLD_CACHE.dpr!==DPR){BLD_CACHE.zone=zoneId;BLD_CACHE.dpr=DPR;BLD_CACHE.map.clear();}
+  const PD=picDPR();if(BLD_CACHE.zone!==zoneId||BLD_CACHE.dpr!==PD){BLD_CACHE.zone=zoneId;BLD_CACHE.dpr=PD;BLD_CACHE.map.clear();}
   const key=b.x+','+b.y+','+b.name;let e=BLD_CACHE.map.get(key);
   if(!e){const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE+30,Y1=(b.y+b.h)*TILE+30;
     const ps=[proj(X0,Y0),proj(X1,Y0),proj(X1,Y1),proj(X0,Y1)];
     const minX=Math.floor(Math.min(...ps.map(p=>p.x))-50),maxX=Math.ceil(Math.max(...ps.map(p=>p.x))+50),minY=Math.floor(Math.min(...ps.map(p=>p.y))-260),maxY=Math.ceil(Math.max(...ps.map(p=>p.y))+40);
-    const c=document.createElement('canvas');c.width=Math.ceil((maxX-minX)*DPR);c.height=Math.ceil((maxY-minY)*DPR);const g=c.getContext('2d');
-    if(!g||!c.width||!c.height)return false;g.setTransform(DPR,0,0,DPR,-minX*DPR,-minY*DPR);
+    const c=document.createElement('canvas');c.width=Math.ceil((maxX-minX)*PD);c.height=Math.ceil((maxY-minY)*PD);const g=c.getContext('2d');
+    if(!g||!c.width||!c.height)return false;g.setTransform(PD,0,0,PD,-minX*PD,-minY*PD);
     const main=ctx,t0=now;ctx=g;now=0;try{draw();}catch(err){ctx=main;now=t0;return false;}finally{ctx=main;now=t0;}
     // a spot on the front wall (always painted) to check later that the picture was not wiped by the browser
-    const wall=proj((X0+X1-30)/2,Y1-30);e={c,x:minX,y:minY,w:c.width/DPR,h:c.height/DPR,cx:Math.round((wall.x-minX)*DPR),cy:Math.round((wall.y-20-minY)*DPR)};bldSpotFix(e);BLD_CACHE.map.set(key,e);}
+    const wall=proj((X0+X1-30)/2,Y1-30);e={c,x:minX,y:minY,w:c.width/PD,h:c.height/PD,cx:Math.round((wall.x-minX)*PD),cy:Math.round((wall.y-20-minY)*PD)};bldSpotFix(e);BLD_CACHE.map.set(key,e);}
   // a building that hides your hero is drawn see-through (the caller sets globalAlpha), so your hero shows through it
   ctx.drawImage(e.c,e.x,e.y,e.w,e.h);return true;}
 

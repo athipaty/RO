@@ -26,7 +26,7 @@ function bsApply(){const want=bsDPR(BS.level);
   // fewer weather and ambient specks from step 2 (sky.js and render.js read window.LITE every frame)
   const lite=!!(SETS&&SETS.lite)||BS.level>=2;if(window.LITE!==lite)window.LITE=lite;}
 function bsSet(level){level=Math.max(0,Math.min(3,level));if(level===BS.level)return;BS.level=level;BS.lastChange=performance.now();BS.deltas=[];bsApply();
-  if(typeof LABELS!=='undefined')LABELS.clear();} // names are redrawn sharp at the new resolution
+} // (v1.60.6) names, signs, buildings and land keep their pictures (made at full quality: picDPR in render.js)
 function bsTick(ts){
   const gap=BS.lastTs?ts-BS.lastTs:16;BS.lastTs=ts;
   if(running&&!document.hidden&&gap<250){BS.deltas.push(gap);if(BS.deltas.length>30)BS.deltas.shift();
