@@ -11,7 +11,8 @@ module.exports = async t => {
       openPanel('warp');
       const tiles = [...panel.querySelectorAll('.wsm .wsmt')];
       out.allPlaces = tiles.length === Object.keys(WORLD_GRID).filter(id => ZONES[id]).length;
-      out.roads = panel.querySelectorAll('.wsmr line').length === Object.keys(WORLD_GRID).filter(id => ZONES[id]).length - 1;
+      { const pairs = new Set(); for (const a of Object.keys(WORLD_GRID)) for (const b of Object.values(ZONES[a].links || {})) if (WORLD_GRID[b]) pairs.add([a, b].sort().join('|')); // (v1.61.1) the world has loops: one road per pair of linked regions
+        out.roads = panel.querySelectorAll('.wsmr line').length === pairs.size; out.roadN = panel.querySelectorAll('.wsmr line').length + '/' + pairs.size; }
       out.locked = !!panel.querySelector('.wsmt.locked[data-arg="frost"]') && !panel.querySelector('.wsmt.locked[data-arg="meadow"]');
       out.oneCard = panel.querySelectorAll('#wsDet .tccard').length === 1;
       panel.querySelector('.wsmt[data-arg="woods"]').click();
@@ -47,7 +48,7 @@ module.exports = async t => {
       out.shardGo = zoneId === 'woods' && ((invFind('waystone') || {}).n || 0) === shards - 1;
       return out;
     });
-    t.ok(r.allPlaces && r.roads, 'the Waystation shows every region on one map, joined by roads');
+    t.ok(r.allPlaces && r.roads, 'the Waystation shows every region on one map, joined by roads (' + r.roadN + ')');
     t.ok(r.locked && r.oneCard, 'places not walked to yet are locked squares, and one place\'s details show at a time');
     t.ok(r.sel, 'tapping a square names it and shows its details with the fare (and the stairs down in the Whispering Woods)');
     t.ok(r.gate, 'a locked place says which gate to walk through, with no Travel button');

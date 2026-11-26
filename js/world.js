@@ -142,7 +142,11 @@ function getZone(id){
     for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(get(x,y)===0&&r()<D.density*.25)set(x,y,obst);else if(get(x,y)===0&&D.theme!=='crypt'&&D.theme!=='frost'&&D.theme!=='cave'&&r()<.035)set(x,y,7);}
     for(let i=0;i<D.ponds;i++){const cx=6+Math.floor(r()*(W-12)),cy=5+Math.floor(r()*(H-10)),rx=2+r()*3,ry=2+r()*2.5;
       for(let y=Math.floor(cy-ry);y<=cy+ry;y++)for(let x=Math.floor(cx-rx);x<=cx+rx;x++){const q=((x-cx)/rx)**2+((y-cy)/ry)**2;if(q<1)set(x,y,3);}}
-    const mid=H>>1; let y=mid; const ys=[];
+    // (v1.61.1) gates are not all in the middle of their edge any more: each one sits at its own place along it, between a
+    // quarter and three quarters of the way (fixed per region and side, so the map is the same for everyone and the server)
+    const gateAt=(side,len)=>{let h=2166136261;for(const c of id+'|gate|'+side+(D.gateSalt||''))h=Math.imul(h^c.charCodeAt(0),16777619);h^=h>>>13;h=Math.imul(h,2246822507);h^=h>>>16;
+      return Math.round(len*(.25+.5*((h>>>0)/4294967296)));};
+    const mid=clamp(gateAt('west',H),5,H-6); let y=mid; const ys=[];
     for(let x=0;x<W;x++){ys.push(y);for(let k=-1;k<=1;k++)set(x,y+k,1);
       if(x>3&&x<W-4&&r()<.22){const ny=clamp(y+(r()<.5?-1:1),5,H-6);for(let k=-1;k<=1;k++)set(x,ny+k,1);y=ny;}}
     // keep border solid except at portal mouths
@@ -154,7 +158,7 @@ function getZone(id){
     else for(let k=-1;k<=1;k++)set(W-1,ys[W-1]+k,obst);
     zone.spawn={x:4.5*TILE,y:(ys[4]+.5)*TILE};
     // v1.17.0 a gate in the south or north edge (the regions next to Hearthvale), joined to the main road
-    for(const side of ['south','north'])if(D.links[side]){const gx=W>>1,road=ys[gx],ey=side==='south'?H-1:0;
+    for(const side of ['south','north'])if(D.links[side]){const gx=clamp(gateAt(side,W),4,W-5),road=ys[gx],ey=side==='south'?H-1:0;
       for(let yy=Math.min(road,ey);yy<=Math.max(road,ey);yy++)for(let k=-1;k<=1;k++)set(gx+k,yy,1);
       const py=side==='south'?H-1.5:1.5;zone.portals.push({x:(gx+.5)*TILE,y:py*TILE,to:D.links[side],side});
       if(!D.links.west)zone.spawn={x:(gx+.5)*TILE,y:(py+(side==='south'?-3:3))*TILE};}

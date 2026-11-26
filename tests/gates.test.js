@@ -24,7 +24,7 @@ module.exports = async t => {
     t.ok(r.heights.mobs >= 5 && r.heights.boss, `Windwhistle Heights has its monsters and Old Hornback (${r.heights.mobs} kinds)`);
     t.ok(r.farms.mobs >= 5 && r.farms.boss, `Willowmere Farms has its monsters and the Grand Scarecrow (${r.farms.mobs} kinds)`);
     t.ok(r.heights.npcs.includes('Shepherd Alda') && r.farms.npcs.includes('Farmer Tamsin') && r.farms.npcs.includes('Odo the Ferryman'), 'Shepherd Alda, Farmer Tamsin and Odo the Ferryman are there');
-    t.ok(r.heights.gather && r.farms.gather, 'both have gathering spots');
+    t.ok(r.heights.gather && !r.farms.gather, 'the Heights have ore veins; the Farms none (herbs and fishing were removed in v1.60.8)');
     t.ok(r.heights.deco.includes('crag') && r.farms.deco.includes('hay'), 'crags on the heights, haystacks on the farms');
     t.ok(r.heights.reach > 500 && r.farms.reach > 500, 'most of each map can be walked');
     t.ok(r.order && r.sigils && r.drops, 'the regions are in the travel order, the new monsters have sigils and real drops');

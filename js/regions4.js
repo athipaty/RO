@@ -144,13 +144,24 @@ const WORLD_GRID={town:[0,0],capital:[-1,0],
   heights:[0,-1],ridge:[0,-2],frost:[0,-3],glacier:[0,-4],peaks:[0,-5],
   meadow:[1,0],woods:[2,0],jungle:[3,0],fen:[4,0],
   farms:[0,1],dunes:[0,2],crypt:[0,3],coast:[0,4],caldera:[0,5],
-  downs:[-2,0],ruins:[-3,0],steppe:[-4,0],dusk:[-5,0]};
+  downs:[-2,0],ruins:[-3,0],steppe:[-4,0],dusk:[-5,0],
+  // (v1.61.1) the corners round the cities (js/regions5.js): the middle of the map is one land, not a plus sign
+  bramble:[1,-1],amber:[1,1],mist:[-1,-1],thornmere:[-2,-1]};
 // how far a region is from the city: the number of regions you walk through to reach it
-function worldRing(id){const p=WORLD_GRID[id];if(!p)return 0;if(id==='town'||id==='capital')return 0;return p[0]<-1?-p[0]-1:Math.abs(p[0])+Math.abs(p[1]);}
+// (v1.61.1) counted along the roads (the world has loops now), from either city
+function worldRing(id){if(!WORLD_GRID[id])return 0;if(!worldRing.d){const d={town:0,capital:0},q=['town','capital'];
+    while(q.length){const a=q.shift();for(const b of Object.values(worldLinks(a)))if(d[b]===undefined){d[b]=d[a]+1;q.push(b);}}worldRing.d=d;}
+  return worldRing.d[id]||0;}
 // (Aurelmark is defined later, in capital.js, which takes its links from worldLinks('capital'))
+// the cities keep the gates they were built with (Hearthvale: four, Aurelmark: east and west)
+const CITY_GATES={town:['capital','heights','meadow','farms'],capital:['town','downs']};
 function worldLinks(a){const L={},[ax,ay]=WORLD_GRID[a];for(const b in WORLD_GRID){const [bx,by]=WORLD_GRID[b];
+  if((CITY_GATES[a]&&!CITY_GATES[a].includes(b))||(CITY_GATES[b]&&!CITY_GATES[b].includes(a)))continue;
   if(bx===ax+1&&by===ay)L.east=b;else if(bx===ax-1&&by===ay)L.west=b;else if(by===ay-1&&bx===ax)L.north=b;else if(by===ay+1&&bx===ax)L.south=b;}return L;}
 for(const id in WORLD_GRID)if(ZONES[id])ZONES[id].links=worldLinks(id);
+// (v1.61.1) gates sit at their own place along each edge (js/world.js); these two regions take another draw so the
+// road misses their land (a ridge and a hollow would not fit, and walks round them got long)
+ZONES.glacier.gateSalt='4';ZONES.jungle.gateSalt='1';
 // the travel list, nearest first (Tobin's fare grows with the place in this list)
 {const ring=id=>WORLD_GRID[id]?worldRing(id):99,arm=id=>{const p=WORLD_GRID[id]||[0,0];return p[1]<0?0:p[0]>0?1:p[1]>0?2:3;};
   for(const id of Object.keys(WORLD_GRID))if(!ZONE_ORDER.includes(id))ZONE_ORDER.push(id);

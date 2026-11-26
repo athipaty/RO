@@ -14,7 +14,7 @@ const read = f => fs.readFileSync(path.join(root, f), 'utf8');
 const sandbox = { console, Math, Date, JSON, Uint8Array, Set, Map, Object, Array, Number, String, location: { search: '' } };
 vm.createContext(sandbox);
 // one combined script so the files share top-level declarations just like in the browser
-const code = read('js/data.js') + '\n' + read('js/regions2.js') + '\n' + read('js/regions3.js') + '\n' + read('js/regions4.js') + '\n' + read('js/balance.js') + '\n' + read('js/bossgear.js') + '\n' + read('js/shoes.js') + '\n' + read('js/world.js') + `
+const code = read('js/data.js') + '\n' + read('js/regions2.js') + '\n' + read('js/regions3.js') + '\n' + read('js/regions5.js') + '\n' + read('js/regions4.js') + '\n' + read('js/balance.js') + '\n' + read('js/bossgear.js') + '\n' + read('js/shoes.js') + '\n' + read('js/world.js') + `
 renderZone = () => {};   // drawing needs a browser; the maps themselves do not
 const out = { version: VERSION, tile: TILE, pr: PR, block: BLOCK, zones: {}, mobs: {} };
 for (const id of Object.keys(ZONES)) {
