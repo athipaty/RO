@@ -145,9 +145,15 @@ function bldCacheBlit(b,draw){if(window.__bldLive||typeof DPR!=='number'||!DPR)r
     if(!g||!c.width||!c.height)return false;g.setTransform(DPR,0,0,DPR,-minX*DPR,-minY*DPR);
     const main=ctx,t0=now;ctx=g;now=0;try{draw();}catch(err){ctx=main;now=t0;return false;}finally{ctx=main;now=t0;}
     // a spot on the front wall (always painted) to check later that the picture was not wiped by the browser
-    const wall=proj((X0+X1-30)/2,Y1-30);e={c,x:minX,y:minY,w:c.width/DPR,h:c.height/DPR,cx:Math.round((wall.x-minX)*DPR),cy:Math.round((wall.y-20-minY)*DPR)};BLD_CACHE.map.set(key,e);}
+    const wall=proj((X0+X1-30)/2,Y1-30);e={c,x:minX,y:minY,w:c.width/DPR,h:c.height/DPR,cx:Math.round((wall.x-minX)*DPR),cy:Math.round((wall.y-20-minY)*DPR)};bldSpotFix(e);BLD_CACHE.map.set(key,e);}
   // a building that hides your hero is drawn see-through (the caller sets globalAlpha), so your hero shows through it
   ctx.drawImage(e.c,e.x,e.y,e.w,e.h);return true;}
+
+// (v1.60.5) the check spot must be painted, or the check below wipes every picture every 10 s: a piece without a front wall
+// at the usual place (the west city wall) gets the first painted spot on a coarse grid instead; probed through a 1x1 canvas, once
+function bldSpotFix(e){try{const pc=bldCacheCheck.pc||(bldCacheCheck.pc=document.createElement('canvas'));pc.width=pc.height=1;const g=pc.getContext('2d',{willReadFrequently:true});
+  const lit=(x,y)=>{g.clearRect(0,0,1,1);g.drawImage(e.c,x,y,1,1,0,0,1,1);return g.getImageData(0,0,1,1).data[3]>200;};
+  if(lit(e.cx,e.cy))return;for(let j=8;j>0;j--)for(let i=1;i<8;i++){const x=Math.floor(e.c.width*i/8),y=Math.floor(e.c.height*j/9);if(lit(x,y)){e.cx=x;e.cy=y;return;}}}catch(err){}}
 
 /* ---- keep the building pictures alive (phones can wipe pictures while the game is in the background) ---- */
 function bldCacheClear(){BLD_CACHE.map.clear();BLD_CACHE.zone=null;if(typeof SIGN_CACHE!=='undefined')SIGN_CACHE.clear();}

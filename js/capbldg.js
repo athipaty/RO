@@ -443,7 +443,7 @@ const cbPalaceLights=b=>{const G=cbPalGeo(b),out=[];for(const u of [24,50,G.W-50
 /* ---------------- the city wall (v1.37.1) ---------------- */
 // far sides (north, west): a tall wall of pale dressed stone with a walk and merlons along the city side, arrow slits,
 // round watchtowers with blue cones and pennants. Near sides (south, east): a knee-high parapet with gold-capped posts.
-// The wall is long, so it is not cached: each section is drawn only when it is on screen.
+// Each 8-tile section is drawn once into a picture and reused; only the pennants move (v1.60.5).
 const CB_WALL={stone:'#e4dccb',stoneR:'#c4baa6',top:'#d2c9b6',gold:'#e8c25a',roof:'#2a4a8a'};
 function cbOnScreen(b,up){const X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+b.w)*TILE,Y1=(b.y+b.h)*TILE,ps=[proj(X0,Y0),proj(X1,Y0),proj(X1,Y1),proj(X0,Y1)];
   const x0=Math.min(...ps.map(p=>p.x)),x1=Math.max(...ps.map(p=>p.x)),y0=Math.min(...ps.map(p=>p.y))-(up||0),y1=Math.max(...ps.map(p=>p.y));
@@ -473,7 +473,9 @@ function cbWall(b){const W=CB_WALL,P=TB_P,c=ctx,X0=b.x*TILE,Y0=b.y*TILE,X1=(b.x+
     // posts with gold caps every four tiles
     for(let u=a0;u<=a1;u+=TILE*4){const x=n?u:(X0+15),y=n?(Y0+15):u;tbBox(x-6,y-6,x+6,y+6,0,30,W.stone,W.stoneR,W.top);const p=P(x,y,30);c.fillStyle=W.gold;c.strokeStyle='#8a6a1a';c.lineWidth=1;c.beginPath();c.arc(p.x,p.y-3,3.4,0,7);c.fill();c.stroke();}}
 }
-function cbWallDraw(b){if(!cbOnScreen(b,b.side==='n'||b.side==='w'?220:60))return;cbWall(b);
+function cbWallDraw(b){if(!cbOnScreen(b,b.side==='n'||b.side==='w'?220:60))return;cbWall(b);cbWallPennants(b);}
+// (v1.60.5) the pennants are the only moving part: the stone is cached per section like any building (see CAP_BLD.wall)
+function cbWallPennants(b){
   // pennants on the watchtowers
   const t=now,c=ctx,pen=(x,y,h,i)=>{const top=TB_P(x,y,h),px=top.x,py=top.y-16,ph=t*4+i;c.fillStyle='#a8283a';c.strokeStyle='#3a1a10';c.lineWidth=.8;c.beginPath();c.moveTo(px,py);
     for(let k=1;k<=5;k++){const u=k/5;c.lineTo(px+u*15,py+2.4*u+Math.sin(ph-u*3)*2*u);}for(let k=5;k>=0;k--){const u=k/5;c.lineTo(px+u*15,py+7-2.4*u+Math.sin(ph-u*3)*2*u);}c.closePath();c.fill();c.stroke();};
@@ -745,7 +747,7 @@ const CAP_BLD={fountain:{body:cbFount,live:cbFountLive,lights:cbFountLights},
   library:{body:cbLib,live:cbLibLive,signAt:b=>{const G=cbLibGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:(G.byF+G.po.d+2)/TILE,h:0},G.po.h+9];},lights:cbLibLights},
   smith:{body:cbForge,live:cbForgeLive,signAt:b=>{const G=cbForgeGeo(b);return[{name:b.name,x:(G.bx0+G.W/2)/TILE,w:0,y:G.byF/TILE,h:0},G.H-4];},lights:cbForgeLights},
   palace:{body:cbPalace,live:cbPalaceLive,signAt:b=>{const G=cbPalGeo(b);return[{name:b.name,x:G.xc/TILE,w:0,y:G.gate.y1/TILE,h:0},58];},lights:cbPalaceLights},
-  wall:{draw:cbWallDraw,lights:()=>[]},
+  wall:{body:cbWall,live:cbWallPennants,lights:()=>[]}, // (v1.60.5) each 8-tile section drawn once and reused (it was redrawn every frame: a third of a Hearthvale frame)
   gatetower:{body:cbGateTower,live:cbGateLive,lights:b=>tbLit([[b.x*TILE+18,b.up?(b.y+b.h)*TILE:b.y*TILE+10,58]])},
   stables:{body:cbStables,live:cbStablesLive,signAt:b=>{const G=cbStbGeo(b);return[{name:b.name,x:(G.bx0+G.stall[1]+10)/TILE,w:0,y:G.byF/TILE,h:0},G.H+20];},lights:cbStablesLights},
   awaken:{body:cbAwaken,live:cbAwakenLive,signAt:b=>{const G=cbAwGeo(b);return[{name:b.name,x:G.cx/TILE,w:0,y:(G.cy+G.cr+9)/TILE,h:0},G.ch+4];},lights:cbAwakenLights},

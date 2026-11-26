@@ -607,9 +607,13 @@ function switchCharacter(){if(running)save(true);setTimeout(()=>location.reload(
 /* ================= loop ================= */
 let last=performance.now();
 let hitStopUntil=0;function hitStop(sec){hitStopUntil=Math.max(hitStopUntil,performance.now()+sec*1000);}
-function frame(ts){let dt=Math.min(.05,(ts-last)/1000);last=ts;if(ts<hitStopUntil)dt*=.06;now+=dt;
+// (v1.60.5) the next frame is asked for first: one drawing error (a rare negative circle size was seen) used to stop the loop
+// for good and freeze the game until a reload; now that frame is skipped and each different error is still reported
+// (thrown again outside the loop, so it shows in the console and the tests' error checks)
+function frame(ts){requestAnimationFrame(frame);try{let dt=Math.min(.05,(ts-last)/1000);last=ts;if(ts<hitStopUntil)dt*=.06;now+=dt;
   if(running){update(dt);if(ts-(frame.hud||0)>=60||ts<(frame.hud||0)){frame.hud=ts;updateHud();}}
-  render();if(running){if(ts-(frame.mini||0)>=48||ts<(frame.mini||0)){frame.mini=ts;renderMini();}if(typeof renderBuffs==='function')renderBuffs();} /* the minimap at ~20 a second is plenty */else drawLookPreview();requestAnimationFrame(frame);}
+  render();if(running){if(ts-(frame.mini||0)>=48||ts<(frame.mini||0)){frame.mini=ts;renderMini();}if(typeof renderBuffs==='function')renderBuffs();} /* the minimap at ~20 a second is plenty */else drawLookPreview();}
+  catch(err){const k=String(err&&err.message);frame.told=frame.told||new Set();if(!frame.told.has(k)){frame.told.add(k);setTimeout(()=>{throw err;});}}}
 function showBanner(a,b){const el=$('#zoneBanner');el.querySelector('b').textContent=a;el.querySelector('span').textContent=b;
   el.hidden=false;el.classList.remove('show');void el.offsetWidth;el.classList.add('show');clearTimeout(showBanner.t);showBanner.t=setTimeout(()=>{el.hidden=true;},3300);}
 cv.addEventListener('contextmenu',ev=>{ev.preventDefault();if(!P||!running)return;const m=mobAt(screenAt(ev));if(m)openPanel('mob',m.d.id);});
