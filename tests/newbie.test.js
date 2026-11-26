@@ -26,6 +26,11 @@ module.exports = async t => {
       enterZone('meadow'); P.lowTip = 0; P.hp = Math.floor(S.maxhp * .2); await w(800); out.lowTip = P.lowTip === 1 && /Low on HP/.test(document.getElementById('log').textContent); P.hp = S.maxhp;
       // (v1.66.2) the help page speaks of taps, not keys
       openPanel('help'); await w(150); const ht = panel.textContent; out.helpKeys = ['WASD', 'Tab targets', 'press X', '(C)', '(K)', 'Press J', 'right-click', '(G)', '(E)', 'Enter or'].filter(k => ht.includes(k)); out.helpNew = /Drag anywhere/.test(ht) && /Tidewater Isle/.test(ht) && /✨ Recommended/.test(ht); closePanel();
+      // (v1.66.3) no blank goal chip when the next story quest needs a higher level; Corvin's First Aid note opens Skills
+      P.tut = 'done'; for (const id of ['letter', 'sprouts', 'watch']) { delete QS().active[id]; if (!QS().done.includes(id)) QS().done.push(id); } P.lv = 4; P.track = null;
+      const gw = goalWhat(); out.gap = gw && /Reach Lv \d+ for the next story: hunt in /.test(gw.text) ? gw.text : (gw && gw.text) || 'none';
+      P.jl = 10; P.skills.firstaid = 0; enterZone('town'); await w(200); const c = Z.npcs.find(n => /Corvin/.test(n.name)); P.x = c.x + 30; P.y = c.y + 30; openNpc(c); await w(250);
+      const ob = panel.querySelector('.aidnote [data-act="openskills"]'); out.aidKey = /with K/.test(panel.textContent); if (ob) ob.click(); await w(150); out.aidBtn = !!ob && panelKind === 'skills'; closePanel(); P.jl = 1;
       // a seasoned hero sees it all again
       P.tut = 'done'; P.lv = 20; await w(600); out.after = !document.body.classList.contains('newbie');
       return out; });
@@ -37,6 +42,8 @@ module.exports = async t => {
     t.ok(r.tipWaits, 'the first-steps tip waits while the story quest points at someone in town');
     t.ok(r.lowTip, 'the first time HP runs low in the wild, a word on tonics and sitting');
     t.ok(!r.helpKeys.length && r.helpNew, 'the help page is written for phones and covers the world as it is now' + (r.helpKeys.length ? ': still mentions ' + r.helpKeys.join(', ') : ''));
+    t.ok(/Reach Lv/.test(r.gap), 'when the next story quest needs a higher level, the goal chip says so and where to hunt: ' + r.gap);
+    t.ok(r.aidBtn && !r.aidKey, "Corvin's First Aid note has a button that opens Skills (no keyboard key)");
     t.ok(r.after, 'once the first steps are done the full screen comes back');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }

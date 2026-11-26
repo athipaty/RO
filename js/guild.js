@@ -81,7 +81,7 @@ PANELS.guild=()=>{let h='';
     h+=`</div>`;}
   h+=`<div class="ds" style="margin:8px 0">${canInvite()?'Invite players from the online list (the ● online button at the top). ':''}Chat with the guild with /g message or the Guild tab.</div>`;
   if(staff)h+=`<details><summary class="ds">Change emblem</summary>${embPicker(g.emblem)}<button class="btn small" data-act="gemblem">Save emblem</button></details>`;
-  h+=`<div class="tbtns">`+(boss?`<button class="btn" data-act="gdisband">${GD.armDisband?'Really disband? Click again':'Disband guild'}</button>`:'')+
+  h+=`<div class="tbtns">`+(boss?`<button class="btn" data-act="gdisband">${GD.armDisband?'Really disband? Tap again':'Disband guild'}</button>`:'')+
     `<button class="btn" data-act="gleave" title="${boss&&g.members.length>1?'The guild passes to an officer, or the longest member':''}">Leave guild</button>`+`</div>`;
   return h;};
 function embPicker(e){const sw=(arr,k,cur)=>arr.map((c,i)=>`<button class="esw${i===cur?' on':''}" data-act="gemb" data-arg="${k}:${i}" style="background:${c}" aria-label="${k===1?'Symbol colour':'Background'} ${i+1}"></button>`).join('');

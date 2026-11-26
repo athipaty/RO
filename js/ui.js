@@ -134,7 +134,7 @@ function refreshPanel(){
       h+=`<div class="row">${e?icon(ITEMS[e.id]):'<span class="ico" style="background:#2a3240"></span>'}<div class="grow"><div class="nm">${e?ITEMS[e.id].name:'<span class="muted">No '+(SLOT_NAME[slot]||slot)+'</span>'}</div><div class="ds">${e?itemDesc(e):''}</div></div>${e?`<button class="btn small" data-act="unequip" data-arg="${slot}">Remove</button>`:''}</div>`;}
   }
   else if(panelKind==='items'){
-    h+=`<h2>Items</h2><div class="sub">${fmt(P.gold)} gold · click an item to use, equip or socket it</div><div class="tbtns" style="justify-content:flex-start;margin:0 0 6px"><button class="btn small" data-act="vendsetup">Open a shop</button></div>`;
+    h+=`<h2>Items</h2><div class="sub">${fmt(P.gold)} gold · tap an item to use, equip or socket it</div><div class="tbtns" style="justify-content:flex-start;margin:0 0 6px"><button class="btn small" data-act="vendsetup">Open a shop</button></div>`;
     const cat=e=>itemCat(e.id);
     const cnt={use:0,equip:0,sigil:0,etc:0};for(const e of P.inv)cnt[cat(e)]++;
     h+=`<div class="tabs itabs" role="tablist">`+[['use','Use'],['equip','Equip'],['sigil','Sigils'],['etc','Etc']].map(([k,l])=>`<button class="btn small ${invTab===k?'on':''}" role="tab" aria-selected="${invTab===k}" data-act="invtab" data-arg="${k}">${l} <span class="muted">${cnt[k]}</span></button>`).join('')+`</div>`;

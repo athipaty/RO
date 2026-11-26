@@ -68,7 +68,7 @@ PANEL_ACTS.skillauto=()=>{const n=skillAuto();if(!n){addLog('Nothing more to lea
       if(sub&&touch){for(const n of sub.childNodes)if(n.nodeType===3&&/press 1–4|กด 1–4/.test(n.nodeValue))n.nodeValue=th?' · แตะ 1–4 ใต้สกิลที่เรียนแล้วเพื่อใส่ในปุ่มลัด':' · tap 1–4 under a learned skill to put it on your hotbar';}
       if(P.skillPts>0&&!panel.querySelector('.skillauto')&&skillPlan().some(([id,to])=>(P.skills[id]||0)<to&&skillLearnable(id))){
         const box=document.createElement('div');box.className='statauto skillauto';
-        box.innerHTML=`<button type="button" class="btn primary" data-act="skillauto">✨ ${th?'แนะนำ':'Recommended'}</button><span>${P.cls==='novice'?(th?'เรียนปฐมพยาบาล สกิลจริงจะมาพร้อมอาชีพแรกที่ Job Lv 10':'Learns First Aid. Real skills come with your first job at Job Lv 10.'):(th?'ใช้แต้มตามบิลด์ของคุณ':'Spends your points along your build.')}</span>`;
+        box.innerHTML=`<button type="button" class="btn primary" data-act="skillauto">✨ ${th?'แนะนำ':'Recommended'}</button><span>${P.cls==='novice'?(th?'เรียนปฐมพยาบาล ต้องได้ปฐมพยาบาลเลเวล 10 ก่อนเปลี่ยนอาชีพแรกที่ Job Lv 10 ซึ่งจะได้สกิลจริง':'Learns First Aid. First Aid Lv 10 is needed before your first job at Job Lv 10, which brings real skills.'):(th?'ใช้แต้มตามบิลด์ของคุณ':'Spends your points along your build.')}</span>`;
         if(sub&&sub.parentNode)sub.parentNode.insertBefore(box,sub.nextSibling);}}}catch(e){}return r;};}
 // the first-steps tip waits while the story quest points at someone in town
 {const st=TUT_STEPS.find(s=>s.k==='meadow');if(st){const t0=st.t,h0=st.th;const busy=()=>typeof GOAL!=='undefined'&&GOAL.t&&GOAL.t.npc&&typeof zoneId!=='undefined'&&(!GOAL.t.zone||GOAL.t.zone===zoneId)&&ZONES[zoneId]&&ZONES[zoneId].safe;
@@ -77,5 +77,18 @@ PANEL_ACTS.skillauto=()=>{const n=skillAuto();if(!n){addLog('Nothing more to lea
 // the first time your HP runs low out in the wild: a word on tonics and sitting
 if(typeof SAVE_EXTRA!=='undefined')SAVE_EXTRA.push('lowTip');
 setInterval(()=>{try{if(!P||!running||P.dead||P.lowTip||P.lv>=15||!S||!Z||Z.D.safe||P.hp>S.maxhp*.4)return;P.lowTip=1;const th=typeof LANG!=='undefined'&&LANG==='th',touch=true;
-  addLog(th?'HP ใกล้หมด! ดื่ม Red Tonic (ปุ่มขวดแดง) หรือถอยออกมานั่งพัก (ปุ่มนั่ง) เพื่อฟื้นเร็วขึ้น':`Low on HP! Drink a Red Tonic (${touch?'the red bottle button':'its hotbar key'}) or step back and sit down (${touch?'the sit button':'X'}) to heal faster.`,'l-rare');
+  addLog(th?'HP ใกล้หมด! ดื่ม Red Tonic (ปุ่มขวดแดง) หรือถอยออกมานั่งพัก (ปุ่มนั่ง) เพื่อฟื้นเร็วขึ้น ร้านของอิลซาในฮาร์ธเวลขายยาขวดละ 15 ทอง':`Low on HP! Drink a Red Tonic (the red bottle button) or step back and sit down (the sit button) to heal faster. Ilsa's store in Hearthvale sells tonics for 15 gold.`,'l-rare');
   floatT(P.x,P.y-60,th?'HP ต่ำ!':'Low HP!','#ff8a7a',16);if(typeof save==='function')save();}catch(e){}},500);
+/* ---- (v1.66.3) the third play-through ----
+   Corvin's First Aid note has a button that opens Skills; and when the next story quest needs a higher level, the
+   goal chip no longer goes blank: it says which level, and points to the best region to hunt for yours. */
+PANEL_ACTS.openskills=()=>{openPanel('skills');};
+function storyGap(){if(!P||typeof QS!=='function')return null;const s=QS(),done=s.done||[];
+  const q=Object.keys(QUESTS).map(k=>[k,QUESTS[k]]).filter(([k,q])=>!q.daily&&!done.includes(k)&&!s.active[k]&&(!q.after||done.includes(q.after))&&(q.lv||1)>P.lv).sort((a,b)=>(a[1].lv||1)-(b[1].lv||1))[0];
+  if(!q)return null;const lv=q[1].lv;
+  // the region whose weakest monsters are closest to your level from below
+  let best=null,bl=-1;for(const id of Object.keys(typeof WORLD_GRID!=='undefined'?WORLD_GRID:{})){const D=ZONES[id];if(!D||D.safe||!D.mobs)continue;
+    const lows=D.mobs.map(([m])=>MOBS[m]).filter(m=>m&&!m.boss).map(m=>m.lv);if(!lows.length)continue;const lo=Math.min(...lows);if(lo<=P.lv&&lo>bl){bl=lo;best=id;}}
+  return {lv,zone:best};}
+{const _gwS=goalWhat;goalWhat=function(){const r=_gwS.apply(this,arguments);if(r)return r;try{const g=storyGap();if(!g||!g.zone)return null;
+    const th=typeof LANG!=='undefined'&&LANG==='th';return {zone:g.zone,text:th?`ถึงเลเวล ${g.lv} เพื่อเควสถัดไป: ล่าที่ ${ZONES[g.zone].name}`:`Reach Lv ${g.lv} for the next story: hunt in ${ZONES[g.zone].name}`};}catch(e){return null;}};}

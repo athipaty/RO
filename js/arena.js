@@ -62,7 +62,7 @@ function arenaStart(m){if(!m||typeof m.id!=='string'||!Array.isArray(m.teams)||m
     d:{id:'arena',name:x.name,lv:1,hp:100,size:12,flee:1,def:0,el:'neutral',drops:[]}}}));
   AR.match={id:m.id,mode:m.mode==='2v2'?'2v2':'1v1',slot,team:you,foes,mates:mine.filter(x=>x.peer!==selfPeer()),fightAt:now+fightIn,until:now+fightIn+time,out:false,cx,cy};
   const vs=theirs.map(x=>x.name).join(' & ');
-  addLog(`Arena match: ${mine.map(x=>x.name).join(' & ')} vs ${vs}! Click an opponent to attack.`,'l-rare');sfx('fanfare');showBanner('Arena match',`vs ${vs}`);
+  addLog(`Arena match: ${mine.map(x=>x.name).join(' & ')} vs ${vs}! Tap an opponent to attack.`,'l-rare');sfx('fanfare');showBanner('Arena match',`vs ${vs}`);
   for(let n=Math.min(5,Math.floor(fightIn));n>=1;n--)setTimeout(()=>{if(AR.match&&AR.match.id===m.id){texts.push({x:P.x,y:P.y-70,txt:String(n),col:'#ffcf5a',size:30,t0:now,dur:.8});sfx('click');}},(fightIn-n)*1000);
   setTimeout(()=>{const M=AR.match;if(M&&M.id===m.id){texts.push({x:P.x,y:P.y-70,txt:'FIGHT!',col:'#ff7a5a',size:30,t0:now,dur:1});sfx('fanfare');const f=M.foes.find(x=>!x.out);if(f)P.target=f.ent;}},fightIn*1000);
   save();}

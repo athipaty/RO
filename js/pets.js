@@ -36,7 +36,7 @@ function tameTry(){const m=P.target;
   if(Math.random()<chance){
     P.pet={k:m.d.id,name:'',happy:70,out:true};PETW.me=null;
     fx.push({k:'lvl',x:m.x,y:m.y-30,t0:now,dur:1.8,txt:'♥ TAMED',col:'#ff9ad0'});sfx('jobup');
-    addLog(`The ${m.d.name} takes a liking to you and becomes your companion! Click it or type /pet to name it.`,'l-rare');
+    addLog(`The ${m.d.name} takes a liking to you and becomes your companion! Tap it to name it.`,'l-rare');
     if(P.target===m)P.target=null;S=computeStats();save();
   } else {floatT(m.x,m.y-40,'Not yet…','#ffb0d8',13);sfx('click');addLog(`The ${m.d.name} isn't ready to trust you yet (${Math.round(chance*100)}% chance). Wear it down more and try again.`);}
   return true;}

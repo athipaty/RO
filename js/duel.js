@@ -56,7 +56,7 @@ function duelStart(o){DASK.out=null;
   const ent={pvp:true,x:o.rx,y:o.ry,hp:o.hp||100,dead:false,hitF:-9,idx:-1,state:'idle',
     d:{id:'duel',name:o.n,lv:o.lv||1,hp:100,size:12,flee:pvpFlee(o),def:0,el:'neutral',drops:[]}};
   DUEL={id:o.id,peer:o.peer,name:o.n,fightAt:now+3,until:now+3+DUEL_TIME,ent,farT:0};
-  addLog(`Duel with ${o.n}! Click them to attack. First to fall to 1 HP loses. Nobody dies.`,'l-rare');
+  addLog(`Duel with ${o.n}! Tap them to attack. First to fall to 1 HP loses. Nobody dies.`,'l-rare');
   [3,2,1].forEach((n,i)=>setTimeout(()=>{if(DUEL&&DUEL.ent===ent){texts.push({x:P.x,y:P.y-70,txt:String(n),col:'#ffcf5a',size:30,t0:now,dur:.8});sfx('click');}},i*1000));
   setTimeout(()=>{if(DUEL&&DUEL.ent===ent){texts.push({x:P.x,y:P.y-70,txt:'FIGHT!',col:'#ff7a5a',size:30,t0:now,dur:1});sfx('fanfare');P.target=ent;}},3000);}
 function duelEnd(msg,cls){if(!DUEL)return;if(P.target&&P.target.pvp)P.target=null;DUEL=null;addLog(msg,cls||'l-sys');}
