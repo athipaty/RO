@@ -142,8 +142,8 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   if(bk){ctx.fillStyle='rgba(0,0,0,.14)';ctx.fillRect(x-7.5,by-3,15,3);}
   else if(FORT){
     // a skirt of big steel plates down to the knees
-    ctx.strokeStyle=OL;ctx.lineWidth=1.2;for(const [a0,a1,c] of [[-9.6,-4,STEEL2],[4,9.6,STEEL2],[-4.6,4.6,STEEL]]){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x+a0*.82,by-1.5);ctx.lineTo(x+a1*.82,by-1.5);ctx.lineTo(x+a1,hip+6);ctx.lineTo(x+a0,hip+6);ctx.closePath();fs();
-      ctx.strokeStyle=GOLD;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+a0+.5,hip+5);ctx.lineTo(x+a1-.5,hip+5);ctx.stroke();ctx.strokeStyle=OL;ctx.lineWidth=1.2;}
+    ctx.strokeStyle=OL;ctx.lineWidth=1.2;for(const [a0,a1,c] of [[-9.6,-4,STEEL2],[4,9.6,STEEL2],[-4.6,4.6,STEEL]]){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x+a0*.82,by-1.5);ctx.lineTo(x+a1*.82,by-1.5);ctx.lineTo(x+a1,hip+1.2);ctx.lineTo(x+a0,hip+1.2);ctx.closePath();fs();
+      ctx.strokeStyle=GOLD;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+a0+.5,hip+.4);ctx.lineTo(x+a1-.5,hip+.4);ctx.stroke();ctx.strokeStyle=OL;ctx.lineWidth=1.2;}
     // a barrel breastplate wider than the body, ribbed, with a gold boss
     ctx.fillStyle=STEEL;ctx.beginPath();ctx.ellipse(x,by-8.4,9.8,7.4,0,0,7);fs();
     ctx.strokeStyle='rgba(60,70,90,.45)';ctx.lineWidth=1;for(const yy of [-6,-3.2]){ctx.beginPath();ctx.ellipse(x,by+yy-2,9,3,0,Math.PI*.12,Math.PI*.88);ctx.stroke();}
@@ -161,7 +161,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
     ctx.strokeStyle='#2a1a10';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-7,by-14);ctx.lineTo(x+6.6,by-2);ctx.moveTo(x+7,by-14);ctx.lineTo(x-6.6,by-2);ctx.stroke();
     ctx.fillStyle='#c8ccd4';for(const [a,b] of [[-3.6,-11],[3.6,-11],[0,-8],[-3.4,-5],[3.4,-5]]){ctx.beginPath();ctx.arc(x+a,by+b,.75,0,7);ctx.fill();}
     // a ragged cloth kilt below a wide studded belt
-    for(let i=0;i<5;i++){const u=-6+i*3,sw2=sway*.2*(i%2?1:-1);ctx.fillStyle=i%2?RED:'#5a140e';ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+u-1.6,by);ctx.lineTo(x+u+1.6,by);ctx.lineTo(x+u+1.2+sw2,hip+5+(i%2?1.6:0));ctx.lineTo(x+u+sw2,hip+3.4+(i%2?1.6:0));ctx.lineTo(x+u-1.2+sw2,hip+5+(i%2?1.6:0));ctx.closePath();fs();}
+    for(let i=0;i<5;i++){const u=-6+i*3,sw2=sway*.2*(i%2?1:-1);ctx.fillStyle=i%2?RED:'#5a140e';ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+u-1.6,by);ctx.lineTo(x+u+1.6,by);ctx.lineTo(x+u+1.2+sw2,hip+1.4+(i%2?.6:0));ctx.lineTo(x+u+sw2,hip+.4+(i%2?.6:0));ctx.lineTo(x+u-1.2+sw2,hip+1.4+(i%2?.6:0));ctx.closePath();fs();}
     ctx.fillStyle='#3a2416';ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.roundRect(x-8,by-3.4,16,4,1.2);fs();
     ctx.fillStyle='#c8ccd4';for(const a of [-6,-3,3,6]){ctx.beginPath();ctx.arc(x+a,by-1.4,.7,0,7);ctx.fill();}
     ctx.fillStyle=WV.iron;ctx.beginPath();ctx.arc(x,by-1.4,2.4,0,7);fs();ctx.fillStyle='#e0d8c8';ctx.beginPath();ctx.arc(x,by-1.4,.9,0,7);ctx.fill();
@@ -193,13 +193,13 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
     ctx.fillStyle='rgba(255,255,255,.35)';ctx.beginPath();ctx.ellipse(x-f*3,by-11,1.6,3.4,f*.2,0,7);ctx.fill();
     ctx.fillStyle=GOLD;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,by-12.6);ctx.quadraticCurveTo(x+2.8,by-9.6,x+1.6,by-7.2);ctx.quadraticCurveTo(x,by-6,x-1.6,by-7.2);ctx.quadraticCurveTo(x-2.8,by-9.6,x,by-12.6);ctx.closePath();fs();
     ctx.fillStyle=RED;ctx.beginPath();ctx.ellipse(x,by-8.4,.9,1.4,0,0,7);ctx.fill();
-    // long red tabard to the knees with a gold border
-    ctx.fillStyle=RED;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-4.6,by-3);ctx.lineTo(x+4.6,by-3);ctx.lineTo(x+4+sway*.25,y-3.2);ctx.lineTo(x,y-1.8);ctx.lineTo(x-4+sway*.25,y-3.2);ctx.closePath();fs();
-    glow(()=>{ctx.strokeStyle=GOLD;ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(x-3.4,by-1.6);ctx.lineTo(x-3+sway*.25,y-3.6);ctx.lineTo(x,y-2.6);ctx.lineTo(x+3+sway*.25,y-3.6);ctx.lineTo(x+3.4,by-1.6);ctx.stroke();});
+    // the red tabard with a gold border, to the boot tops (v1.69.2: the boots show)
+    ctx.fillStyle=RED;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-4.6,by-3);ctx.lineTo(x+4.6,by-3);ctx.lineTo(x+4+sway*.25,by+1.6);ctx.lineTo(x,by+2.8);ctx.lineTo(x-4+sway*.25,by+1.6);ctx.closePath();fs();
+    glow(()=>{ctx.strokeStyle=GOLD;ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(x-3.4,by-1.6);ctx.lineTo(x-3+sway*.25,by+1);ctx.lineTo(x,by+2);ctx.lineTo(x+3+sway*.25,by+1);ctx.lineTo(x+3.4,by-1.6);ctx.stroke();});
     // Bulwark: steel plates over the hips beside the tabard
     if(WV.skirt){ctx.fillStyle=STEEL;ctx.strokeStyle=OL;ctx.lineWidth=1.1;for(const k of [-1,1]){ctx.beginPath();ctx.moveTo(x+k*4.8,by-1.8);ctx.lineTo(x+k*8.4,by-1);ctx.lineTo(x+k*8.8,hip+4.2);ctx.lineTo(x+k*5,hip+4.8);ctx.closePath();fs();
       ctx.strokeStyle=GOLD;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(x+k*8.6,hip+3.4);ctx.lineTo(x+k*5.1,hip+4);ctx.stroke();ctx.strokeStyle=OL;}}
-    ctx.fillStyle=WV.crest;ctx.strokeStyle=OL;ctx.lineWidth=.9;ctx.save();if(WV.glow){ctx.shadowColor=WV.trim;ctx.shadowBlur=7;}ctx.translate(x+sway*.12,by+3.6);ctx.beginPath();ctx.moveTo(0,-3.2);ctx.quadraticCurveTo(2.4,-.6,1.4,1.6);ctx.quadraticCurveTo(0,2.6,-1.4,1.6);ctx.quadraticCurveTo(-2.4,-.6,0,-3.2);ctx.closePath();fs();
+    ctx.fillStyle=WV.crest;ctx.strokeStyle=OL;ctx.lineWidth=.9;ctx.save();if(WV.glow){ctx.shadowColor=WV.trim;ctx.shadowBlur=7;}ctx.translate(x+sway*.12,by+.4);ctx.scale(.7,.7);ctx.beginPath();ctx.moveTo(0,-3.2);ctx.quadraticCurveTo(2.4,-.6,1.4,1.6);ctx.quadraticCurveTo(0,2.6,-1.4,1.6);ctx.quadraticCurveTo(-2.4,-.6,0,-3.2);ctx.closePath();fs();
     ctx.fillStyle='#ffe9a0';ctx.beginPath();ctx.ellipse(0,.6,.7,1.1,0,0,7);ctx.fill();ctx.restore();
     belt('#4a2e1a',by-2.4);
     // steel neck guard
@@ -219,7 +219,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   else if(out==='warden'&&!AK){ctx.fillStyle='#b9c0ca';ctx.beginPath();ctx.moveTo(x-6.5,by-14);ctx.lineTo(x+6.5,by-14);ctx.lineTo(x+6,by-5);ctx.quadraticCurveTo(x,by-2.5,x-6,by-5);ctx.closePath();fs();
     ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,by-13);ctx.lineTo(x,by-4);ctx.stroke();
     ctx.fillStyle='#6a707c';for(const [a,b] of [[-4.5,-12],[4.5,-12],[-4,-6.5],[4,-6.5]]){ctx.beginPath();ctx.arc(x+a,by+b,.8,0,7);ctx.fill();}
-    belt(D.belt,by-1);ctx.fillStyle='#9a2e24';ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-3.5,by+.5);ctx.lineTo(x+3.5,by+.5);ctx.lineTo(x+2.5,hip+3.5);ctx.lineTo(x-2.5,hip+3.5);ctx.closePath();fs();
+    belt(D.belt,by-1);ctx.fillStyle='#9a2e24';ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-3.5,by+.5);ctx.lineTo(x+3.5,by+.5);ctx.lineTo(x+2.5,hip+1);ctx.lineTo(x-2.5,hip+1);ctx.closePath();fs();
     ctx.fillStyle='#d8dde6';ctx.lineWidth=1.5;for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*8.4,by-13,4.6,3.6,k*.35,0,7);fs();}}
   else if(AK)outfitPart(AK,'torso',{x,y,by,hip,f,bk,sway,bw,OL,fs,top,dark,lite});
   else if(out==='arcanist'){ctx.strokeStyle=D.trim;ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(x-10,y-3.2);ctx.quadraticCurveTo(x,y-.2,x+10,y-3.2);ctx.stroke();

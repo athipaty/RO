@@ -76,8 +76,8 @@ const JOB_LOOK={
   bulwark:{h:['helm',{c:'#9aa3b0',t:'#e8c25a',visor:1}],b:[['shield',{c:'#7d8796',t:'#e8c25a'}]]},
   ravager:{h:['helm',{c:'#5a2a24',t:'#3a2a24',horns:'#e8dcc0'}],s:[['spikes',{c:'#4a2a24',t:'#d8d0c0'}]],b:[['cape',{c:'#7a1e18',t:'#2a1410'}]]},
   runeguard:{h:['helm',{c:'#5a6a8a',t:'#9fb0c8',rune:'#7fd3ff'}],s:[['runes',{c:'#7fd3ff'}]]},
-  stormcaller:{h:['wizard',{c:'#2e4fa8',t:'#9fe0ff',star:'#ffffff'}],s:[['sparks',{c:'#9fe0ff'}]]},
-  hexweaver:{h:['hood',{c:'#3a2456',gem:'#c58cff'}],s:[['orb',{c:'#2a1838',t:'#c58cff'}]]},
+  stormcaller:{h:['wizard',{c:'#2e4fa8',t:'#9fe0ff',star:'#ffffff'}]}, // (v1.70.0) no lightning sparks beside it
+  hexweaver:{h:['hood',{c:'#3a2456',gem:'#c58cff'}]}, // (v1.70.0) no void orb beside it
   chronomancer:{h:['hourglass',{c:'#c8a040',sand:'#fff0a0'}],b:[['clock',{c:'#e8c25a',t:'#fff0a0'}]]},
   sharpshooter:{h:['cap',{c:'#2f5a4a',feather:'#e0c070'}],b:[['cape',{c:'#2f6a5a',t:'#e0c070'}]]},
   wildstalker:{h:['hood',{c:'#6a5a3a',ears:'#d8b890'}],b:[['cape',{c:'#5a6a2a'}]]},

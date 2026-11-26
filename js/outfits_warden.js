@@ -43,14 +43,14 @@ function ravagerPart(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v,hip=by+1;
   ctx.strokeStyle=K.leather;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(x+f*8,by-13);ctx.lineTo(x-f*7,by-1.5);ctx.stroke();
   ctx.strokeStyle=OL;ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(x+f*8.4,by-12);ctx.lineTo(x-f*6.4,by-.6);ctx.stroke();
   // leather strips with iron tips
-  for(const a of [-6.2,-3.1,3.1,6.2]){const sx2=x+a+sway*.15;ctx.fillStyle=K.leather;ctx.strokeStyle=OL;ctx.lineWidth=.9;ctx.beginPath();ctx.roundRect(sx2-1.3,by,2.6,6.6,.6);fs();
-    ctx.fillStyle=K.metal;ctx.beginPath();ctx.moveTo(sx2-1.3,by+6);ctx.lineTo(sx2+1.3,by+6);ctx.lineTo(sx2,by+8);ctx.closePath();fs();}
+  for(const a of [-6.2,-3.1,3.1,6.2]){const sx2=x+a+sway*.15;ctx.fillStyle=K.leather;ctx.strokeStyle=OL;ctx.lineWidth=.9;ctx.beginPath();ctx.roundRect(sx2-1.3,by-.6,2.6,2.2,.6);fs();
+    ctx.fillStyle=K.metal;ctx.beginPath();ctx.moveTo(sx2-1.3,by+1.2);ctx.lineTo(sx2+1.3,by+1.2);ctx.lineTo(sx2,by+2.6);ctx.closePath();fs();} // (v1.69.2) short: the boots show
   // the belt, an iron ring buckle
   ctx.fillStyle=K.leather;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x-8,by-2.6,16,3,1);fs();
   ctx.strokeStyle=K.metal;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(x,by-1.1,1.6,0,7);ctx.stroke();
   // the torn crimson sash hanging at the sword-side hip
   {const sx2=x+f*5.6,w=Math.sin(now*3)*.8+sway*.4;ctx.fillStyle=K.cloth;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx2-2,by-1);ctx.lineTo(sx2+2,by-1);
-    ctx.quadraticCurveTo(sx2+2.6+w,by+5,sx2+2+w,by+9);ctx.lineTo(sx2+.6+w,by+7.6);ctx.lineTo(sx2-.6+w,by+9.4);ctx.lineTo(sx2-1.6+w,by+7.8);ctx.quadraticCurveTo(sx2-2.4+w*.6,by+4,sx2-2,by-1);ctx.closePath();fs();}
+    ctx.quadraticCurveTo(sx2+2.6+w,by+.6,sx2+2.2+w,by+2.2);ctx.lineTo(sx2+.8+w,by+1.4);ctx.lineTo(sx2-.4+w,by+2.6);ctx.lineTo(sx2-1.6+w,by+1.6);ctx.quadraticCurveTo(sx2-2.4+w*.6,by+.4,sx2-2,by-1);ctx.closePath();fs();}
   // the sword shoulder: only a strap and an iron ring (nothing in the blade's way)
   {const k=f;ctx.strokeStyle=K.leather;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+k*6,by-15);ctx.quadraticCurveTo(x+k*10,by-13.6,x+k*10.4,by-10);ctx.stroke();
     ctx.strokeStyle=K.metal;ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(x+k*10.2,by-12.4,1.5,0,7);ctx.stroke();}
@@ -79,17 +79,18 @@ function wardenMasterPart(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v,hip=by+1,wa
   // the cuirass: one clean edge line under the chin
   ctx.strokeStyle=K.edge;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x-8.4,by-9.5);ctx.quadraticCurveTo(x,by-4.5,x+8.4,by-9.5);ctx.stroke();
   // the skirt: two plain plates at the sides
-  for(const k of [-1,1]){ctx.fillStyle=war?K.metal:K.metal;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+k*2.6,by);ctx.lineTo(x+k*8,by);ctx.lineTo(x+k*8.8,by+6.4);ctx.lineTo(x+k*3,by+6.4);ctx.closePath();fs();
-    ctx.strokeStyle=K.edge;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+k*3.4,by+5.4);ctx.lineTo(x+k*8.4,by+5.4);ctx.stroke();}
+  for(const k of [-1,1]){ctx.fillStyle=war?K.metal:K.metal;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+k*2.6,by);ctx.lineTo(x+k*8,by);ctx.lineTo(x+k*8.6,by+1.8);ctx.lineTo(x+k*3,by+1.8);ctx.closePath();fs();
+    ctx.strokeStyle=K.edge;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+k*3.4,by+1);ctx.lineTo(x+k*8.2,by+1);ctx.stroke();} // (v1.69.2) to the boot tops
   // the tabard (Aegis Lord: white with a gold sun) or the sash tail (Warbringer: crimson)
-  ctx.fillStyle=K.cloth;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x-3,by);ctx.lineTo(x+3,by);ctx.lineTo(x+2.8+sway*.2,by+8);ctx.lineTo(x+sway*.2,by+9.4);ctx.lineTo(x-2.8+sway*.2,by+8);ctx.closePath();fs();
-  if(!war){ctx.fillStyle=K.metal;ctx.beginPath();ctx.arc(x+sway*.1,by+4.2,1.5,0,7);ctx.fill();}
+  ctx.fillStyle=K.cloth;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x-3,by);ctx.lineTo(x+3,by);ctx.lineTo(x+2.8+sway*.2,by+2);ctx.lineTo(x+sway*.2,by+3);ctx.lineTo(x-2.8+sway*.2,by+2);ctx.closePath();fs();
+  if(!war){ctx.fillStyle=K.metal;ctx.beginPath();ctx.arc(x+sway*.1,by+1,1.1,0,7);ctx.fill();}
   // the belt (gold / crimson) and its gem
   ctx.fillStyle=war?K.cloth:K.metal;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x-7.8,by-2.4,15.6,2.8,1);fs();
   ctx.fillStyle=war?K.horn:K.gem;ctx.beginPath();ctx.arc(x,by-1,1.4,0,7);fs();
+  if(!war){ctx.strokeStyle=OL;ctx.lineWidth=3.6;ctx.beginPath();ctx.moveTo(x-f*8.4,by-12.4);ctx.lineTo(x+f*7.4,by-2.6);ctx.stroke();ctx.strokeStyle=K.gem;ctx.lineWidth=2.2;ctx.stroke();} // a sky sash: a master wears it its own way
   // the pauldrons: one big smooth plate each side (the signature)
-  for(const k of [-1,1]){ctx.save();ctx.translate(x+k*10.4,by-12.6);ctx.rotate(k*.32);
-    ctx.fillStyle=K.metal;ctx.strokeStyle=OL;ctx.lineWidth=1.3;ctx.beginPath();ctx.ellipse(0,0,7,4.8,0,Math.PI,0);ctx.lineTo(7,1.2);ctx.quadraticCurveTo(0,3.4,-7,1.2);ctx.closePath();fs();
+  for(const k of [-1,1]){const nearS=k===f;ctx.save();ctx.translate(x+k*10.4,by-12.6);ctx.rotate(k*.32);if(nearS)ctx.scale(.74,.74); // mismatched: a big gold plate on the shield side, a small white one on the sword side
+    ctx.fillStyle=nearS?K.cloth:K.metal;ctx.strokeStyle=OL;ctx.lineWidth=1.3;ctx.beginPath();ctx.ellipse(0,0,7,4.8,0,Math.PI,0);ctx.lineTo(7,1.2);ctx.quadraticCurveTo(0,3.4,-7,1.2);ctx.closePath();fs();
     ctx.fillStyle='rgba(255,255,255,.28)';ctx.beginPath();ctx.ellipse(-k*1.6,-2.2,3,1.1,0,0,7);ctx.fill();
     if(war){ // a glowing crimson seam and a short gold horn
       ctx.save();ctx.globalAlpha=.65+.35*Math.sin(now*3+k);ctx.strokeStyle=K.gem;ctx.shadowColor=K.gem;ctx.shadowBlur=5;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(-6,.6);ctx.quadraticCurveTo(0,2.6,6,.6);ctx.stroke();ctx.restore();

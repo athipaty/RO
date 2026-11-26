@@ -8,7 +8,7 @@ module.exports = async t => {
     const r = await A.ev(async () => { const sleep = ms => new Promise(r => setTimeout(r, ms));
       P.cls = 'ranger'; P.st.dex = 21; P.st.agi = 11; P.st.luk = 1; P.build = 'archer'; PANEL_ACTS.openguide(); await sleep(200);
       const card = document.querySelector('#panel .bgcard.on'), jobs = [...card.querySelectorAll('.bgjob')];
-      const pics = jobs.filter(j => /^data:image/.test(j.querySelector('img').src)).length, next = card.querySelector('.bgjob.next');
+      const pics = jobs.filter(j => { const i = j.querySelector('img'); return i ? /^data:image/.test(i.src) : !!j.querySelector('canvas[data-cls]'); }).length /* a picture, or the live drawing that replaces it (js/jobanim.js) */, next = card.querySelector('.bgjob.next');
       const b = BUILDS.find(x => x.id === 'archer'), tot = Object.values(b.stats).reduce((a, v) => a + v, 0);
       const rows = [...card.querySelectorAll('.bgstats>div')].map(d => ({ k: d.querySelector('span').textContent, goal: d.querySelector('b').textContent, mine: d.querySelector('small').textContent, w: d.querySelector('.bgbars i').style.width }));
       next.click(); await sleep(150);

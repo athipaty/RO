@@ -27,7 +27,7 @@ module.exports = async t => {
 
     // tapping a calling shows a confirm card with its picture; Go back changes nothing; Yes makes the change
     const ask = await g.ev(() => { const cards = [...panel.querySelectorAll('.advcard[data-act="promote"]')];
-      const pics = cards.length === 2 && cards.every(b => b.querySelector('img') && b.querySelector('.jpname[translate="no"]'));
+      const pics = cards.length === 2 && cards.every(b => b.querySelector('img,canvas[data-cls]') && b.querySelector('.jpname[translate="no"]'));
       panel.querySelector('[data-act="promote"][data-arg="ravager"]').click(); const card = !!panel.querySelector('.jconfirm') && /Ravager/.test(panel.querySelector('.jconfirm').textContent), still = P.cls === 'warden';
       panel.querySelector('[data-act="promoteno"]').click(); const back = !panel.querySelector('.jconfirm') && P.cls === 'warden' && !!P.trial;
       panel.querySelector('[data-act="promote"][data-arg="ravager"]').click(); return { pics, card, still, back }; });

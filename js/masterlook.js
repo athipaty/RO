@@ -105,4 +105,28 @@
     ctx.restore();};
   // the Ranger masters: their own outfits (js/outfits_rangerm.js), the rune circle; no cape, wings or cap
   JOB_LOOK.deadeye={aura:'#8fd4ff',b:[['sigil',{c:'#8fd4ff',t:'#dff4ff'}]]};
-  JOB_LOOK.skywarden={aura:'#ffe08a',b:[['sigil',{c:'#5aa8e0',t:'#e8f6ff'}]],s:[['feathermantle',{white:'#ffffff',sky:'#5aa8e0'}],['skyfalcon',{body:'#f6f4ee',wing:'#ffffff',wing2:'#e2e8f0',tip:'#5aa8e0',belly:'#eef2f8',beak:'#e8c060',mark:'#4a5a70',leg:'#e8c060'}]]};}
+  JOB_LOOK.skywarden={aura:'#ffe08a',b:[['sigil',{c:'#5aa8e0',t:'#e8f6ff'}]],s:[['feathermantle',{white:'#ffffff',sky:'#5aa8e0'}],['skyfalcon',{body:'#f6f4ee',wing:'#ffffff',wing2:'#e2e8f0',tip:'#5aa8e0',belly:'#eef2f8',beak:'#e8c060',mark:'#4a5a70',leg:'#e8c060'}]]};
+  /* the Tempest Sage: small lightning arcs crackling round its free hand; the Voidcaller: a void ring turning at its
+     waist (both well below the face) */
+  JSIDE.handarcs=function(x,y,by,f,o){const hx=x-f*10,hy=by-3,t=Math.floor(now*14);ctx.save();ctx.strokeStyle=o.c;ctx.shadowColor=o.c;ctx.shadowBlur=6;ctx.lineWidth=1;ctx.lineCap='round';
+    for(let j=0;j<3;j++){const r=(t*7+j*13)%17/17;if(r<.35)continue;const a0=(t*1.7+j*2.1)%6.28,len=5+j*1.5;ctx.globalAlpha=.6+r*.4;ctx.beginPath();ctx.moveTo(hx+Math.cos(a0)*2.4,hy+Math.sin(a0)*2.4);
+      for(let i=1;i<=3;i++){const a=a0+i*.35,rr=2.4+i*len/3;ctx.lineTo(hx+Math.cos(a)*rr+(i%2?1.2:-1.2),hy+Math.sin(a)*rr);}ctx.stroke();}
+    ctx.restore();};
+  JSIDE.voidring=function(x,y,by,f,o){const a=now*1.4;ctx.save();ctx.translate(x,by+.4);ctx.scale(1,.3);ctx.shadowColor=o.c;ctx.shadowBlur=8;
+    ctx.globalAlpha=.85;ctx.strokeStyle=o.c;ctx.lineWidth=2.2;ctx.setLineDash([7,5]);ctx.lineDashOffset=-a*20;ctx.beginPath();ctx.arc(0,0,15,0,Math.PI);ctx.stroke();
+    ctx.globalAlpha=.3;ctx.beginPath();ctx.arc(0,0,15,Math.PI,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    ctx.globalAlpha=1;ctx.fillStyle=o.t;for(let i=0;i<3;i++){const t=a+i*Math.PI*2/3;if(Math.sin(t)<0)continue;ctx.beginPath();ctx.arc(Math.cos(t)*15,Math.sin(t)*15,1.8,0,7);ctx.fill();}
+    ctx.restore();};
+  // (v1.70.0) the other masters: their own outfits (js/outfits_masters2.js) and the rune circle; no wings, orbs or capes
+  for(const [id,c,t] of [['tempestsage','#ffe23a','#fff6c0'],['voidcaller','#3ae8c8','#d8fff6'],['dawnknight','#ffb07a','#fff0d8'],['starseer','#bfe0ff','#ffffff'],
+    ['soulreaper','#ff4a5a','#ffd0d4'],['plaguelord','#9aff5a','#e0ffc8']])JOB_LOOK[id]={aura:c,b:[['sigil',{c,t}]]}; /* (the Gunslinger masters: on hold) */
+  JOB_LOOK.tempestsage.s=[['handarcs',{c:'#ffe23a'}]];JOB_LOOK.voidcaller.s=[['voidring',{c:'#3ae8c8',t:'#d8fff6'}]];
+  /* a master in its own outfit wears no job mantle (the coloured shoulder pads and collar every advanced calling has):
+     they would cover its own pauldrons and chest pieces */
+  if(typeof drawJobMantle==='function'){const _djm=drawJobMantle;drawJobMantle=function(){const p=ML_P;
+    if(p&&typeof OUTFITS!=='undefined'){const K=(OUTFITS[baseOf(p.cls)]||{})[p.cls];if(K&&(K.fam==='wardenm'||K.fam==='rangerm'||K.fam==='master2'))return;}
+    return _djm.apply(this,arguments);};}
+  /* nothing drawn over the body ever covers the face: every side piece (orbs, sparks, runes, spikes...) is clipped out
+     of the head, drawn at LAST_HY about 13 across */
+  for(const k of Object.keys(JSIDE)){const fn=JSIDE[k];JSIDE[k]=function(x){ctx.save();try{if(typeof LAST_HY==='number'&&LAST_HY){ctx.beginPath();ctx.rect(x-120,LAST_HY-140,240,280);ctx.ellipse(x,LAST_HY+.5,13.6,13.2,0,0,7);ctx.clip('evenodd');}
+    return fn.apply(this,arguments);}finally{ctx.restore();}};}}
