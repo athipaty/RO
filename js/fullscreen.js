@@ -32,7 +32,9 @@ document.addEventListener('webkitfullscreenchange',()=>{fullLabel();if(typeof re
 (()=>{const b=document.getElementById('mFull');if(b)b.addEventListener('click',()=>{const d=document.getElementById('dock');if(d)d.classList.remove('open');sfx('click');toggleFull();});})();
 // Settings: a Full screen row on touch devices
 if(typeof PANELS!=='undefined'&&PANELS.settings){const _ps=PANELS.settings;PANELS.settings=()=>{let h=_ps();if(document.body.classList.contains('touchui')||'ontouchstart' in window){
-  h=h.replace('<h3>Mouse</h3>',`<div class="setlist"><div class="setrow"><div class="grow"><div class="nm">Full screen</div><div class="ds">${isIOS()&&!inStandalone()?'iPhone: Share → Add to Home Screen, then open it from the icon':'Hide the browser bar (landscape works too)'}</div></div><button class="btn small" data-act="setfull">${isFull()?'Exit full screen':'Go full screen'}</button></div></div><h3>Mouse</h3>`);}return h;};
+  const row=`<div class="setlist"><div class="setrow"><div class="grow"><div class="nm">Full screen</div><div class="ds">${isIOS()&&!inStandalone()?'iPhone: Share → Add to Home Screen, then open it from the icon':'Hide the browser bar (landscape works too)'}</div></div><button class="btn small" data-act="setfull">${isFull()?'Exit full screen':'Go full screen'}</button></div></div>`;
+  // (v1.71.1) before the Mouse heading when there is one; on a phone Settings has no mouse lists (v1.66.3), so at the end
+  h=h.includes('<h3>Mouse</h3>')?h.replace('<h3>Mouse</h3>',row+'<h3>Mouse</h3>'):h+row;}return h;};
   PANEL_ACTS.setfull=()=>{toggleFull();setTimeout(()=>{if(panelKind==='settings')refreshPanel();},400);};}
 // turning the phone sideways (and not full screen yet) offers a one-tap Full screen button for a few seconds
 (()=>{const b=document.createElement('button');b.id='fullOffer';b.type='button';b.className='btn';b.textContent='⛶ Full screen';b.hidden=true;document.body.appendChild(b);

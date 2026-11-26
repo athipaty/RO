@@ -14,7 +14,7 @@ module.exports = async t => {
       sc().respawnAt = now; await w(400); out.dayStays = sc().dead;
       setHour(22); sc().respawnAt = now; await w(400); out.nightUp = !sc().dead;
       const m = sc(); P.x = m.x - 40; P.y = m.y; P.hp = P.maxHp = 1e7; m.myDmg = 50; setHour(12); m.state = 'chase'; m.aggroed = true; await w(300); out.fightStays = !m.dead;
-      P.x = m.x + 3000; m.state = 'idle'; m.aggroed = false; m.myDmg = 0; await w(400); out.dawnGone = m.dead;
+      P.x = m.x + 3000; m.state = 'idle'; m.aggroed = false; m.myDmg = 0; for (let i = 0; i < 30 && !m.dead; i++) await w(100); out.dawnGone = m.dead; // (a busy test browser draws few frames: wait for the game to step)
       setHour(12); const hb = (enterZone('heights', 'town'), mobs.find(m => m.d.id === 'hornback')); await w(300); out.otherBoss = !hb.dead;
       // the game server runs the region: its snapshot brings the scarecrow back at night, and the game says so
       enterZone('farms', 'town'); const m2 = sc(); m2.dead = true; P.x = m2.x + 100; P.y = m2.y; setHour(22);

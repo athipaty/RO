@@ -78,3 +78,5 @@ if(typeof SKILL_TH!=='undefined')Object.assign(SKILL_TH,{
 if(typeof JS_ROLE!=='undefined')Object.assign(JS_ROLE,{forgemaster:['Fire waves · huge blows','คลื่นไฟ · ฟาดมหาศาล'],goldlord:['Gold rain · crits','ฝนทอง · คริติคอล']});
 // the Forgehand's starter axe has its own small look in the hand
 if(typeof WA!=='undefined'&&typeof waAxe==='function')WA.handaxe=()=>waAxe({len:19,head:'#c8b8a0',haft:'#8a5a32'});
+// the Kraken's relic, an axe now, stays clearly above the shop axes of its level (it was compared with guns before)
+if(ITEMS.krakenmaw&&(ITEMS.krakenmaw.atk||0)<320)ITEMS.krakenmaw.atk=320;
