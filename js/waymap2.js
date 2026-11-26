@@ -5,21 +5,22 @@
    the place you picked; one button switches between the bigger map and the whole world at a glance (remembered).
    On each place's card, every monster picture carries a badge of its element, and a line says what each element
    there is weak to ("💧 Water: weak to 🌪 Wind"), so a hunter can bring the right weapon. */
-const WSZ={big:(()=>{try{return localStorage.getItem('embervale.wsmZoom')!=='fit';}catch(e){return true;}})(),centred:null};
+const WSZ={big:true,centred:null}; // (v1.64.5) always the big map: the Bigger / Whole world button is gone
 const EL_ICON={fire:'🔥',water:'💧',wind:'🌪',earth:'⛰',holy:'✨',shadow:'🌑',neutral:''};
 const EL_TH={fire:'ไฟ',water:'น้ำ',wind:'ลม',earth:'ดิน',holy:'ศักดิ์สิทธิ์',shadow:'มืด',neutral:'ไร้ธาตุ'};
 const elName=el=>typeof LANG!=='undefined'&&LANG==='th'?(EL_TH[el]||el):(typeof ELEM!=='undefined'&&ELEM[el]?ELEM[el].name:el);
 // ---- the map in a box you can drag ----
 {const _wmm=wsmMapHtml;wsmMapHtml=function(best){const h=_wmm.apply(this,arguments),cut=h.indexOf('<div class="wsmkey">');
   const ids=Object.keys(WORLD_GRID).filter(id=>ZONES[id]),us=ids.map(id=>wsmIso(id)[0]),U=Math.max(...us)-Math.min(...us)+2;
-  const th=typeof LANG!=='undefined'&&LANG==='th',lbl=WSZ.big?(th?'⤡ ดูทั้งโลก':'⤡ Whole world'):(th?'⤢ ขยายแผนที่':'⤢ Bigger map');
   // the N/E/S/W letters that sat beside the last square of each road give way to one compass in the map's corner
   const map=(cut<0?h:h.slice(0,cut)).replace(/<span class="wsmc wsmc-[NESW]"[^>]*>[NESW]<\/span>/g,''),key=cut<0?'':h.slice(cut);
   const compass=`<div class="wsmrose" aria-hidden="true"><svg viewBox="-30 -30 60 60"><circle r="27" class="rr"/><path d="M0-4 L15-15 L4 0 L15 15 L0 4 L-15 15 L-4 0 L-15-15Z" class="rp"/>`+
     `<path d="M2-2 L15-15 L-2 2Z" class="rn"/><text x="20" y="-17">N</text><text x="20" y="23">E</text><text x="-20" y="23">S</text><text x="-20" y="-17">W</text></svg></div>`;
-  return `<div class="wsmbar"><button type="button" class="btn small" data-act="wsmzoom" aria-pressed="${WSZ.big}">${lbl}</button>${WSZ.big?`<span class="ds">${th?'ลากเพื่อเลื่อนดู':'Drag to look around'}</span>`:''}</div>`+
-    `<div class="wsmwrap"><div class="wsmscroll${WSZ.big?' big':''}" style="--U:${U}">${map}</div>${compass}</div>`+key;};}
-PANEL_ACTS.wsmzoom=()=>{WSZ.big=!WSZ.big;WSZ.centred=null;try{localStorage.setItem('embervale.wsmZoom',WSZ.big?'big':'fit');}catch(e){}sfx('click');refreshPanel();};
+  // (v1.64.5) a region with stairs down to a dungeon carries a ▼ sign on its square
+  let mapD=map;for(const k of Object.keys(typeof WORLD_BRANCH!=='undefined'?WORLD_BRANCH:{})){const at=mapD.indexOf(`data-arg="${k}"`);if(at<0)continue;
+    const end=mapD.indexOf('</button>',at);if(end>0)mapD=mapD.slice(0,end)+'<i class="wsmdn" aria-hidden="true">▼</i>'+mapD.slice(end);}
+  return `<div class="wsmwrap"><div class="wsmscroll big" style="--U:${U}">${mapD}</div>${compass}</div>`+
+    key.replace('<span>numbers: lowest monster level</span>','<span>numbers: lowest monster level</span><span>▼ dungeon below</span>');};}
 // centre the picked square once each time the pick changes (not on every refresh, so a drag is not undone)
 function wsmCentre(){const sc=panel&&panel.querySelector('.wsmscroll.big');if(!sc)return;const t=sc.querySelector('.wsmt.sel')||sc.querySelector('.wsmt.here');if(!t)return;
   const key=(WSMAP.sel||'')+'|'+panelKind;const keep=WSZ.centred===key&&WSZ.pos;if(keep){sc.scrollLeft=WSZ.pos[0];sc.scrollTop=WSZ.pos[1];return;}
@@ -69,11 +70,9 @@ function elWeakLine(ms){const els=[...new Set(ms.map(m=>m.el||'neutral'))].filte
 `;document.head.appendChild(st);})();
 /* ---- (v1.64.2) the World map window (M): the same bigger squares in a box you drag, centred on where you are ---- */
 {const _wgh=worldGridHtml;worldGridHtml=function(){let h=_wgh.apply(this,arguments);const cut=h.indexOf('<div class="wkey');
-  const th=typeof LANG!=='undefined'&&LANG==='th',lbl=WSZ.big?(th?'⤡ ดูทั้งโลก':'⤡ Whole world'):(th?'⤢ ขยายแผนที่':'⤢ Bigger map');
   let grid=cut<0?h:h.slice(0,cut);const key=cut<0?'':h.slice(cut);
-  if(WSZ.big)grid=grid.replace('minmax(0,1fr))','64px)');
-  return `<div class="wsmbar"><button type="button" class="btn small" data-act="wsmzoom" aria-pressed="${WSZ.big}">${lbl}</button>${WSZ.big?`<span class="ds">${th?'ลากเพื่อเลื่อนดู':'Drag to look around'}</span>`:''}</div>`+
-    `<div class="wgscroll${WSZ.big?' big':''}">${grid}</div>`+key;};}
+  grid=grid.replace('minmax(0,1fr))','64px)');
+  return `<div class="wgscroll big">${grid}</div>`+key;};}
 function wgCentre(){const sc=panel&&panel.querySelector('.wgscroll.big');if(!sc||sc._centred)return;const t=sc.querySelector('.wc.here')||sc.querySelector('.wc.city');if(!t)return;
   const a=sc.getBoundingClientRect(),b=t.getBoundingClientRect();sc.scrollLeft+=b.left+b.width/2-(a.left+a.width/2);sc.scrollTop+=b.top+b.height/2-(a.top+a.height/2);sc._centred=1;}
 {const _rpG=refreshPanel;refreshPanel=function(){const r=_rpG.apply(this,arguments);try{if(panelKind==='worldmap')requestAnimationFrame(wgCentre);}catch(e){}return r;};}
@@ -113,18 +112,24 @@ function wsfDetail(id){const D=ZONES[id];if(!D)return '';const known=P.visited.i
 if(typeof PANELS!=='undefined'&&PANELS.waystone){const _pwF=PANELS.waystone;PANELS.waystone=function(){let h=_pwF.apply(this,arguments);
   const gs=wsfGroups();if(!gs.length){WSF.view='world';return h.replace(/<div class="wsmfl">[\s\S]*?<\/div>(?=<\/div><div class="wsdcol">)/,'');}
   const n=gs.reduce((a,[,ids])=>a+ids.filter(id=>P.visited.includes(id)).length,0);
-  const tabs=`<div class="wsftabs" role="tablist"><button type="button" class="btn small${WSF.view==='world'?' on':''}" role="tab" aria-selected="${WSF.view==='world'}" data-act="wsview" data-arg="world">🗺 World map</button>`+
-    `<button type="button" class="btn small${WSF.view==='floors'?' on':''}" role="tab" aria-selected="${WSF.view==='floors'}" data-act="wsview" data-arg="floors">▼ Floors below <span class="wsn">${n}</span></button></div>`;
+  const tabs=wsfToggle(WSF.view,'wsview',n);
   const a=h.indexOf('<div class="wsmw"><div class="wsmcol">'),b=h.indexOf('</div><div class="wsdcol">');if(a<0||b<0)return h;
   const start=a+'<div class="wsmw"><div class="wsmcol">'.length;let col=h.slice(start,b).replace(/<div class="wsmfl">[\s\S]*$/,'');
   if(WSF.view==='floors'){const all=gs.flatMap(([,ids])=>ids);if(!WSF.sel||!all.includes(WSF.sel))WSF.sel=all.find(id=>P.visited.includes(id)&&id!==zoneId)||all[0];
     col=wsfMapHtml();h=h.replace(/<div id="wsDet">[\s\S]*<\/div><\/div><\/div>$/,`<div id="wsDet">${wsfDetail(WSF.sel)}</div></div></div>`);}
   return h.slice(0,start)+tabs+col+h.slice(b);};}
+// (v1.64.5) one button switches between the world map and the floors: ⇄ on its left, the view you are on as its name
+function wsfToggle(view,act,n){const fl=view==='floors',next=fl?'world':'floors';
+  return `<div class="wsftabs"><button type="button" class="btn wsftog${fl?' fl':''}" data-act="${act}" data-arg="${next}" aria-label="${fl?'Floors below: switch to the world map':'World map: switch to the floors below'}">`+
+    `<span class="wsfarr" aria-hidden="true">⇄</span>${fl?`▼ Floors below <span class="wsn">${n}</span>`:'🗺 World map'}</button></div>`;}
 PANEL_ACTS.wsview=v=>{WSF.view=v==='floors'?'floors':'world';sfx('click');refreshPanel();};
 PANEL_ACTS.wsfsel=id=>{if(!ZONES[id])return;WSF.sel=id;sfx('click');refreshPanel();try{const d=panel.querySelector('#wsDet');if(d){const r=d.getBoundingClientRect();if(r.top>innerHeight-120)d.scrollIntoView({block:'nearest',behavior:'smooth'});}}catch(e){}};
 if(typeof TH!=='undefined')Object.assign(TH,{'🗺 World map':'🗺 แผนที่โลก','Other places':'ที่อื่น ๆ'});
 (()=>{const st=document.createElement('style');st.textContent=`
 #panel .wsftabs{display:flex;gap:6px;margin:4px 0 6px}
+#panel .wsftog{display:inline-flex;align-items:center;gap:8px;padding:6px 14px 6px 8px;min-height:38px;border-radius:20px;font-weight:800}
+#panel .wsftog .wsfarr{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:rgba(232,194,90,.22);color:#ffd77a;font-size:15px}
+#panel .wsmt .wsmdn{position:absolute;right:22%;bottom:22%;font-style:normal;font-size:12px;color:#ffcf8a;z-index:4;filter:drop-shadow(0 1px 1px #000)}
 #panel .wsfmap{display:flex;flex-direction:column;gap:12px;padding:12px;border-radius:14px;background:#0e151f;border:1px solid rgba(232,194,90,.28);margin:4px 0 8px}
 #panel .wfgt{font:700 12px var(--ui,system-ui);color:#e8c25a;margin:0 0 6px}
 #panel .wfrow{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
@@ -150,9 +155,8 @@ function warpFare(id){const i=ZONE_ORDER.indexOf(id);if(i>=0)return i*60;const D
 {const _wchF=warpCardsHtml;warpCardsHtml=function(){let h=_wchF.apply(this,arguments);
   const gs=wsfGroups().filter(([t])=>t!=='Other places');if(!gs.length){WSF.tview='world';return h;}
   const n=gs.reduce((a,[,ids])=>a+ids.filter(id=>P.visited.includes(id)).length,0),v=WSF.tview==='floors'?'floors':'world';
-  const tabs=`<div class="wsftabs" role="tablist"><button type="button" class="btn small${v==='world'?' on':''}" role="tab" aria-selected="${v==='world'}" data-act="wstview" data-arg="world">🗺 World map</button>`+
-    `<button type="button" class="btn small${v==='floors'?' on':''}" role="tab" aria-selected="${v==='floors'}" data-act="wstview" data-arg="floors">▼ Floors below <span class="wsn">${n}</span></button></div>`;
-  const a=h.indexOf('<div class="wsmbar">'),b=h.indexOf('</div><div class="wsdcol">');if(a<0||b<0)return h;
+  const tabs=wsfToggle(v,'wstview',n);
+  const a=h.indexOf('<div class="wsmwrap">'),b=h.indexOf('</div><div class="wsdcol">');if(a<0||b<0)return h;
   if(v!=='floors')return h.slice(0,a)+tabs+h.slice(a);
   const all=gs.flatMap(([,ids])=>ids);if(!WSF.tsel||!all.includes(WSF.tsel))WSF.tsel=all.find(id=>P.visited.includes(id)&&id!==zoneId)||all[0];
   const keepSel=WSF.sel;WSF.sel=WSF.tsel;const map=`<div class="wsfmap">`+gs.map(([t,ids])=>`<div class="wfg"><div class="wfgt">${esc(t)}</div><div class="wfrow">${ids.map((id,i)=>(i?'<span class="wfa" aria-hidden="true">▸</span>':'')+wsfTile(id).replace('data-act="wsfsel"','data-act="wstsel"')).join('')}</div></div>`).join('')+`</div>`;WSF.sel=keepSel;

@@ -11,11 +11,14 @@ module.exports = async t => {
       out.big = !!sc && sc.classList.contains('big'); out.tileW = tile ? Math.round(tile.getBoundingClientRect().width) : 0;
       out.compass = panel.querySelectorAll('.wsmrose').length; out.letters = panel.querySelectorAll('.wsmc').length;
       const card = panel.querySelector('#wsDet'); out.badges = card.querySelectorAll('.tcel').length; out.weak = (card.querySelector('.tcels') || {}).textContent || '';
-      panel.querySelector('[data-act="wsmzoom"]').click(); await w(100); out.fit = !panel.querySelector('.wsmscroll.big'); out.saved = localStorage.getItem('embervale.wsmZoom') === 'fit';
-      panel.querySelector('[data-act="wsmzoom"]').click(); await w(100); out.back = !!panel.querySelector('.wsmscroll.big');
+      out.noZoom = !panel.querySelector('[data-act="wsmzoom"]'); // (v1.64.5) the Bigger / Whole world button is gone
+      out.dn = !!panel.querySelector('.wsmt[data-arg="woods"] .wsmdn') && !panel.querySelector('.wsmt[data-arg="meadow"] .wsmdn');
+      const tog = panel.querySelectorAll('.wsftog'); out.toggle = tog.length === 1 && /World map/.test(tog[0].textContent) && tog[0].dataset.arg === 'floors' && !!tog[0].querySelector('.wsfarr');
       closePanel(); return out; });
     t.ok(r.big && r.tileW >= 60, `the map opens big: each square ${r.tileW} px wide, in a box you drag`);
-    t.ok(r.fit && r.saved && r.back, 'one button switches to the whole world and back, and is remembered');
+    t.ok(r.noZoom, 'the map is always big: no Bigger / Whole world button');
+    t.ok(r.dn, 'a region with stairs down to a dungeon carries a ▼ sign');
+    t.ok(r.toggle, 'one ⇄ button, named for the view you are on, switches between the world map and the floors');
     t.ok(r.compass === 1 && r.letters === 0, 'one compass in the corner, no letters by the roads');
     t.ok(r.badges >= 4 && /Earth/.test(r.weak) && /weak to/.test(r.weak), `monster pictures carry their element (${r.badges}) and the card says what they are weak to: ${r.weak}`);
     // (v1.64.3) the Waystone Shard: a Floors below tab, a map of floors, a tap shows the card with Go (no instant travel)
