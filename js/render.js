@@ -794,7 +794,12 @@ function renderMini(){
   const t=s*ISO*TILE;mctx.save();mctx.setTransform(t,t/2,-t,t/2,MINI.ox,MINI.oy);mctx.imageSmoothingEnabled=true;mctx.drawImage(Z.mini,0,0);
   mctx.strokeStyle='rgba(255,255,255,.25)';mctx.lineWidth=1/t;mctx.strokeRect(0,0,Z.w,Z.h);mctx.restore();
   const dot=(x,y,r,col,ring)=>{const p=miniPt(x,y);mctx.beginPath();mctx.arc(p.x,p.y,r,0,7);mctx.fillStyle=col;mctx.fill();if(ring){mctx.lineWidth=1;mctx.strokeStyle=ring;mctx.stroke();}};
-  for(const pt of Z.portals){const p=miniPt(pt.x,pt.y),a=.5+Math.sin(now*3)*.25;mctx.beginPath();mctx.arc(p.x,p.y,4.5,0,7);mctx.strokeStyle=`rgba(143,240,255,${a+.3})`;mctx.lineWidth=1.5;mctx.stroke();dot(pt.x,pt.y,2,'#8ff0ff');}
+  // (v1.64.7) a gate down into a dungeon shows ▼ (deeper), a dungeon's way back up ▲; other gates the cyan ring
+  for(const pt of Z.portals){const p=miniPt(pt.x,pt.y),a=.5+Math.sin(now*3)*.25,T=ZONES[pt.to],here=Z.D.dungeon||0,there=T&&T.dungeon||0;
+    const dir=there>here?'down':here&&there<here?'up':'';
+    if(dir){const r=5.5;mctx.beginPath();if(dir==='down'){mctx.moveTo(p.x-r,p.y-r*.7);mctx.lineTo(p.x+r,p.y-r*.7);mctx.lineTo(p.x,p.y+r*.9);}else{mctx.moveTo(p.x-r,p.y+r*.7);mctx.lineTo(p.x+r,p.y+r*.7);mctx.lineTo(p.x,p.y-r*.9);}
+      mctx.closePath();mctx.fillStyle=dir==='down'?'#ffb040':'#bfe8ff';mctx.fill();mctx.lineWidth=1.2;mctx.strokeStyle=`rgba(26,16,8,${.6+a*.4})`;mctx.stroke();continue;}
+    mctx.beginPath();mctx.arc(p.x,p.y,4.5,0,7);mctx.strokeStyle=`rgba(143,240,255,${a+.3})`;mctx.lineWidth=1.5;mctx.stroke();dot(pt.x,pt.y,2,'#8ff0ff');}
   for(const n of Z.npcs)dot(n.x,n.y,1.8,'#ffcf5a');
   for(const m of mobs)if(!m.dead)dot(m.x,m.y,m.d.boss?3.2:1.5,m.d.boss?'#ff5a3a':'#e05050',m.d.boss?'#2a0a08':null);
   for(const [peer,o] of NET.others)if(o.z===zoneId&&!o.dead)dot(o.x,o.y,2,inParty(peer)?'#8fe0a8':'#9fd3ff','#0b1a12');

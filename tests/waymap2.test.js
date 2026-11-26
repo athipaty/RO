@@ -51,6 +51,11 @@ module.exports = async t => {
       panel.querySelector('.wsftog[data-act="wmview"]').click(); await w(150); const back = !!panel.querySelector('.wgrid'); closePanel();
       return { tog: true, grid, tiles, noGrid, picked, back }; });
     t.ok(wm.tog && wm.grid && wm.tiles >= 6 && wm.noGrid && wm.back, `the World map window has the ⇄ toggle too: world grid, then ${wm.tiles} floor squares, then back`);
+    // (v1.64.7) the minimap marks the stairs down into a dungeon with an orange ▼ (and the way back up with a pale ▲)
+    const mm = await g.ev(() => { const col = (id, to) => { enterZone(id); const pt = Z.portals.find(p => p.to === to); renderMini(); const q = miniPt(pt.x, pt.y), d = mctx.getImageData(Math.round(q.x), Math.round(q.y), 1, 1).data; return [d[0], d[1], d[2]]; };
+      return { down: col('woods', 'deep1'), up: col('deep1', 'woods'), gate: col('woods', 'meadow') }; });
+    t.ok(mm.down[0] > 200 && mm.down[1] > 120 && mm.down[2] < 110, 'the minimap shows the stairs down as an orange ▼ ' + mm.down);
+    t.ok(mm.up[2] > 200 && mm.up[0] > 150, 'and the way back up out of a dungeon as a pale ▲ ' + mm.up);
     t.ok(wm.picked === 'grotto1', 'tapping a floor square picks it in the list below (' + wm.picked + ')');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
