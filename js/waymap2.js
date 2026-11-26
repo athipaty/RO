@@ -19,7 +19,10 @@ const elName=el=>typeof LANG!=='undefined'&&LANG==='th'?(EL_TH[el]||el):(typeof 
   // (v1.64.5) a region with stairs down to a dungeon carries a ▼ sign on its square
   let mapD=map;for(const k of Object.keys(typeof WORLD_BRANCH!=='undefined'?WORLD_BRANCH:{})){const at=mapD.indexOf(`data-arg="${k}"`);if(at<0)continue;
     const end=mapD.indexOf('</button>',at);if(end>0)mapD=mapD.slice(0,end)+'<i class="wsmdn" aria-hidden="true">▼</i>'+mapD.slice(end);}
-  return `<div class="wsmwrap"><div class="wsmscroll big" style="--U:${U}">${mapD}</div>${compass}</div>`+
+  // (v1.65.2) a direction pad in the bottom-left corner: step the pick to the next region along a road
+  const L=(WSMAP.sel&&ZONES[WSMAP.sel]&&ZONES[WSMAP.sel].links)||{},pad=[['north','↗','N'],['east','↘','E'],['south','↙','S'],['west','↖','W']].map(([d,a,k])=>{const to=L[d];
+    return `<button type="button" class="wsmpd wsmpd-${k}" ${to&&WORLD_GRID[to]?`data-act="wsmsel" data-arg="${to}" aria-label="${k}: ${esc(ZONES[to].name)}" title="${esc(ZONES[to].name)}"`:`disabled aria-label="${k}: no road"`}><i aria-hidden="true">${a}</i><b>${k}</b></button>`;}).join('');
+  return `<div class="wsmwrap"><div class="wsmscroll big" style="--U:${U}">${mapD}</div>${compass}<div class="wsmpad" role="group" aria-label="Move along the roads">${pad}</div></div>`+
     key.replace('<span>numbers: lowest monster level</span>','<span>numbers: lowest monster level</span><span>▼ dungeon below</span>');};}
 // centre the picked square once each time the pick changes (not on every refresh, so a drag is not undone)
 function wsmCentre(){const sc=panel&&panel.querySelector('.wsmscroll.big');if(!sc)return;const t=sc.querySelector('.wsmt.sel')||sc.querySelector('.wsmt.here');if(!t)return;
@@ -45,6 +48,14 @@ function elWeakLine(ms){const els=[...new Set(ms.map(m=>m.el||'neutral'))].filte
 (()=>{const st=document.createElement('style');st.textContent=`
 #panel .wsmbar{display:flex;align-items:center;gap:8px;margin:2px 0 0}
 #panel .wsmwrap{position:relative}
+#panel .wsmpad{position:absolute;left:8px;bottom:8px;width:104px;height:104px;z-index:6}
+#panel .wsmpd{position:absolute;width:42px;height:42px;border-radius:12px;border:1px solid rgba(232,194,90,.55);background:rgba(20,28,40,.88);color:#ffd77a;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0;font:800 10px var(--ui,system-ui);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+#panel .wsmpd i{font-style:normal;font-size:17px;line-height:1}
+#panel .wsmpd b{font-size:9px;opacity:.8;line-height:1}
+#panel .wsmpd:disabled{opacity:.3;cursor:default}
+#panel .wsmpd:not(:disabled):active{transform:scale(.94);background:rgba(232,194,90,.3)}
+#panel .wsmpd-N{right:0;top:0}#panel .wsmpd-E{right:0;bottom:0}#panel .wsmpd-S{left:0;bottom:0}#panel .wsmpd-W{left:0;top:0}
 #panel .wsmrose{position:absolute;top:6px;right:6px;width:46px;height:46px;z-index:5;pointer-events:none;opacity:.92;filter:drop-shadow(0 1px 3px rgba(0,0,0,.7))}
 #panel .wsmrose svg{width:100%;height:100%;overflow:visible}
 #panel .wsmrose .rr{fill:rgba(14,21,31,.82);stroke:rgba(232,194,90,.55);stroke-width:1.5}
@@ -53,7 +64,7 @@ function elWeakLine(ms){const els=[...new Set(ms.map(m=>m.el||'neutral'))].filte
 #panel .wsmbar .ds{font-size:11px;opacity:.75}
 #panel .wsmscroll.big{overflow:auto;max-height:min(62vh,520px);border-radius:14px;touch-action:pan-x pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin:6px 0 4px;
   background:#0e151f;border:1px solid rgba(232,194,90,.28)}
-#panel .wsmscroll.big .wsm{width:calc(var(--U) * 36px);max-width:none!important;margin:28px 26px}
+#panel .wsmscroll.big .wsm{width:calc(var(--U) * 36px);max-width:none!important;margin:28px 26px 124px 130px}
 #panel .wsmscroll.big .wsm::before{display:none}
 #panel .wsmscroll.big .wsmt b{font-size:14px}
 #panel .wsmscroll.big .wsmt i{font-size:13px}

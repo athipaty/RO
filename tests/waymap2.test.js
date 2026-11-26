@@ -11,11 +11,17 @@ module.exports = async t => {
       out.big = !!sc && sc.classList.contains('big'); out.tileW = tile ? Math.round(tile.getBoundingClientRect().width) : 0;
       out.compass = panel.querySelectorAll('.wsmrose').length; out.letters = panel.querySelectorAll('.wsmc').length;
       const card = panel.querySelector('#wsDet'); out.badges = card.querySelectorAll('.tcel').length; out.weak = (card.querySelector('.tcels') || {}).textContent || '';
+      // (v1.65.2) the direction pad: E from the Steppe is the Ruins (the Steppe's links decide), and a missing road is greyed
+      const pd = { n: panel.querySelectorAll('.wsmpad .wsmpd').length, L: ZONES.steppe.links };
+      const dir = Object.keys(pd.L).find(d => WORLD_GRID[pd.L[d]]), k = { north: 'N', east: 'E', south: 'S', west: 'W' }[dir];
+      panel.querySelector('.wsmpd-' + k).click(); await w(150); pd.moved = WSMAP.sel === pd.L[dir];
+      pd.off = [...panel.querySelectorAll('.wsmpd')].filter(b => b.disabled).length === 4 - Object.values(ZONES[WSMAP.sel].links).filter(z => WORLD_GRID[z]).length; out.pad = pd;
       out.noZoom = !panel.querySelector('[data-act="wsmzoom"]'); // (v1.64.5) the Bigger / Whole world button is gone
       out.dn = !!panel.querySelector('.wsmt[data-arg="woods"] .wsmdn') && !panel.querySelector('.wsmt[data-arg="meadow"] .wsmdn');
       const tog = panel.querySelectorAll('.wsftog'); out.toggle = tog.length === 1 && /World map/.test(tog[0].textContent) && tog[0].dataset.arg === 'floors' && !!tog[0].querySelector('.wsfarr');
       closePanel(); return out; });
     t.ok(r.big && r.tileW >= 60, `the map opens big: each square ${r.tileW} px wide, in a box you drag`);
+    t.ok(r.pad.n === 4 && r.pad.moved && r.pad.off, 'a direction pad in the corner steps the pick along the roads; arrows with no road are greyed ' + JSON.stringify(r.pad));
     t.ok(r.noZoom, 'the map is always big: no Bigger / Whole world button');
     t.ok(r.dn, 'a region with stairs down to a dungeon carries a ▼ sign');
     t.ok(r.toggle, 'one ⇄ button, named for the view you are on, switches between the world map and the floors');
