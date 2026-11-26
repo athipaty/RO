@@ -17,6 +17,13 @@ module.exports = async t => {
       // Recommended spends the points
       openPanel('status'); await w(100); const b = panel.querySelector('[data-act="statauto"]'); const pts = P.statPts, atk = S.atk; if (b) b.click(); await w(100);
       out.auto = !!b && P.statPts < 3 && P.statPts < pts && S.atk > atk; closePanel();
+      // (v1.66.1) the stat box goes when nothing can be bought; skill points have their own Recommended
+      P.statPts = 1; openPanel('status'); await w(100); out.statBoxGone = !panel.querySelector('.statauto'); closePanel();
+      P.skillPts = 3; openPanel('skills'); await w(100); const sb = panel.querySelector('[data-act="skillauto"]'); if (sb) sb.click(); await w(100); out.skillAuto = !!sb && (P.skills.firstaid || 0) === 3 && P.skillPts === 0; closePanel();
+      // the tip waits while the story quest points at someone in town
+      enterZone('town'); P.tut = TUT_STEPS.findIndex(s => s.k === 'meadow'); GOAL.t = { npc: 'Brannoc the Smith', zone: 'town' }; out.tipWaits = /Finish your quest first/.test(TUT_STEPS[P.tut].t());
+      // the first time HP runs low in the wild, a word on tonics and sitting
+      enterZone('meadow'); P.lowTip = 0; P.hp = Math.floor(S.maxhp * .2); await w(800); out.lowTip = P.lowTip === 1 && /Low on HP/.test(document.getElementById('log').textContent); P.hp = S.maxhp;
       // a seasoned hero sees it all again
       P.tut = 'done'; P.lv = 20; await w(600); out.after = !document.body.classList.contains('newbie');
       return out; });
@@ -24,6 +31,9 @@ module.exports = async t => {
     t.ok(r.noOre && r.noFest, 'no news meant for later (ore shortage, festival) on the first screen');
     t.ok(r.story && r.folded, 'Elder Hollis lists the story quest first and marked, the daily tasks folded under one heading');
     t.ok(r.auto, '✨ Recommended spends the stat points on a sound build');
+    t.ok(r.statBoxGone && r.skillAuto, 'the stat box hides when nothing can be bought; skill points have their own Recommended (a Novice learns First Aid)');
+    t.ok(r.tipWaits, 'the first-steps tip waits while the story quest points at someone in town');
+    t.ok(r.lowTip, 'the first time HP runs low in the wild, a word on tonics and sitting');
     t.ok(r.after, 'once the first steps are done the full screen comes back');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }

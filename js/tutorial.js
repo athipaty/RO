@@ -5,10 +5,10 @@
    It never blocks the game, can be skipped (and turned back on in the quest log), and older characters never see it.
    Saved as P.tut (the step number, or 'done'). Loaded after js/quests.js, js/combat.js and js/bounties.js. */
 const TUT_STEPS=[
-  {k:'walk',t:()=>document.body.classList.contains('touchui')?'Drag anywhere on the screen to walk.':'Click the ground (or use WASD) to walk.',th:()=>document.body.classList.contains('touchui')?'ลากนิ้วบนหน้าจอเพื่อเดิน':'คลิกที่พื้น (หรือกด WASD) เพื่อเดิน'},
+  {k:'walk',t:()=>true?'Drag anywhere on the screen to walk.':'Click the ground (or use WASD) to walk.',th:()=>true?'ลากนิ้วบนหน้าจอเพื่อเดิน':'คลิกที่พื้น (หรือกด WASD) เพื่อเดิน'},
   {k:'talk',t:()=>'Talk to Elder Hollis in Chapel Close: tap the person with a ! over their head.',th:()=>'คุยกับผู้เฒ่าฮอลลิสที่ย่านโบสถ์: แตะคนที่มี ! อยู่เหนือหัว'},
   {k:'meadow',t:()=>'Head out the east gate to Greenmoss Meadow. The gold arrow shows the way.',th:()=>'ออกประตูตะวันออกไปทุ่งหญ้ากรีนมอส ลูกศรสีทองจะชี้ทางให้'},
-  {k:'kill',t:()=>document.body.classList.contains('touchui')?'Tap a monster, or press the red sword button, to fight.':'Click a monster to fight it.',th:()=>document.body.classList.contains('touchui')?'แตะมอนสเตอร์ หรือกดปุ่มดาบสีแดงเพื่อต่อสู้':'คลิกมอนสเตอร์เพื่อต่อสู้'},
+  {k:'kill',t:()=>true?'Tap a monster, or press the red sword button, to fight.':'Click a monster to fight it.',th:()=>true?'แตะมอนสเตอร์ หรือกดปุ่มดาบสีแดงเพื่อต่อสู้':'คลิกมอนสเตอร์เพื่อต่อสู้'},
   {k:'loot',t:()=>'Pick up what it dropped: walk over it or tap it.',th:()=>'เก็บของที่มันดรอป: เดินไปทับหรือแตะที่ของ'},
   {k:'stats',t:()=>'Level up, then open Stats and press + to grow stronger.',th:()=>'เลเวลอัป แล้วเปิดหน้าสถานะและกด + เพื่อเพิ่มพลัง'}];
 const TUT={x:null,y:null,kill:false,loot:false,pts:null,el:null};

@@ -93,8 +93,8 @@ function gainExp(e,j){
   while(P.jl<jm&&P.jexp>=jexpNeed(P.jl)){P.jexp-=jexpNeed(P.jl);P.jl++;P.skillPts++;jUp=true;}
   if(P.jl>=jm)P.jexp=0;
   if(P.lv>=99)P.exp=0; // the base level cap: nothing more to fill
-  if(lvUp){sfx('levelup');fx.push({k:'lvpillar',o:P,x:P.x,y:P.y,t0:now,dur:2.6});if(mile)announce('lv',mile);S=computeStats();P.hp=S.maxhp;P.sp=S.maxsp;fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:1.6,txt:'LEVEL UP'});addLog(`Base level ${P.lv}! You have ${P.statPts} stat points to spend (C).`,'l-lvl');save();}
-  if(jUp){if(!lvUp)sfx('jobup');fx.push({k:'lvl',x:P.x,y:P.y-18,t0:now,dur:1.6,txt:'JOB UP',col:'#62bf86'});addLog(`Job level ${P.jl}! You have ${P.skillPts} skill points (K).`,'l-lvl');
+  if(lvUp){sfx('levelup');fx.push({k:'lvpillar',o:P,x:P.x,y:P.y,t0:now,dur:2.6});if(mile)announce('lv',mile);S=computeStats();P.hp=S.maxhp;P.sp=S.maxsp;fx.push({k:'lvl',x:P.x,y:P.y,t0:now,dur:1.6,txt:'LEVEL UP'});addLog(`Base level ${P.lv}! You have ${P.statPts} stat points to spend.`,'l-lvl'); /* (v1.66.1) no keys on a phone */save();}
+  if(jUp){if(!lvUp)sfx('jobup');fx.push({k:'lvl',x:P.x,y:P.y-18,t0:now,dur:1.6,txt:'JOB UP',col:'#62bf86'});addLog(`Job level ${P.jl}! You have ${P.skillPts} skill points.`,'l-lvl');
     if(P.cls==='novice'&&P.jl>=10)addLog('You can now choose a calling. Talk to Guildmaster Corvin in Hearthvale.','l-rare');
     if(TRIALS[P.cls]&&P.jl===JOB2_LV&&!P.trial)addLog('You are ready for an advanced calling. Talk to Guildmaster Corvin in Hearthvale to begin your trial.','l-rare');refreshPanel();}
   if(lvUp)refreshPanel();

@@ -49,3 +49,33 @@ body.zcard #tutCard,body.zcard #giftPill{opacity:0!important;pointer-events:none
 #panel .statauto{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 10px;padding:10px;border-radius:12px;background:rgba(232,194,90,.1);border:1px solid rgba(232,194,90,.4)}
 #panel .statauto span{font-size:12.5px;color:#e8e2d4}
 `;document.head.appendChild(st);})();
+/* ---- (v1.66.1) the second play-through ----
+   Recommended stat points only when a stat can be raised (2 points buy the first steps); a Recommended button for skill
+   points too (the build you follow, else the first build for your job; a Novice learns First Aid) with a word on where
+   real skills come from; on a phone the skill tree's hint speaks of taps, not keys; the first-steps tip waits while
+   your story quest points at someone in town; and the first time your HP runs low, a word on tonics and sitting. */
+function statCanBuy(){return ['str','agi','vit','int','dex','luk'].some(k=>P.st[k]<99&&statCost(P.st[k])<=P.statPts);}
+function skillPlan(){if(P.cls==='novice')return [['firstaid',10]];const B=typeof buildById==='function'&&P.build?buildById(P.build):null;if(B)return B.skills;
+  const base=typeof baseOf==='function'?baseOf(P.cls):P.cls,vis=typeof buildsVisible==='function'?buildsVisible():[];
+  const b=vis.find(x=>x.job===base&&(typeof buildAllowed!=='function'||buildAllowed(x)));return b?b.skills:[];}
+function skillLearnable(id){const sk=SKILLS[id];return !!sk&&typeof skillUnlocked==='function'&&skillUnlocked(id)&&(P.skills[id]||0)<sk.max;}
+function skillAuto(){let n=0;for(const [id,to] of skillPlan())while(P.skillPts>0&&(P.skills[id]||0)<to&&skillLearnable(id)){P.skills[id]=(P.skills[id]||0)+1;P.skillPts--;n++;}
+  if(n&&typeof rebuildHotbar==='function')rebuildHotbar();return n;}
+PANEL_ACTS.skillauto=()=>{const n=skillAuto();if(!n){addLog('Nothing more to learn for now: new skills come with your job.','l-bad');return;}sfx('jobup');addLog(`Learned ${n} skill level${n>1?'s':''} for your build.`,'l-good');refreshPanel();if(typeof save==='function')save();};
+{const _rpS=refreshPanel;refreshPanel=function(){const r=_rpS.apply(this,arguments);try{const th=typeof LANG!=='undefined'&&LANG==='th',touch=true; // phone only: the hints speak of taps
+    if(panelKind==='status'){const box=panel.querySelector('.statauto');if(box&&!statCanBuy())box.remove();}
+    if(panelKind==='skills'){const sub=panel.querySelector('.sub');
+      if(sub&&touch){for(const n of sub.childNodes)if(n.nodeType===3&&/press 1–4|กด 1–4/.test(n.nodeValue))n.nodeValue=th?' · แตะ 1–4 ใต้สกิลที่เรียนแล้วเพื่อใส่ในปุ่มลัด':' · tap 1–4 under a learned skill to put it on your hotbar';}
+      if(P.skillPts>0&&!panel.querySelector('.skillauto')&&skillPlan().some(([id,to])=>(P.skills[id]||0)<to&&skillLearnable(id))){
+        const box=document.createElement('div');box.className='statauto skillauto';
+        box.innerHTML=`<button type="button" class="btn primary" data-act="skillauto">✨ ${th?'แนะนำ':'Recommended'}</button><span>${P.cls==='novice'?(th?'เรียนปฐมพยาบาล สกิลจริงจะมาพร้อมอาชีพแรกที่ Job Lv 10':'Learns First Aid. Real skills come with your first job at Job Lv 10.'):(th?'ใช้แต้มตามบิลด์ของคุณ':'Spends your points along your build.')}</span>`;
+        if(sub&&sub.parentNode)sub.parentNode.insertBefore(box,sub.nextSibling);}}}catch(e){}return r;};}
+// the first-steps tip waits while the story quest points at someone in town
+{const st=TUT_STEPS.find(s=>s.k==='meadow');if(st){const t0=st.t,h0=st.th;const busy=()=>typeof GOAL!=='undefined'&&GOAL.t&&GOAL.t.npc&&typeof zoneId!=='undefined'&&(!GOAL.t.zone||GOAL.t.zone===zoneId)&&ZONES[zoneId]&&ZONES[zoneId].safe;
+  st.t=()=>busy()?'Finish your quest first: follow the gold arrow to '+GOAL.t.npc+'. Then head out the east gate to Greenmoss Meadow.':t0();
+  st.th=()=>busy()?'ทำเควสให้เสร็จก่อน: ตามลูกศรสีทองไปหา '+GOAL.t.npc+' แล้วค่อยออกประตูตะวันออกไปทุ่งหญ้ากรีนมอส':h0();}}
+// the first time your HP runs low out in the wild: a word on tonics and sitting
+if(typeof SAVE_EXTRA!=='undefined')SAVE_EXTRA.push('lowTip');
+setInterval(()=>{try{if(!P||!running||P.dead||P.lowTip||P.lv>=15||!S||!Z||Z.D.safe||P.hp>S.maxhp*.4)return;P.lowTip=1;const th=typeof LANG!=='undefined'&&LANG==='th',touch=true;
+  addLog(th?'HP ใกล้หมด! ดื่ม Red Tonic (ปุ่มขวดแดง) หรือถอยออกมานั่งพัก (ปุ่มนั่ง) เพื่อฟื้นเร็วขึ้น':`Low on HP! Drink a Red Tonic (${touch?'the red bottle button':'its hotbar key'}) or step back and sit down (${touch?'the sit button':'X'}) to heal faster.`,'l-rare');
+  floatT(P.x,P.y-60,th?'HP ต่ำ!':'Low HP!','#ff8a7a',16);if(typeof save==='function')save();}catch(e){}},500);
