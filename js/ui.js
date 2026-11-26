@@ -582,7 +582,7 @@ function startWith(data){
     if(pos&&ZONES[data.p.zone]&&zoneId===data.p.zone&&Number.isFinite(pos.x)&&Number.isFinite(pos.y)&&!blockedT(Math.floor(pos.x/TILE),Math.floor(pos.y/TILE))){P.x=pos.x;P.y=pos.y;P.path=[];}
     // buffs keep the time they had left
     if(sb&&typeof sb==='object'){P.buffs={};for(const k in sb){const f=sb[k];if(f&&f.left>0&&f.b&&typeof f.b==='object')P.buffs[k]={name:String(f.name||k),until:now+Math.min(+f.left,7200),b:f.b,...(f.from?{from:f.from}:{})};}S=computeStats();}}
-  if(!data){addLog(`Welcome to Hearthvale, ${P.name}.`,'l-lvl');addLog('Spend your 24 stat points first: open Stats (C).','l-good');addLog('Then head east through the glowing gate to Greenmoss Meadow.');}
+  if(!data){addLog(`Welcome to Hearthvale, ${P.name}.`,'l-lvl');addLog('Spend your 24 stat points first: open Stats and press ✨ Recommended.','l-good');addLog('Then head east through the glowing gate to Greenmoss Meadow.');}
   else addLog(`Welcome back, ${P.name}.`,'l-lvl');
   CS.sum[CS.slot]=slotSum({p:P});
   save();

@@ -17,7 +17,8 @@ PANEL_ACTS.buyore=id=>{if(id!=='emberore'&&id!=='glintstone')return;const it=ITE
 // Glintstone smelts from iron, like Ember Ore (js/gathering.js)
 if(typeof BREWS!=='undefined'&&!BREWS.some(r=>r[0]==='glintstone'&&r[2].ironchunk))BREWS.push(['glintstone',1,{ironchunk:6},300]);
 // Brannoc says so once
-{const _ezO=enterZone;enterZone=function(id){const r=_ezO.apply(this,arguments);try{if(id==='town'&&P&&!P.oreNote){P.oreNote=1;
+{const _ezO=enterZone;enterZone=function(id){const r=_ezO.apply(this,arguments);try{if(id==='town'&&P&&!P.oreNote&&P.lv>=10){ // (v1.66.0) not on a new hero's first second
+  P.oreNote=1;
   addLog('Brannoc: "The mines are running low. I can sell each of you only a few ores a day now. Bring me ore from the monsters and the veins, or smelt your own iron."','l-rare');}}catch(e){}return r;};}
 if(typeof TH!=='undefined')Object.assign(TH,{'Sold out':'หมดแล้ว'});
 if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(\d) of 3 left today$/,(m,n)=>`เหลือ ${n} จาก 3 ก้อนวันนี้`]);

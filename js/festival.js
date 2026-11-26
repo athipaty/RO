@@ -99,5 +99,5 @@ drawSeason=function(){const s=festNow();if(s==='lanterns'||s==='snow'||!s)return
 
 // tell players once per session when a festival is on
 let festTold=null;
-setInterval(()=>{try{if(!P||!running)return;const fe=festNow();if(!fe||festTold===fe)return;festTold=fe;const F=FESTS[fe];
+setInterval(()=>{try{if(!P||!running||P.lv<5)return;const fe=festNow(); /* (v1.66.0) told once the first steps are behind you */if(!fe||festTold===fe)return;festTold=fe;const F=FESTS[fe];
   addLog(`✿ ${F.name} is on! Monsters drop ${ITEMS[F.tok].name}s: trade them with Festival Keeper Pim on Travellers' Green for a ${ITEMS[F.prize].name}.`,'l-rare');}catch(e){}},2000);
