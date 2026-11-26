@@ -154,6 +154,7 @@ function refreshPanel(){
     if(typeof oreLeft==='function')h+=`<div class="arbox oreno">${typeof LANG!=='undefined'&&LANG==='th'?'เหมืองเหลือแร่น้อยแล้ว บรานน็อคขายให้คนละไม่กี่ก้อนต่อวัน หาเพิ่มได้จากมอนสเตอร์ สายแร่ และการหลอมเหล็ก':'The mines are running low: Brannoc sells each hero a few ores a day. Find more from monsters, ore veins and smelting iron.'}</div>`;
     for(const id of ['emberore','glintstone']){const it=ITEMS[id],have=(invFind(id)||{}).n||0,left=typeof oreLeft==='function'?oreLeft(id):99;
       h+=`<div class="row">${icon(it)}<div class="grow"><div class="nm">${it.name} <span class="muted">×${have}</span></div><div class="ds">${it.desc}</div>${typeof oreLeft==='function'?`<div class="ds orel">${left} of ${ORE_DAILY} left today</div>`:''}</div><span class="gold">${it.price}</span><button class="btn small" data-act="buyore" data-arg="${id}" ${P.gold<it.price||left<=0?'disabled':''}>${left<=0?'Sold out':'Buy'}</button></div>`;}
+    if(typeof resmeltHtml==='function')h+=resmeltHtml(); // (v1.65.1) swap one ore for the other at the anvil (js/orestock.js)
     if(typeof FORGES!=='undefined')h+=`<div class="tbtns" style="justify-content:flex-start;margin:6px 0"><button class="btn small" data-act="openforge">⚒ Forge gear from monster materials</button></div>`;
     h+=`<h3>Refine</h3><div class="sub">${fmt(P.gold)} gold</div>`;
     // only the gear you are wearing can be refined (bag items are left out: equip a piece to refine it)

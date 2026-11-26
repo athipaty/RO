@@ -21,3 +21,15 @@ if(typeof BREWS!=='undefined'&&!BREWS.some(r=>r[0]==='glintstone'&&r[2].ironchun
   addLog('Brannoc: "The mines are running low. I can sell each of you only a few ores a day now. Bring me ore from the monsters and the veins, or smelt your own iron."','l-rare');}}catch(e){}return r;};}
 if(typeof TH!=='undefined')Object.assign(TH,{'Sold out':'หมดแล้ว'});
 if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(\d) of 3 left today$/,(m,n)=>`เหลือ ${n} จาก 3 ก้อนวันนี้`]);
+/* ---- (v1.65.1) Re-smelt at the smithy: 3 of one ore into 2 of the other, 200 gold, as Alchemist Verena does in
+   Aurelmark (her lab keeps it too, and the Ember Core stays hers). Everything about refining is now in one place. ---- */
+const RESMELT=[['glintstone',2,'emberore',3,200],['emberore',2,'glintstone',3,200]];
+function resmeltHtml(){const th=typeof LANG!=='undefined'&&LANG==='th';
+  return `<h3>${th?'หลอมใหม่':'Re-smelt'}</h3><div class="sub">${th?'หลอมแร่ชนิดหนึ่งเป็นอีกชนิด: 3 ก้อนได้ 2 ก้อน':'Melt one ore down into the other: 3 for 2.'}</div>`+
+    RESMELT.map(([out,n,src,k,gold])=>{const have=(invFind(src)||{}).n||0,ok=have>=k&&P.gold>=gold;
+      return `<div class="row">${icon(ITEMS[out])}<div class="grow"><div class="nm">${ITEMS[out].name} ×${n}</div><div class="ds">${th?`ใช้ ${ITEMS[src].name} ${k} ก้อน (มี ${have}) · ${gold} ทอง`:`${k} ${ITEMS[src].name} (you have ${have}) · ${gold} gold`}</div></div>`+
+        `<button class="btn small" data-act="resmelt" data-arg="${out}" ${ok?'':'disabled'}>${th?'หลอม':'Smelt'}</button></div>`;}).join('');}
+PANEL_ACTS.resmelt=out=>{const r=RESMELT.find(x=>x[0]===out);if(!r)return;const [,n,src,k,gold]=r;
+  if(((invFind(src)||{}).n||0)<k||P.gold<gold){addLog(`You need ${k} ${ITEMS[src].name} and ${gold} gold.`,'l-bad');return;}
+  takeItem(src,k);P.gold-=gold;giveItem(out,n);sfx('refineOk');addLog(`Brannoc melts ${k} ${ITEMS[src].name} down into ${n} ${ITEMS[out].name}.`,'l-loot');refreshPanel();save();};
+if(typeof TH!=='undefined')Object.assign(TH,{'Re-smelt':'หลอมใหม่'});
