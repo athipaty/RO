@@ -533,6 +533,14 @@ function drawWeaponShape(w,ang){
 function bowPhase(p){if(p.bowT&&now-p.bowT<(p.bowDur||.4))return (now-p.bowT)/(p.bowDur||.4);
   // other players: their attack swing stands in for the shot (your own hero uses bowT)
   if(p!==P&&!p.bowT&&p.swingT&&now-p.swingT<.42)return (now-p.swingT)/.42;return -1;}
+/* (v1.69.0) where the bow, its grip and the drawn string are during a shot: the front hand holds the grip, the back
+   hand pulls the string (drawPlayerBody hands these to the body as its hand positions instead of the casting pose) */
+function bowShotGeo(P,by,k){const f=P.face||1,R=BOW_RELEASE_V,ease=x=>1-(1-x)*(1-x),adv=typeof hitAdvOf==='function'?hitAdvOf(P.cls):P.cls;
+  const BS={sharpshooter:{pull:1.2,lift:7,tilt:-.55,kick:2.2},wildstalker:{pull:.8,lift:4,tilt:.45,kick:1,low:3},falconer:{pull:.45,lift:13,tilt:-.35,kick:.6,reach:4}}[adv]||{pull:1,lift:10,tilt:0,kick:1};
+  const up=k<R?ease(k/R):k<.75?1:1-ease((k-.75)/.25),pull=(k<R?ease(k/R)*10:Math.max(0,10-(k-R)*140))*BS.pull,recoil=k>R&&k<R+.12?Math.sin((k-R)/.12*Math.PI)*2.2*BS.kick:0;
+  const x=P.x+f*(9+up*(7+(BS.reach||0))-recoil),y=by-4-up*BS.lift+(BS.low||0)*up,r=-.12*up+BS.tilt*up,c=Math.cos(r),s=Math.sin(r);
+  const sx=Math.cos(1.25)*14-pull,at=(px)=>[x+f*px*c,y+px*s];
+  return {x,y,r,up,pull,grip:at(14),str:at(sx)};}
 function drawBowShot(P,w,by,k){const f=P.face||1,R=BOW_RELEASE_V,ease=x=>1-(1-x)*(1-x);
   // each archer calling shoots its own way (v1.24.0): the Sharpshooter cants the bow and kicks back, the Wildstalker
   // shoots low and fast, the Falconer only half draws and throws its arm out to send the falcon
@@ -554,7 +562,7 @@ function drawBowShot(P,w,by,k){const f=P.face||1,R=BOW_RELEASE_V,ease=x=>1-(1-x)
     ctx.fillStyle='#d84a3a';ctx.fillRect(sx-1,-2,3,1.4);ctx.fillRect(sx-1,.6,3,1.4);}
   else if(k<R+.15){const a=1-(k-R)/.15;ctx.strokeStyle=`rgba(255,246,220,${a*.8})`;ctx.lineWidth=1.2;for(const d of [-4,0,4]){ctx.beginPath();ctx.moveTo(18,d*.6);ctx.lineTo(24+(1-a)*6,d);ctx.stroke();}}
   ctx.restore();}
-const BOW_RELEASE_V=.42;
+const BOW_RELEASE_V=.42,BOW_IDLE_LEAN=.22;
 function drawSlung(P,w){const f=P.face||1,by=P.y-7+(P.sitting?7:0);ctx.save();
   if(w.wt==='bow'){ctx.translate(P.x+f*(P.back?0:6),by-13);ctx.scale(f,1);ctx.rotate(-.5);drawWeaponShape(w,0);}
   else if(!P.back){ctx.translate(P.x+f*11,by-14);ctx.scale(f,1);ctx.rotate(Math.PI+.6);ctx.translate(0,8);drawWeaponShape(w,0);}
@@ -582,16 +590,22 @@ function drawPlayerBody(P,wid){
     W.behind=W.bow<0&&(!ranged||w.wt==='wand')&&p>=0&&ang<.15&&lift>.15;
     // standing or walking (not attacking, casting or seen from behind) the weapon is in the hand on the side the hero
     // faces, which is behind the body, so the weapon is too; it comes out in front when the hero attacks
-    if(p<0&&W.bow<0&&!P.casting&&!P.back&&!P.sitting)W.behind=true;
+    if(p<0&&W.bow<0&&!P.casting&&!P.back&&!P.sitting&&w.wt!=='bow')W.behind=true; // (v1.69.0) a resting bow is held in front, across the body
     // while walking (not attacking or casting) the weapon follows the front hand's swing; the classic art moves the
     // front hand +face*sin, the new art (hero2.js) -face*sin
     const ws=P.moving&&p<0&&!P.casting&&!P.sitting?Math.sin(gaitWalk(P)*12)*2.6*walkGait(P.cls).arm*(typeof HERO2_ON!=='undefined'&&HERO2_ON?-1:1):0;
-    drawHeld=by=>{ctx.save();ctx.translate(P.x+P.face*(11-lift*15+reach+ws),by-3-lift*9-castUp);ctx.scale(P.face,1);
+    const bowRest=w.wt==='bow'&&p<0&&!P.casting; // (v1.69.0) a resting bow is held by its grip (below)
+    drawHeld=by=>{
+      if(bowRest&&!P.back){ /* held at the side by its grip, the wood toward the body and the string outward, the top
+           tipped a little forward: the whole bow stays outside the head, then the hand closes over the grip */
+        const hx=P.x+P.face*(9.6+ws),hy=by-3;ctx.save();ctx.translate(hx,hy);ctx.scale(P.face,1);ctx.rotate(BOW_IDLE_LEAN);ctx.scale(-1,1);ctx.translate(-13,0);drawWeaponShape(w,0);ctx.restore();
+        ctx.fillStyle=(typeof lookOf==='function'&&(lookOf(P.name,P.look)||{}).skin)||'#f6d6b8';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(hx,hy,2.7,0,7);ctx.fill();ctx.stroke();return;}
+      ctx.save();ctx.translate(P.x+P.face*(11-lift*15+reach+ws),by-3-lift*9-castUp);ctx.scale(P.face,1);
       // the smear the blade leaves behind as it comes down
       if(!ranged&&p>=.3&&p<.8&&ang>.1){const al=p<.55?1:1-(p-.55)/.25,a1=ang-Math.PI/2,a0=Math.max(-.15,ang-2.2)-Math.PI/2,R=w.wt==='sword'||w.wt==='axe'?27:22;
         ctx.fillStyle=`rgba(255,246,220,${.5*al})`;ctx.beginPath();ctx.arc(0,0,R,a0,a1);ctx.arc(0,0,R*.45,a1,a0,true);ctx.closePath();ctx.fill();
         ctx.fillStyle=`rgba(255,255,255,${.75*al})`;ctx.beginPath();ctx.arc(0,0,R+1,Math.max(a0,a1-.7),a1);ctx.arc(0,0,R*.8,a1,Math.max(a0,a1-.7),true);ctx.closePath();ctx.fill();}
-      ctx.rotate(ang);drawWeaponShape(w,ang);ctx.restore();};
+      ctx.rotate(ang);drawWeaponShape(w,ang);ctx.restore();}; // (v1.69.0) a resting bow leans, tip forward
     // every first job (and their callings) seen from behind (heading up), standing or walking and not attacking,
     // holds the weapon (club, axe, mace, wand; the bow upright, leaning a little) in the hand on
     // the side it faces, pointing toward where it walks (up-right leans right, up-left leans left); while walking
@@ -601,7 +615,9 @@ function drawPlayerBody(P,wid){
         drawWeaponShape(w,isBow?0:a); /* the bow undoes the turn it is given, so it gets 0 to keep the lean */ctx.fillStyle=(lookOf(P.name,P.look)||{}).skin||'#f6d6b8';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,2.6,0,7);ctx.fill();ctx.stroke();ctx.restore();};}
     if(W.behind)drawHeld(P.y-(typeof HERO2_ON!=='undefined'&&HERO2_ON?9:7)+(P.sitting?6:0));}
   const SP=P.sitting&&!P._rider&&typeof sitPoseOf==='function'?sitPoseOf(P.cls):null;
-  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?gaitWalk(P):0,{gait:typeof walkGait==='function'?walkGait(P.cls):null,...(SP?{sitPose:SP,hands:SP.hands}:{}),sit:P.sitting,ride:!!P._rider,cast:!!P.casting||(w&&w.wt==='bow'&&bowPhase(P)>=0&&bowPhase(P)<.8),hat,fc,mo,shoes:P.shoes!==undefined?P.shoes:(P.eq&&P.eq.shoes?P.eq.shoes.id:null),look:lookOf(P.name,P.look),outfit:baseOf(P.cls),cls:P.cls,back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
+  // (v1.69.0) shooting: the front hand on the grip, the back hand on the drawn string (hand offsets are x+face*dx, by+dy)
+  let BOWH=null;if(w&&w.wt==='bow'&&W.bow>=0&&!SP&&!P._rider){const bY=P.y-9,g=bowShotGeo(P,bY,W.bow),f=P.face||1;BOWH=[[(g.grip[0]-P.x)*f-1,g.grip[1]-bY+2],[(g.str[0]-P.x)*f,g.str[1]-bY+2]];}
+  const by=drawHuman(P.x,P.y,c.col,c.hair,P.face,P.moving?gaitWalk(P):0,{gait:typeof walkGait==='function'?walkGait(P.cls):null,...(SP?{sitPose:SP,hands:SP.hands}:{}),sit:P.sitting,ride:!!P._rider,cast:!!P.casting&&!BOWH,...(BOWH?{hands:BOWH}:{}),hat,fc,mo,shoes:P.shoes!==undefined?P.shoes:(P.eq&&P.eq.shoes?P.eq.shoes.id:null),look:lookOf(P.name,P.look),outfit:baseOf(P.cls),cls:P.cls,back:!!P.back,armor:P.armor!==undefined?P.armor:(P.eq&&P.eq.armor?P.eq.armor.id:null)});
   drawJobMantle(c,P.x,P.y+(P.sitting?6:0),P.face,!!P.back);
   // the hand shield: with the new Warden outfits (js/hero2.js WARDEN_V2) only the Bulwark carries one; the Warden is a plain swordsman
   if(baseOf(P.cls)==='warden'&&(typeof WARDEN_V2==='undefined'||!WARDEN_V2||P.cls==='bulwark')){ctx.fillStyle='#9aa0aa';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(P.x-P.face*13-5,by-14,10,14,3);ctx.fill();ctx.stroke();ctx.fillStyle='#e8c25a';ctx.beginPath();ctx.arc(P.x-P.face*13,by-7,2,0,7);ctx.fill();}

@@ -6,10 +6,10 @@
      Wildstalker   beast hunter: a fur mantle with an eared hood, bare painted arms with wraps, a tooth necklace, a leaf kilt
      Falconer      a padded coat with a feather collar, a leather perch pad on one shoulder, a falconry glove, a feather-tipped cape */
 const RANGER_LOOKS={
-  ranger:{fam:'ranger',kit:'scout',body:'#6b4a2c',sleeve:'#3f6a3a',cloak:'#3f7a46',cloak2:'#2e5a34',leather:'#7a5432',trim:'#c8a868',pant:'#4a3a28',boot:'#5a3a22',tall:1},
-  sharpshooter:{fam:'ranger',kit:'marksman',body:'#1f3e3a',sleeve:'#1f3e3a',coat:'#24504a',coat2:'#173634',leather:'#5a3a22',trim:'#e0c070',pant:'#2a2a2a',boot:'#2a1e16',tall:1},
+  ranger:{fam:'ranger',kit:'scout',body:'#6b4a2c',sleeve:'#3f6a3a',cloak:'#3f7a46',cloak2:'#2e5a34',leather:'#7a5432',trim:'#c8a868',pant:'#4a3a28',boot:'#7a4e2a',tall:1},
+  sharpshooter:{fam:'ranger',kit:'marksman',body:'#1f3e3a',sleeve:'#1f3e3a',coat:'#24504a',coat2:'#173634',leather:'#5a3a22',trim:'#e0c070',pant:'#2a2a2a',boot:'#24504a',tall:1},
   wildstalker:{fam:'ranger',kit:'beast',body:'#6a5030',sleeve:'skin',fur:'#8a6a44',fur2:'#5e4628',leather:'#5a3e22',paint:'#5aa040',pant:'#4a3a22',boot:'#4a3420'},
-  falconer:{fam:'ranger',kit:'falcon',body:'#7a5434',sleeve:'#6a4a2a',coat:'#7a5434',pad:'#5a3a1e',feather:'#e8dcc0',trim:'#d8a850',pant:'#4a3a28',boot:'#4a3020',tall:1}};
+  falconer:{fam:'ranger',kit:'falcon',body:'#7a5434',sleeve:'#6a4a2a',coat:'#7a5434',pad:'#5a3a1e',feather:'#e8dcc0',trim:'#d8a850',pant:'#4a3a28',boot:'#6a4426',tall:1}};
 if(typeof OUTFITS!=='undefined')OUTFITS.ranger=RANGER_LOOKS;
 // a quiver on the back
 function outfitQuiver(x,by,f,body,band,OL,fs,rough){ctx.save();ctx.translate(x-f*7,by-9);ctx.rotate(f*.4);ctx.fillStyle=body;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();
@@ -25,7 +25,7 @@ function rangerPart(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v;
       outfitQuiver(x,by,f,'#6b4423','#c84a3a',OL,fs);
       ctx.fillStyle=K.cloak2;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-6.6,by-16);ctx.quadraticCurveTo(x-f*2,by-7,x+6.6,by-16);ctx.quadraticCurveTo(x,by-13,x-6.6,by-16);ctx.closePath();fs();}
     else if(K.kit==='marksman'){
-      for(const k of [-1,1]){ctx.fillStyle=K.coat2;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x+k*1,by-3);ctx.lineTo(x+k*8.4,by-3);ctx.quadraticCurveTo(x+k*10.4,by+8,x+k*9.6-f*2+sway,y+1.6);ctx.lineTo(x+k*2-f+sway*.5,y+.4);ctx.closePath();fs();}
+      for(const k of [-1,1]){ctx.fillStyle=K.coat2;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x+k*1,by-3);ctx.lineTo(x+k*8.4,by-3);ctx.quadraticCurveTo(x+k*10.4,by+3,x+k*9.6-f*2+sway,by+3.4);ctx.lineTo(x+k*2-f+sway*.5,by+3);ctx.closePath();fs();}
       outfitQuiver(x,by,f,'#3a2a1a',K.trim,OL,fs);
       const k=-f;ctx.fillStyle=K.coat;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-k*2,by-16);ctx.quadraticCurveTo(x+k*12,by-15,x+k*13+sway*.6,by-2);ctx.lineTo(x+k*6+sway*.4,by);ctx.quadraticCurveTo(x+k*6,by-10,x-k*2,by-13);ctx.closePath();fs();
       ctx.strokeStyle=K.trim;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+k*12.6+sway*.6,by-2.6);ctx.lineTo(x+k*6.4+sway*.4,by-.6);ctx.stroke();}
@@ -60,8 +60,8 @@ function rangerPart(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v;
       ctx.fillStyle=K.cloak;ctx.beginPath();ctx.moveTo(x-9,by-15.4);ctx.quadraticCurveTo(x,by-12.4,x+9,by-15.4);ctx.lineTo(x+8,by-13);ctx.quadraticCurveTo(x,by-10,x-8,by-13);ctx.closePath();fs();
       ctx.fillStyle=K.trim;ctx.beginPath();ctx.arc(x,by-12.6,1.2,0,7);fs();}
     else if(K.kit==='marksman'){
-      for(const k of [-1,1]){ctx.fillStyle=K.coat;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x+k*2,hip);ctx.lineTo(x+k*8,hip);ctx.lineTo(x+k*9.2+sway*.3,y-2.4);ctx.lineTo(x+k*3.4+sway*.3,y-2);ctx.closePath();fs();
-        ctx.strokeStyle=K.trim;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(x+k*3.4+sway*.3,y-2.6);ctx.lineTo(x+k*2.1,hip+.4);ctx.stroke();}
+      for(const k of [-1,1]){ctx.fillStyle=K.coat;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x+k*2,hip);ctx.lineTo(x+k*8,hip);ctx.lineTo(x+k*9+sway*.3,by+1.6);ctx.lineTo(x+k*3.2+sway*.3,by+1.8);ctx.closePath();fs(); // (v1.69.0) ends at the boot tops
+        ctx.strokeStyle=K.trim;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(x+k*3.2+sway*.3,by+1.2);ctx.lineTo(x+k*2.1,hip+.4);ctx.stroke();}
       ctx.strokeStyle='#3a2414';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(x-f*7,by-14);ctx.lineTo(x+f*6.6,by-1.4);ctx.stroke();
       for(let i=0;i<4;i++){const t=.18+i*.2,px=x-f*7+(f*13.6)*t,py=by-14+12.6*t;ctx.fillStyle='#e8e0d0';ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px-1.2,py-3);ctx.lineTo(px+1.2,py-3);ctx.closePath();ctx.fill();ctx.fillStyle='#c84a3a';ctx.fillRect(px-.9,py-1.4,1.8,.9);}
       ctx.fillStyle='#1a1a1a';ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x-7.6,by-2.4,15.2,2.6,1);fs();ctx.fillStyle=K.trim;ctx.beginPath();ctx.roundRect(x-1.6,by-2.8,3.2,3.4,.6);fs();
