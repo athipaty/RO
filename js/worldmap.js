@@ -22,7 +22,7 @@ function miniLabels(){if(!miniBig||!Z)return;mctx.font='bold 9px system-ui,sans-
 // v1.47.0 the world is a grid around the city (WORLD_GRID in regions4.js): a little map of squares on top (tap one to
 // jump to its card), then every region as a card, road by road, from the city outward; dungeon floors hang under theirs
 const WORLD_ROAD=typeof WORLD_GRID!=='undefined'?Object.keys(WORLD_GRID):['town','meadow','woods','dunes','crypt','frost','fen'],WORLD_BRANCH={woods:['deep1','deep2','deep3']};
-const WORLD_ARMS=[['north','North road','cold hills and mountains'],['east','East road','fields, woods and wilds'],['south','South road','farms, desert and sea'],['west','West road','past Aurelmark']];
+const WORLD_ARMS=[['north','North road','cold hills and mountains'],['east','East road','fields, woods and wilds'],['south','South road','farms, desert and sea'],['west','West road','past Aurelmark'],['mid','Round the cities','the country between the roads']];
 function zonePeople(id){const out=[];for(const [peer,o] of NET.others)if(o.z===id&&!o.dead)out.push({n:o.n,party:inParty(peer)});return out;}
 function worldNode(id,sub){const D=ZONES[id],here=zoneId===id,seen=P.visited.includes(id)||here,th=THEMES[D.theme]||THEMES.meadow;
   const ppl=zonePeople(id),pals=ppl.filter(p=>p.party),boss=NET.wb&&NET.wb.z===id&&NET.wb.until>Date.now()?MOBS[NET.wb.b]:null;
@@ -34,8 +34,8 @@ function worldNode(id,sub){const D=ZONES[id],here=zoneId===id,seen=P.visited.inc
     (boss?`<div class="ds" style="color:#ff9a7a">World boss: ${MOBS[NET.wb.b].name}</div>`:'')+
     (pals.length?`<div class="ds" style="color:#8fe0a8">Party: ${pals.map(p=>esc(p.n)).join(', ')}</div>`:'')+
     `</div>${ppl.length?`<span class="wppl" title="${ppl.length} player${ppl.length>1?'s':''} here">${ppl.length} ☺</span>`:''}</div>`;}
-function worldArm(dir){const out=[];if(typeof WORLD_GRID==='undefined')return out;const step={north:[0,-1],east:[1,0],south:[0,1],west:[-1,0]}[dir];
-  let p=dir==='west'?[-1,0]:[0,0];for(;;){p=[p[0]+step[0],p[1]+step[1]];const id=Object.keys(WORLD_GRID).find(k=>WORLD_GRID[k][0]===p[0]&&WORLD_GRID[k][1]===p[1]);if(!id||!ZONES[id])break;out.push(id);}return out;}
+// (v1.62.0) the roads wind now, so each road's regions come from its list (WORLD_ROADS, js/regions4.js)
+function worldArm(dir){if(typeof WORLD_ROADS==='undefined')return [];return (WORLD_ROADS[dir]||[]).filter(id=>ZONES[id]);}
 function worldLowLv(id){const L=(ZONES[id].mobs||[]).map(([m])=>MOBS[m]).filter(m=>m&&!m.boss&&!m.world).map(m=>m.lv);return L.length?Math.min(...L):null;}
 function worldGridHtml(){if(typeof WORLD_GRID==='undefined')return '';const ids=Object.keys(WORLD_GRID).filter(id=>ZONES[id]),xs=ids.map(id=>WORLD_GRID[id][0]),ys=ids.map(id=>WORLD_GRID[id][1]);
   const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),at={};for(const id of ids)at[WORLD_GRID[id].join()]=id;
@@ -46,7 +46,7 @@ function worldGridHtml(){if(typeof WORLD_GRID==='undefined')return '';const ids=
     h+=`<button class="wc${here?' here':''}${seen?'':' unseen'}${city?' city':''}${L.east?' le':''}${L.south?' ls':''}" data-act="wmgo" data-arg="${id}" style="background:${(th.g||['#555'])[0]}" title="${esc(D.name)} · ${esc(D.lvl)}" aria-label="${esc(D.name)}, ${esc(D.lvl)}">`+
       `<b>${city?(id==='capital'?'♛':'⌂'):lv}</b>${under}${boss}${pals}</button>`;}
   return h+`</div><div class="wkey ds">⌂ Hearthvale · ♛ Aurelmark · numbers are the lowest monster level · ▼ dungeon below · tap a square</div>`;}
-PANELS.worldmap=()=>{let h=`<h2>World map</h2><div class="sub">Hearthvale and the capital Aurelmark stand in the middle of the world. Four roads lead out, and the farther you go, the stronger the monsters. Tobin at the Waystation sends you to any region you have visited.</div>`;
+PANELS.worldmap=()=>{let h=`<h2>World map</h2><div class="sub">Hearthvale and the capital Aurelmark stand in the middle of the world. Four winding roads lead out, and the farther you go, the stronger the monsters. Tobin at the Waystation sends you to any region you have visited.</div>`;
   h+=worldGridHtml()+`<div class="wroad">`;
   h+=`<h3 class="warm">The city</h3>`+worldNode('town')+(ZONES.capital?worldNode('capital'):'');
   for(const [dir,name,sub] of WORLD_ARMS){const arm=worldArm(dir);if(!arm.length)continue;h+=`<h3 class="warm">${name} <span class="ds">${sub}</span></h3>`;

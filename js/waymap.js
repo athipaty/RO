@@ -9,7 +9,7 @@
 const WSMAP={sel:null};
 const WSM_DIRS=[['north','↗','north'],['east','↘','east'],['south','↙','south'],['west','↖','west']]; // arrows as on the angled map
 function wsmRoad(id){const p=WORLD_GRID[id];if(!p||id==='town'||id==='capital')return '';
-  return p[1]<0?'North road':p[0]>0?'East road':p[1]>0?'South road':'West road';}
+  const r=typeof worldRoadOf==='function'?worldRoadOf(id):'';return {north:'North road',east:'East road',south:'South road',west:'West road',mid:'Round the cities'}[r]||'';} // (v1.62.0) from the road lists
 // the gate to walk through to unlock a place: the visited neighbour nearest the city
 function wsmGate(id){const L=ZONES[id].links||{};let best=null;
   for(const [d] of WSM_DIRS){const n=L[d];if(!n||!ZONES[n]||!(P.visited.includes(n)||zoneId===n))continue;

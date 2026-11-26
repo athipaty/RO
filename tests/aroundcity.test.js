@@ -9,6 +9,7 @@ module.exports = async t => {
       // every pair of neighbours on the grid shares a gate, and walking through it lands you by the gate back
       const gates = [], DIR = { east: [1, 0], west: [-1, 0], north: [0, -1], south: [0, 1] };
       for (const a in WORLD_GRID) for (const b in WORLD_GRID) { const [ax, ay] = WORLD_GRID[a], [bx, by] = WORLD_GRID[b]; if (Math.abs(ax - bx) + Math.abs(ay - by) !== 1) continue; if ((CITY_GATES[a] && !CITY_GATES[a].includes(b)) || (CITY_GATES[b] && !CITY_GATES[b].includes(a))) continue; // (v1.61.1) the cities keep their own gates
+        if (WORLD_WALLS.some(([p, q]) => (p === a && q === b) || (p === b && q === a))) continue; // (v1.62.0) closed borders
         const za = getZone(a); if (!za.portals.some(p => p.to === b)) gates.push(a + '->' + b); }
       enterZone('capital', 'town'); const wg = Z.portals.find(p => p.to === 'downs'); enterZone('downs', 'capital'); await w(200);
       const back = Z.portals.find(p => p.to === 'capital'), landed = back && Math.hypot(P.x - back.x, P.y - back.y) < 4 * TILE;

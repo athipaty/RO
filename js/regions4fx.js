@@ -301,6 +301,63 @@ MOB_LOOKS.voltaris=(m,o)=>{const {x,s,t,f,col}=o,y=o.y-s*1.9-Math.sin(t*1.5)*s*.
   ci(x+f*s*.6,y-s*.4,s*.32,col);pf([[x+f*s*.85,y-s*.5],[x+f*s*1.3,y-s*.32],[x+f*s*.85,y-s*.22]],'#f0c03a');mlEye(x+f*s*.7,y-s*.48,Math.max(1.6,s*.07),'#fff6a0','#ffe040');
   for(let k=0;k<4;k++)pf([[x+f*s*(.45-k*.12)-s*.05,y-s*.65],[x+f*s*(.4-k*.18),y-s*(1.15-k*.08)],[x+f*s*(.45-k*.12)+s*.05,y-s*.65]],k%2?'#fff6a0':'#8ad0ff');
   if(Math.sin(t*6)>.5){bolt(x-s*1.2,y+s*.3,s*1.2,'#fff6a0');bolt(x+s*1.4,y+s*.2,s*1.0,'#ffffff');}};
+/* ---------- (v1.62.0) the four corner regions (js/regions5.js) ---------- */
+// a little walking plant: a round body of leaves on two root feet, a face, leaves or ears on top
+const sprout=(o,q)=>{const {x,y,s,t,f,col,dark,mv}=o;shadow(x,y,s*.85);const b=mv?Math.abs(Math.sin(t*11))*s*.14:Math.sin(t*2)*s*.03,cy=y-s*.8-b;
+  for(const k of [-1,1])ln([[x+k*s*.25,cy+s*.3],[x+k*s*.32+(mv?Math.sin(t*11+k)*s*.15:0),y]],dark,Math.max(1.6,s*.13));
+  ci(x,cy,s*.62,col);for(let k=0;k<6;k++){const a=k*1.05+Math.sin(t*2+k)*.05;el(x+Math.cos(a)*s*.5,cy+Math.sin(a)*s*.45,s*.22,s*.13,q.leaf||mlShade(col,-25),a);}
+  if(q.top)q.top(x,cy-s*.55,s,t);ci(x+f*s*.2,cy-s*.05,s*.07,'#1a1a1a');ci(x+f*s*.42,cy-s*.05,s*.07,'#1a1a1a');};
+// a floating wisp: a glow, a soft body with a trailing tail
+const wisp=(o,q)=>{const {x,s,t,f,col}=o,y=o.y-s*1.3-Math.sin(t*2.5)*s*.2;shadow(x,o.y,s*.6);gl(x,y,s*2.2,q.glow||col,.35);
+  pf([[x-s*.45,y],[x-f*s*.2+Math.sin(t*4)*s*.2,y+s*1.1],[x+s*.45,y]],mlShade(col,-15));ci(x,y,s*.55,col);ci(x-s*.15,y-s*.18,s*.2,'rgba(255,255,255,.55)');
+  ci(x+f*s*.12,y-s*.02,s*.08,q.eye||'#2a3a4a');ci(x+f*s*.34,y-s*.02,s*.08,q.eye||'#2a3a4a');if(q.extra)q.extra(o,y);};
+// a moth on the wing
+const moth=(o,q)=>{const {x,s,t,f,col,dark}=o,y=o.y-s*(q.hover??1.4)-Math.sin(t*3)*s*.15,w=Math.sin(t*(q.flap||22));shadow(x,o.y,s*.6);if(q.glow)gl(x,y,s*1.8,q.glow,.35);
+  for(const k of [-1,1]){el(x+k*s*.55,y-s*.3*(1+w*.3),s*.55,s*.4*(.6+Math.abs(w)*.4),q.wing||col,k*.5);el(x+k*s*.45,y+s*.15,s*.35,s*.22,mlShade(q.wing||col,-20),k*.3);}
+  el(x,y,s*.18,s*.45,dark);ci(x+f*s*.05,y-s*.45,s*.16,dark);ln([[x,y-s*.55],[x+f*s*.25,y-s*.85]],dark,1);ln([[x,y-s*.55],[x+f*s*.05,y-s*.9]],dark,1);if(q.extra)q.extra(o,y);};
+MOB_LOOKS.briarling=(m,o)=>sprout(o,{leaf:'#4a6a2a',top:(x,y,s)=>{for(const k of [-1,0,1])ln([[x+k*s*.2,y+s*.1],[x+k*s*.35,y-s*.35]],'#5a3a2a',Math.max(1.2,s*.07));ci(x-s*.3,y-s*.3,s*.1,'#7a2a5a');ci(x+s*.32,y-s*.32,s*.1,'#7a2a5a');}});
+MOB_LOOKS.galemoth=(m,o)=>moth(o,{wing:'#d8e4f0',extra:(o,y)=>{const {x,s,t}=o;ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=1;for(let k=0;k<3;k++){const p=(t*1.5+k/3)%1;ctx.beginPath();ctx.arc(x-o.f*s*(1+p*1.5),y+s*(.2-k*.2),s*.3,0,3);ctx.stroke();}}});
+MOB_LOOKS.hedgeboar=(m,o)=>quad(o,{legs:.5,bw:1.05,bh:.6,head:'#7a4a2a',hr:.42,snout:'#c89a7a',tusks:true,ears:1.5,spikes:'#5a3a22',tail:'tuft'});
+MOB_LOOKS.windsprite=(m,o)=>wisp(o,{glow:'#e8ffc8',eye:'#3a5a2a',extra:(o,y)=>{const {x,s,t}=o;for(let k=0;k<3;k++){const a=t*3+k*2.1;el(x+Math.cos(a)*s*.9,y+Math.sin(a)*s*.4,s*.16,s*.08,'#a8d870',a);}}});
+MOB_LOOKS.bramblewarden=(m,o)=>biped(o,{tw:.85,th:1.25,hr:.42,head:'#5a7a32',leg:'#3a2a1a',armCol:'#4a6a2a',fist:'#3a2a1a',eyeGlow:'#d8ff7a',eye:'#e8ffa0',
+  extra:(o,g)=>{const {x,s,t}=o;ctx.strokeStyle='#5a3a2a';ctx.lineWidth=Math.max(1.5,s*.06);for(let k=0;k<7;k++){const a=-Math.PI*(.15+k*.11);ctx.beginPath();ctx.moveTo(x+Math.cos(a)*g.tw*.9,g.ty-g.th*.5+Math.sin(a)*g.th*.5);ctx.lineTo(x+Math.cos(a)*g.tw*1.5,g.ty-g.th*.5+Math.sin(a)*g.th*.9);ctx.stroke();}
+    for(const [a,b] of [[-.3,.4],[.35,.6],[0,.85]])ci(x+a*g.tw*2,g.ty-g.th*b,s*.09,'#7a2a5a');for(const k of [-1,1])ln([[g.hx+k*g.hr*.5,g.hy-g.hr*.7],[g.hx+k*g.hr*.9,g.hy-g.hr*1.6+Math.sin(t*2)*s*.05]],'#4a3020',Math.max(2,s*.08));}});
+MOB_LOOKS.sheafling=(m,o)=>sprout(o,{leaf:'#c8a040',top:(x,y,s)=>{for(let k=-2;k<=2;k++){ln([[x+k*s*.08,y+s*.2],[x+k*s*.22,y-s*.4]],'#d8b050',Math.max(1.2,s*.06));el(x+k*s*.22,y-s*.45,s*.07,s*.14,'#e8c868',k*.3);}ln([[x-s*.4,y+s*.35],[x+s*.4,y+s*.35]],'#8a6a2a',Math.max(1.5,s*.08));}});
+MOB_LOOKS.fieldvole=(m,o)=>quad(o,{legs:.3,bw:.85,bh:.55,hr:.45,ears:1.1,earCol:'#c8a080',snout:'#d8b898',tail:'long',tailCol:'#b89878',belly:'#d8c0a0'});
+MOB_LOOKS.amberbeetle=(m,o)=>{const {x,y,s,t,f,mv}=o;shadow(x,y,s);mlLegs(o,x,s*.35,.6,Math.max(1.2,s*.08),'#5a3a1a');const by=y-s*.55-(mv?Math.abs(Math.sin(t*14))*s*.05:0);
+  el(x,by,s*.85,s*.55,'#c07818');el(x-f*s*.05,by-s*.05,s*.75,s*.45,'#e8a030');ln([[x-f*s*.05,by-s*.5],[x-f*s*.05,by+s*.45]],'#8a5010',Math.max(1,s*.05));gl(x-s*.2,by-s*.2,s*.6,'#fff0b0',.5);
+  ci(x+f*s*.8,by,s*.3,'#5a3a1a');for(const k of [-1,1])ln([[x+f*s*.95,by-s*.15],[x+f*s*1.3,by-s*.45+k*s*.12]],'#3a2a10',1.2);mlEye(x+f*s*.95,by-s*.05,Math.max(1.3,s*.07),'#1a1a1a');};
+MOB_LOOKS.harvestwisp=(m,o)=>wisp(o,{glow:'#ffe8a0',eye:'#7a5a1a',extra:(o,y)=>{const {x,s,t}=o;for(let k=0;k<4;k++){const p=(t*.7+k/4)%1;ci(x+Math.sin(k*2.3+t)*s*.6,y+s*.4-p*s*1.4,s*.07,`rgba(255,230,150,${1-p})`);}}});
+MOB_LOOKS.harvestmatron=(m,o)=>biped(o,{tw:.95,th:1.2,hr:.45,head:'#e0b860',face:'#f0d090',leg:'#7a5a2a',armCol:'#c89838',fist:'#e0b860',eye:'#4a2a0a',
+  back:(o,g)=>{const {x,s,t}=o;for(let k=-3;k<=3;k++){const a=-Math.PI/2+k*.32+Math.sin(t*1.5+k)*.03;ln([[x,g.ty-g.th*.6],[x+Math.cos(a)*s*1.3,g.ty-g.th*.6+Math.sin(a)*s*1.35]],'#d8a838',Math.max(1.5,s*.07));el(x+Math.cos(a)*s*1.35,g.ty-g.th*.6+Math.sin(a)*s*1.4,s*.08,s*.16,'#f0c858',a+1.57);}},
+  extra:(o,g)=>{const {s}=o;pf([[g.hx-g.hr*1.3,g.hy-g.hr*.4],[g.hx,g.hy-g.hr*1.8],[g.hx+g.hr*1.3,g.hy-g.hr*.4]],'#a87820');mlCrown(g.hx,g.hy-g.hr*1.55,s*.2,'#ffd860');}});
+MOB_LOOKS.mistwisp=(m,o)=>wisp(o,{glow:'#d8eaf8',eye:'#3a5a7a'});
+MOB_LOOKS.reedfrog=(m,o)=>{const {x,y,s,t,f,mv}=o;shadow(x,y,s*.9);const j=mv?Math.abs(Math.sin(t*7))*s*.45:0,by=y-s*.45-j;
+  for(const k of [-1,1])el(x+k*s*.55,y-s*.12-j*.5,s*.35,s*.15,'#4a7a5a');el(x,by,s*.75,s*.5,'#6aa080');el(x+f*s*.1,by+s*.15,s*.5,s*.28,'#c8e0b0');
+  for(const k of [-.15,.35]){ci(x+f*s*k,by-s*.42,s*.18,'#6aa080');mlEye(x+f*s*k,by-s*.46,Math.max(1.4,s*.09),'#1a1a1a');}ln([[x+f*s*.1,by],[x+f*s*.6,by+s*.05]],'#3a5a3a',1.2);
+  const c=Math.sin(t*1.3);if(!mv&&c>.6)el(x+f*s*.35,by+s*.2,s*.25*c,s*.2*c,'#e8f0c8');};
+MOB_LOOKS.valestag=(m,o)=>quad(o,{legs:.8,bw:.95,bh:.5,hr:.36,hup:.55,antlers:'#e8dcc0',ears:1.3,tail:'#f4ead8',belly:'#e8dcc8',muzzle:'#a89878'});
+MOB_LOOKS.lanternmoth=(m,o)=>moth(o,{wing:'#e8d898',glow:'#ffe8a0',flap:16,extra:(o,y)=>{const {x,s,t}=o;const k=.7+Math.sin(t*5)*.3;gl(x,y+s*.35,s*.8,'#ffd860',.6*k);ci(x,y+s*.35,s*.14,'#fff4c0');}});
+MOB_LOOKS.mistmother=(m,o)=>{const {x,s,t,f}=o,y=o.y-s*1.5-Math.sin(t*1.5)*s*.15;shadow(x,o.y,s*.9);for(let k=0;k<5;k++){const a=t*.5+k*1.25;gl(x+Math.cos(a)*s*1.4,o.y-s*.3+Math.sin(a)*s*.3,s*1.1,'#d8e8f4',.35);}
+  pf([[x-s*.9,y+s*.2],[x-s*.6+Math.sin(t*2)*s*.2,y+s*1.4],[x+Math.sin(t*2.4)*s*.2,y+s*1.1],[x+s*.6+Math.sin(t*1.8)*s*.2,y+s*1.45],[x+s*.9,y+s*.2]],'#8aa0b8');
+  el(x,y,s*.85,s*.9,'#a0b8d0');pf([[x-s*.75,y-s*.2],[x,y-s*1.25],[x+s*.75,y-s*.2]],'#7a90a8');el(x+f*s*.15,y-s*.15,s*.45,s*.4,'#e8f0f8');
+  for(const k of [0,.32])mlEye(x+f*s*k,y-s*.18,Math.max(1.6,s*.06),'#a8e0ff','#a8e0ff');gl(x+f*s*.9,y+s*.2,s*.5,'#fff0b0',.6);ci(x+f*s*.9,y+s*.2,s*.12,'#fff4c8');ln([[x+f*s*.5,y],[x+f*s*.9,y+s*.08]],'#5a6a7a',1.4);};
+MOB_LOOKS.thornrat=(m,o)=>quad(o,{legs:.32,bw:.9,bh:.5,hr:.4,ears:1.2,earCol:'#9a7a6a',snout:'#a88878',tail:'long',tailCol:'#8a6a5a',spikes:'#4a3a2a'});
+MOB_LOOKS.mirebloom=(m,o)=>{const {x,y,s,t,f}=o;shadow(x,y,s);const sw=Math.sin(t*1.8)*s*.06;ln([[x,y],[x+sw,y-s*.9]],'#4a5a2a',Math.max(2,s*.14));
+  for(const k of [-1,1])el(x+k*s*.45,y-s*.3,s*.4,s*.14,'#5a7a3a',k*.4);el(x+sw,y-s*1.05,s*.85,s*.5,'#9a4a6a');for(let k=0;k<5;k++)ci(x+sw+(k-2)*s*.32,y-s*1.25+Math.abs(k-2)*s*.08,s*.11,'#e8a0c0');
+  const p=(t*.8)%1,p2=(p+.5)%1;ci(x+sw,y-s*(1.5+p),s*.08,`rgba(200,120,170,${1-p})`);ci(x+sw-s*.3,y-s*(1.4+p2),s*.06,`rgba(200,120,170,${1-p2})`);
+  for(const k of [-.2,.2])ci(x+sw+f*s*.1+k*s,y-s*.95,s*.07,'#2a1a1a');};
+MOB_LOOKS.bramblelupe=(m,o)=>quad(o,{legs:.62,bw:1.05,bh:.5,hr:.42,ears:1.6,muzzle:'#7a6a5a',tail:'bushy',tailCol:'#4a4038',mane:'#3a322a',eye:'#e8c040',
+  extra:(o,g)=>{const {x,s}=o;ctx.strokeStyle='#5a3a2a';ctx.lineWidth=Math.max(1.2,s*.05);for(let k=-2;k<=2;k++){ctx.beginPath();ctx.moveTo(x+k*g.bw*.3,g.by-g.bh*.8);ctx.lineTo(x+k*g.bw*.3+s*.1,g.by-g.bh*1.35);ctx.stroke();}}});
+MOB_LOOKS.thornstonegolem=(m,o)=>biped(o,{tw:.9,th:1.1,hr:.38,round:.12,head:'#7a7a6a',leg:'#4a4a3a',armCol:'#6a6a5a',fist:'#5a5a4a',eyeGlow:'#a8ff7a',eye:'#c8ff9a',
+  extra:(o,g)=>{const {x,s}=o;for(const [a,b,r] of [[-.4,.3,.25],[.35,.55,.2],[-.1,.8,.18]])pf([[x+a*g.tw*2-s*r,g.ty-g.th*b],[x+a*g.tw*2,g.ty-g.th*b-s*r*1.8],[x+a*g.tw*2+s*r,g.ty-g.th*b]],'#5a4a3a');
+    ctx.strokeStyle='#4a6a2a';ctx.lineWidth=Math.max(1.3,s*.06);ctx.beginPath();ctx.moveTo(x-g.tw,g.ty-g.th*.2);ctx.quadraticCurveTo(x,g.ty-g.th*.6,x+g.tw,g.ty-g.th*.4);ctx.stroke();}});
+MOB_LOOKS.gnarlroot=(m,o)=>{const {x,y,s,t,f,mv}=o;shadow(x,y,s*1.3);const sw=Math.sin(t*(mv?6:1.2))*s*.05;
+  for(const k of [-1,-.4,.4,1])ln([[x+k*s*.3,y-s*.6],[x+k*s*.75+(mv?Math.sin(t*6+k*3)*s*.12:0),y]],'#3a2a1a',Math.max(2.5,s*.16));
+  pf([[x-s*.7,y-s*.5],[x-s*.55+sw,y-s*1.9],[x+s*.6+sw,y-s*1.95],[x+s*.7,y-s*.5]],'#4a3a2a');ln([[x-s*.3,y-s*.6],[x-s*.2+sw,y-s*1.8]],'#2e2216',Math.max(1.2,s*.05));ln([[x+s*.3,y-s*.6],[x+s*.25+sw,y-s*1.7]],'#2e2216',Math.max(1.2,s*.05));
+  for(const k of [-1,1]){ln([[x+k*s*.55+sw,y-s*1.5],[x+k*s*1.2+sw,y-s*1.9+Math.sin(t*1.5+k)*s*.15],[x+k*s*1.5+sw,y-s*2.3]],'#3a2a1a',Math.max(2,s*.1));el(x+k*s*1.5+sw,y-s*2.4,s*.3,s*.18,'#4a6a2a',k*.5);}
+  for(const [a,b] of [[-.3,2.1],[.2,2.15],[0,2.3]])el(x+a*s+sw,y-s*b,s*.35,s*.22,'#3a5a24',a);
+  for(const k of [-.18,.2]){gl(x+f*s*.1+k*s+sw,y-s*1.45,s*.35,'#ffb040',.6);ci(x+f*s*.1+k*s+sw,y-s*1.45,s*.08,'#ffd060');}ln([[x-s*.2+sw,y-s*1.15],[x+s*.25+sw,y-s*1.12]],'#1a120a',Math.max(1.3,s*.05));};
 }
 
 /* ---------- the land: upright pictures for the new themes ---------- */
@@ -392,9 +449,9 @@ if(typeof WORLD_BRANCH!=='undefined'&&ZONES.molten1)WORLD_BRANCH.caldera=['molte
     [B.ruins]:'ซากเมืองแรกของกษัตริย์ออเรล รูปปั้นยังคงเฝ้ายาม และอัศวินผู้ล่มสลายยังเดินอยู่',[B.jungle]:'ร้อน ชื้น และเสียงดัง งูในเถาวัลย์ ดอกไม้ที่กัดได้ และราชินีออร์คิดรา',
     [B.steppe]:'ทุ่งหญ้าสีม่วงและผลึกที่ร้องเพลงได้ ยักษ์หินจีโอดหลับอยู่ที่นี่',[B.glacier]:'แม่น้ำน้ำแข็งเหนือช่องเขาฟรอสต์พีค เยติ วอลรัส และฮริมแฟงมังกรธารน้ำแข็ง',
     [B.dusk]:'ป่าที่ดวงอาทิตย์ไม่เคยขึ้น ราชาผู้ว่างเปล่าครองราชย์ในความมืด',[B.peaks]:'หลังคาโลก ที่ซึ่งพายุถือกำเนิด โวลทาริส นกยักษ์แห่งพายุครองท้องฟ้า',
-    'World map':'แผนที่โลก','The city':'ตัวเมือง','North road':'ถนนสายเหนือ','East road':'ถนนสายตะวันออก','South road':'ถนนสายใต้','West road':'ถนนสายตะวันตก',
+    'World map':'แผนที่โลก','The city':'ตัวเมือง','North road':'ถนนสายเหนือ','Round the cities':'รอบเมือง','the country between the roads':'แผ่นดินระหว่างถนน','East road':'ถนนสายตะวันออก','South road':'ถนนสายใต้','West road':'ถนนสายตะวันตก',
     'cold hills and mountains':'เนินเขาและภูเขาอันหนาวเย็น','fields, woods and wilds':'ทุ่งหญ้า ป่าไม้ และป่าดิบ','farms, desert and sea':'ไร่นา ทะเลทราย และทะเล','past Aurelmark':'เลยออเรลมาร์กไป',
-    'Hearthvale and the capital Aurelmark stand in the middle of the world. Four roads lead out, and the farther you go, the stronger the monsters. Tobin at the Waystation sends you to any region you have visited.':'ฮาร์ธเวลและเมืองหลวงออเรลมาร์กตั้งอยู่กลางโลก มีถนนสี่สายออกไป ยิ่งไปไกลมอนสเตอร์ยิ่งแข็งแกร่ง โทบินที่สถานีพักส่งคุณไปที่ไหนก็ได้ที่เคยไปแล้ว',
+    'Hearthvale and the capital Aurelmark stand in the middle of the world. Four winding roads lead out, and the farther you go, the stronger the monsters. Tobin at the Waystation sends you to any region you have visited.':'ฮาร์ธเวลและเมืองหลวงออเรลมาร์กตั้งอยู่กลางโลก มีถนนคดเคี้ยวสี่สายออกไป ยิ่งไปไกลมอนสเตอร์ยิ่งแข็งแกร่ง โทบินที่สถานีพักส่งคุณไปที่ไหนก็ได้ที่เคยไปแล้ว',
     '⌂ Hearthvale · ♛ Aurelmark · numbers are the lowest monster level · ▼ dungeon below · tap a square':'⌂ ฮาร์ธเวล · ♛ ออเรลมาร์ก · ตัวเลขคือเลเวลมอนสเตอร์ต่ำสุด · ▼ มีดันเจี้ยนข้างล่าง · แตะที่ช่อง'};
     for(const k in T)if(!TH[k])TH[k]=T[k];
     if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^▼ Stairs down in (.+)$/,(m,a)=>`▼ บันไดลงใน ${a}`]);}}

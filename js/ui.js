@@ -104,7 +104,8 @@ const GEAR_TYPES=['weapon','armor','head','accessory','face','mouth','shoes'],AL
 function gearNote(id){const it=ITEMS[id],src=it.descEn||it.desc;if(!src)return '';
   const statList=/^(?:[A-Za-z][A-Za-z ]*\s[+-]\d+%?(?:\s·\s|$))+$/;
   let note=src.split(/(?<=\.)\s+/).filter(x=>!statList.test(x.replace(/\.$/,'').trim())).join(' ').trim();
-  if(note&&typeof LANG!=='undefined'&&LANG==='th'&&typeof thItemDesc==='function')note=thItemDesc(id,note);
+  // in Thai: a flavour line from its own table, the rest (where it comes from) by the item patterns
+  if(note&&typeof LANG!=='undefined'&&LANG==='th')note=(typeof ITEM_FLAVOR_TH!=='undefined'&&ITEM_FLAVOR_TH[note])||(typeof thItemDesc==='function'?thItemDesc(id,note):note);
   return note;}
 function itemDesc(e,noSlots){const it=ITEMS[e.id];const bits=[];
   if(it.atk)bits.push(`ATK ${it.atk}`);if(it.matk)bits.push(`MATK ${it.matk}`);if(it.def)bits.push(`DEF ${it.def}`);

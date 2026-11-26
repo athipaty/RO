@@ -129,6 +129,23 @@ const LV_DESIGNS={
     {k:'hill',name:'Crystal Ridge',at:[.75,.25],rx:6,ry:3,H:32,top:.2,bank:{ax:'x',at:.3},style:'crystal'},
     {k:'gully',name:'Dry Riverbed',at:[.3,.75],ax:'x',len:18,wid:2,D:20,dwell:'geodetortoise'},
     {k:'bowl',name:'Geode Crater',at:[.72,.7],rx:6,ry:4,D:30,style:'crystal',den:'geodecolossus'}]},
+  // (v1.62.0) the four corner regions round the cities (js/regions5.js)
+  bramble:{auto:[ // Bramblewind Hills: the Bramble Warden on the windiest knoll, a lower rise, a hedge ditch full of boars
+    {k:'hill',name:'Bramble Knoll',at:[.7,.3],rx:7,ry:4.5,H:36,top:.25,den:'bramblewarden'},
+    {k:'hill',name:'Windy Rise',at:[.25,.72],rx:6.5,ry:4,H:28,top:.2},
+    {k:'gully',name:'Hedge Ditch',at:[.3,.25],ax:'x',len:12,wid:2,D:16,dwell:'hedgeboar'}]},
+  amber:{auto:[ // Amberfield Hollow: the golden hollow where the Harvest Matron stands, two sheaf mounds
+    {k:'bowl',name:'Amberfield Hollow',at:[.6,.55],rx:7,ry:4.5,D:24,den:'harvestmatron'},
+    {k:'hill',name:'Sheaf Mound',at:[.2,.25],rx:5.5,ry:3.5,H:24,top:.3},
+    {k:'hill',name:'Sheaf Mound',at:[.25,.8],rx:5,ry:3.5,H:22,top:.3}]},
+  mist:{auto:[ // Mistfall Vale: a stream through the reeds, the misty hollow of the Mother of Mists, a lantern rise
+    {k:'gully',name:'Mistfall Stream',at:[.5,.3],ax:'y',len:12,wid:2,D:16,water:1,dwell:'reedfrog'},
+    {k:'bowl',name:'Misty Hollow',at:[.72,.7],rx:6,ry:4,D:22,den:'mistmother'},
+    {k:'hill',name:'Lantern Rise',at:[.2,.7],rx:5.5,ry:3.5,H:26,top:.25}]},
+  thornmere:{auto:[ // Thornmere Wilds: Old Gnarlroot on his mound, a sunken bog, a gully of thorn
+    {k:'hill',name:'Gnarlroot Mound',at:[.7,.3],rx:7,ry:4.5,H:38,top:.25,den:'gnarlroot'},
+    {k:'bowl',name:'Thornmere Bog',at:[.3,.72],rx:6,ry:4,D:20},
+    {k:'gully',name:'Thorn Gully',at:[.25,.25],ax:'x',len:12,wid:2,D:18,dwell:'thornrat'}]},
   dusk:{auto:[ // Duskwood: a shadow hollow where the Hollow King waits, ridges of roots, a dark brook
     {k:'bowl',name:'Shadow Hollow',at:[.7,.35],rx:6,ry:4.5,D:32,den:'hollowking'},
     {k:'hill',name:'Root Ridge',at:[.25,.25],rx:6.5,ry:2.8,H:28,top:.25,bank:{ax:'y',at:.12},roots:1},
