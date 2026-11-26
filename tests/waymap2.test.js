@@ -43,6 +43,15 @@ module.exports = async t => {
     t.ok(tb.fares.deep1 === tb.fares.woods + 60 && tb.fares.deep2 === tb.fares.woods + 120 && tb.fares.grotto1 === tb.fares.isles + 60 && tb.fares.isles > 1500 && tb.fares.keep < 0,
       'floors cost the fare of the region above plus 60 a floor; the island adds the crossing; no fare for places Tobin does not serve ' + JSON.stringify(tb.fares));
     t.ok(tb.went, 'travelling to a floor takes you there and takes its fare');
+    // (v1.64.6) the World map window (M) has the same toggle
+    const wm = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); enterZone('town'); P.visited = [...Object.keys(WORLD_GRID), 'deep1', 'isles', 'grotto1'];
+      openPanel('worldmap'); await w(150); const tog = panel.querySelector('.wsftog[data-act="wmview"]'); if (!tog) return { tog: false };
+      const grid = !!panel.querySelector('.wgrid'); tog.click(); await w(150); const tiles = panel.querySelectorAll('.wft').length, noGrid = !panel.querySelector('.wgrid');
+      panel.querySelector('.wft[data-arg="grotto1"]').click(); await w(150); const picked = panel.querySelector('.wnode.pick')?.dataset.zone;
+      panel.querySelector('.wsftog[data-act="wmview"]').click(); await w(150); const back = !!panel.querySelector('.wgrid'); closePanel();
+      return { tog: true, grid, tiles, noGrid, picked, back }; });
+    t.ok(wm.tog && wm.grid && wm.tiles >= 6 && wm.noGrid && wm.back, `the World map window has the ⇄ toggle too: world grid, then ${wm.tiles} floor squares, then back`);
+    t.ok(wm.picked === 'grotto1', 'tapping a floor square picks it in the list below (' + wm.picked + ')');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };

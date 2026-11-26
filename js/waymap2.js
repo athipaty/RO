@@ -170,3 +170,14 @@ function wstDetail(id){const D=ZONES[id];if(!D)return '';const known=P.visited.i
   return tcCardHtml(id,[id],null,x).replace('class="tccard','class="tccard wsmcard').replace(/<button class="btn tctravel[^>]*>[^<]*<\/button>|<div class="tclock">[^<]*<\/div>/,btn);}
 PANEL_ACTS.wstview=v=>{WSF.tview=v==='floors'?'floors':'world';sfx('click');refreshPanel();};
 PANEL_ACTS.wstsel=id=>{if(!ZONES[id])return;WSF.tsel=id;sfx('click');refreshPanel();try{const d=panel.querySelector('#wsDet');if(d){const r=d.getBoundingClientRect();if(r.top>innerHeight-120)d.scrollIntoView({block:'nearest',behavior:'smooth'});}}catch(e){}};
+/* ---- (v1.64.6) the World map window (M) gets the same ⇄ toggle: World map / Floors below ----
+   The floors view shows the dungeon floors and the island as big squares grouped by where they are; a tap jumps to
+   that place in the list underneath, as a square on the world map does. */
+{const _wghF=worldGridHtml;worldGridHtml=function(){const h=_wghF.apply(this,arguments);if(typeof wsfGroups!=='function')return h;
+  const gs=wsfGroups().filter(([t])=>t!=='Other places');if(!gs.length){WSF.mview='world';return h;}
+  const n=gs.reduce((a,[,ids])=>a+ids.filter(id=>P.visited.includes(id)).length,0),v=WSF.mview==='floors'?'floors':'world',tog=wsfToggle(v,'wmview',n);
+  if(v!=='floors')return tog+h;
+  const keep=WSF.sel;WSF.sel=WSF.msel;const map=`<div class="wsfmap">`+gs.map(([t,ids])=>`<div class="wfg"><div class="wfgt">${esc(t)}</div><div class="wfrow">${ids.map((id,i)=>(i?'<span class="wfa" aria-hidden="true">▸</span>':'')+wsfTile(id).replace('data-act="wsfsel"','data-act="wmfsel"')).join('')}</div></div>`).join('')+`</div>`;WSF.sel=keep;
+  return tog+map;};}
+PANEL_ACTS.wmview=v=>{WSF.mview=v==='floors'?'floors':'world';sfx('click');refreshPanel();};
+PANEL_ACTS.wmfsel=id=>{if(!ZONES[id])return;WSF.msel=id;for(const b of panel.querySelectorAll('.wft'))b.classList.toggle('sel',b.dataset.arg===id);PANEL_ACTS.wmgo(id);};
