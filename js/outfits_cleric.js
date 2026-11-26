@@ -8,28 +8,30 @@
      Ascetic   fighting monk: a sleeveless top, a sash with long swinging tails, loose trousers tied at the ankle, sandals */
 const CLERIC_LOOKS={
   cleric:{fam:'cleric',kit:'acolyte',robe:'#f4efe2',sleeve:'#f4efe2',stole:'#2e5aa8',trim:'#e8c25a',cape:'#e8e2d2'},
-  templar:{fam:'cleric',kit:'templar',legs:1,body:'#f4efe2',sleeve:'#9aa0aa',mail:'#9aa0aa',steel:'#c8ccd4',gold:'#e8b84a',cape:'#c8463a',pant:'#7a7f88',boot:'#8a909c',tall:1},
+  templar:{fam:'cleric',kit:'templar',robe:'#f6f2e8',sleeve:'#f6f2e8',stole:'#6ab0e0',gold:'#e8b84a',steel:'#c8ccd4',boot:'#b8a070',tall:1}, // (v1.70.1) a war-priest: robe, stole, small breastplate
   oracle:{fam:'cleric',kit:'oracle',robe:'#eef4fc',sleeve:'#eef4fc',sky:'#9fd0f0',trim:'#c8a8ff',glow:'#bfe6ff'},
   ascetic:{fam:'cleric',kit:'monk',legs:1,body:'#c86a2a',sleeve:'skin',gi:'#c86a2a',sash:'#5a2a12',pant:'#e0a060',boot:'#8a5a2a',wrap:'#efe2c0'}};
 if(typeof OUTFITS!=='undefined')OUTFITS.cleric=CLERIC_LOOKS;
 function clericPart(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v;
   if(part==='back'){
     if(K.kit==='acolyte-cape'){ctx.fillStyle=K.cape; /* (v1.67.1) off */ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-6.6,by-16);ctx.quadraticCurveTo(x-f*2,by-7,x+6.6,by-16);ctx.quadraticCurveTo(x,by-13,x-6.6,by-16);ctx.closePath();fs();}
-    else if(K.kit==='templar'){ctx.fillStyle=K.cape;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-9,by-15);ctx.lineTo(x+9,by-15);ctx.quadraticCurveTo(x+12-f*2,by-4,x+10-f*3+sway,by+5);ctx.lineTo(x-10-f*3+sway,by+5);ctx.quadraticCurveTo(x-12-f*2,by-4,x-9,by-15);ctx.closePath();fs();
+    else if(K.kit==='templar-cape'){ctx.fillStyle=K.cape; /* (v1.70.1) off: a war-priest wears no cape */ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-9,by-15);ctx.lineTo(x+9,by-15);ctx.quadraticCurveTo(x+12-f*2,by-4,x+10-f*3+sway,by+5);ctx.lineTo(x-10-f*3+sway,by+5);ctx.quadraticCurveTo(x-12-f*2,by-4,x-9,by-15);ctx.closePath();fs();
       ctx.strokeStyle=K.gold;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x-9.6-f*3+sway,by+4);ctx.lineTo(x+9.6-f*3+sway,by+4);ctx.stroke();}
     else if(K.kit==='oracle'){ // a long train embroidered with stars
-      ctx.fillStyle=K.sky;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-8,by-14);ctx.lineTo(x+8,by-14);ctx.quadraticCurveTo(x+14-f*2,by+4,x+12-f*6+sway,y+3);ctx.quadraticCurveTo(x-f*6,y+5,x-12-f*6+sway,y+3);ctx.quadraticCurveTo(x-14-f*2,by+4,x-8,by-14);ctx.closePath();fs();
-      ctx.fillStyle='#ffffff';for(const [a,b] of [[-6,-2],[4,1],[-2,6],[7,7],[-8,8]]){const px=x+a-f*3+sway*.5,py=by+b;ctx.beginPath();for(let i=0;i<8;i++){const r=i%2?.5:1.4,an=i*Math.PI/4;ctx.lineTo(px+Math.cos(an)*r,py+Math.sin(an)*r);}ctx.closePath();ctx.fill();}}
+      ctx.fillStyle=K.train||K.sky;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-8,by-14);ctx.lineTo(x+8,by-14);ctx.quadraticCurveTo(x+14-f*2,by+4,x+12-f*6+sway,y+3);ctx.quadraticCurveTo(x-f*6,y+5,x-12-f*6+sway,y+3);ctx.quadraticCurveTo(x-14-f*2,by+4,x-8,by-14);ctx.closePath();fs();
+      ctx.fillStyle=K.star||'#ffffff';for(const [a,b] of [[-6,-2],[4,1],[-2,6],[7,7],[-8,8]]){const px=x+a-f*3+sway*.5,py=by+b;ctx.beginPath();for(let i=0;i<8;i++){const r=i%2?.5:1.4,an=i*Math.PI/4;ctx.lineTo(px+Math.cos(an)*r,py+Math.sin(an)*r);}ctx.closePath();ctx.fill();}}
     else if(K.kit==='monk'){ // the sash's long tails swing behind
       for(const k of [-1,1]){const w=Math.sin(now*4+k)*1.5;ctx.fillStyle=K.sash;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-f*3+k*1.6,by-1);ctx.quadraticCurveTo(x-f*8+k*2+w,by+5,x-f*11+k*2.4+w*1.4,by+12);ctx.lineTo(x-f*9+k*2.4+w*1.4,by+12.6);ctx.quadraticCurveTo(x-f*6+k*2+w,by+5,x-f*1+k*1.6,by);ctx.closePath();fs();}}}
   else if(part==='arm'){const {sx,sy,hx,hy2,sleeve,k}=v,ang=Math.atan2(hy2-sy,hx-sx);
     if(K.kit==='acolyte'||K.kit==='oracle'){const wide=K.kit==='oracle'?7.4:5;ctx.translate(hx,hy2-2.6);ctx.rotate(ang-Math.PI/2);ctx.fillStyle=sleeve;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-2.4,-4.6);ctx.lineTo(2.4,-4.6);ctx.quadraticCurveTo(wide,-1,wide,2.6);ctx.lineTo(-wide,2.6);ctx.quadraticCurveTo(-wide,-1,-2.4,-4.6);ctx.closePath();fs();
       ctx.strokeStyle=K.kit==='oracle'?K.sky:K.trim;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(-wide+.6,1.8);ctx.lineTo(wide-.6,1.8);ctx.stroke();}
-    else if(K.kit==='templar'){ctx.fillStyle=K.steel;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.ellipse(hx,hy2-1.8,3.4,2.4,0,0,7);fs();ctx.strokeStyle=K.gold;ctx.lineWidth=.8;ctx.beginPath();ctx.ellipse(hx,hy2-1.8,2.4,1.5,0,Math.PI,0);ctx.stroke();}
+    else if(K.kit==='templar'){ctx.translate(hx,hy2-2.6);ctx.rotate(ang-Math.PI/2);ctx.fillStyle=sleeve;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-2.4,-4.6);ctx.lineTo(2.4,-4.6);ctx.quadraticCurveTo(5,-1,5,2.6);ctx.lineTo(-5,2.6);ctx.quadraticCurveTo(-5,-1,-2.4,-4.6);ctx.closePath();fs();
+      ctx.strokeStyle=K.gold;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-4.4,1.8);ctx.lineTo(4.4,1.8);ctx.stroke();
+      if(v.k===v.f){ctx.fillStyle='#8a5a32';for(let i=0;i<7;i++){const an=i/7*Math.PI*2;ctx.beginPath();ctx.arc(Math.cos(an)*2.6,3.6+Math.sin(an)*1,.7,0,7);ctx.fill();}}}
     else if(K.kit==='monk'){ctx.translate(sx+(hx-sx)*.72,sy+(hy2-sy)*.72);ctx.rotate(ang);ctx.fillStyle=K.wrap;ctx.strokeStyle=OL;ctx.lineWidth=.8;for(const o of [-2.4,-.4,1.6]){ctx.beginPath();ctx.roundRect(o-.9,-2.6,1.8,5.2,.5);fs();}}}
   else if(part==='leg'){const {fx,fy}=v;
     if(K.kit==='monk'){ctx.fillStyle=K.wrap;ctx.strokeStyle=OL;ctx.lineWidth=.8;ctx.beginPath();ctx.roundRect(fx-3.2,fy-7.6,6.4,2.2,.8);fs();}
-    else if(K.kit==='templar'){ctx.fillStyle=K.steel;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(fx-2.8,fy-9,5.6,5,1.4);fs();ctx.fillStyle=K.gold;ctx.fillRect(fx-2.4,fy-8.6,4.8,.8);}}
+}
   else if(part==='torso'&&!bk){const {hip}=v;
     if(K.kit==='acolyte'){
       // the long stole down the front, a rope belt with prayer beads, a sun pendant, the short hooded shoulder cape
@@ -42,15 +44,20 @@ function clericPart(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v;
       ctx.save();ctx.shadowColor='#fff0a0';ctx.shadowBlur=5;ctx.fillStyle=K.trim;ctx.beginPath();for(let i=0;i<12;i++){const r=i%2?1:2,an=i*Math.PI/6;ctx.lineTo(x+Math.cos(an)*r,by-8+Math.sin(an)*r);}ctx.closePath();ctx.fill();ctx.restore();
       ctx.strokeStyle=K.trim;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x-10,y-3.2);ctx.quadraticCurveTo(x,y-.2,x+10,y-3.2);ctx.stroke();}
     else if(K.kit==='templar'){
-      // mail on the arms and hips, a white surcoat with a gold border and a big gold sun, sunburst shoulder guards
-      ctx.fillStyle=K.mail;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x-8,by-2,16,hip-by+5,2);fs();
-      ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=.6;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(x-7,by+i*2);ctx.lineTo(x+7,by+i*2);ctx.stroke();}
-      ctx.fillStyle=K.body;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-6,by-15);ctx.lineTo(x+6,by-15);ctx.lineTo(x+5.4+sway*.2,hip+7);ctx.lineTo(x,hip+5.6);ctx.lineTo(x-5.4+sway*.2,hip+7);ctx.closePath();fs();
-      ctx.strokeStyle=K.gold;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-4.8+sway*.2,hip+5.8);ctx.lineTo(x,hip+4.6);ctx.lineTo(x+4.8+sway*.2,hip+5.8);ctx.moveTo(x-5,by-13);ctx.lineTo(x-4.6,hip+5);ctx.moveTo(x+5,by-13);ctx.lineTo(x+4.6,hip+5);ctx.stroke();
-      ctx.save();ctx.shadowColor='#ffe08a';ctx.shadowBlur=5;ctx.fillStyle=K.gold;ctx.strokeStyle=OL;ctx.lineWidth=.9;ctx.beginPath();for(let i=0;i<16;i++){const r=i%2?1.8:3.4,an=i*Math.PI/8;ctx.lineTo(x+Math.cos(an)*r,by-5+Math.sin(an)*r);}ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
-      ctx.fillStyle='#6a4a2a';ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(x-6.6,by-2.6,13.2,2.4,1);fs();
-      for(const k of [-1,1]){ctx.save();ctx.translate(x+k*10.6,by-12.6);ctx.rotate(k*.35);ctx.fillStyle=K.gold;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<=8;i++){const an=Math.PI+i*Math.PI/8,r=i%2?5.2:7.4;ctx.lineTo(Math.cos(an)*r,Math.sin(an)*r*.8+1.6);}ctx.closePath();fs();
-        ctx.fillStyle=K.steel;ctx.beginPath();ctx.ellipse(0,0,4.6,3.4,0,0,7);fs();ctx.restore();}}
+      /* (v1.70.1) a war-priest, not a knight: the white priest's robe (the body's robe), a sky-blue holy stole with a gold
+         trim down both sides, a small gold breastplate, one gold sunburst shoulder guard on the far side, a brown belt with
+         the holy book chained at the near hip */
+      const f2=f,k0=-f;
+      ctx.strokeStyle=K.gold;ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(x-8.4,by-9.8);ctx.quadraticCurveTo(x,by-4.4,x+8.4,by-9.8);ctx.stroke();
+      ctx.fillStyle=K.gold;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-5.6,by-9.4);ctx.quadraticCurveTo(x,by-5.6,x+5.6,by-9.4);ctx.lineTo(x+5,by-4.6);ctx.quadraticCurveTo(x,by-2.8,x-5,by-4.6);ctx.closePath();fs();
+      ctx.save();ctx.shadowColor='#ffe08a';ctx.shadowBlur=5;ctx.fillStyle='#fff6d0';ctx.beginPath();for(let i=0;i<12;i++){const r=i%2?.9:2,an=i*Math.PI/6;ctx.lineTo(x+Math.cos(an)*r,by-6.2+Math.sin(an)*r);}ctx.closePath();ctx.fill();ctx.restore();
+      for(const k of [-1,1]){const sx2=x+k*3.4,s2=sway*.2;ctx.fillStyle=K.stole;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx2-1.5,by-12);ctx.lineTo(sx2+1.5,by-12);ctx.lineTo(sx2+1.7+s2,y-4.6);ctx.lineTo(sx2+s2,y-3.4);ctx.lineTo(sx2-1.7+s2,y-4.6);ctx.closePath();fs();
+        ctx.strokeStyle=K.gold;ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(sx2-1.2+s2,y-5.4);ctx.lineTo(sx2+1.2+s2,y-5.4);ctx.stroke();ctx.fillStyle=K.gold;ctx.fillRect(sx2-.4+s2*.5,by+1,.8,2.4);ctx.fillRect(sx2-1.2+s2*.5,by+1.8,2.4,.8);}
+      ctx.fillStyle='#6a4a2a';ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(x-7.4,by-3,14.8,2.4,1);fs();ctx.fillStyle=K.gold;ctx.beginPath();ctx.arc(x,by-1.8,1.1,0,7);ctx.fill();
+      {const bx=x+f2*6.4,byk=by+1.2+Math.sin(now*2)*.3;ctx.strokeStyle='#c8ccd4';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(x+f2*4.6,by-1.6);ctx.quadraticCurveTo(bx-f2*.6,by,bx,byk-2.2);ctx.stroke();
+        ctx.fillStyle='#8a3a2a';ctx.strokeStyle=OL;ctx.lineWidth=.9;ctx.beginPath();ctx.roundRect(bx-2.4,byk-2.2,4.8,5.4,.8);fs();ctx.fillStyle='#f4efe2';ctx.fillRect(bx+f2*1.6-.4,byk-1.6,.8,4.2);ctx.fillStyle=K.gold;ctx.fillRect(bx-.4,byk-.8,.8,2.6);ctx.fillRect(bx-1.2,byk,2.4,.8);}
+      if(!K.noGuard){const k=k0;ctx.save();ctx.translate(x+k*11.4,by-12);ctx.rotate(k*.35);ctx.fillStyle=K.gold;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<=8;i++){const an=Math.PI+i*Math.PI/8,r=i%2?5.2:7.4;ctx.lineTo(Math.cos(an)*r,Math.sin(an)*r*.8+1.6);}ctx.closePath();fs();
+        ctx.fillStyle='#fff6d8';ctx.beginPath();ctx.ellipse(0,0,4.2,3,0,0,7);fs();ctx.fillStyle=K.stole;ctx.beginPath();ctx.arc(0,-.2,1.3,0,7);ctx.fill();ctx.restore();}}
     else if(K.kit==='oracle'){
       // a layered robe in two shades with a light hem, a glowing crystal pendant, small orbs of light
       ctx.fillStyle=K.sky;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x-8.6,hip+2);ctx.quadraticCurveTo(x,hip+4,x+8.6,hip+2);ctx.lineTo(x+10.4,y-2.6);ctx.quadraticCurveTo(x,y+.4,x-10.4,y-2.6);ctx.closePath();fs();

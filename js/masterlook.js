@@ -117,14 +117,31 @@
     ctx.globalAlpha=.3;ctx.beginPath();ctx.arc(0,0,15,Math.PI,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
     ctx.globalAlpha=1;ctx.fillStyle=o.t;for(let i=0;i<3;i++){const t=a+i*Math.PI*2/3;if(Math.sin(t)<0)continue;ctx.beginPath();ctx.arc(Math.cos(t)*15,Math.sin(t)*15,1.8,0,7);ctx.fill();}
     ctx.restore();};
+  // the Starseer: a few tiny gold stars slowly circling its free hand (well below the face)
+  JSIDE.handstars=function(x,y,by,f,o){const hx=x-f*10,hy=by-3.5;ctx.save();ctx.shadowColor=o.c;ctx.shadowBlur=6;ctx.fillStyle=o.c;
+    for(let i=0;i<3;i++){const a=now*1.6+i*Math.PI*2/3,px=hx+Math.cos(a)*5.4,py=hy+Math.sin(a)*2.6,r=1.4+.4*Math.sin(now*4+i);ctx.globalAlpha=Math.sin(a)>0?1:.55;ctx.beginPath();
+      for(let j=0;j<8;j++){const rr=j%2?r*.35:r,an=-Math.PI/2+j*Math.PI/4;ctx.lineTo(px+Math.cos(an)*rr,py+Math.sin(an)*rr);}ctx.closePath();ctx.fill();}
+    ctx.restore();};
+  /* the masters' sun and moon (the player's wish: they belong to the masters): the Dawnknight's sun disc with turning
+     rays, the Starseer's gold crescent moon, both on the far shoulder (clipped off the face like every side piece) */
+  JSIDE.sundisc=function(x,y,by,f,o){const OL='#2a1c14';ctx.save();ctx.translate(x-f*12.8,by-11.4);ctx.scale(1.3,1.3);ctx.shadowColor=o.ray;ctx.shadowBlur=7;ctx.fillStyle=o.ray;
+    for(let i=0;i<12;i++){ctx.save();ctx.rotate(i*Math.PI/6+now*.3);ctx.beginPath();ctx.moveTo(-1.1,-4);ctx.lineTo(0,-(i%2?6.4:7.8));ctx.lineTo(1.1,-4);ctx.closePath();ctx.fill();ctx.restore();}ctx.shadowBlur=0;
+    ctx.fillStyle=o.rim;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(0,0,4.4,0,7);ctx.fill();ctx.stroke();ctx.fillStyle=o.core;ctx.beginPath();ctx.arc(0,0,2,0,7);ctx.fill();ctx.restore();};
+  JSIDE.moondisc=function(x,y,by,f,o){const OL='#2a1c14',k=-f;ctx.save();ctx.translate(x+k*12.8,by-11.6);ctx.scale(1.25,1.25);ctx.scale(k,1);ctx.shadowColor=o.c;ctx.shadowBlur=7;ctx.fillStyle=o.c;ctx.strokeStyle=OL;ctx.lineWidth=1.1;
+    ctx.beginPath();ctx.arc(0,0,6.4,-Math.PI/2,Math.PI/2,false);ctx.ellipse(0,0,2.6,6.4,0,Math.PI/2,-Math.PI/2,true);ctx.closePath();ctx.fill();ctx.shadowBlur=0;ctx.stroke();
+    ctx.fillStyle='#fff6d8';ctx.beginPath();ctx.arc(4.4,-2.4,.8,0,7);ctx.fill();ctx.restore();};
+  // the Oracle's healing: small blue crosses rising gently at its sides (well away from the face)
+  JSIDE.healmotes=function(x,y,by,f,o){ctx.save();ctx.fillStyle=o.c;ctx.shadowColor=o.c;ctx.shadowBlur=5;
+    for(let i=0;i<4;i++){const q=(now*.35+i/4)%1,side=i%2?1:-1,px=x+side*(13+Math.sin(i*1.9+now)*2),py=by+2-q*14;ctx.globalAlpha=Math.sin(q*Math.PI)*.85;ctx.fillRect(px-.5,py-1.8,1,3.6);ctx.fillRect(px-1.8,py-.5,3.6,1);}
+    ctx.restore();};
   // (v1.70.0) the other masters: their own outfits (js/outfits_masters2.js) and the rune circle; no wings, orbs or capes
-  for(const [id,c,t] of [['tempestsage','#ffe23a','#fff6c0'],['voidcaller','#3ae8c8','#d8fff6'],['dawnknight','#ffb07a','#fff0d8'],['starseer','#bfe0ff','#ffffff'],
+  for(const [id,c,t] of [['tempestsage','#ffe23a','#fff6c0'],['voidcaller','#3ae8c8','#d8fff6'],['dawnknight','#ff3a3a','#ffc8c8'],['starseer','#e8c060','#fff6d8'],
     ['soulreaper','#ff4a5a','#ffd0d4'],['plaguelord','#9aff5a','#e0ffc8']])JOB_LOOK[id]={aura:c,b:[['sigil',{c,t}]]}; /* (the Gunslinger masters: on hold) */
-  JOB_LOOK.tempestsage.s=[['handarcs',{c:'#ffe23a'}]];JOB_LOOK.voidcaller.s=[['voidring',{c:'#3ae8c8',t:'#d8fff6'}]];
+  JOB_LOOK.tempestsage.s=[['handarcs',{c:'#ffe23a'}]];JOB_LOOK.starseer.s=[['moondisc',{c:'#e8c060'}],['handstars',{c:'#ffd870'}]];JOB_LOOK.oracle={...(JOB_LOOK.oracle||{}),s:[['healmotes',{c:'#7fd3ff'}]],b:[]};JOB_LOOK.dawnknight.s=[['sundisc',{ray:'#ff4a3a',rim:'#e8b84a',core:'#c8202e'}]];JOB_LOOK.voidcaller.s=[['voidring',{c:'#3ae8c8',t:'#d8fff6'}]];
   /* a master in its own outfit wears no job mantle (the coloured shoulder pads and collar every advanced calling has):
      they would cover its own pauldrons and chest pieces */
   if(typeof drawJobMantle==='function'){const _djm=drawJobMantle;drawJobMantle=function(){const p=ML_P;
-    if(p&&typeof OUTFITS!=='undefined'){const K=(OUTFITS[baseOf(p.cls)]||{})[p.cls];if(K&&(K.fam==='wardenm'||K.fam==='rangerm'||K.fam==='master2'))return;}
+    if(p&&typeof OUTFITS!=='undefined'){const K=(OUTFITS[baseOf(p.cls)]||{})[p.cls];if(K&&(K.fam==='wardenm'||K.fam==='rangerm'||K.fam==='master2'||K.own))return;}
     return _djm.apply(this,arguments);};}
   /* nothing drawn over the body ever covers the face: every side piece (orbs, sparks, runes, spikes...) is clipped out
      of the head, drawn at LAST_HY about 13 across */

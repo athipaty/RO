@@ -16,8 +16,8 @@
 const MASTER2_LOOKS={
   tempestsage:{fam:'master2',kit:'storm',robe:'#2e3038',robe2:'#1e2026',under:'#5a5e6a',sleeve:'#2e3038',metal:'#ffd84a',glow:'#ffe23a',belt:'#1a1a20',boot:'#1a1a20',cuff:'#ffe23a'},
   voidcaller:{fam:'master2',kit:'void',robe:'#ece6da',sleeve:'#ece6da',sleeve2:'#16161c',ink:'#16161c',crystal:'#22222c',glow:'#3ae8c8',chain:'#a8b0b8',boot:'#16161c',cuff:'#3ae8c8'},
-  dawnknight:{fam:'master2',kit:'dawn',legs:1,body:'#fff4ec',sleeve:'#fff4ec',metal:'#e8a878',metal2:'#c07850',coral:'#ff7a5a',gold:'#ffd27a',pant:'#f0e2d6',boot:'#c86a4a',cuff:'#ffd27a',tall:1},
-  starseer:{fam:'master2',kit:'star',legs:1,body:'#dfe6f4',sleeve:'#dfe6f4',vest:'#2a2f6a',silver:'#e8eef8',glow:'#bfe0ff',pant:'#3a3f7a',boot:'#2a2f6a',cuff:'#e8eef8',tall:1},
+  dawnknight:{fam:'master2',kit:'dawn',robe:'#7a1a2a',under:'#1a1416',sleeve:'#7a1a2a',bronze:'#c8803a',bronze2:'#8a5424',glow:'#ff9a3a',metal:'#c8803a',boot:'#1a1416',cuff:'#c8803a'},
+  starseer:{fam:'master2',kit:'star',robe:'#14141e',robe2:'#08080e',sleeve:'#14141e',gold:'#e8c060',silver:'#e8c060',boot:'#14141e',cuff:'#e8c060'},
   soulreaper:{fam:'master2',kit:'reaper',body:'#1e1a22',sleeve:'#1e1a22',bone:'#ece4d0',sash:'#7a1420',wrap:'#3a3440',glow:'#ff4a5a',pant:'#1a161e',boot:'#141016',cuff:'#ece4d0',tall:1},
   plaguelord:{fam:'master2',kit:'plague',body:'#4a5a3a',sleeve:'#4a5a3a',apron:'#6a5a3a',apron2:'#4a3e28',glove:'#2a3a22',vials:['#9aff5a','#ff6aa0','#7ad8ff','#ffd27a'],leather:'#3a2a1a',pant:'#2e3a26',boot:'#22301c',cuff:'#9aff5a',tall:1},
   longshot:{fam:'master2',kit:'poncho',body:'#e8dcc0',sleeve:'#e8dcc0',poncho:'#b8402e',stripe:'#f0d890',stripe2:'#2a4a6a',leather:'#6a4426',brass:'#e0b850',pant:'#5a4a36',boot:'#7a4e2a',cuff:'#e0b850',tall:1},
@@ -25,6 +25,19 @@ const MASTER2_LOOKS={
 // (the Gunslinger masters are on hold at the player's wish: drawn but not worn yet)
 const MASTER2_FAM={tempestsage:'arcanist',voidcaller:'arcanist',dawnknight:'cleric',starseer:'cleric',soulreaper:'shade',plaguelord:'shade'};
 if(typeof OUTFITS!=='undefined'){for(const [id,fam] of Object.entries(MASTER2_FAM)){OUTFITS[fam]=OUTFITS[fam]||{};OUTFITS[fam][id]=MASTER2_LOOKS[id];}}
+/* (v1.70.1) the player's swap: the Templar wears the robe-coat with the glowing hem and the lantern, in the Cleric
+   family's white, gold and sky blue; the Dawnknight wears the war-priest (stole, breastplate, sunburst guard, holy book:
+   js/outfits_cleric.js 'templar') in red and black */
+if(typeof OUTFITS!=='undefined'&&OUTFITS.cleric){
+  /* and the Cleric (first job) and the Templar swap too: the Cleric wears the white-and-gold robe-coat with the lantern,
+     the Templar the white robe with the blue stole panels and gold trim (js/outfits_cleric.js 'acolyte') */
+  OUTFITS.cleric.templar={fam:'cleric',kit:'acolyte',robe:'#f4efe2',sleeve:'#f4efe2',stole:'#2e5aa8',trim:'#e8c25a',cape:'#e8e2d2'};
+  OUTFITS.cleric.cleric={fam:'master2',kit:'dawn',noSun:1,robe:'#f6f2e8',under:'#cfe4f4',sleeve:'#f6f2e8',bronze:'#e8b84a',bronze2:'#b8862a',glow:'#ffd27a',metal:'#e8b84a',boot:'#b8a070',cuff:'#e8b84a'};
+  OUTFITS.cleric.dawnknight={fam:'cleric',kit:'templar',own:1,noGuard:1,robe:'#1c1418',sleeve:'#1c1418',stole:'#c8202e',gold:'#e8b84a',steel:'#c8ccd4',boot:'#2a1a1a',tall:1};
+  /* and the Oracle wears the constellation robe with the crescent, in pale sky with blue stars; the Starseer wears the
+     flowing robe with the star-embroidered train and the crystal pendant (js/outfits_cleric.js 'oracle') in black and gold */
+  OUTFITS.cleric.oracle={fam:'master2',kit:'star',noMoon:1,capelet:'#6ab0e0',pend:'#7fd3ff',belt:'#6ab0e0',robe:'#eaf3fb',robe2:'#cfe2f2',sleeve:'#eaf3fb',gold:'#3a86c8',silver:'#3a86c8',boot:'#9fc8e8',cuff:'#3a86c8'};
+  OUTFITS.cleric.starseer={fam:'cleric',kit:'oracle',own:1,robe:'#16161e',sleeve:'#16161e',sky:'#e8c060',train:'#26264a',star:'#ffd870',trim:'#e8c060',glow:'#ffe8a0'};}
 function master2Part(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v,k0=-f,sw=sway*.2,HEM=by+1.8;
   const line=(c,w,pts)=>{ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(pts[0],pts[1]);for(let i=2;i<pts.length;i+=2)ctx.lineTo(pts[i],pts[i+1]);ctx.stroke();};
   const band=(c,w,x0,y0,x1,y1)=>{line(OL,w+1.4,[x0,y0,x1,y1]);line(c,w,[x0,y0,x1,y1]);};
@@ -41,8 +54,8 @@ function master2Part(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v,k0=-f,sw=sway*.2
     switch(K.kit){
       case 'storm':glove('#1a1a20',3.3);glowOn(K.glow);ctx.fillStyle=K.glow;for(const d of [-1.4,0,1.4]){ctx.beginPath();ctx.arc(hx+d,hy2-3,.6,0,7);ctx.fill();}glowOff();break;
       case 'void':if(far){line(OL,6,[sx,sy,hx,hy2-1.5]);line(K.sleeve2,3.8,[sx,sy,hx,hy2-1.5]);}glove('#16141c',3.2);break;
-      case 'dawn':if(!far)rolled();glove(far?K.metal:'#f0e0d0',3.2);break;
-      case 'star':if(far){ctx.fillStyle=K.silver;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.ellipse(hx,hy2-1.8,3.3,2.3,0,0,7);ctx.fill();ctx.stroke();}else glove('#3a3f7a',3.1);break;
+      case 'dawn':glove(far?K.bronze:'#1a1416',3.3);break;
+      case 'star':glove(far?K.gold:'#14141e',3.1);break;
       case 'reaper':wraps(K.wrap);glove('#141016',3.2);break;
       case 'plague':if(far)glove(K.glove,4.6);else{rolled();glove('#e8dcc0',3);}break;
       case 'poncho':glove(K.leather,3.2);break;
@@ -74,20 +87,33 @@ function master2Part(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v,k0=-f,sw=sway*.2
       pauld(k=>{for(const [a,h,w] of [[-.5,8,2.4],[.15,10.5,2.8],[.75,7,2.2]]){ctx.save();ctx.rotate(k*a);ctx.fillStyle=K.crystal;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-w,1);ctx.lineTo(0,-h);ctx.lineTo(w,1);ctx.closePath();fs();
         glowOn(K.glow);ctx.strokeStyle=K.glow;ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(0,-h+1.5);ctx.lineTo(0,-1);ctx.stroke();glowOff();ctx.restore();}
         ctx.fillStyle=K.ink;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.ellipse(0,1,4.6,2.6,0,0,7);fs();},1.15);break;}
-    case 'dawn':{ // rose-gold chest edge, a coral scarf tail, a sunburst disc on the far shoulder
-      line(K.metal,1.6,[x-8.4,by-9.6,x,by-5,x+8.4,by-9.6]);
-      ctx.fillStyle=K.metal;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x-7.8,by-3.4,15.6,2.8,1);fs();ctx.fillStyle=K.gold;ctx.beginPath();ctx.arc(x,by-2,1.3,0,7);fs();
-      for(const k of [-1,1]){ctx.fillStyle=K.metal2;ctx.beginPath();ctx.moveTo(x+k*2.6,by-.6);ctx.lineTo(x+k*7.8,by-.6);ctx.lineTo(x+k*8.2,HEM);ctx.lineTo(x+k*3,HEM);ctx.closePath();fs();}
-      {const w=Math.sin(now*3)*.8;ctx.fillStyle=K.coral;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x-8,by-12);ctx.quadraticCurveTo(x,by-7,x+8,by-12);ctx.lineTo(x+7.2,by-9.6);ctx.quadraticCurveTo(x,by-5,x-7.2,by-9.6);ctx.closePath();fs();
-        ctx.beginPath();ctx.moveTo(x+f*4.6,by-9);ctx.quadraticCurveTo(x+f*7.6+w,by-4,x+f*7+w,by-.4);ctx.lineTo(x+f*5+w,by-1);ctx.quadraticCurveTo(x+f*5.2,by-5,x+f*3,by-8);ctx.closePath();fs();}
-      pauld(k=>{ctx.fillStyle=K.gold;glowOn('#fff0b0');for(let i=0;i<10;i++){ctx.save();ctx.rotate(i*Math.PI/5);ctx.beginPath();ctx.moveTo(-1,-3.6);ctx.lineTo(0,-6.6);ctx.lineTo(1,-3.6);ctx.closePath();ctx.fill();ctx.restore();}glowOff();
-        ctx.fillStyle=K.metal;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.arc(0,0,4,0,7);fs();ctx.fillStyle=K.coral;ctx.beginPath();ctx.arc(0,0,1.6,0,7);ctx.fill();});break;}
-    case 'star':{ // an indigo vest with silver stars, a crescent buckle, a silver scarf over the near shoulder
-      for(const k of [-1,1]){ctx.fillStyle=K.vest;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x+k*2,by-14);ctx.lineTo(x+k*8.6,by-14);ctx.quadraticCurveTo(x+k*9.4,by-5,x+k*8.6+sw,HEM-.4);ctx.lineTo(x+k*3+sw,HEM);ctx.closePath();fs();}
-      ctx.fillStyle=K.silver;for(const [a,b] of [[-6,-9],[5.6,-7],[-4.6,-2],[6.4,-1.4],[-7,0]]){const px=x+a,py=by+b;ctx.beginPath();for(let i=0;i<8;i++){const r=i%2?.35:1.1,an=-Math.PI/2+i*Math.PI/4;ctx.lineTo(px+Math.cos(an)*r,py+Math.sin(an)*r);}ctx.closePath();ctx.fill();}
-      ctx.strokeStyle=K.silver;ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(x+.6,by-2.2,1.8,Math.PI*.35,Math.PI*1.65);ctx.stroke();
-      {const w=Math.sin(now*3)*.8;ctx.fillStyle=K.silver;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+f*4.6,by-12.6);ctx.quadraticCurveTo(x+f*9+w,by-6,x+f*8.6+w,by-1);ctx.lineTo(x+f*6.4+w,by-1.6);ctx.quadraticCurveTo(x+f*6.4,by-6,x+f*2.6,by-11.6);ctx.closePath();fs();}
-      pauld(k=>{ctx.fillStyle=K.silver;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(0,0,6,4,0,Math.PI,0);ctx.quadraticCurveTo(0,2.6,-6,0);ctx.closePath();fs();glowOn(K.glow);ctx.fillStyle=K.glow;ctx.beginPath();ctx.arc(k*1.6,-1.8,1.2,0,7);ctx.fill();glowOff();});break;}
+    case 'dawn':{ /* a long wine-red robe-coat (the body's robe) split at the front over black, a glowing sunrise-orange
+         hem, a bronze belt with a small glowing lantern at the hip, a big bronze sunburst disc on the far shoulder */
+      const hemY=u=>y-2.5+3*(1-(u*2-1)*(u*2-1));
+      ctx.fillStyle=K.under;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-1.6,by-2);ctx.lineTo(x+1.6,by-2);ctx.lineTo(x+4.4+sw,hemY(.71));ctx.lineTo(x-3.2+sw,hemY(.35));ctx.closePath();fs();
+      glowOn(K.glow);line(K.glow,1.6,(()=>{const p=[];for(let i=0;i<=10;i++){const u=i/10;p.push(x-10.5+u*21,hemY(u)-.8);}return p;})());glowOff();
+      line(K.bronze,1,[x-1.6,by-2,x-3.2+sw,hemY(.35)-1]);line(K.bronze,1,[x+1.6,by-2,x+4.4+sw,hemY(.71)-1]);
+      ctx.fillStyle=K.bronze;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x-7.8,by-3.4,15.6,2.8,1);fs();
+      {const lx=x+f*6,ly=by+1.2,sv=Math.sin(now*2)*.6;line(K.bronze2,.7,[lx,by-1,lx+sv,ly-1.6]);ctx.fillStyle=K.bronze2;ctx.strokeStyle=OL;ctx.lineWidth=.9;ctx.beginPath();ctx.roundRect(lx+sv-1.8,ly-1.6,3.6,4.4,1);fs();
+        const fl=.75+.25*Math.sin(now*9);ctx.shadowColor=K.glow;ctx.shadowBlur=8*fl;ctx.fillStyle=`rgba(255,${170+fl*60|0},80,${fl})`;ctx.beginPath();ctx.ellipse(lx+sv,ly+.6,1.1,1.6,0,0,7);ctx.fill();ctx.shadowBlur=0;}
+      if(!K.noSun)pauld(k=>{ctx.fillStyle=K.glow;glowOn(K.glow);for(let i=0;i<12;i++){ctx.save();ctx.rotate(i*Math.PI/6+now*.3);ctx.beginPath();ctx.moveTo(-1.1,-4);ctx.lineTo(0,-(i%2?6.4:7.6));ctx.lineTo(1.1,-4);ctx.closePath();ctx.fill();ctx.restore();}glowOff();
+        ctx.fillStyle=K.bronze;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(0,0,4.4,0,7);fs();ctx.fillStyle=K.robe;ctx.beginPath();ctx.arc(0,0,2,0,7);ctx.fill();ctx.fillStyle=K.glow;ctx.beginPath();ctx.arc(0,0,1,0,7);ctx.fill();},1.25);break;}
+    case 'star':{ /* a long black night robe (the body's robe) with gold constellations that twinkle, the far side darker
+         and longer, a gold crescent-moon pauldron */
+      const hemY=u=>y-2.5+3*(1-(u*2-1)*(u*2-1));
+      {const k=k0;ctx.fillStyle=K.robe2;ctx.beginPath();ctx.moveTo(x+k*10.5,hemY(k<0?0:1));ctx.lineTo(x+k*8.6,by-4);ctx.lineTo(x+k*3,by-2);ctx.lineTo(x+k*2,hemY(.5));ctx.quadraticCurveTo(x+k*6,hemY(k<0?.2:.8)+.8,x+k*10.5,hemY(k<0?0:1));ctx.closePath();ctx.fill();}
+      line(K.gold,1.1,(()=>{const p=[];for(let i=0;i<=10;i++){const u=i/10;p.push(x-10.5+u*21,hemY(u)-.7);}return p;})());
+      for(const C of [[[-6.6,-1],[-4.4,1.6],[-6,4.2],[-3.4,5.2]],[[3.4,-.4],[6,1.8],[4.6,4.6]],[[-1.4,-8],[1.6,-6.6]]]){ctx.strokeStyle='rgba(232,192,96,.55)';ctx.lineWidth=.5;ctx.beginPath();C.forEach(([a,b],i)=>i?ctx.lineTo(x+a,by+b):ctx.moveTo(x+a,by+b));ctx.stroke();
+        C.forEach(([a,b],i)=>{const tw=.55+.45*Math.sin(now*3+a*1.7+b);ctx.fillStyle=K.gold;ctx.globalAlpha=tw;glowOn(K.gold);ctx.beginPath();for(let j=0;j<8;j++){const r=j%2?.35:1.1+tw*.3,an=-Math.PI/2+j*Math.PI/4;ctx.lineTo(x+a+Math.cos(an)*r,by+b+Math.sin(an)*r);}ctx.closePath();ctx.fill();glowOff();ctx.globalAlpha=1;});}
+      ctx.fillStyle=K.belt||'#0c0c14';ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x-7.6,by-3.4,15.2,2.6,1);fs();ctx.strokeStyle=K.gold;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(x+.6,by-2.1,1.5,Math.PI*.35,Math.PI*1.65);ctx.stroke();
+      if(K.capelet){ /* the Oracle's uniform: a short sky capelet over both shoulders, a white trim, a silver star clasp, a glowing crystal pendant */
+        ctx.fillStyle=K.capelet;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x-6,by-15.6);ctx.quadraticCurveTo(x-12.6,by-14.6,x-12,by-8.4);
+        for(let i=0;i<=6;i++){const u=i/6;ctx.lineTo(x-12+u*24,by-8.4+Math.sin(u*Math.PI)*2.6+(i%2?1.4:0));}ctx.quadraticCurveTo(x+12.6,by-14.6,x+6,by-15.6);ctx.closePath();fs();
+        ctx.strokeStyle='#ffffff';ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<=6;i++){const u=i/6,px=x-11.4+u*22.8,py=by-9.4+Math.sin(u*Math.PI)*2.6+(i%2?1.4:0);i?ctx.lineTo(px,py):ctx.moveTo(px,py);}ctx.stroke();
+        glowOn(K.pend);ctx.fillStyle=K.pend;ctx.strokeStyle=OL;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(x,by-7.4);ctx.lineTo(x+1.8,by-5);ctx.lineTo(x,by-2.6);ctx.lineTo(x-1.8,by-5);ctx.closePath();ctx.fill();glowOff();ctx.stroke();
+        ctx.fillStyle='#ffffff';ctx.beginPath();ctx.arc(x-.5,by-5.6,.5,0,7);ctx.fill();}
+      if(!K.noMoon)pauld(k=>{ctx.fillStyle=K.gold;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.scale(k,1);glowOn(K.gold);ctx.beginPath();ctx.arc(0,0,6.4,-Math.PI/2,Math.PI/2,false);ctx.ellipse(0,0,2.6,6.4,0,Math.PI/2,-Math.PI/2,true);ctx.closePath();ctx.fill();glowOff();ctx.stroke();
+        ctx.fillStyle='#fff6d8';ctx.beginPath();ctx.arc(4.4,-2.4,.8,0,7);ctx.fill();},1.2);break;}
     case 'reaper':{ // bone ribs over black, a ragged dark red sash, a bone skull pauldron
       for(let i=0;i<3;i++){const yy=by-8.6+i*2.2;line(OL,2.6,[x-6+i*.4,yy,x,yy+1.2,x+6-i*.4,yy]);line(K.bone,1.3,[x-6+i*.4,yy,x,yy+1.2,x+6-i*.4,yy]);}
       band(K.bone,1.3,x,by-9.4,x,by-2.6);

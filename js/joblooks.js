@@ -82,7 +82,7 @@ const JOB_LOOK={
   sharpshooter:{h:['cap',{c:'#2f5a4a',feather:'#e0c070'}],b:[['cape',{c:'#2f6a5a',t:'#e0c070'}]]},
   wildstalker:{h:['hood',{c:'#6a5a3a',ears:'#d8b890'}],b:[['cape',{c:'#5a6a2a'}]]},
   falconer:{h:['cap',{c:'#6a4a2a',feather:'#f4efe2'}],s:[['falcon',{c:'#7a5a3a',t:'#f4e6c4'}]]},
-  templar:{h:['helm',{c:'#d8c070',t:'#fff0a0',crest:'#c8463a'}],b:[['banner',{c:'#f4efe2',t:'#c8463a'}]]},
+  templar:{h:['helm',{c:'#d8c070',t:'#fff0a0',crest:'#c8463a'}]}, // (v1.70.1) no flag behind
   oracle:{h:['circlet',{c:'#e8d8a0',gem:'#7fd3ff'}],s:[['halo',{c:'#9fe0ff'}]],b:[['cape',{c:'#e8e0c8',t:'#7fd3ff'}]]},
   ascetic:{h:['band',{c:'#e0702a'}],s:[['beads',{c:'#8a5a2a',t:'#ffb070'}]]},
   aegislord:{h:['helm',{c:'#e0c060',t:'#fff0b0',visor:1,crest:'#4a6ab8'}],b:[['wings',{c:'#e8e0c8',t:'#ffd76a'}],['shield',{c:'#c8a040',t:'#fff0b0'}]],aura:'#ffd76a'},
