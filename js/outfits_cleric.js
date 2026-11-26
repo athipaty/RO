@@ -14,7 +14,7 @@ const CLERIC_LOOKS={
 if(typeof OUTFITS!=='undefined')OUTFITS.cleric=CLERIC_LOOKS;
 function clericPart(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v;
   if(part==='back'){
-    if(K.kit==='acolyte'){ctx.fillStyle=K.cape;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-6.6,by-16);ctx.quadraticCurveTo(x-f*2,by-7,x+6.6,by-16);ctx.quadraticCurveTo(x,by-13,x-6.6,by-16);ctx.closePath();fs();}
+    if(K.kit==='acolyte-cape'){ctx.fillStyle=K.cape; /* (v1.67.1) off */ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-6.6,by-16);ctx.quadraticCurveTo(x-f*2,by-7,x+6.6,by-16);ctx.quadraticCurveTo(x,by-13,x-6.6,by-16);ctx.closePath();fs();}
     else if(K.kit==='templar'){ctx.fillStyle=K.cape;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x-9,by-15);ctx.lineTo(x+9,by-15);ctx.quadraticCurveTo(x+12-f*2,by-4,x+10-f*3+sway,by+5);ctx.lineTo(x-10-f*3+sway,by+5);ctx.quadraticCurveTo(x-12-f*2,by-4,x-9,by-15);ctx.closePath();fs();
       ctx.strokeStyle=K.gold;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x-9.6-f*3+sway,by+4);ctx.lineTo(x+9.6-f*3+sway,by+4);ctx.stroke();}
     else if(K.kit==='oracle'){ // a long train embroidered with stars

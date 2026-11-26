@@ -21,7 +21,7 @@ function outfitGear(cx,cy,r,col,OL){ctx.fillStyle=col;ctx.strokeStyle=OL;ctx.lin
 function outfitPart(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v;ctx.save();ctx.lineJoin='round';ctx.lineCap='round';
   try{
   if(part==='back'){
-    if(K.kit==='apprentice'){ // the hood, down on the back
+    if(K.kit==='apprentice-hood'){ // (v1.67.1) off: first jobs wear nothing behind
       ctx.fillStyle=K.light;ctx.strokeStyle=OL;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(x-7,by-16);ctx.quadraticCurveTo(x-f*2,by-6,x+7,by-16);ctx.quadraticCurveTo(x,by-13,x-7,by-16);ctx.closePath();fs();
       ctx.beginPath();ctx.moveTo(x-4,by-14);ctx.quadraticCurveTo(x-f*1.5,by-4,x+4,by-14);ctx.stroke();}
     else if(K.kit==='storm'){ // two stole ends streaming up and back in the wind

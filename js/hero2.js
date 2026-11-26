@@ -53,7 +53,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
     if(st===2){ctx.beginPath();ctx.ellipse(bk?x:x-f*13,hy+(bk?7:3)+Math.sin(now*4+sd)*.8,4.5,10,f*.35+sway*.04,0,7);fs();}
     if(st===3)for(const k of [-1,1]){ctx.beginPath();ctx.ellipse(x+k*14,hy+5+Math.sin(now*4+k)*.8,4.5,10.5,k*-.25+sway*.03,0,7);fs();}
     if(st===6&&bk){for(let i=0;i<4;i++){ctx.beginPath();ctx.ellipse(x+Math.sin(now*3+i)*.6,hy+9+i*4.2,3.6-i*.3,2.8,0,0,7);fs();}}
-    if(KN){const cl=x-16-f*3+sway*1.3,cr=x+16-f*3+sway*1.3;ctx.fillStyle=RED;ctx.beginPath();ctx.moveTo(x-9*bw,by-15);ctx.lineTo(x+9*bw,by-15);ctx.quadraticCurveTo(x+14-f*2,by-2,cr,y+1.5);
+    if(KN&&WV.cape){const cl=x-16-f*3+sway*1.3,cr=x+16-f*3+sway*1.3;ctx.fillStyle=RED; /* (v1.67.1) first jobs wear nothing behind */ctx.beginPath();ctx.moveTo(x-9*bw,by-15);ctx.lineTo(x+9*bw,by-15);ctx.quadraticCurveTo(x+14-f*2,by-2,cr,y+1.5);
       if(WV.ragged){for(let i=1;i<8;i++){const u=i/8,xx=cr+(cl-cr)*u;ctx.lineTo(xx,y+(i%2?-3.5:2.2)+Math.sin(now*5+i)*.5);}ctx.lineTo(cl,y+1.5);}
       else{ctx.lineTo(cr-6,y+.2);ctx.lineTo(x+(cr-x)*.35,y+2);ctx.lineTo(x+(cl-x)*.35,y+2);ctx.lineTo(cl+6,y+.2);ctx.lineTo(cl,y+1.5);}ctx.quadraticCurveTo(x-14-f*2,by-2,x-9*bw,by-15);ctx.closePath();fs();
       if(!WV.ragged)glow(()=>{ctx.strokeStyle=GOLD;ctx.lineWidth=1.7;ctx.beginPath();ctx.moveTo(x+12.5-f*2,by-4);ctx.quadraticCurveTo(x+14.5-f*2,by+3,cr-.6,y);ctx.moveTo(x-12.5-f*2,by-4);ctx.quadraticCurveTo(x-14.5-f*2,by+3,cl+.6,y);ctx.stroke();});
@@ -63,8 +63,8 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
       for(let i=1;i<7;i++){const u=i/7;ctx.lineTo(x+10-f*3+sway-u*20,by+4+(i%2?3.5:-.5)+Math.sin(now*4+i)*.5);}ctx.lineTo(x-10-f*3+sway,by+4);ctx.quadraticCurveTo(x-12-f*2,by-6,x-9,by-15);ctx.closePath();fs();
       ctx.strokeStyle='rgba(0,0,0,.22)';ctx.lineWidth=.8;for(const k of [-6,-2,2,6]){ctx.beginPath();ctx.moveTo(x+k,by-12);ctx.lineTo(x+k*1.1-f*2+sway*.8,by+3);ctx.stroke();}ctx.lineWidth=1.5;ctx.strokeStyle=OL;}
     else if(RUNE){ // two long coat tails behind the legs, a glowing hem
-      for(const k of [-1,1]){const tx=x+k*11-f*2+sway*1.2;ctx.fillStyle=WV.coat;ctx.beginPath();ctx.moveTo(x+k*2,by-2);ctx.lineTo(x+k*8,by-3);ctx.quadraticCurveTo(x+k*12,by+6,tx,y+3);ctx.lineTo(x+k*4+sway*.6,y-1);ctx.closePath();fs();
-        glow(()=>{ctx.strokeStyle=GOLD;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(x+k*8,by-2.6);ctx.quadraticCurveTo(x+k*11.6,by+6,tx,y+2.4);ctx.lineTo(x+k*4+sway*.6,y-1.4);ctx.stroke();});ctx.strokeStyle=OL;ctx.lineWidth=1.5;}}
+      for(const k of [-1,1]){const tx=x+k*11-f*2+sway*1.2;ctx.fillStyle=WV.coat;ctx.beginPath();ctx.moveTo(x+k*2,by-2);ctx.lineTo(x+k*8,by-3);ctx.quadraticCurveTo(x+k*12,by+6,tx,y-6);ctx.lineTo(x+k*4+sway*.6,y-8);ctx.closePath();fs();
+        glow(()=>{ctx.strokeStyle=GOLD;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(x+k*8,by-2.6);ctx.quadraticCurveTo(x+k*11.6,by+6,tx,y-6.6);ctx.lineTo(x+k*4+sway*.6,y-8.4);ctx.stroke();});ctx.strokeStyle=OL;ctx.lineWidth=1.5;}}
     else if(wv2){}
     else if(out==='warden'){ctx.fillStyle='#9a2e24';ctx.beginPath();ctx.moveTo(x-8*bw,by-14);ctx.lineTo(x+8*bw,by-14);ctx.quadraticCurveTo(x+11-f*3,by-2,x+10-f*4+sway,y-1);
       ctx.lineTo(x-10-f*4+sway,y-1);ctx.quadraticCurveTo(x-11-f*3,by-2,x-8*bw,by-14);ctx.closePath();fs();
@@ -176,7 +176,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
   else if(RUNE){
     // a fitted blue battle coat with front panels to the knees, a glowing hem
     ctx.fillStyle=WV.coat;ctx.beginPath();ctx.moveTo(x-7.8,by-14.8);ctx.lineTo(x+7.8,by-14.8);ctx.lineTo(x+8,hip+1);ctx.lineTo(x-8,hip+1);ctx.closePath();fs();
-    for(const k of [-1,1]){ctx.fillStyle=WV.coat;ctx.beginPath();ctx.moveTo(x+k*2.4,hip);ctx.lineTo(x+k*8,hip);ctx.lineTo(x+k*8.6+sway*.3,y-3.6);ctx.lineTo(x+k*3.2+sway*.3,y-2.6);ctx.closePath();fs();
+    for(const k of [-1,1]){ctx.fillStyle=WV.coat;ctx.beginPath();ctx.moveTo(x+k*2.4,hip);ctx.lineTo(x+k*8,hip);ctx.lineTo(x+k*8.6+sway*.3,y-8.6);ctx.lineTo(x+k*3.2+sway*.3,y-7.6);ctx.closePath();fs();
       glow(()=>{ctx.strokeStyle=GOLD;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+k*8.6+sway*.3,y-3.8);ctx.lineTo(x+k*3.2+sway*.3,y-2.8);ctx.lineTo(x+k*2.4,hip+.4);ctx.stroke();});ctx.strokeStyle=OL;}
     // a narrow V breastplate with a glowing rune line, and a glowing sash
     ctx.fillStyle=STEEL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x-5,by-14.6);ctx.lineTo(x+5,by-14.6);ctx.lineTo(x,by-3.2);ctx.closePath();fs();

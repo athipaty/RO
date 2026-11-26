@@ -36,7 +36,7 @@ const JHEAD={
 // back pieces (behind the body facing forward, over it from behind); x,by,f; y = feet
 const JBACK={
   shield(x,y,by,f,o){ctx.fillStyle=o.c;ctx.strokeStyle=OL2;ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(x-f*12-10,by-24,20,30,[4,4,10,10]);ctx.fill();ctx.stroke();ctx.fillStyle=o.t;ctx.beginPath();ctx.roundRect(x-f*12-3,by-20,6,22,2);ctx.fill();},
-  cape(x,y,by,f,o){const s=Math.sin(now*3)*1.5,L=o.long?3:-4;ctx.fillStyle=o.c;ctx.strokeStyle=OL2;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x-9,by-13);ctx.lineTo(x+9,by-13);ctx.lineTo(x+17+s,y+L);ctx.lineTo(x+5,y+L-3);ctx.lineTo(x-5,y+L);ctx.lineTo(x-17-s,y+L-2);ctx.closePath();ctx.fill();ctx.stroke();
+  cape(x,y,by,f,o){const s=Math.sin(now*3)*1.5,L=o.long?-7:-11; /* (v1.67.1) above the feet */ctx.fillStyle=o.c;ctx.strokeStyle=OL2;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x-9,by-13);ctx.lineTo(x+9,by-13);ctx.lineTo(x+17+s,y+L);ctx.lineTo(x+5,y+L-3);ctx.lineTo(x-5,y+L);ctx.lineTo(x-17-s,y+L-2);ctx.closePath();ctx.fill();ctx.stroke();
     if(o.t){ctx.strokeStyle=o.t;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-16-s,y+L-4);ctx.lineTo(x-5,y+L-2);ctx.lineTo(x+5,y+L-5);ctx.lineTo(x+16+s,y+L-2);ctx.stroke();}},
   banner(x,y,by,f,o){const px=x-f*9;ctx.strokeStyle='#6a4a2a';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(px,by+4);ctx.lineTo(px,by-46);ctx.stroke();const w=Math.sin(now*2.5)*2;
     ctx.fillStyle=o.c;ctx.strokeStyle=OL2;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(px,by-45);ctx.lineTo(px-f*15,by-43+w);ctx.lineTo(px-f*13,by-35+w);ctx.lineTo(px-f*15,by-27+w);ctx.lineTo(px,by-29);ctx.closePath();ctx.fill();ctx.stroke();

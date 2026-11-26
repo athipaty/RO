@@ -18,7 +18,8 @@ function outfitQuiver(x,by,f,body,band,OL,fs,rough){ctx.save();ctx.translate(x-f
   ctx.fillStyle=band;ctx.fillRect(-3.5,-11,7,1.6);ctx.fillRect(-3.5,1,7,1.6);ctx.restore();}
 function rangerPart(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v;
   if(part==='back'){
-    if(K.kit==='scout'){
+    if(K.kit==='scout'){outfitQuiver(x,by,f,'#6b4423','#c84a3a',OL,fs);} // (v1.67.1) first jobs wear nothing behind: only the quiver
+    else if(K.kit==='scoutcloak'){
       ctx.fillStyle=K.cloak;ctx.strokeStyle=OL;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(x-9,by-15);ctx.lineTo(x+9,by-15);ctx.quadraticCurveTo(x+12-f*2,by-5,x+10-f*3+sway,by+3);
       for(let i=1;i<6;i++){const u=i/6;ctx.lineTo(x+10-f*3+sway-u*20,by+3+(i%2?2:0));}ctx.lineTo(x-10-f*3+sway,by+3);ctx.quadraticCurveTo(x-12-f*2,by-5,x-9,by-15);ctx.closePath();fs();
       outfitQuiver(x,by,f,'#6b4423','#c84a3a',OL,fs);
