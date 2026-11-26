@@ -23,13 +23,22 @@ if(typeof TH!=='undefined')Object.assign(TH,{'Sold out':'หมดแล้ว'}
 if(typeof TH_PAT!=='undefined')TH_PAT.unshift([/^(\d) of 3 left today$/,(m,n)=>`เหลือ ${n} จาก 3 ก้อนวันนี้`]);
 /* ---- (v1.65.1) Re-smelt at the smithy: 3 of one ore into 2 of the other, 200 gold, as Alchemist Verena does in
    Aurelmark (her lab keeps it too, and the Ember Core stays hers). Everything about refining is now in one place. ---- */
-const RESMELT=[['glintstone',2,'emberore',3,200],['emberore',2,'glintstone',3,200]];
+const RESMELT=[['emberore',2,'glintstone',3,200],['glintstone',2,'emberore',3,200]]; // (v1.65.4) Ember Ore first
 function resmeltHtml(){const th=typeof LANG!=='undefined'&&LANG==='th';
   return `<h3>${th?'หลอมใหม่':'Re-smelt'}</h3><div class="sub">${th?'หลอมแร่ชนิดหนึ่งเป็นอีกชนิด: 3 ก้อนได้ 2 ก้อน':'Melt one ore down into the other: 3 for 2.'}</div>`+
     RESMELT.map(([out,n,src,k,gold])=>{const have=(invFind(src)||{}).n||0,ok=have>=k&&P.gold>=gold;
-      return `<div class="row">${icon(ITEMS[out])}<div class="grow"><div class="nm">${ITEMS[out].name} ×${n}</div><div class="ds">${th?`ใช้ ${ITEMS[src].name} ${k} ก้อน (มี ${have}) · ${gold} ทอง`:`${k} ${ITEMS[src].name} (you have ${have}) · ${gold} gold`}</div></div>`+
+      // (v1.65.4) pictures, not words: [ore] ×3 → [ore] ×2, then what you have and the fee
+      return `<div class="row rsm"><span class="rsmx" title="${esc(ITEMS[src].name)}">${icon(ITEMS[src])}<b>×${k}</b></span><span class="rsma" aria-hidden="true">➜</span>`+
+        `<span class="rsmx" title="${esc(ITEMS[out].name)}">${icon(ITEMS[out])}<b>×${n}</b></span><div class="grow ds rsmd">${th?`มี ${have} · ${gold} ทอง`:`You have ${have} · ${gold} gold`}</div>`+
         `<button class="btn small" data-act="resmelt" data-arg="${out}" ${ok?'':'disabled'}>${th?'หลอม':'Smelt'}</button></div>`;}).join('');}
 PANEL_ACTS.resmelt=out=>{const r=RESMELT.find(x=>x[0]===out);if(!r)return;const [,n,src,k,gold]=r;
   if(((invFind(src)||{}).n||0)<k||P.gold<gold){addLog(`You need ${k} ${ITEMS[src].name} and ${gold} gold.`,'l-bad');return;}
   takeItem(src,k);P.gold-=gold;giveItem(out,n);sfx('refineOk');addLog(`Brannoc melts ${k} ${ITEMS[src].name} down into ${n} ${ITEMS[out].name}.`,'l-loot');refreshPanel();save();};
 if(typeof TH!=='undefined')Object.assign(TH,{'Re-smelt':'หลอมใหม่'});
+(()=>{const st=document.createElement('style');st.textContent=`
+#panel .rsm{align-items:center;gap:6px}
+#panel .rsmx{position:relative;display:inline-flex;align-items:center;gap:2px}
+#panel .rsmx .ico{width:34px;height:34px}
+#panel .rsmx b{font:800 14px var(--ui,system-ui);color:#f1e2bd}
+#panel .rsma{font-size:18px;color:#ffd77a;margin:0 2px}
+#panel .rsmd{font-size:11.5px;text-align:right}`;document.head.appendChild(st);})();
