@@ -25,7 +25,7 @@ module.exports = async t => {
       openNpc(npc('Guildmaster Corvin')); PANEL_ACTS.tservice(); out.cards = panel.querySelectorAll('.jcard').length; out.noBtn = !panel.querySelector('[data-act="job"]'); closePanel();
       // Corvin's talk: five picture cards with English job names; Accept on a first chapter asks to confirm first
       openNpc(npc('Guildmaster Corvin')); const picks = [...panel.querySelectorAll('.jpick')];
-      out.picks = picks.length === 6 && picks.every(b => b.querySelector('img') && /^(Warden|Arcanist|Ranger|Cleric|Shade|Gunslinger)$/.test(b.querySelector('.jpname').textContent)); out.picks = out.picks && !panel.querySelector('.tq.offer[data-arg^="offer:"]');
+      out.picks = picks.length === 6 && picks.every(b => b.querySelector('img,canvas[data-cls]') && /^(Warden|Arcanist|Ranger|Cleric|Shade|Forgehand)$/.test(b.querySelector('.jpname').textContent)); out.picks = out.picks && !panel.querySelector('.tq.offer[data-arg^="offer:"]');
       PANEL_ACTS.topen('offer:ws1'); talk.page = QUESTS.ws1.offer.length - 1; refreshPanel();
       out.tag = /Warden/.test(panel.querySelector('.jsjob').textContent) && !panel.querySelector('[data-act="qaccept"]') && !!panel.querySelector('[data-act="jspick"]');
       PANEL_ACTS.jspick('ws1'); out.confirm = !!panel.querySelector('.jconfirm') && !QS().active.ws1;

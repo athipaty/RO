@@ -22,7 +22,7 @@ module.exports = async t => {
       const descs = c.own.map(id => SKILLS[id].desc(5));
       return { cards, ask, back, early, canStart, choices, cls: P.cls, jl: P.jl, gold: P.gold, fur: invFind('fur') ? invFind('fur').n : 0, tier: c.tier, keeps: sk.includes('cleave') && sk.includes('shieldbash') && sk.includes('titanslam') && sk.includes('fortress'),
         tree3: tree === 'Warden|Bulwark|Aegis Lord', descs,
-        allTier3: Object.keys(CLASSES).filter(k => CLASSES[k].tier === 3).length, party: !!SKILLS.fortress.party };
+        allTier3: Object.keys(JOB3).length, party: !!SKILLS.fortress.party };
     });
     t.ok(r.early && r.canStart, 'master callings are open again; Valen asks for rebirth, job level 50 and base level 50, then offers the Trial of Ascension');
     t.ok(r.cards, 'the master callings are picture cards with their English names');
@@ -31,7 +31,7 @@ module.exports = async t => {
     t.ok(r.cls === 'aegislord' && r.tier === 3 && r.jl === 1 && r.gold === 10000 && r.fur === 0, 'ascending takes the items and 30,000 gold and starts job level again');
     t.ok(r.keeps, 'every old skill is kept and two new ones are added');
     t.ok(r.tree3, 'the skill tree shows three groups');
-    t.ok(r.allTier3 === 18 && r.party, `18 master callings; Fortress reaches the party (${r.descs.join(' | ')})`);
+    t.ok(r.allTier3 === 12 && r.party, `12 master callings (two per family); Fortress reaches the party (${r.descs.join(' | ')})`);
     const fx = await A.ev(() => { enterZone('meadow'); const m = mobs.find(o => !o.dead); P.x = m.x + 30; P.y = m.y; P.sp = 999; P.cd = {}; const hp = m.hp; SKILLS.titanslam.run(3); return { hit: m.hp < hp || m.dead }; });
     t.ok(fx.hit, 'Titan Slam hurts monsters around you');
     t.ok(A.page.errors.length === 0, 'no script errors' + A.page.errors.map(e => ': ' + e).join(''));

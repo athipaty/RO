@@ -15,7 +15,7 @@ module.exports = async t => {
       const short = BUILDS.filter(b => b.route.length < 3).map(b => b.id); return { bad, per, noGoal, short }; });
     t.ok(!data.noGoal.length, 'every advanced and master calling has a build' + (data.noGoal.length ? ': missing ' + data.noGoal.join(', ') : ''));
     t.ok(!data.short.length, 'every build runs first job -> advanced -> master' + (data.short.length ? ': short ' + data.short.join(', ') : ''));
-    t.ok(data.per.gunslinger === 2 && data.per.shade === 2, 'two builds each for the Gunslinger and the Shade');
+    t.ok(data.per.forgehand === 2 && data.per.shade === 2, 'two builds each for the Forgehand and the Shade');
     t.ok(!data.bad.length, 'every build names real skills, callings, gear and sigils on its own route' + (data.bad.length ? ': ' + data.bad.join(', ') : ''));
     t.ok(['warden', 'arcanist', 'ranger', 'cleric'].every(j => data.per[j] === 3), 'three builds for each first job (one per calling, one mixing)');
 

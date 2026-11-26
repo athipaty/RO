@@ -6,12 +6,12 @@ module.exports = async t => {
   try {
     await wait(600);
     const r = await g.ev(() => ({ adv: Object.keys(JOB2).length, master: Object.keys(JOB3).length,
-      two: ['warden', 'arcanist', 'ranger', 'cleric', 'shade', 'gunslinger'].every(b => jobsFrom(b).length === 2 && jobsFrom(b).every(j => job3From(j).length === 1)),
+      two: ['warden', 'arcanist', 'ranger', 'cleric', 'shade', 'forgehand'].every(b => jobsFrom(b).length === 2 && jobsFrom(b).every(j => job3From(j).length === 1)),
       gone: Object.keys(JOB_RETIRE).every(c => !JOB2[c] && !JOB3[c] && CLASSES[c] && !BUILDS.some(b => b.route.includes(c))),
-      map: JOB_RETIRE.runelord + ',' + JOB_RETIRE.desperado + ',' + JOB_RETIRE.ascetic }));
+      map: JOB_RETIRE.runelord + ',' + JOB_RETIRE.ascetic }));
     t.ok(r.adv === 12 && r.master === 12 && r.two, `12 advanced and 12 master callings, two of each per family (${r.adv}/${r.master})`);
     t.ok(r.gone, 'the retired callings are offered nowhere (no trial, no ascension, no build) but still exist for old heroes');
-    t.ok(r.map === 'aegislord,longshot,templar', 'a retired master goes to the master of the calling it joined: ' + r.map);
+    t.ok(r.map === 'aegislord,templar', 'a retired master goes to the master of the calling it joined: ' + r.map);
     // a Runeguard hero moves to Bulwark: the shared skills stay, the Runeguard ones come back as points
     const m = await g.ev(() => { P.cls = 'runeguard'; P.skillPts = 0; const own = CLASSES.runeguard.own[0], keep = CLASSES.warden.skills[0];
       P.skills = { [own]: 5, [keep]: 3 }; P.bar = [{ s: own }, { s: keep }]; const moved = jobTrimHero();

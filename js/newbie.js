@@ -23,7 +23,7 @@ setInterval(()=>{try{document.body.classList.toggle('newbie',isNewbie());
   return out.replace('<div class="tlist">',`<div class="tlist">${st}${dl}`);};}
 // ---- ✨ Recommended stat points, by job family ----
 const STAT_PLAN={novice:{str:3,vit:2,agi:2,dex:2},warden:{str:3,vit:3,agi:1,dex:1},arcanist:{int:4,dex:2,vit:1},ranger:{dex:4,agi:2,luk:1},
-  cleric:{int:3,vit:2,dex:1},shade:{agi:3,str:2,luk:2},gunslinger:{dex:4,agi:2,luk:1}};
+  cleric:{int:3,vit:2,dex:1},shade:{agi:3,str:2,luk:2},forgehand:{str:4,vit:2,luk:1}};
 function statPlan(){const b=typeof baseOf==='function'?baseOf(P.cls):P.cls;return STAT_PLAN[b]||STAT_PLAN.novice;}
 function statAuto(){const w=statPlan();let n=0;for(let guard=0;guard<500&&P.statPts>0;guard++){
     let best=null,bs=1e9;for(const k in w){const v=P.st[k];if(v>=99)continue;const c=statCost(v);if(c>P.statPts)continue;const sc=v/w[k];if(sc<bs){bs=sc;best=k;}}

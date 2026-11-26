@@ -12,7 +12,7 @@
    and other players on an older version still draw, but they are no longer offered anywhere. A hero on a retired job
    moves on loading: skills the new job does not have are taken back and their points returned, and the hotbar loses
    them; other players still on one are shown as the job they move to. Loaded late (after jobs3, gunslinger4, buildguide). */
-const JOB_RETIRE2={runeguard:'bulwark',chronomancer:'stormcaller',wildstalker:'falconer',ascetic:'templar',phantom:'nightblade',trickshot:'sniper'};
+const JOB_RETIRE2={runeguard:'bulwark',chronomancer:'stormcaller',wildstalker:'falconer',ascetic:'templar',phantom:'nightblade'}; // (v1.71.0) the Trickshot left with the Gunslinger (js/forgemig.js)
 const JOB_RETIRE={...JOB_RETIRE2};
 for(const [old,to] of Object.entries(JOB_RETIRE2)){const om=Object.keys(JOB3).find(k=>JOB3[k].from===old),nm=Object.keys(JOB3).find(k=>JOB3[k].from===to);if(om&&nm)JOB_RETIRE[om]=nm;}
 // gone from every choice: the advanced-job trial, the master's ascension, the build guide

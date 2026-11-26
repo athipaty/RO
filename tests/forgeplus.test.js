@@ -4,7 +4,7 @@ module.exports = async t => {
   const g = await player('Smith', newRoom(), { server: 'http://127.0.0.1:9' });
   try {
     await wait(600);
-    const r = await g.ev(() => { const types = ['sword', 'axe', 'wand', 'bow', 'mace', 'dagger', 'gun'], out = { stages: {}, badMat: [], order: true, weak: [], strong: [] };
+    const r = await g.ev(() => { const types = ['sword', 'axe', 'wand', 'bow', 'mace', 'dagger'], out = { stages: {}, badMat: [], order: true, weak: [], strong: [] };
       const forged = FORGES.map(f => f[0]).filter(id => ITEMS[id] && ITEMS[id].type === 'weapon');
       for (const wt of types) { const lv = forged.filter(id => ITEMS[id].wt === wt).map(id => ITEMS[id].lv);
         out.stages[wt] = [[25, 38], [44, 52], [64, 70], [84, 90]].map(([a, b]) => lv.some(l => l >= a && l <= b)).every(Boolean); }
@@ -17,8 +17,8 @@ module.exports = async t => {
         if (best.length && pow(it) <= Math.max(...best)) out.weak.push(id);
         const relics = Object.keys(ITEMS).filter(k => ITEMS[k].boss && ITEMS[k].type === 'weapon' && ITEMS[k].wt === it.wt && ITEMS[k].lv >= it.lv);
         if (relics.some(k => pow(ITEMS[k]) < pow(it))) out.strong.push(id); }
-      // a Shade can wear the dagger, a Gunslinger the gun
-      P.lv = 99; P.cls = 'shade'; out.shade = canEquip(ITEMS.salafang) === null; P.cls = 'gunslinger'; out.gun = canEquip(ITEMS.pyrecannon) === null;
+      // a Shade can wear the dagger, a Forgehand the axe (the old forged guns are axes now)
+      P.lv = 99; P.cls = 'shade'; out.shade = canEquip(ITEMS.salafang) === null; P.cls = 'forgehand'; out.gun = canEquip(ITEMS.pyrecannon) === null && ITEMS.pyrecannon.wt === 'axe';
       out.desc = itemDesc({ id: 'pyrecannon', s: [null, null] });
       openPanel('craft', 'forge'); out.listed = FORGE_PLUS.every(([id]) => document.querySelector('#panel').textContent.includes(ITEMS[id].name)) || null; closePanel();
       return out; });
@@ -27,8 +27,8 @@ module.exports = async t => {
     t.ok(r.order, 'the forge lists its recipes by level');
     t.ok(!r.weak.length, 'each new forged weapon beats the shop weapons of its type up to its level' + (r.weak.length ? ': ' + r.weak.join(', ') : ''));
     t.ok(!r.strong.length, 'no forged weapon beats a boss relic of its type at the same or a higher level' + (r.strong.length ? ': ' + r.strong.join(', ') : ''));
-    t.ok(r.shade && r.gun, 'Shades and Gunslingers can now forge weapons for themselves');
-    t.ok(/^ATK 338 · DEX \+5/.test(r.desc), 'a forged weapon shows its stats: ' + r.desc);
+    t.ok(r.shade && r.gun, 'Shades and Forgehands can forge weapons for themselves');
+    t.ok(/^ATK 338 .*STR \+5/.test(r.desc), 'a forged weapon shows its stats (the old guns are axes, STR instead of DEX): ' + r.desc);
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };

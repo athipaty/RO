@@ -15,7 +15,7 @@ module.exports = async t => {
       DUEL = { id: 'nobody', peer: null, name: 'Foe', fightAt: now - 1, until: now + 99, ent, farT: 0 };
       let hits = 0; const hm = hurtMob; hurtMob = function (m) { if (m === ent) hits++; return hm.apply(this, arguments); };
       const errs = [], hitBy = [];
-      for (const id of ['arcstorm', 'arrowrain', 'frostnova', 'whirl', 'scattershot', 'flashbang', 'cinderfall', 'meteor']) {
+      for (const id of ['arcstorm', 'arrowrain', 'frostnova', 'whirl', 'cartcrash', 'hammerquake', 'cinderfall', 'meteor']) {
         const s = SKILLS[id]; if (!s || typeof s.run !== 'function') continue; const h0 = hits;
         try { if (s.kind === 'self') s.run(1); else s.run(1, ent.x, ent.y); } catch (e) { errs.push(id + ': ' + e.message); }
         if (hits > h0 || shots.some(x => x.to === ent)) hitBy.push(id);
@@ -25,7 +25,7 @@ module.exports = async t => {
       hurtMob = hm; DUEL = null; shots.length = 0;
       return { hitBy, errs };
     });
-    t.ok(['arcstorm', 'arrowrain', 'frostnova', 'scattershot', 'flashbang'].every(id => r.hitBy.includes(id)), 'area skills hit an opponent standing in the area (' + r.hitBy.join(', ') + ')');
+    t.ok(['arcstorm', 'arrowrain', 'frostnova', 'cartcrash', 'hammerquake'].every(id => r.hitBy.includes(id)), 'area skills hit an opponent standing in the area (' + r.hitBy.join(', ') + ')');
     t.ok(r.errs.length === 0, 'every area, ground and self skill can be cast at an opponent without errors ' + r.errs.join('; '));
     await wait(500);
 
