@@ -43,7 +43,7 @@ module.exports = async t => {
       PANEL_ACTS.stotab('use'); out.sto = out.sto && panel.querySelectorAll('[data-act="take"]').length === 1; PANEL_ACTS.stotab('all'); closePanel();
       // (v1.55.0) the Waystone Shard shows the same map; Go takes you there and uses the shard
       enterZone('town'); P.visited = ['town', 'meadow', 'woods', 'deep1']; giveItem('waystone', 2); openPanel('waystone');
-      out.shardMap = panel.querySelectorAll('.wsm .wsmt').length === Object.keys(WORLD_GRID).filter(id => ZONES[id]).length && !!panel.querySelector('.wsmfl [data-arg="deep1"]');
+      out.shardMap = panel.querySelectorAll('.wsm .wsmt').length === Object.keys(WORLD_GRID).filter(id => ZONES[id]).length && !!panel.querySelector('[data-act="wsview"][data-arg="floors"]'); // (v1.64.3) the floors are a tab now
       panel.querySelector('.wsmt[data-arg="woods"]').click(); const shards = (invFind('waystone') || {}).n || 0;
       panel.querySelector('#wsDet [data-act="waygo"][data-arg="woods"]').click();
       out.shardGo = zoneId === 'woods' && ((invFind('waystone') || {}).n || 0) === shards - 1;

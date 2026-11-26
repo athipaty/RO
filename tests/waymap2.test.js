@@ -18,6 +18,16 @@ module.exports = async t => {
     t.ok(r.fit && r.saved && r.back, 'one button switches to the whole world and back, and is remembered');
     t.ok(r.compass === 1 && r.letters === 0, 'one compass in the corner, no letters by the roads');
     t.ok(r.badges >= 4 && /Earth/.test(r.weak) && /weak to/.test(r.weak), `monster pictures carry their element (${r.badges}) and the card says what they are weak to: ${r.weak}`);
+    // (v1.64.3) the Waystone Shard: a Floors below tab, a map of floors, a tap shows the card with Go (no instant travel)
+    const f = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); enterZone('town'); P.visited = [...Object.keys(WORLD_GRID), 'deep1', 'isles', 'grotto1'];
+      giveItem('waystone', 1); openPanel('waystone'); await w(150); const tab = panel.querySelector('[data-act="wsview"][data-arg="floors"]'); if (!tab) return { tab: false };
+      tab.click(); await w(150); const tiles = panel.querySelectorAll('.wft').length, old = panel.querySelectorAll('.wsmfl').length;
+      panel.querySelector('.wft[data-arg="grotto1"]').click(); await w(150); const stay = zoneId === 'town', go = !!panel.querySelector('#wsDet [data-act="waygo"][data-arg="grotto1"]'), badges = panel.querySelectorAll('#wsDet .tcel').length;
+      panel.querySelector('[data-act="wsview"][data-arg="world"]').click(); await w(150); const world = !!panel.querySelector('.wsmscroll'); WSF.view = 'world'; closePanel();
+      return { tab: true, tiles, old, stay, go, badges, world }; });
+    t.ok(f.tab && f.tiles >= 6 && f.old === 0, `the shard has a Floors below tab with a map of ${f.tiles} squares instead of a row of buttons`);
+    t.ok(f.stay && f.go && f.badges >= 3, 'tapping a floor shows its card (monsters with their element) and a Go button, and does not travel by itself');
+    t.ok(f.world, 'the World map tab brings the map back');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };

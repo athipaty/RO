@@ -85,3 +85,56 @@ function wgCentre(){const sc=panel&&panel.querySelector('.wgscroll.big');if(!sc|
 #panel .wgscroll.big .wc i{font-size:13px}
 #panel .wgscroll.big .wc.le::after{right:-7px;width:8px}#panel .wgscroll.big .wc.ls::before{bottom:-7px;height:8px}
 `;document.head.appendChild(st);})();
+/* ---- (v1.64.3) the Waystone Shard: a "Floors below" tab with a map of its own ----
+   The dungeon floors (and the island, the keep and the arena) were a row of text buttons under the map that sent you
+   off at once. Now two tabs sit over the map, World map and Floors below; the floors are big squares grouped by where
+   they are (Mossdeep under the Woods, the Molten Depths under the Caldera, the island and its grotto, other places),
+   and tapping one shows its card below, monsters and all, with the Go button, like a place on the world map. */
+const WSF={view:'world',sel:null};
+function wsfGroups(){const g=[],used=new Set(),B=typeof WORLD_BRANCH!=='undefined'?WORLD_BRANCH:{};
+  const add=(title,ids)=>{ids=ids.filter(id=>ZONES[id]&&!used.has(id));if(!ids.length)return;ids.forEach(id=>used.add(id));g.push([title,ids]);};
+  if(B.woods)add('Mossdeep Caverns · under Whispering Woods',B.woods);
+  if(B.caldera)add('Molten Depths · under Cinderpeak Caldera',B.caldera);
+  if(ZONES.isles)add('Across the sea · Tidewater Isle',['isles',...(B.isles||[])]);
+  for(const k in B)if(!['woods','caldera','isles'].includes(k))add(`Under ${ZONES[k]?ZONES[k].name:k}`,B[k]);
+  add('Other places',Object.keys(ZONES).filter(id=>typeof WORLD_GRID!=='undefined'&&!WORLD_GRID[id]&&id!=='town'));
+  return g.filter(([,ids])=>ids.some(id=>P.visited.includes(id)));}
+function wsfTile(id){const D=ZONES[id],here=zoneId===id,seen=P.visited.includes(id)||here,sel=WSF.sel===id,th=THEMES[D.theme]||THEMES.meadow;
+  const lv=typeof worldLowLv==='function'?worldLowLv(id):null,tag=D.dungeon?'B'+D.dungeon:D.isle?'⛵':D.safe?'⚑':'';
+  return `<button type="button" class="wft${here?' here':''}${seen?'':' locked'}${sel?' sel':''}" data-act="wsfsel" data-arg="${id}" style="background:${(th.g||['#555'])[0]}" aria-pressed="${sel}" aria-label="${esc(D.name)}${seen?'':', locked'}">`+
+    `<span class="wfk">${tag}</span><b>${lv||''}</b>${D.safe?`<span class="wfn">${esc(D.name)}</span>`:''}${here?'<i class="wfp">📍</i>':''}${seen?'':'<i class="wfl">🔒</i>'}</button>`;}
+function wsfMapHtml(){const gs=wsfGroups();if(!gs.length)return '<div class="ds">No floors yet: walk down a dungeon\'s stairs first.</div>';
+  return `<div class="wsfmap">`+gs.map(([t,ids])=>`<div class="wfg"><div class="wfgt">${esc(t)}</div><div class="wfrow">${ids.map((id,i)=>(i&&t!=='Other places'?'<span class="wfa" aria-hidden="true">▸</span>':'')+wsfTile(id)).join('')}</div></div>`).join('')+`</div>`;}
+function wsfDetail(id){const D=ZONES[id];if(!D)return '';const known=P.visited.includes(id),here=zoneId===id;
+  const btn=here?'<div class="tclock">📍 You are here</div>':known?`<button class="btn tctravel primary" data-act="waygo" data-arg="${id}">✦ Go · the shard crumbles</button>`:'<div class="tclock">🔒 Walk there once first</div>';
+  const par=Object.keys(typeof WORLD_BRANCH!=='undefined'?WORLD_BRANCH:{}).find(k=>WORLD_BRANCH[k].includes(id));
+  const x=`<div class="wsmwhere">${par?`▼ Down the stairs in ${esc(ZONES[par].name)}`:D.isle?'⛵ By boat from Willowmere Farms':''}</div>`;
+  return tcCardHtml(id,[id],null,x).replace('class="tccard','class="tccard wsmcard').replace(/<button class="btn tctravel[^>]*>[^<]*<\/button>|<div class="tclock">[^<]*<\/div>/,btn);}
+if(typeof PANELS!=='undefined'&&PANELS.waystone){const _pwF=PANELS.waystone;PANELS.waystone=function(){let h=_pwF.apply(this,arguments);
+  const gs=wsfGroups();if(!gs.length){WSF.view='world';return h.replace(/<div class="wsmfl">[\s\S]*?<\/div>(?=<\/div><div class="wsdcol">)/,'');}
+  const n=gs.reduce((a,[,ids])=>a+ids.filter(id=>P.visited.includes(id)).length,0);
+  const tabs=`<div class="wsftabs" role="tablist"><button type="button" class="btn small${WSF.view==='world'?' on':''}" role="tab" aria-selected="${WSF.view==='world'}" data-act="wsview" data-arg="world">🗺 World map</button>`+
+    `<button type="button" class="btn small${WSF.view==='floors'?' on':''}" role="tab" aria-selected="${WSF.view==='floors'}" data-act="wsview" data-arg="floors">▼ Floors below <span class="wsn">${n}</span></button></div>`;
+  const a=h.indexOf('<div class="wsmw"><div class="wsmcol">'),b=h.indexOf('</div><div class="wsdcol">');if(a<0||b<0)return h;
+  const start=a+'<div class="wsmw"><div class="wsmcol">'.length;let col=h.slice(start,b).replace(/<div class="wsmfl">[\s\S]*$/,'');
+  if(WSF.view==='floors'){const all=gs.flatMap(([,ids])=>ids);if(!WSF.sel||!all.includes(WSF.sel))WSF.sel=all.find(id=>P.visited.includes(id)&&id!==zoneId)||all[0];
+    col=wsfMapHtml();h=h.replace(/<div id="wsDet">[\s\S]*<\/div><\/div><\/div>$/,`<div id="wsDet">${wsfDetail(WSF.sel)}</div></div></div>`);}
+  return h.slice(0,start)+tabs+col+h.slice(b);};}
+PANEL_ACTS.wsview=v=>{WSF.view=v==='floors'?'floors':'world';sfx('click');refreshPanel();};
+PANEL_ACTS.wsfsel=id=>{if(!ZONES[id])return;WSF.sel=id;sfx('click');refreshPanel();try{const d=panel.querySelector('#wsDet');if(d){const r=d.getBoundingClientRect();if(r.top>innerHeight-120)d.scrollIntoView({block:'nearest',behavior:'smooth'});}}catch(e){}};
+if(typeof TH!=='undefined')Object.assign(TH,{'🗺 World map':'🗺 แผนที่โลก','Other places':'ที่อื่น ๆ'});
+(()=>{const st=document.createElement('style');st.textContent=`
+#panel .wsftabs{display:flex;gap:6px;margin:4px 0 6px}
+#panel .wsfmap{display:flex;flex-direction:column;gap:12px;padding:12px;border-radius:14px;background:#0e151f;border:1px solid rgba(232,194,90,.28);margin:4px 0 8px}
+#panel .wfgt{font:700 12px var(--ui,system-ui);color:#e8c25a;margin:0 0 6px}
+#panel .wfrow{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+#panel .wfa{color:#c9b07a;font-size:14px}
+#panel .wft{position:relative;width:64px;height:64px;border-radius:10px;border:1px solid rgba(0,0,0,.55);padding:0;cursor:pointer;color:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-shadow:0 1px 2px #000,0 0 3px #000;font:800 15px var(--ui,system-ui)}
+#panel .wft .wfk{font-size:11px;opacity:.95}
+#panel .wft .wfn{font-size:10px;font-weight:700;line-height:1.1;padding:0 3px;text-align:center}
+#panel .wft.locked{filter:grayscale(.85) brightness(.6);cursor:default}
+#panel .wft.sel{outline:3px solid #ffd77a;outline-offset:2px}
+#panel .wft.here{box-shadow:0 0 0 2px var(--exp) inset}
+#panel .wft i{position:absolute;font-style:normal;font-size:12px;line-height:1}#panel .wft .wfp{right:3px;top:3px}#panel .wft .wfl{right:3px;bottom:3px}
+`;document.head.appendChild(st);})();
