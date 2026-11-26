@@ -97,13 +97,24 @@ function icon(it){return `<span class="ico" style="background:${it.col}">${it.g}
 function sigStripHtml(e){if(!e||!Array.isArray(e.s)||!e.s.length)return '';
   return `<div class="sigstrip" aria-label="Sigil slots">`+e.s.map(s=>s&&ITEMS[s]?`<span class="sigslot full" data-item="${s}" tabindex="0" title="${esc(ITEMS[s].name)}" aria-label="${esc(ITEMS[s].name)}"><img src="${typeof itemIconURL==='function'?itemIconURL(s):''}" alt=""></span>`:
     `<span class="sigslot" title="Empty slot" aria-label="Empty slot"></span>`).join('')+`</div>`;}
+// (v1.60.7) gear always shows what it does: its stats and abilities first, then its description. Before, an item with a
+// description showed only that, so boss relics read "Boss relic: dropped only by ..." with no ATK, DEF or bonuses at all.
+const GEAR_TYPES=['weapon','armor','head','accessory','face','mouth','shoes'],ALL_STATS=['str','agi','vit','int','dex','luk'];
+// the description without the stat lists it repeats ("Dropped by the Kraken Matron. INT +5 · DEX +5." keeps the first sentence)
+function gearNote(id){const it=ITEMS[id],src=it.descEn||it.desc;if(!src)return '';
+  const statList=/^(?:[A-Za-z][A-Za-z ]*\s[+-]\d+%?(?:\s·\s|$))+$/;
+  let note=src.split(/(?<=\.)\s+/).filter(x=>!statList.test(x.replace(/\.$/,'').trim())).join(' ').trim();
+  if(note&&typeof LANG!=='undefined'&&LANG==='th'&&typeof thItemDesc==='function')note=thItemDesc(id,note);
+  return note;}
 function itemDesc(e,noSlots){const it=ITEMS[e.id];const bits=[];
   if(it.atk)bits.push(`ATK ${it.atk}`);if(it.matk)bits.push(`MATK ${it.matk}`);if(it.def)bits.push(`DEF ${it.def}`);
-  if(it.b)for(const k in it.b)bits.push(typeof bonusLabel==='function'&&bonusLabel(k,it.b[k])||`${k.toUpperCase().replace('MAXHP','Max HP').replace('MAXSP','Max SP')} +${it.b[k]}`);
+  const b=it.b||{},all=ALL_STATS.every(k=>b[k]&&b[k]===b.str);if(all)bits.push(`All stats +${b.str}`);
+  for(const k in b){if(all&&ALL_STATS.includes(k))continue;bits.push(typeof bonusLabel==='function'&&bonusLabel(k,b[k])||`${k.toUpperCase().replace('MAXHP','Max HP').replace('MAXSP','Max SP')} +${b[k]}`);}
   if(rarityOf(e.id))bits.push(RARITY[rarityOf(e.id)].name);if(e.r){const rb=refineBonus(e);bits.push(Object.keys(rb).map(k=>`${k.toUpperCase()} +${rb[k]}`).join(', ')+' (refine)');}
   if(it.lv>1)bits.push(`Lv ${it.lv}+`);if(it.wt)bits.push(it.wt);
   if(e.s&&e.s.length&&!noSlots)bits.push('Slots: '+e.s.map(s=>s?ITEMS[s].name.replace(' Sigil',''):'empty').join(', '));
   if(it.desc&&it.type==='use'&&(it.heal||it.sp||it.cure)&&typeof potCd==='function')return it.desc+` Cooldown ${potCd(it)}s.`;
+  if(GEAR_TYPES.includes(it.type)){const note=gearNote(e.id);if(note)bits.push(note);return bits.join(' · ');}
   return it.desc||bits.join(' · ');}
 function refreshPanel(){
   if(!panelKind||!P)return;if(panel.dataset.kind!==panelKind)panel.dataset.kind=panelKind; /* CSS keys window layouts on this (cheaper than :has()) */let h=`<button class="btn small x" data-act="close" aria-label="Close">✕</button>`;

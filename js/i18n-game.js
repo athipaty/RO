@@ -239,6 +239,8 @@ function thItemDesc(id,en){if(typeof en!=='string')return en;if(ITEM_TH[id])retu
   if(m=en.match(/^Socket into (?:an? )?(\w+): (.+)$/))return `ใส่ในช่องของ${SLOT_TH[m[1]]||m[1]}: ${thStats(m[2])}`;
   if(m=en.match(TH_RELIC_RE))return thRelic(m);
   if(m=en.match(/^Dropped by (?:the )?(.+?)\. (.+)$/))return `ดรอปจาก ${m[1]} · ${thStats(m[2])}`;
+  if(m=en.match(/^Dropped by (?:the )?(.+?)\.$/))return `ดรอปจาก ${m[1]}`; // (v1.60.7) the source line under a gear's stats
+  if(m=en.match(/^MVP prize from the (.+?)\.$/))return `รางวัล MVP จาก ${m[1]}`;
   if(m=en.match(/^MVP prize from the (.+?)\. (.+)$/))return `รางวัล MVP จาก ${m[1]} · ${thStats(m[2])}`;
   if(m=en.match(/^For (\d+) minutes: (.+)$/))return `${m[1]} นาที: ${thStats(m[2])}`;
   if(m=en.match(/^\+(\d+)% damage to (.+?) · (.+)$/))return `ความเสียหายต่อ${RACE_TH[m[2]]||m[2]} +${m[1]}% · ${thStats(m[3])}`;
@@ -297,7 +299,7 @@ function thApplyLate(){if(typeof LANG==='undefined'||LANG!=='th'||thApplyLate.do
   for(const id in SKILL_TH){const sk=SKILLS[id];if(!sk)continue;TH[sk.name]=SKILL_TH[id][0];
     const d=sk.desc;if(typeof d==='function')sk.desc=function(){return thSkillDesc(id,d.apply(this,arguments));};else if(typeof d==='string')sk.desc=thSkillDesc(id,d);
     sk.name=SKILL_TH[id][0];}
-  for(const id in ITEMS){const it=ITEMS[id];if(typeof it.desc==='string')it.desc=thItemDesc(id,it.desc);}
+  for(const id in ITEMS){const it=ITEMS[id];if(typeof it.desc==='string'){if(!it.descEn)it.descEn=it.desc;it.desc=thItemDesc(id,it.desc);}} // (v1.60.7) the English kept for gearNote
   if(typeof TH_MEMO!=='undefined')TH_MEMO.clear();}
 // v1.49.1: the open arena (js/brawl.js), knockdowns (js/pvpdown.js) and no auto mode in player fights
 if(typeof TH!=='undefined'){Object.assign(TH,{'Open PvP':'PvP แบบเปิด','inside':'อยู่ข้างใน','knockdowns':'ล้มคู่ต่อสู้','falls':'ถูกล้ม',

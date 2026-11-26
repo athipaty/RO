@@ -4,7 +4,9 @@ const cv=$('#cv');let ctx=cv.getContext('2d');let VW=0,VH=0,DPR=1,camX=0,camY=0,
 // (v1.60.6) the resolution for pictures made once and reused (buildings, land, signs, names): the full-quality one,
 // even while battlesmooth.js draws the screen at a lower resolution in a heavy fight. Before, every step down threw them
 // all away and redrew them at once, mid-fight: a freeze of up to seconds that made the next frames slower still.
-function picDPR(){return typeof bsBase==='function'?Math.max(DPR,bsBase()):DPR;}
+// (v1.60.7) worked out once per change of resolution or screen size: it is asked for every building, sign and name each
+// frame, and bsBase() reads the canvas's size from the page (in v1.60.6 that was a tenth of a town frame)
+function picDPR(){const k=DPR+'|'+VW+'|'+VH+'|'+(typeof SETS!=='undefined'&&SETS&&SETS.lite?1:0);if(picDPR.k!==k){picDPR.k=k;picDPR.v=typeof bsBase==='function'?Math.max(DPR,bsBase()):DPR;}return picDPR.v;}
 function resize(){DPR=window.LITE?1:Math.min(2,window.devicePixelRatio||1);VW=cv.clientWidth;VH=cv.clientHeight;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR);}
 window.addEventListener('resize',resize);
 /* ---------- isometric camera: world stays a flat grid, the screen shows it at an angle ---------- */
