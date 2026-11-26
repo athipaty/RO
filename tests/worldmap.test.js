@@ -15,9 +15,9 @@ module.exports = async t => {
       const kind = panelKind, nodes = [...panel.querySelectorAll('.wnode')].map(n => n.dataset.zone), here = panel.querySelector('.wnode.here')?.dataset.zone,
         unseen = [...panel.querySelectorAll('.wnode.unseen')].map(n => n.dataset.zone), txt = panel.textContent,
         branch = [...panel.querySelectorAll('.wbranch .wnode')].map(n => n.dataset.zone), cells = panel.querySelectorAll('.wgrid .wc:not(.empty)').length, city = panel.querySelectorAll('.wgrid .wc.city').length;
-      return { kind, nodes, here, unseen, txt, branch, cells, city, grid: Object.keys(WORLD_GRID).length, btn: !!document.querySelector('[data-open="worldmap"]') }; });
+      return { kind, nodes, here, unseen, txt, branch, cells, city, grid: Object.keys(WORLD_GRID).length, off: Object.keys(ZONES).filter(id => !WORLD_GRID[id] && !ZONES[id].safe).length, btn: !!document.querySelector('[data-open="worldmap"]') }; });
     t.ok(map.kind === 'worldmap' && map.btn, 'M (or the Map button) opens the world map');
-    t.ok(map.nodes.length === map.grid + 6 && ['deep1', 'deep2', 'deep3', 'molten1'].every(z => map.branch.includes(z)) && map.cells === map.grid && map.city === 2, `it shows the grid of all ${map.grid} places around the city and every region as a card, road by road, with the dungeon floors under theirs (${map.nodes.length} cards, ${map.cells} squares)`);
+    t.ok(map.nodes.length === map.grid + map.off && ['deep1', 'deep2', 'deep3', 'molten1'].every(z => map.branch.includes(z)) && map.cells === map.grid && map.city === 2, `it shows the grid of all ${map.grid} places around the city and every region as a card, road by road, with the dungeon floors under theirs (${map.nodes.length} cards, ${map.cells} squares)`);
     t.ok(map.here === 'meadow' && /You are here/.test(map.txt), 'it marks where you are');
     t.ok(map.unseen.includes('frost') && !map.unseen.includes('woods') && /Sproutling/.test(map.txt) && !/Rime Stalker/.test(map.txt), 'unvisited regions are dimmed and keep their monsters secret');
     t.ok(/World boss: Ashen Warlord/.test(map.txt), 'it shows where a world boss is out');

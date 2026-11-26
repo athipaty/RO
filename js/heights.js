@@ -171,6 +171,11 @@ const LV_DESIGNS={
     {k:'bowl',name:'Ash Crater',at:[.65,.55],rx:6.5,ry:4.5,D:28,style:'obsidian',den:'ashcolossus'},
     {k:'hill',name:'Cinder Ridge',at:[.22,.25],rx:6,ry:3,H:32,top:.2,bank:{ax:'y',at:.3},style:'obsidian'},
     {k:'gully',name:'Cracked Trench',at:[.25,.75],ax:'x',len:12,wid:2,D:20,style:'obsidian',dwell:'cinderlizard'}]},
+  // (v1.64.0) the Tidewater Isle: the Reef Matriarch's lagoon, a dune by the shore, a tidal creek
+  isles:{auto:[
+    {k:'bowl',name:'Reef Lagoon',at:[.68,.62],rx:6.5,ry:4.5,D:22,den:'reefmatriarch'},
+    {k:'hill',name:'Shore Dune',at:[.25,.25],rx:6.5,ry:4,H:28,top:.25},
+    {k:'gully',name:'Tidal Creek',at:[.3,.75],ax:'x',len:12,wid:2,D:14,water:1,dwell:'tidecrab'}]},
   dusk:{auto:[ // Duskwood: a shadow hollow where the Hollow King waits, ridges of roots, a dark brook
     {k:'bowl',name:'Shadow Hollow',at:[.7,.35],rx:6,ry:4.5,D:32,den:'hollowking'},
     {k:'hill',name:'Root Ridge',at:[.25,.25],rx:6.5,ry:2.8,H:28,top:.25,bank:{ax:'y',at:.12},roots:1},

@@ -424,6 +424,47 @@ MOB_LOOKS.ashwraith=(m,o)=>wisp(o,{glow:'#c8c0b8',eye:'#e04a2a',extra:(o,y)=>{co
 MOB_LOOKS.ashcolossus=(m,o)=>biped(o,{tw:1.05,th:1.35,hr:.42,round:.1,wide:1.3,head:'#6a6060',leg:'#3a3434',armCol:'#5a5252',fist:'#4a4242',eye:'#ffb040',eyeGlow:'#ff7a20',
   back:(o,g)=>{const {x,s,t}=o;for(let k=0;k<3;k++){const p=(t*.4+k/3)%1;gl(x+(k-1)*s*.5,g.ty-g.th*1.3-p*s*1.5,s*(.5+p*.6),'#8a8080',.45*(1-p));}},
   extra:(o,g)=>{const {x,s,t}=o;const k=.6+Math.sin(t*3)*.3;for(const [a,b] of [[-.35,.35],[.3,.55],[-.05,.75],[.4,.2]]){ln([[x+a*g.tw*2,g.ty-g.th*b],[x+a*g.tw*2+s*.15,g.ty-g.th*b-s*.25]],'#ff7a20',Math.max(1.4,s*.05));}gl(x,g.ty-g.th*.55,s*.6,'#ff6a10',.35*k);}});
+/* ---------- (v1.64.0) the Tidewater Isle and the Sunken Grotto (js/isles.js) ---------- */
+// an eel: a long wavy body rising from the water
+const eel=(o,c,belly,glow)=>{const {x,y,s,t,f}=o;shadow(x,y,s*1.1);if(glow)gl(x,y-s*.9,s*1.6,glow,.3);
+  for(let k=0;k<8;k++){const u=k/7,px=x-f*s*(u-.4)*1.6,py=y-s*(.25+u*.0)-Math.sin(u*5+t*4)*s*.28-(1-u)*s*.55;ci(px,py,s*(.32-u*.18),k%2?c:mlShade(c,12));}
+  const hx=x+f*s*.7,hy=y-s*1.0-Math.sin(t*4)*s*.1;el(hx,hy,s*.38,s*.28,c,f*.3);el(hx+f*s*.1,hy+s*.12,s*.25,s*.1,belly);pf([[hx-f*s*.1,hy-s*.25],[hx-f*s*.35,hy-s*.6],[hx-f*s*.4,hy-s*.2]],mlShade(c,-20));
+  mlEye(hx+f*s*.18,hy-s*.08,Math.max(1.3,s*.07),glow?'#e8fff8':'#1a1a1a',glow);};
+MOB_LOOKS.tidecrab=(m,o)=>scuttle(o,'#e06a4a',null);
+MOB_LOOKS.seagull=(m,o)=>bird(o,{wing:'#d8dce0',belly:'#ffffff',head:'#ffffff',beak:'#f0b030',tail:'#a8b0b8',span:1.9,flap:7});
+MOB_LOOKS.kelpling=(m,o)=>sprout(o,{leaf:'#3a7a4a',top:(x,y,s,t)=>{for(let k=-2;k<=2;k++)ln([[x+k*s*.1,y+s*.15],[x+k*s*.2+Math.sin(t*2+k)*s*.12,y-s*.45],[x+k*s*.12+Math.sin(t*2.4+k)*s*.15,y-s*.8]],'#4a8a5a',Math.max(1.4,s*.08));}});
+MOB_LOOKS.tidepoolslime=(m,o)=>{const {x,y,s,t,f,mv}=o;shadow(x,y,s*1.1);const sq=mv?Math.abs(Math.sin(t*6))*.15:Math.sin(t*2)*.04;
+  el(x,y-s*.55*(1-sq),s*(.95+sq*.5),s*.6*(1-sq),'rgba(106,200,216,.85)');el(x-s*.3,y-s*.85,s*.25,s*.13,'rgba(255,255,255,.55)',-.4);
+  for(const [a,b,c] of [[-.3,-.35,'#f07a8a'],[.25,-.25,'#f0e060'],[0,-.15,'#ffffff']])ci(x+a*s,y+b*s,s*.08,c);
+  for(const k of [.05,.35])mlEye(x+f*s*k,y-s*.65,Math.max(1.4,s*.08),'#1a3a4a');};
+MOB_LOOKS.reefmatriarch=(m,o)=>{const {x,s,t,f}=o,y=o.y-s*1.3-Math.sin(t*1.6)*s*.12;shadow(x,o.y,s*.9);gl(x,y,s*2.2,'#7ad8f0',.3);
+  for(let k=0;k<6;k++){const a=Math.PI*(.15+k*.14);ln([[x+Math.cos(a)*s*.4,y+s*.4],[x+Math.cos(a)*s*1.1+Math.sin(t*2+k)*s*.12,y+s*1.25]],'#3a9ab8',Math.max(2,s*.1));}
+  el(x,y,s*.85,s*.75,'#5ab8d8');el(x+f*s*.15,y-s*.1,s*.5,s*.45,'#c8f0f8');
+  for(const [a,c] of [[-.55,'#f07a8a'],[-.2,'#f0e060'],[.2,'#f07a8a'],[.55,'#a8e0f0']])pf([[x+a*s-s*.08,y-s*.65],[x+a*s,y-s*1.15],[x+a*s+s*.08,y-s*.65]],c);
+  for(const k of [0,.32])mlEye(x+f*s*k,y-s*.12,Math.max(1.6,s*.06),'#e8fff8','#a8f0ff');};
+MOB_LOOKS.grottoeel=(m,o)=>eel(o,'#3a5a6a','#a8c8c8');
+MOB_LOOKS.grottoeel2=(m,o)=>eel(o,'#1a3a4a','#6a9aa8','#6ae8d8');
+MOB_LOOKS.pearlclam=(m,o)=>{const {x,y,s,t,f}=o;shadow(x,y,s);const op=.12+Math.abs(Math.sin(t*1.1))*.25;
+  el(x,y-s*.35,s*.85,s*.35,'#b8b0c8');ctx.save();ctx.translate(x,y-s*.35);ctx.rotate(-f*op);el(0,-s*.12,s*.85,s*.3,'#e8e0f0');ctx.strokeStyle='#a8a0b8';ctx.lineWidth=1;for(let k=-2;k<=2;k++){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(k*s*.3,-s*.35);ctx.stroke();}ctx.restore();
+  ci(x+f*s*.1,y-s*.45,s*.2,'#fff8ff');gl(x+f*s*.1,y-s*.45,s*.45,'#ffffff',.5);};
+MOB_LOOKS.driftwisp=(m,o)=>wisp(o,{glow:'#c8f0ff',eye:'#2a5a7a'});
+MOB_LOOKS.sirenwisp=(m,o)=>wisp(o,{glow:'#f0c8ff',eye:'#6a2a7a',extra:(o,y)=>{const {x,s,t}=o;ctx.strokeStyle='rgba(240,200,255,.6)';ctx.lineWidth=1.2;for(let k=0;k<3;k++){const p=(t*.8+k/3)%1;ctx.beginPath();ctx.arc(x,y,s*(.7+p*1.2),-.6,.6);ctx.stroke();}}});
+MOB_LOOKS.abysswisp=(m,o)=>wisp(o,{glow:'#6a6ac8',eye:'#e8e8ff'});
+MOB_LOOKS.coralguard=(m,o)=>biped(o,{tw:.85,th:1.15,hr:.36,round:.2,head:'#f08a9a',leg:'#a84a5a',armCol:'#e07080',fist:'#f0a0a8',eye:'#2a2a4a',
+  extra:(o,g)=>{const {x,s}=o;for(const [a,b] of [[-.6,1.05],[.55,1.1],[0,1.0]]){ln([[x+a*g.tw,g.ty-g.th*b],[x+a*g.tw*1.3,g.ty-g.th*b-s*.5]],'#f07a8a',Math.max(2,s*.1));ln([[x+a*g.tw*1.15,g.ty-g.th*b-s*.25],[x+a*g.tw*1.6,g.ty-g.th*b-s*.4]],'#f07a8a',Math.max(1.5,s*.07));}}});
+MOB_LOOKS.inkcrawler=(m,o)=>{scuttle(o,'#2a2a4a',null);const {x,y,s,t}=o;for(let k=0;k<3;k++){const p=(t*.6+k/3)%1;ci(x-o.f*s*(.8+p*.8),y-s*.3,s*(.2+p*.3),`rgba(20,20,40,${.5*(1-p)})`);}};
+MOB_LOOKS.abysscrab=(m,o)=>scuttle(o,'#4a3a6a','#8a7ae8');
+MOB_LOOKS.drownedknight=(m,o)=>biped(o,{tw:.8,th:1.15,hr:.36,round:.12,head:'#5a7a8a',leg:'#2a3a44',armCol:'#4a6a7a',fist:'#3a5a6a',eye:'#7af0e0',eyeGlow:'#4ae0d0',
+  extra:(o,g)=>{const {x,s,t}=o;pf([[g.hx-g.hr*1.05,g.hy+g.hr*.1],[g.hx-g.hr*.9,g.hy-g.hr*1.1],[g.hx+g.hr*.9,g.hy-g.hr*1.1],[g.hx+g.hr*1.05,g.hy+g.hr*.1]],'#4a6a74');
+    for(const k of [-1,1])ln([[x+k*g.tw*.6,g.ty-g.th*.9],[x+k*g.tw*.7+Math.sin(t*1.5+k)*s*.05,g.ty-g.th*.1]],'#3a7a4a',Math.max(1.3,s*.05));
+    ln([[x+o.f*g.tw*1.3,g.ty-g.th*.2],[x+o.f*g.tw*1.4,g.ty-g.th*1.5]],'#a8b8c0',Math.max(1.6,s*.07));}});
+MOB_LOOKS.leviathan=(m,o)=>{const {x,y,s,t,f}=o;shadow(x,y,s*1.4);gl(x,y-s*.8,s*2,'#4ac8e8',.25);
+  for(let k=0;k<3;k++){const bx=x-f*s*(.9+k*.6),by=y-s*(.25+Math.sin(t*2+k)*.12);el(bx,by,s*(.45-k*.08),s*(.35-k*.06),k%2?'#2a7aa8':'#3a8ab8');}
+  for(let k=0;k<4;k++){const u=k/3;ci(x+f*s*u*.6,y-s*(.6+u*.9),s*(.62-u*.15),k%2?'#2a7aa8':'#3a8ab8');}
+  const hx=x+f*s*.75,hy=y-s*1.9-Math.sin(t*1.5)*s*.08;el(hx,hy,s*.6,s*.42,'#2a7aa8',f*.2);el(hx+f*s*.2,hy+s*.18,s*.4,s*.16,'#a8e0f0');
+  for(const k of [-1,1])pf([[hx-f*s*.1+k*s*.15,hy-s*.3],[hx-f*s*.45+k*s*.35,hy-s*.95],[hx-f*s*.05+k*s*.3,hy-s*.35]],'#1a5a80');
+  for(let k=0;k<4;k++)pf([[x-f*s*(.2-k*.3),y-s*(1.15-k*.15)],[x-f*s*(.35-k*.3),y-s*(1.55-k*.15)],[x-f*s*(.05-k*.3),y-s*(1.2-k*.15)]],'#1a5a80');
+  mlEye(hx+f*s*.25,hy-s*.1,Math.max(1.8,s*.06),'#e8fff8','#6af0ff');mlCrown(hx-f*s*.05,hy-s*.42,s*.18,'#6af0ff');};
 }
 
 /* ---------- the land: upright pictures for the new themes ---------- */
