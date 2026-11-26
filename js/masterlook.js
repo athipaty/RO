@@ -134,10 +134,19 @@
   JSIDE.healmotes=function(x,y,by,f,o){ctx.save();ctx.fillStyle=o.c;ctx.shadowColor=o.c;ctx.shadowBlur=5;
     for(let i=0;i<4;i++){const q=(now*.35+i/4)%1,side=i%2?1:-1,px=x+side*(13+Math.sin(i*1.9+now)*2),py=by+2-q*14;ctx.globalAlpha=Math.sin(q*Math.PI)*.85;ctx.fillRect(px-.5,py-1.8,1,3.6);ctx.fillRect(px-1.8,py-.5,3.6,1);}
     ctx.restore();};
+  // the Soulreaper: small cyan soul flames rising at its sides; the Plaguelord: small toxic bubbles (both away from the face)
+  JSIDE.soulwisps=function(x,y,by,f,o){ctx.save();ctx.shadowColor=o.c;ctx.shadowBlur=7;
+    for(let i=0;i<4;i++){const q=(now*.4+i/4)%1,side=i%2?1:-1,px=x+side*(13.5+Math.sin(now*2+i)*2),py=by+1-q*16,a=Math.sin(q*Math.PI);ctx.globalAlpha=a*.9;ctx.fillStyle=o.c;
+      ctx.beginPath();ctx.moveTo(px,py-3.6);ctx.quadraticCurveTo(px+2.2,py-.4,px,py+1.6);ctx.quadraticCurveTo(px-2.2,py-.4,px,py-3.6);ctx.fill();ctx.fillStyle='#e8ffff';ctx.beginPath();ctx.arc(px,py,.7,0,7);ctx.fill();}
+    ctx.restore();};
+  JSIDE.toxbubbles=function(x,y,by,f,o){ctx.save();for(let i=0;i<5;i++){const q=(now*.5+i/5)%1,side=i%2?1:-1,px=x+side*(12.5+Math.sin(now*3+i*2)*1.6),py=by+2-q*13,r=.9+i%3*.4;
+      ctx.globalAlpha=Math.sin(q*Math.PI)*.9;ctx.strokeStyle=o.c[i%o.c.length];ctx.lineWidth=.8;ctx.beginPath();ctx.arc(px,py,r,0,7);ctx.stroke();ctx.fillStyle='rgba(255,255,255,.5)';ctx.beginPath();ctx.arc(px-r*.35,py-r*.35,r*.3,0,7);ctx.fill();}
+    ctx.restore();};
+  JSIDE.skullpauld=function(x,y,by,f,o){const OL='#2a1c14',k=-f;ctx.save();ctx.translate(x+k*12.8,by-11.6);ctx.rotate(k*.3);ctx.scale(1.15,1.15);ctx.fillStyle=o.bone;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(0,-1,5,4.4,0,0,7);ctx.fill();ctx.stroke();ctx.beginPath();ctx.roundRect(-2.6,2.2,5.2,2.4,1);ctx.fill();ctx.stroke();ctx.strokeStyle=OL;ctx.lineWidth=.6;for(const d of [-1.2,0,1.2]){ctx.beginPath();ctx.moveTo(d,2.4);ctx.lineTo(d,4.4);ctx.stroke();}ctx.fillStyle='#1a161e';for(const d of [-1.8,1.8]){ctx.beginPath();ctx.ellipse(d,-1.2,1.2,1.4,0,0,7);ctx.fill();}ctx.shadowColor=o.eye;ctx.shadowBlur=6;ctx.fillStyle=o.eye;for(const d of [-1.8,1.8]){ctx.beginPath();ctx.arc(d,-1,.5+.15*Math.sin(now*4),0,7);ctx.fill();}ctx.restore();};
   // (v1.70.0) the other masters: their own outfits (js/outfits_masters2.js) and the rune circle; no wings, orbs or capes
   for(const [id,c,t] of [['tempestsage','#ffe23a','#fff6c0'],['voidcaller','#3ae8c8','#d8fff6'],['dawnknight','#ff3a3a','#ffc8c8'],['starseer','#e8c060','#fff6d8'],
-    ['soulreaper','#ff4a5a','#ffd0d4'],['plaguelord','#9aff5a','#e0ffc8']])JOB_LOOK[id]={aura:c,b:[['sigil',{c,t}]]}; /* (the Gunslinger masters: on hold) */
-  JOB_LOOK.tempestsage.s=[['handarcs',{c:'#ffe23a'}]];JOB_LOOK.starseer.s=[['moondisc',{c:'#e8c060'}],['handstars',{c:'#ffd870'}]];JOB_LOOK.oracle={...(JOB_LOOK.oracle||{}),s:[['healmotes',{c:'#7fd3ff'}]],b:[]};JOB_LOOK.dawnknight.s=[['sundisc',{ray:'#ff4a3a',rim:'#e8b84a',core:'#c8202e'}]];JOB_LOOK.voidcaller.s=[['voidring',{c:'#3ae8c8',t:'#d8fff6'}]];
+    ['soulreaper','#ff3a4a','#ffd0d4'],['plaguelord','#a8ff3a','#e8ffc8']])JOB_LOOK[id]={aura:c,b:[['sigil',{c,t}]]}; /* (the Gunslinger masters: on hold) */
+  JOB_LOOK.tempestsage.s=[['handarcs',{c:'#ffe23a'}]];JOB_LOOK.starseer.s=[['moondisc',{c:'#e8c060'}],['handstars',{c:'#ffd870'}]];JOB_LOOK.oracle={...(JOB_LOOK.oracle||{}),s:[['healmotes',{c:'#7fd3ff'}]],b:[]};JOB_LOOK.soulreaper.s=[['skullpauld',{bone:'#ece4d0',eye:'#ff3a4a'}],['soulwisps',{c:'#ff3a4a'}]];JOB_LOOK.plaguelord.s=[['toxbubbles',{c:['#a8ff3a','#5ad860','#e8ff7a']}]];JOB_LOOK.nightblade={};JOB_LOOK.venomancer={};JOB_LOOK.dawnknight.s=[['sundisc',{ray:'#ff4a3a',rim:'#e8b84a',core:'#c8202e'}]];JOB_LOOK.voidcaller.s=[['voidring',{c:'#3ae8c8',t:'#d8fff6'}]];
   /* a master in its own outfit wears no job mantle (the coloured shoulder pads and collar every advanced calling has):
      they would cover its own pauldrons and chest pieces */
   if(typeof drawJobMantle==='function'){const _djm=drawJobMantle;drawJobMantle=function(){const p=ML_P;

@@ -23,7 +23,7 @@ if(typeof SKILL_FX!=='undefined')for(const id in SKILL_FX_SH2){const sk=SKILLS[i
 // outfit pieces (js/joblooks.js)
 if(typeof JOB_LOOK!=='undefined')Object.assign(JOB_LOOK,{
   nightblade:{s:[['spikes',{c:'#2a2236',t:'#ff5a7a'}]],b:[['cape',{c:'#1e1a28',t:'#ff5a7a',long:1}]]},
-  venomancer:{s:[['orb',{c:'#2a3a1a',t:'#9be35a'}]],b:[['cape',{c:'#3a4a2a',t:'#9be35a'}]]},
+  venomancer:{b:[['cape',{c:'#3a4a2a',t:'#9be35a'}]]}, // (v1.70.2) no orb beside it
   phantom:{s:[['sparks',{c:'#a8c8ff'}]],b:[['cape',{c:'#3a3a5a',t:'#a8c8ff'}]]}});
 
 // finisher and cast circle (js/fightstyle.js)

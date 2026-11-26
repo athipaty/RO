@@ -18,13 +18,21 @@ const MASTER2_LOOKS={
   voidcaller:{fam:'master2',kit:'void',robe:'#ece6da',sleeve:'#ece6da',sleeve2:'#16161c',ink:'#16161c',crystal:'#22222c',glow:'#3ae8c8',chain:'#a8b0b8',boot:'#16161c',cuff:'#3ae8c8'},
   dawnknight:{fam:'master2',kit:'dawn',robe:'#7a1a2a',under:'#1a1416',sleeve:'#7a1a2a',bronze:'#c8803a',bronze2:'#8a5424',glow:'#ff9a3a',metal:'#c8803a',boot:'#1a1416',cuff:'#c8803a'},
   starseer:{fam:'master2',kit:'star',robe:'#14141e',robe2:'#08080e',sleeve:'#14141e',gold:'#e8c060',silver:'#e8c060',boot:'#14141e',cuff:'#e8c060'},
-  soulreaper:{fam:'master2',kit:'reaper',body:'#1e1a22',sleeve:'#1e1a22',bone:'#ece4d0',sash:'#7a1420',wrap:'#3a3440',glow:'#ff4a5a',pant:'#1a161e',boot:'#141016',cuff:'#ece4d0',tall:1},
-  plaguelord:{fam:'master2',kit:'plague',body:'#4a5a3a',sleeve:'#4a5a3a',apron:'#6a5a3a',apron2:'#4a3e28',glove:'#2a3a22',vials:['#9aff5a','#ff6aa0','#7ad8ff','#ffd27a'],leather:'#3a2a1a',pant:'#2e3a26',boot:'#22301c',cuff:'#9aff5a',tall:1},
+  soulreaper:{fam:'master2',kit:'reaper',noSkull:1,body:'#d6dade',sleeve:'#c4c9ce',bone:'#f2eee4',rib:'#2e3440',sash:'#2ad8d0',wrap:'#5a6270',glow:'#3ae8e0',pant:'#3a404a',boot:'#262a32',cuff:'#3ae8e0',tall:1},
+  plaguelord:{fam:'master2',kit:'plague',body:'#3a1e4a',sleeve:'#3a1e4a',apron:'#5a2a6a',apron2:'#2a1236',glove:'#16141a',vials:['#ffe23a','#ff9a3a','#ff4aa8','#d8ff3a'],leather:'#2a1a1a',pant:'#2a1636',boot:'#16141a',cuff:'#ffe23a',tall:1},
   longshot:{fam:'master2',kit:'poncho',body:'#e8dcc0',sleeve:'#e8dcc0',poncho:'#b8402e',stripe:'#f0d890',stripe2:'#2a4a6a',leather:'#6a4426',brass:'#e0b850',pant:'#5a4a36',boot:'#7a4e2a',cuff:'#e0b850',tall:1},
   blastmaster:{fam:'master2',kit:'blast',body:'#3a3634',sleeve:'#5a3a22',vest:'#242222',hazard:'#ff8a2a',dyn:'#c8282e',fuse:'#e8dcc0',glove:'#8a5a32',pant:'#2a2624',boot:'#1a1816',cuff:'#ff8a2a',tall:1}};
+/* (v1.70.2) the Shade family redesigned: the Shade a simple rogue; the Nightblade and the Venomancer official uniforms
+   (the same on both sides); their masters keep their own style */
+Object.assign(MASTER2_LOOKS,{
+  shade:{fam:'master2',kit:'rogue2',own:1,body:'#3a3a44',sleeve:'#3a3a44',leather:'#6a4a30',scarf:'#8a8a94',metal:'#c8ccd4',wrap:'#8a8070',pant:'#2e2e36',boot:'#4a3a2a',cuff:'#8a8070',tall:1},
+  nightblade:{fam:'master2',kit:'assassin2',own:1,body:'#16141c',sleeve:'skin',red:'#c8202e',red2:'#8a1420',metal:'#c8ccd4',pant:'#16141c',boot:'#100e14',cuff:'#c8202e',tall:1},
+  venomancer:{fam:'master2',kit:'venom2',own:1,hood:'#3a4a2a',hood2:'#2a3820',pouch:'#5a3e24',body:'#1e3a24',sleeve:'#1e3a24',coat:'#1e3a24',coat2:'#16301c',venom:'#a8ff3a',leather:'#3a2a1a',pant:'#16261a',boot:'#16261a',cuff:'#a8ff3a',tall:1}});
 // (the Gunslinger masters are on hold at the player's wish: drawn but not worn yet)
-const MASTER2_FAM={tempestsage:'arcanist',voidcaller:'arcanist',dawnknight:'cleric',starseer:'cleric',soulreaper:'shade',plaguelord:'shade'};
+const MASTER2_FAM={shade:'shade',nightblade:'shade',venomancer:'shade',tempestsage:'arcanist',voidcaller:'arcanist',dawnknight:'cleric',starseer:'cleric',soulreaper:'shade',plaguelord:'shade'};
 if(typeof OUTFITS!=='undefined'){for(const [id,fam] of Object.entries(MASTER2_FAM)){OUTFITS[fam]=OUTFITS[fam]||{};OUTFITS[fam][id]=MASTER2_LOOKS[id];}}
+// (v1.70.2) the player's swap: the Shade masters wear the advanced callings' designs and the other way round
+if(typeof OUTFITS!=='undefined'&&OUTFITS.shade){const o=OUTFITS.shade;[o.nightblade,o.soulreaper]=[o.soulreaper,o.nightblade];[o.venomancer,o.plaguelord]=[o.plaguelord,o.venomancer];}
 /* (v1.70.1) the player's swap: the Templar wears the robe-coat with the glowing hem and the lantern, in the Cleric
    family's white, gold and sky blue; the Dawnknight wears the war-priest (stole, breastplate, sunburst guard, holy book:
    js/outfits_cleric.js 'templar') in red and black */
@@ -42,7 +50,11 @@ function master2Part(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v,k0=-f,sw=sway*.2
   const line=(c,w,pts)=>{ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(pts[0],pts[1]);for(let i=2;i<pts.length;i+=2)ctx.lineTo(pts[i],pts[i+1]);ctx.stroke();};
   const band=(c,w,x0,y0,x1,y1)=>{line(OL,w+1.4,[x0,y0,x1,y1]);line(c,w,[x0,y0,x1,y1]);};
   const glowOn=c=>{ctx.shadowColor=c;ctx.shadowBlur=6;},glowOff=()=>{ctx.shadowBlur=0;};
-  if(part==='back')return;
+  if(part==='back'){if(K.kit==='venom2'){ /* the hood, down on the back */ctx.fillStyle=K.hood2;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.ellipse(x-f*3,by-13.6,11.4,4.8,f*.12,0,7);ctx.fill();ctx.stroke();ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(x-f*3,by-13,7,2.4,f*.12,0,7);ctx.fill();}
+    if(K.kit==='assassin2'){for(const [d,len,c] of [[0,17,K.red],[1.6,13,K.red2]]){const w=Math.sin(now*4+d)*1.6,b=-f;ctx.fillStyle=c;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+b*2,by-2+d);
+      ctx.bezierCurveTo(x+b*8,by-1+d+w,x+b*(len-4),by+2+d-w,x+b*len+sway,by+4+d+w);ctx.lineTo(x+b*(len-1.4)+sway,by+6.4+d+w);ctx.bezierCurveTo(x+b*(len-5),by+4+d-w,x+b*7,by+1.6+d+w,x+b*1,by+.4+d);ctx.closePath();ctx.fill();ctx.stroke();}
+for(const k of [-1,1]){ctx.save();ctx.translate(x,by-6);ctx.rotate(k*1.15);ctx.fillStyle='#16141c';ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-1.6,-9,3.2,17,1);ctx.fill();ctx.stroke();
+      ctx.fillStyle=K.red;ctx.fillRect(-1.6,-9,3.2,1.3);ctx.fillStyle='#2a2430';ctx.beginPath();ctx.roundRect(-1,-15,2,6,.6);ctx.fill();ctx.stroke();ctx.fillStyle=K.metal;ctx.fillRect(-2.4,-9.6,4.8,1);ctx.fillStyle=K.red;ctx.beginPath();ctx.arc(0,-15.4,1.2,0,7);ctx.fill();ctx.stroke();ctx.restore();}}return;}
   if(part==='leg'){const {fx,fy,k}=v;if(typeof bootDetail==='function')bootDetail(fx,fy,f,K.cuff,K.boot,OL);
     if(K.kit==='poncho'&&k===f){ctx.fillStyle=K.brass;ctx.beginPath();for(let i=0;i<8;i++){const r=i%2?.6:1.6,a=i*Math.PI/4;ctx.lineTo(fx-f*3.6+Math.cos(a)*r,fy-2.4+Math.sin(a)*r);}ctx.closePath();ctx.fill();} // a spur
     if(K.kit==='blast'){ctx.fillStyle=K.hazard;ctx.fillRect(fx-2.6,fy-3.3,5.2,.9);}
@@ -52,6 +64,9 @@ function master2Part(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v,k0=-f,sw=sway*.2
     const rolled=()=>{const [ex,ey]=mid(.5);line(OL,5.6,[ex,ey,hx,hy2-1.5]);line('#f0cfae',3.4,[ex,ey,hx,hy2-1.5]);ctx.save();ctx.translate(ex,ey);ctx.rotate(ang);ctx.fillStyle=K.sleeve;ctx.strokeStyle=OL;ctx.lineWidth=.9;ctx.beginPath();ctx.roundRect(-2,-3,3.4,6,1.2);ctx.fill();ctx.stroke();ctx.restore();};
     const wraps=(c)=>{ctx.save();const [mx,my]=mid(.68);ctx.translate(mx,my);ctx.rotate(ang);ctx.strokeStyle=c;ctx.lineWidth=1.2;for(const d of [-2,0,2]){ctx.beginPath();ctx.moveTo(d-.7,-2.4);ctx.lineTo(d+.7,2.4);ctx.stroke();}ctx.restore();};
     switch(K.kit){
+      case 'rogue2':wraps(K.wrap);glove(K.leather,3.1);break;
+      case 'assassin2':{ /* a long arm guard from the elbow to the hand, crimson bands */ctx.save();const [mx,my]=mid(.7);ctx.translate(mx,my);ctx.rotate(ang);ctx.fillStyle=K.body;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-5.4,-2.9,9.4,5.8,1.6);ctx.fill();ctx.stroke();ctx.fillStyle=K.red;ctx.fillRect(-4.2,-2.7,1.2,5.4);ctx.fillRect(-.6,-2.7,1.2,5.4);ctx.restore();glove('#16141c',3.1);break;}
+      case 'venom2':glove('#1a2a1a',3.2);ctx.strokeStyle=K.venom;ctx.lineWidth=1.1;ctx.beginPath();ctx.ellipse(hx,hy2-3.4,3,1,0,Math.PI,0);ctx.stroke();break;
       case 'storm':glove('#1a1a20',3.3);glowOn(K.glow);ctx.fillStyle=K.glow;for(const d of [-1.4,0,1.4]){ctx.beginPath();ctx.arc(hx+d,hy2-3,.6,0,7);ctx.fill();}glowOff();break;
       case 'void':if(far){line(OL,6,[sx,sy,hx,hy2-1.5]);line(K.sleeve2,3.8,[sx,sy,hx,hy2-1.5]);}glove('#16141c',3.2);break;
       case 'dawn':glove(far?K.bronze:'#1a1416',3.3);break;
@@ -114,17 +129,48 @@ function master2Part(K,part,v){const {x,y,by,f,bk,sway,OL,fs}=v,k0=-f,sw=sway*.2
         ctx.fillStyle='#ffffff';ctx.beginPath();ctx.arc(x-.5,by-5.6,.5,0,7);ctx.fill();}
       if(!K.noMoon)pauld(k=>{ctx.fillStyle=K.gold;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.scale(k,1);glowOn(K.gold);ctx.beginPath();ctx.arc(0,0,6.4,-Math.PI/2,Math.PI/2,false);ctx.ellipse(0,0,2.6,6.4,0,Math.PI/2,-Math.PI/2,true);ctx.closePath();ctx.fill();glowOff();ctx.stroke();
         ctx.fillStyle='#fff6d8';ctx.beginPath();ctx.arc(4.4,-2.4,.8,0,7);ctx.fill();},1.2);break;}
+    case 'rogue2':{ /* the Shade: a charcoal jerkin, brown straps crossed on the chest, a grey scarf knotted at the neck,
+         a brown belt with a dagger sheath at the near hip */
+      band(K.leather,1.6,x-7,by-13.6,x+6.4,by-3.4);band(K.leather,1.6,x+7,by-13.6,x-6.4,by-3.4);ctx.fillStyle=K.metal;ctx.beginPath();ctx.arc(x,by-8.6,1,0,7);ctx.fill();
+      ctx.fillStyle=K.scarf;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x-8,by-12.2);ctx.quadraticCurveTo(x,by-7.6,x+8,by-12.2);ctx.lineTo(x+7.4,by-10);ctx.quadraticCurveTo(x,by-5.4,x-7.4,by-10);ctx.closePath();fs();
+      ctx.beginPath();ctx.moveTo(x+f*2.6,by-7.6);ctx.lineTo(x+f*4.6+sw,by-3.8);ctx.lineTo(x+f*3+sw,by-3.4);ctx.lineTo(x+f*1.6,by-7);ctx.closePath();fs();
+      ctx.fillStyle=K.leather;ctx.beginPath();ctx.roundRect(x-7.8,by-3,15.6,2.6,1);fs();ctx.fillStyle=K.metal;ctx.beginPath();ctx.roundRect(x-1.2,by-3.2,2.4,3,.6);fs();
+      ctx.save();ctx.translate(x+f*6.6,by-1.4);ctx.rotate(f*.35);ctx.fillStyle='#2a2028';ctx.strokeStyle=OL;ctx.lineWidth=.9;ctx.beginPath();ctx.roundRect(-1.2,0,2.4,5,.8);fs();ctx.fillStyle=K.metal;ctx.beginPath();ctx.moveTo(-1.2,4.6);ctx.lineTo(1.2,4.6);ctx.lineTo(0,6.4);ctx.closePath();ctx.fill();ctx.fillStyle=K.leather;ctx.fillRect(-.8,-2.4,1.6,2.4);ctx.restore();
+      /* (v1.70.2) details */ctx.setLineDash([1.2,1.2]);line('rgba(255,255,255,.28)',.6,[x,by-6.6,x,by-3.4]);ctx.setLineDash([]);for(const k of [-1,1]){ctx.fillStyle=K.metal;ctx.fillRect(x+k*5.4-.9,by-11.2,1.8,1.8);}line('rgba(255,255,255,.35)',.7,[x-6.6,by-10.6,x,by-6.6,x+6.6,by-10.6]);ctx.fillStyle=K.leather;ctx.strokeStyle=OL;ctx.lineWidth=.8;ctx.beginPath();ctx.roundRect(x-f*7.4-1.8,by-1.4,3.6,3.2,.8);ctx.fill();ctx.stroke();ctx.fillStyle='#4a3020';ctx.fillRect(x-f*7.4-1.8,by-1.4,3.6,1.1);break;}
+    case 'assassin2':{ /* the Nightblade's uniform: a fitted black jacket with a high collar, crimson trims in a V, a
+         crimson sash with a knot, the same on both sides */
+      for(const k of [-1,1]){ctx.fillStyle=K.body;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x+k*4,by-16.4);ctx.lineTo(x+k*8.6,by-15.4);ctx.lineTo(x+k*8.8,by-12);ctx.lineTo(x+k*5,by-12.8);ctx.closePath();fs();line(K.red,1,[x+k*5,by-15.6,x+k*8.2,by-14.8]);}
+      for(const k of [-1,1])band(K.red,1.3,x+k*8,by-12.4,x+k*1.2,by-4.4);
+      for(const k of [-1,1]){ctx.strokeStyle=K.red;ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x+k*9.2,by-12,3.2,k>0?Math.PI*.55:Math.PI*.05,k>0?Math.PI*.95:Math.PI*.45);ctx.stroke();}
+      ctx.fillStyle=K.red;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x-7.8,by-3.4,15.6,2.8,1);fs();
+      for(const k of [-1,1]){ctx.fillStyle=K.red2;ctx.beginPath();ctx.moveTo(x+k*1.4,by-1.6);ctx.lineTo(x+k*3.4+sw,HEM);ctx.lineTo(x+k*1+sw,HEM-.4);ctx.closePath();fs();}
+      ctx.fillStyle=K.red;ctx.beginPath();ctx.ellipse(x,by-2,1.8,1.4,0,0,7);fs();
+      for(let i=0;i<3;i++){const px=x+f*4.6+i*f*1.4;ctx.fillStyle=K.metal;ctx.beginPath();ctx.moveTo(px,by-.6);ctx.lineTo(px+.5,by-3);ctx.lineTo(px-.5,by-3);ctx.closePath();ctx.fill();}break;}
+    case 'venom2':{ /* the Venomancer's uniform: a dark green coat to the boot tops with lime piping, a short capelet on
+         both shoulders, a belt of lime vials */
+      for(const k of [-1,1]){ctx.fillStyle=K.coat;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x+k*1.8,by-3);ctx.lineTo(x+k*8.2,by-3);ctx.lineTo(x+k*9+sw,HEM);ctx.lineTo(x+k*2.6+sw,HEM);ctx.closePath();fs();line(K.venom,.9,[x+k*2.2,by-2.4,x+k*3+sw,HEM-.4]);}
+      ctx.fillStyle=K.hood;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x-6,by-15.6);ctx.quadraticCurveTo(x-12.4,by-14.6,x-11.6,by-8.6);
+      for(let i=0;i<=6;i++){const u=i/6;ctx.lineTo(x-11.6+u*23.2,by-8.6+Math.sin(u*Math.PI)*2.4+(i%2?1.2:0));}ctx.quadraticCurveTo(x+12.4,by-14.6,x+6,by-15.6);ctx.closePath();fs();
+      line(K.venom,1,(()=>{const p=[];for(let i=0;i<=6;i++){const u=i/6;p.push(x-11+u*22,by-9.4+Math.sin(u*Math.PI)*2.4+(i%2?1.2:0));}return p;})());
+      band(K.pouch,1.5,x-6.4,by-8.4,x+6.6,by-3.6);band(K.pouch,1.5,x+6.4,by-8.4,x-6.6,by-3.6);
+      for(const [t,k] of [[.4,1],[.4,-1]]){const px=x-6.4*k+13*k*t,py=by-8.4+4.8*t;ctx.fillStyle=K.pouch;ctx.strokeStyle=OL;ctx.lineWidth=.8;ctx.beginPath();ctx.roundRect(px-1.6,py-1.2,3.2,2.6,.6);ctx.fill();ctx.stroke();ctx.fillStyle=K.venom;ctx.fillRect(px-.4,py-.6,.8,.8);}
+      ctx.fillStyle=K.leather;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x-7.8,by-3.6,15.6,2.6,1);fs();
+      for(const d of [-5,-2,2,5]){ctx.fillStyle=K.venom;ctx.strokeStyle=OL;ctx.lineWidth=.7;ctx.beginPath();ctx.roundRect(x+d-.9,by-4.6,1.8,3.4,.7);ctx.fill();ctx.stroke();ctx.fillStyle='#e8dcc0';ctx.fillRect(x+d-.6,by-5.2,1.2,.7);}
+      glowOn(K.venom);ctx.fillStyle=K.venom;ctx.beginPath();ctx.arc(x,by-6.6,1.2,0,7);ctx.fill();glowOff();
+      /* (v1.70.2) details */ctx.fillStyle='#e0b850';ctx.strokeStyle=OL;ctx.lineWidth=.8;ctx.beginPath();ctx.arc(x,by-6.3,1.4,0,7);ctx.fill();ctx.stroke();{const pl=.5+.5*Math.sin(now*3);ctx.save();ctx.globalAlpha=.35+pl*.4;glowOn(K.venom);ctx.fillStyle=K.venom;for(const d of [-5,-2,2,5]){ctx.beginPath();ctx.arc(x+d,by-2.6,1.4,0,7);ctx.fill();}glowOff();ctx.restore();}break;}
     case 'reaper':{ // bone ribs over black, a ragged dark red sash, a bone skull pauldron
-      for(let i=0;i<3;i++){const yy=by-8.6+i*2.2;line(OL,2.6,[x-6+i*.4,yy,x,yy+1.2,x+6-i*.4,yy]);line(K.bone,1.3,[x-6+i*.4,yy,x,yy+1.2,x+6-i*.4,yy]);}
-      band(K.bone,1.3,x,by-9.4,x,by-2.6);
+      for(let i=0;i<3;i++){const yy=by-8.6+i*2.2;line(OL,2.6,[x-6+i*.4,yy,x,yy+1.2,x+6-i*.4,yy]);line(K.rib||K.bone,1.3,[x-6+i*.4,yy,x,yy+1.2,x+6-i*.4,yy]);}
+      band(K.rib||K.bone,1.3,x,by-9.4,x,by-2.6);
       {const k=k0;ctx.fillStyle=K.sash;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x-8,by-3.6);ctx.lineTo(x+8,by-3.6);ctx.lineTo(x+8,by-1);ctx.lineTo(x+k*6,by-.4);for(let i=0;i<4;i++)ctx.lineTo(x+k*(6+i*.8)+sw,(i%2?by+.6:HEM));ctx.lineTo(x+k*9+sw,by-1);ctx.lineTo(x-8,by-1);ctx.closePath();fs();}
-      pauld(k=>{ctx.fillStyle=K.bone;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(0,-1,5,4.4,0,0,7);fs();ctx.beginPath();ctx.roundRect(-2.6,2.2,5.2,2.4,1);fs();
-        ctx.fillStyle='#1a161e';for(const d of [-1.8,1.8]){ctx.beginPath();ctx.ellipse(d,-1.2,1.2,1.4,0,0,7);ctx.fill();}glowOn(K.glow);ctx.fillStyle=K.glow;for(const d of [-1.8,1.8]){ctx.beginPath();ctx.arc(d,-1,.45,0,7);ctx.fill();}glowOff();});break;}
+      if(!K.noSkull)pauld(k=>{ctx.fillStyle=K.bone;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(0,-1,5,4.4,0,0,7);fs();ctx.beginPath();ctx.roundRect(-2.6,2.2,5.2,2.4,1);fs();
+        ctx.fillStyle='#1a161e';for(const d of [-1.8,1.8]){ctx.beginPath();ctx.ellipse(d,-1.2,1.2,1.4,0,0,7);ctx.fill();}glowOn(K.glow);ctx.fillStyle=K.glow;for(const d of [-1.8,1.8]){ctx.beginPath();ctx.arc(d,-1,.45,0,7);ctx.fill();}glowOff();});
+      /* (v1.70.2) details */for(const k of [-1,1]){ctx.save();ctx.translate(x+k*10.4,by-12.6);ctx.rotate(k*.35);ctx.fillStyle=K.bone;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,0,4.6,3,0,Math.PI,0);ctx.quadraticCurveTo(0,1.8,-4.6,0);ctx.closePath();ctx.fill();ctx.stroke();ctx.strokeStyle=K.glow;ctx.lineWidth=.9;ctx.beginPath();ctx.ellipse(0,0,4,2.4,0,Math.PI*1.1,Math.PI*1.9);ctx.stroke();ctx.restore();}glowOn(K.glow);line(K.glow,.7,[x,by-9.2,x,by-4]);glowOff();ctx.fillStyle=K.bone;ctx.strokeStyle=OL;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(x+f*3,by-2.4);ctx.lineTo(x+f*4.2,by-.2);ctx.lineTo(x+f*3,by+1.6);ctx.lineTo(x+f*1.8,by-.2);ctx.closePath();ctx.fill();ctx.stroke();break;}
     case 'plague':{ // a leather apron to the boot tops, a bandolier of coloured vials
       ctx.fillStyle=K.apron;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x-6.4,by-8);ctx.lineTo(x+6.4,by-8);ctx.lineTo(x+7.6+sw,HEM);ctx.lineTo(x-7.6+sw,HEM);ctx.closePath();fs();
       line(K.apron2,1,[x-5,by-.6,x+5,by-.6]);ctx.fillStyle=K.apron2;ctx.beginPath();ctx.roundRect(x+f*1.4,by-5.6,3.6,3,.8);fs();
       band(K.leather,2,x+f*8,by-13.4,x-f*7.6,by-3.4);
-      K.vials.forEach((c,i)=>{const t=.18+i*.2,px=x+f*8+(-f*15.6)*t,py=by-13.4+10*t;ctx.fillStyle=c;ctx.strokeStyle=OL;ctx.lineWidth=.8;ctx.beginPath();ctx.roundRect(px-1.1,py-3,2.2,3.4,.8);ctx.fill();ctx.stroke();ctx.fillStyle='#e8dcc0';ctx.fillRect(px-.7,py-3.6,1.4,.8);});break;}
+      K.vials.forEach((c,i)=>{const t=.18+i*.2,px=x+f*8+(-f*15.6)*t,py=by-13.4+10*t;ctx.fillStyle=c;ctx.strokeStyle=OL;ctx.lineWidth=.8;ctx.beginPath();ctx.roundRect(px-1.1,py-3,2.2,3.4,.8);ctx.fill();ctx.stroke();ctx.fillStyle='#e8dcc0';ctx.fillRect(px-.7,py-3.6,1.4,.8);});
+      /* (v1.70.2) details */ctx.setLineDash([1,1.2]);line('rgba(255,255,255,.3)',.6,[x-5.6,by-6.6,x-6.6+sw,HEM-.8]);line('rgba(255,255,255,.3)',.6,[x+5.6,by-6.6,x+6.6+sw,HEM-.8]);ctx.setLineDash([]);ctx.fillStyle=K.vials[0];ctx.strokeStyle=OL;ctx.lineWidth=.8;ctx.beginPath();ctx.roundRect(x-1.4,by-4.4,2.8,2.4,.5);ctx.fill();ctx.stroke();{const mx=x+f*7.6,my=by-.6,sv=Math.sin(now*2)*.4;ctx.save();ctx.translate(mx+sv,my);ctx.fillStyle='#ece6da';ctx.strokeStyle=OL;ctx.lineWidth=.8;ctx.beginPath();ctx.ellipse(0,0,2.2,2,0,0,7);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(f*1.6,-.6);ctx.quadraticCurveTo(f*5,.6,f*4.6,2.8);ctx.quadraticCurveTo(f*3,1.6,f*1.2,1.2);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#1a1a20';for(const d of [-.8,.8]){ctx.beginPath();ctx.arc(d,-.4,.55,0,7);ctx.fill();}ctx.restore();}break;}
     case 'poncho':{ // a red-striped poncho over the far shoulder, a bullet bandolier across
       band(K.leather,2.2,x+f*7.6,by-13.6,x-f*7.2,by-2.8);
       for(let i=0;i<5;i++){const t=.15+i*.17,px=x+f*7.6+(-f*14.8)*t,py=by-13.6+10.8*t;ctx.fillStyle=K.brass;ctx.strokeStyle=OL;ctx.lineWidth=.6;ctx.beginPath();ctx.roundRect(px-.7,py-2.6,1.4,2.6,.6);ctx.fill();ctx.stroke();}
