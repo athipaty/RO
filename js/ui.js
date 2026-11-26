@@ -320,7 +320,7 @@ panel.addEventListener('click',ev=>{
   if(a==='sell'){const e=P.inv[+arg];if(e){sfx('coin');P.gold+=(typeof sellValueOf==='function'?sellValueOf(e):sellValue(e.id));if(e.n!==undefined)takeItem(e.id);else P.inv.splice(+arg,1);}}
   if(a==='sellall'){let g=0;P.inv=P.inv.filter(e=>{if(ITEMS[e.id].type==='etc'&&!ITEMS[e.id].keep){g+=sellValue(e.id)*e.n;return false;}return true;});P.gold+=g;sfx('coin');addLog(`Sold your loot for ${fmt(g)} gold.`,'l-loot');}
   if(a==='heal'){P.hp=S.maxhp;P.sp=S.maxsp;fx.push({k:'heal',x:P.x,y:P.y,t0:now,dur:.8});addLog('You feel refreshed.','l-good');}
-  if(a==='warp'){const i=ZONE_ORDER.indexOf(arg),cost=i*60;if(P.gold>=cost){P.gold-=cost;closePanel();enterZone(arg);save();return;}}
+  if(a==='warp'){const cost=typeof warpFare==='function'?warpFare(arg):ZONE_ORDER.indexOf(arg)*60;if(!(cost>=0)||!P.visited.includes(arg))return; /* (v1.64.4) floors too; never a negative fare */if(P.gold>=cost){P.gold-=cost;closePanel();enterZone(arg);save();return;}}
   if(a==='newgame'){$('#confirm').hidden=false;return;}
   if(a==='qtake'&&!P.quest){const o=contractOffers().find(o=>o.mob===arg);if(o){P.quest={...o,have:0};addLog(`Contract accepted: defeat ${o.need} ${MOBS[arg].name}.`,'l-good');sfx('click');}}
   if(a==='qdrop'){P.quest=null;addLog('Contract abandoned.');}

@@ -138,3 +138,31 @@ if(typeof TH!=='undefined')Object.assign(TH,{'🗺 World map':'🗺 แผนท
 #panel .wft.here{box-shadow:0 0 0 2px var(--exp) inset}
 #panel .wft i{position:absolute;font-style:normal;font-size:12px;line-height:1}#panel .wft .wfp{right:3px;top:3px}#panel .wft .wfl{right:3px;bottom:3px}
 `;document.head.appendChild(st);})();
+/* ---- (v1.64.4) the Waystation (Tobin) gets the Floors below tab too ----
+   Tobin's fare for a place in the travel list is 60 gold per place along it. A floor costs the fare of the region it
+   lies under plus 60 a floor down; the island is the Farms' fare plus 1500 for the crossing, its grotto 60 a floor more.
+   (A place not in the list used to come out at -60 gold: no fare is ever below 0 now.) The keep and the arena are
+   reached through their own people in Hearthvale, so Tobin's floors tab leaves them out. */
+function warpFare(id){const i=ZONE_ORDER.indexOf(id);if(i>=0)return i*60;const D=ZONES[id];if(!D)return -1;
+  if(id==='isles')return Math.max(0,ZONE_ORDER.indexOf('farms'))*60+1500;
+  const B=typeof WORLD_BRANCH!=='undefined'?WORLD_BRANCH:{},par=Object.keys(B).find(k=>B[k].includes(id));if(!par)return -1;
+  const base=warpFare(par);return base<0?-1:base+60*(D.dungeon||1);}
+{const _wchF=warpCardsHtml;warpCardsHtml=function(){let h=_wchF.apply(this,arguments);
+  const gs=wsfGroups().filter(([t])=>t!=='Other places');if(!gs.length){WSF.tview='world';return h;}
+  const n=gs.reduce((a,[,ids])=>a+ids.filter(id=>P.visited.includes(id)).length,0),v=WSF.tview==='floors'?'floors':'world';
+  const tabs=`<div class="wsftabs" role="tablist"><button type="button" class="btn small${v==='world'?' on':''}" role="tab" aria-selected="${v==='world'}" data-act="wstview" data-arg="world">🗺 World map</button>`+
+    `<button type="button" class="btn small${v==='floors'?' on':''}" role="tab" aria-selected="${v==='floors'}" data-act="wstview" data-arg="floors">▼ Floors below <span class="wsn">${n}</span></button></div>`;
+  const a=h.indexOf('<div class="wsmbar">'),b=h.indexOf('</div><div class="wsdcol">');if(a<0||b<0)return h;
+  if(v!=='floors')return h.slice(0,a)+tabs+h.slice(a);
+  const all=gs.flatMap(([,ids])=>ids);if(!WSF.tsel||!all.includes(WSF.tsel))WSF.tsel=all.find(id=>P.visited.includes(id)&&id!==zoneId)||all[0];
+  const keepSel=WSF.sel;WSF.sel=WSF.tsel;const map=`<div class="wsfmap">`+gs.map(([t,ids])=>`<div class="wfg"><div class="wfgt">${esc(t)}</div><div class="wfrow">${ids.map((id,i)=>(i?'<span class="wfa" aria-hidden="true">▸</span>':'')+wsfTile(id).replace('data-act="wsfsel"','data-act="wstsel"')).join('')}</div></div>`).join('')+`</div>`;WSF.sel=keepSel;
+  h=h.slice(0,a)+tabs+map+h.slice(b);
+  return h.replace(/<div id="wsDet">[\s\S]*<\/div><\/div><\/div>$/,`<div id="wsDet">${wstDetail(WSF.tsel)}</div></div></div>`);};}
+function wstDetail(id){const D=ZONES[id];if(!D)return '';const known=P.visited.includes(id),here=zoneId===id,cost=warpFare(id),poor=P.gold<cost;
+  const btn=here?'<div class="tclock">📍 You are here</div>':!known?'<div class="tclock">🔒 Walk there once to unlock</div>':
+    `<button class="btn tctravel${poor?'':' primary'}" data-act="warp" data-arg="${id}" ${poor?'disabled':''}>${poor?`Need ${fmt(cost)} gold`:`Travel · ${fmt(cost)} gold`}</button>`;
+  const par=Object.keys(typeof WORLD_BRANCH!=='undefined'?WORLD_BRANCH:{}).find(k=>WORLD_BRANCH[k].includes(id));
+  const x=`<div class="wsmwhere">${par?`▼ Down the stairs in ${esc(ZONES[par].name)}`:D.isle?'⛵ Across the sea, by boat from Willowmere Farms':''}</div>`;
+  return tcCardHtml(id,[id],null,x).replace('class="tccard','class="tccard wsmcard').replace(/<button class="btn tctravel[^>]*>[^<]*<\/button>|<div class="tclock">[^<]*<\/div>/,btn);}
+PANEL_ACTS.wstview=v=>{WSF.tview=v==='floors'?'floors':'world';sfx('click');refreshPanel();};
+PANEL_ACTS.wstsel=id=>{if(!ZONES[id])return;WSF.tsel=id;sfx('click');refreshPanel();try{const d=panel.querySelector('#wsDet');if(d){const r=d.getBoundingClientRect();if(r.top>innerHeight-120)d.scrollIntoView({block:'nearest',behavior:'smooth'});}}catch(e){}};

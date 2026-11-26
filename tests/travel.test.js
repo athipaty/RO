@@ -7,8 +7,8 @@ module.exports = async t => {
     const w = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms));
       const shop = !SHOP.includes('waystone') && !SHOP.includes('kinship') && ROYAL_SHOP.includes('waystone') && ROYAL_SHOP.includes('kinship');
       P.visited = ['town', 'meadow', 'woods', 'deep1']; giveItem('waystone', 2); useItem('waystone');
-      const kind = panelKind, opts = /* (v1.55.0) a map: the places you can pick, then the floors below */ [...panel.querySelectorAll('.wsmt:not(.locked):not(.here)')].map(b => b.dataset.arg).concat([...panel.querySelectorAll('.wsmfl [data-act="waygo"]')].map(b => b.dataset.arg)), kept = invFind('waystone').n;
-      panel.querySelector('[data-act="waygo"][data-arg="deep1"]').click(); await w(200);
+      const kind = panelKind, opts = /* (v1.55.0) a map: the places you can pick, then the floors below */ [...panel.querySelectorAll('.wsmt:not(.locked):not(.here)')].map(b => b.dataset.arg).concat((PANEL_ACTS.wsview('floors'), [...panel.querySelectorAll('.wft:not(.locked):not(.here)')].map(b => b.dataset.arg))) /* (v1.64.3) the floors tab */, kept = invFind('waystone').n;
+      PANEL_ACTS.wsfsel('deep1'); panel.querySelector('[data-act="waygo"][data-arg="deep1"]').click(); await w(200); WSF.view = 'world';
       return { shop, kind, opts, kept, zone: zoneId, left: invFind('waystone').n, closed: panel.hidden }; });
     t.ok(w.shop, 'Waystone Shards and Kinship Charms are sold at the Aurel Market in Aurelmark, not at the General Store');
     t.ok(w.kind === 'waystone' && w.opts.join() === 'meadow,woods,deep1' && w.kept === 2, 'a Waystone Shard lists the regions you have visited (dungeon floors too) and is not used up by opening it');
