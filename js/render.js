@@ -153,6 +153,12 @@ function camFollow(tx,ty){const dt=Math.min(.05,Math.max(0,now-camT));camT=now;
   if(camFX===null||Math.abs(tx-camFX)>260||Math.abs(ty-camFY)>260){camFX=tx;camFY=ty;}
   else{const k=1-Math.exp(-dt*16);camFX+=(tx-camFX)*k;camFY+=(ty-camFY)*k;}
   camX=Math.round(camFX);camY=Math.round(camFY);}
+// (v1.60.9) the dungeons' dark edges: one soft picture per screen size, made at a quarter of the size and stretched over
+// the screen, instead of a full-screen gradient worked out pixel by pixel every frame
+let DARK_VG=null;
+function darkVignette(){const k=VW+'x'+VH;if(DARK_VG&&DARK_VG._k===k)return DARK_VG;const c=document.createElement('canvas'),w=Math.max(2,Math.ceil(VW/4)),h=Math.max(2,Math.ceil(VH/4));
+  c.width=w;c.height=h;const g=c.getContext('2d');g.scale(w/VW,h/VH);const gr=g.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.22,VW/2,VH/2,Math.max(VW,VH)*.7);
+  gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(5,4,10,.62)');g.fillStyle=gr;g.fillRect(0,0,VW,VH);c._k=k;return DARK_VG=c;}
 function render(){
   ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle='#0b0d12';ctx.fillRect(0,0,VW,VH);
   if(!Z||!P)return;
@@ -245,7 +251,7 @@ function render(){
     if(pop!==1){ctx.save();ctx.translate(x,y);ctx.scale(pop,pop);drawFloat(im,-im._w/2,-im._b);ctx.restore();}else drawFloat(im,x-im._w/2,y-im._b);ctx.globalAlpha=1;});
   ctx.restore();
   drawAmbient();
-  if(THEMES[Z.D.theme].dark&&!(P&&ailOn('blind'))){const g=ctx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.22,VW/2,VH/2,Math.max(VW,VH)*.7);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(5,4,10,.62)');ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);ctx.restore();}
+  if(THEMES[Z.D.theme].dark&&!(P&&ailOn('blind'))){ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);ctx.drawImage(darkVignette(),0,0,VW,VH);ctx.restore();}
   if(typeof drawSky==='function')drawSky();
   if(typeof drawSeason==='function'&&(typeof skyOn==='undefined'||skyOn)){ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);drawSeason();ctx.restore();}
   if(P&&ailOn('blind'))drawBlind();
@@ -727,7 +733,9 @@ function drawMob(m){
   ctx.globalAlpha=1;ctx.restore();
 }
 function drawFx(){
-  for(const f of fx){if(now<f.t0)continue;const a=(now-f.t0)/f.dur;if(f.o){f.x=f.o===P?P.x:f.o.rx;f.y=f.o===P?P.y:f.o.ry;}const ax=f.k==='lvl'?P.x:f.x,ay=f.k==='lvl'?P.y:f.y;
+  // (v1.60.9) progress capped at 1: an effect a moment past its end (removed on the next update) gave sparks a negative
+  // size, and the error left the canvas's saved state behind (seen in the molten floors)
+  for(const f of fx){if(now<f.t0)continue;const a=Math.min(1,(now-f.t0)/f.dur);if(f.o){f.x=f.o===P?P.x:f.o.rx;f.y=f.o===P?P.y:f.o.ry;}const ax=f.k==='lvl'?P.x:f.x,ay=f.k==='lvl'?P.y:f.y;
     if(typeof fxOff==='function'&&fxOff(ax,ay))continue; // far off screen: not drawn
     ctx.save();const sp=proj(ax,ay);ctx.translate(sp.x-ax,sp.y-ay);
     switch(f.k){

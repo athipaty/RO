@@ -2,6 +2,7 @@
 // skipped, the game keeps running, and the error is still reported (once) so tests and the console see it.
 // Also: the city wall sections are cached pictures whose "was it wiped" check spot is painted.
 const { player, wait, newRoom } = require('./helpers');
+const FX_KINDS = [...new Set([...require('fs').readFileSync(require('path').join(__dirname, '..', 'js', 'render.js'), 'utf8').matchAll(/case '([a-z0-9]+)'/g)].map(m => m[1]))];
 module.exports = async t => {
   const g = await player('Guard', newRoom(), { server: 'http://127.0.0.1:9' });
   try {
@@ -19,6 +20,11 @@ module.exports = async t => {
       return { walls: walls.length, all: Z.buildings.filter(b => b.kind === 'wall').length, cleared }; });
     t.ok(w.walls === w.all && w.all > 0, `each city wall section is a cached picture (${w.walls}/${w.all})`);
     t.ok(w.cleared === 0, 'the wiped-picture check passes on every cached picture (no needless redraw every 10 s)');
+    // (v1.60.9) every effect drawn a moment past its end (before the next update removes it) draws without an error
+    const fxr = await g.ev(K => { enterZone('meadow'); running = false; const kinds = new Set(K);
+      const bad = []; for (const k of kinds) { fx.length = 0; fx.push({ k, x: P.x, y: P.y, r: 30, col: '#ffcc66', t0: now - 3, dur: 1, txt: 'X' }); try { render(); } catch (e) { bad.push(k + ': ' + e.message); } }
+      fx.length = 0; running = true; return { n: kinds.size, bad }; }, FX_KINDS);
+    t.ok(fxr.bad.length === 0, `effects drawn past their end do not error (${fxr.n} kinds${fxr.bad.length ? ': ' + fxr.bad.join('; ') : ''})`);
     t.ok(g.page.errors.filter(e => !/frame-guard-test/.test(e)).length === 0, 'no other script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };
