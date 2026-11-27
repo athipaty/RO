@@ -23,10 +23,14 @@ for(const id in MOBS){const m=MOBS[id];if(!m||m.world||m._bal||!m.lv)continue;m.
 /* (v1.72.0) the Lv 26-40 wall: three monsters had about twice the HP of others their level for little more EXP */
 const BAL_SOFTEN={stonecrab:[.6,.85],stonesentry:[.6,.85],cavetroll:[.6,.85]};
 for(const id in BAL_SOFTEN){const m=MOBS[id];if(!m||m._bal2)continue;m._bal2=1;m.hp=balRound(m.hp*BAL_SOFTEN[id][0]);m.atk=Math.max(1,Math.round(m.atk*BAL_SOFTEN[id][1]));}
-/* (v1.72.0) bosses hit like bosses at every level: at Lv 20 a boss hit about twice a normal monster, but by Lv 80-99 only
-   as hard as one (the ATK curve flattened them). Every boss and mini-boss now hits at least 1.8x the usual monster of its
-   level (the median of ordinary monsters within 3 levels). World bosses are left alone. */
+/* (v1.72.0, retuned v1.72.1) bosses hit like bosses at every level, but a fair amount. Before, a boss hit about 2x a
+   normal monster at Lv 20 and only 1x by Lv 80-99. Fights run in the real game (an auto-hunting hero of the boss's
+   level, build-guide skills, the best gear and tonics, no dodging) showed 1.8x too much: one hit took 15-22% of the
+   hero's HP every 1.3 s and the hero always fell. Now a mini-boss hits 1.3x and a boss 1.5x the usual monster of its
+   level (the median of ordinary monsters within 3 levels, wider for the highest): a sturdy hero can win a mini-boss
+   alone if it fights well, a boss wants a party. World bosses are left alone. */
+const BOSS_ATK_K={mini:1.3,boss:1.5};
 {const plain=Object.values(MOBS).filter(m=>m&&m.lv&&!m.boss&&!m.world);
   for(const id in MOBS){const b=MOBS[id];if(!b||!b.boss||b.world||b._bal3||!b.lv)continue;b._bal3=1;
     let near=[];for(const span of [3,6,10]){near=plain.filter(m=>Math.abs(m.lv-b.lv)<=span).map(m=>m.atk).sort((x,y)=>x-y);if(near.length>=3)break;}if(near.length<3)continue; // the highest bosses look a little wider
-    b.atk=Math.max(b.atk,Math.round(near[near.length>>1]*1.8));}}
+    b.atk=Math.max(1,Math.round(near[near.length>>1]*(b.mini?BOSS_ATK_K.mini:BOSS_ATK_K.boss)));}}

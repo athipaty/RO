@@ -217,7 +217,12 @@ function lootMatters(l){if(!l||l.ghost)return false;if(l.boss||l.rare)return tru
 function autoHunt(){
   if(!P.auto||P.dead||Z.D.safe)return;
   const f=P.hp/S.maxhp;
-  if(f<.4&&(P.cd.pot_hp||0)<=now){const pot=invFind('orange')?'orange':invFind('red')?'red':null;
+  /* (v1.72.1) any HP tonic you carry, the smallest that covers most of what you are missing (it used to know only Amber
+     and Red, which heal too little late on), and
+     against a boss from 55% HP, since one boss blow and a slam can take half your HP */
+  const vsBoss=!!(P.target&&!P.target.dead&&P.target.d&&P.target.d.boss);
+  if(f<(vsBoss?.55:.4)&&(P.cd.pot_hp||0)<=now){const have=['red','orange','crimson','phoenix'].filter(id=>ITEMS[id]&&invFind(id)),miss=S.maxhp-P.hp;
+    const pot=have.find(id=>ITEMS[id].heal*HP_K>=miss*.8)||have[have.length-1]||null; // the smallest that covers most of what is missing
     if(pot)useItem(pot);} /* no pause when out of tonics (user request): auto-hunt keeps going until HP runs out */
   /* "Stay here" (P.autoStay, switch on the Auto card): only monsters and loot near the spot where auto-hunt started,
      and walk back there when idle. The spot is set in js/autostay.js. */
