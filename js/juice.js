@@ -12,7 +12,7 @@ function levelBurst(big,small,job){const el=juiceEl('lvBurst');el.className=job?
   try{if(P&&P.lv>lv)levelBurst('LEVEL UP',`Level ${P.lv}`,false);else if(P&&P.jl>jl)levelBurst('JOB LEVEL UP',`Job Level ${P.jl}`,true);}catch(e){}return r;};}
 // rare drops: a banner as soon as one lands near you
 {let seen=-1;setInterval(()=>{try{if(typeof loot==='undefined'||!running||!P)return;let top=seen,best=null;
-  for(const l of loot){if(l.uid>top)top=l.uid;if(seen<0||l.uid<=seen||l.ghost||l.gold||!ITEMS[l.id])continue;const r=rarityOf(l.id);
+  for(const l of loot){if(l.uid>top)top=l.uid;if(seen<0||l.uid<=seen||l.ghost||l.dropped||l.gold||!ITEMS[l.id])continue;const r=rarityOf(l.id);
     if((r>=2||l.boss)&&(!best||r>best.r)&&Math.hypot(l.x-P.x,l.y-P.y)<700)best={l,r};}
   seen=Math.max(seen,top,0);
   if(best){const el=juiceEl('rareDrop'),c=best.l.boss&&best.r<2?'#ffcf5a':RARITY[best.r].col;el.style.setProperty('--rc',c);
