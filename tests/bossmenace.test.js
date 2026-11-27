@@ -25,6 +25,14 @@ module.exports = async t => {
     await A.page.screenshot({ path: 'C:/Users/loret/AppData/Local/Temp/claude/21c9610cd7b69764/6128e17c-9757-4d08-bbc0-52a781c0e61a/scratchpad/look/castbar.png' });
     await wait(2500);
     t.ok(await A.ev(() => { const boss = mobs.find(m => m.d.boss && !m.dead); return !boss.cast; }), 'the bar goes when the blow lands');
+    // (v1.81.0) heavy bosses: no shove or white flash when hit, no slide when swinging, no camera shake from their blows
+    const hv = await A.ev(() => { const boss = mobs.find(m => m.d.boss && !m.dead); boss.hitF = now; boss.kbT = now; boss.kbX = 1; boss.kbY = 0; boss.lunge = now;
+      let seen = null; const look = MOB_LOOKS[boss.d.id]; const o = drawMob; let flashCol = null; if (look) MOB_LOOKS[boss.d.id] = (m, g) => { seen = { flash: g.flash, col: g.col, kb: m.kbT, lunge: m.lunge }; return look(m, g); };
+      const c = document.createElement('canvas'); const main = ctx; ctx = c.getContext('2d'); try { drawMob(boss); } finally { ctx = main; if (look) MOB_LOOKS[boss.d.id] = look; }
+      const kept = boss.hitF > 0 && boss.kbT > 0 && boss.lunge > 0; shakeUntil = 0; slamLand(boss); const s1 = shakeUntil; bossZone(boss, P.x, P.y, 80); const z = BZONES[BZONES.length - 1]; z.at = now - 1; bossZoneTick(); const s2 = shakeUntil;
+      return { seen, kept, noShake: s1 === 0 && s2 === 0 }; });
+    t.ok(hv.seen && !hv.seen.flash && hv.seen.col !== '#ffffff' && !hv.seen.kb && !hv.seen.lunge && hv.kept, 'a boss is drawn without the white flash, the shove or the slide (it recoils and leans instead); its hit state is kept for everything else');
+    t.ok(hv.noShake, 'the Ground Slam and the Ground Mark no longer shake the screen');
     t.ok(!A.page.errors.length, 'no script errors ' + A.page.errors.slice(0, 3).join(' | '));
   } finally { await A.close(); }
 };

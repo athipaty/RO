@@ -355,9 +355,9 @@ function bossZone(m,x,y,r){if(!m||!m.d)return;BZONES.push({m,x,y,r,at:now+1.2});
   if(!bzTold&&P&&Math.hypot(P.x-x,P.y-y)<r+PR+40){bzTold=true;addLog(`${m.d.name} marks the ground under you: step out of the glowing circle!`,'l-bad');}}
 function bossZoneTick(){for(let i=BZONES.length-1;i>=0;i--){const z=BZONES[i];if(!mobs.includes(z.m)){BZONES.splice(i,1);continue;}if(now<z.at)continue;BZONES.splice(i,1);
   fx.push({k:'ring',x:z.x,y:z.y,r:z.r,col:'#ff6a3a',t0:now,dur:.45});fx.push({k:'critburst',x:z.x,y:z.y-6,t0:now,dur:.35});
-  const dz=P?Math.hypot(P.x-z.x,P.y-z.y):1e9;if(dz<700)sfx('slam');if(dz<z.r+150)shakeUntil=Math.max(shakeUntil,now+.2);
+  const dz=P?Math.hypot(P.x-z.x,P.y-z.y):1e9;if(dz<700)sfx('slam'); /* (v1.81.0) no camera shake from boss blows: the ring and the burst show the impact */
   if(P&&!P.dead&&Math.hypot(P.x-z.x,P.y-z.y)<z.r+PR)hurtPlayer(Math.max(1,Math.round(z.m.d.atk*1.3*rnd(.9,1.1)-S.def*.6)),z.m.d.name);}}
-function slamLand(m){fx.push({k:'ring',x:m.x,y:m.y,r:130,col:'#ff7a3a',t0:now,dur:.4});sfx('slam');shakeUntil=now+.35;
+function slamLand(m){fx.push({k:'ring',x:m.x,y:m.y,r:130,col:'#ff7a3a',t0:now,dur:.4});fx.push({k:'ring',x:m.x,y:m.y,r:90,col:'#ffd0a0',t0:now+.06,dur:.45});sfx('slam'); /* (v1.81.0) no camera shake */
   if(!P.dead&&dist(m,P)<130+PR){hurtPlayer(Math.round(m.d.atk*1.5-S.def*.6),m.d.name);tryAilment(['stun',1,1.5]);}}
 /* v1.45.3 monsters walk around trees and rocks: a straight step when the way is clear, otherwise they follow a
    path over the tile grid (a few paths are worked out per frame at most), so a chasing monster or boss no longer

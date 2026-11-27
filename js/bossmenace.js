@@ -51,8 +51,13 @@ if(typeof drawMob==='function'){const _dmBM=drawMob;drawMob=function(m){const d=
   const k=BM_SCALE(d),[ec,cc]=bmEyeCol(d);BM.eye=ec;BM.core=cc;BM.f=m.face<0?-1:1;
   try{bmAura(m,k);}catch(e){}
   const col0=d.col;if(!d._bmCol)d._bmCol=(BM_EXTRA[d.id]&&BM_EXTRA[d.id].col)||bmDeep(col0);
-  ctx.save();ctx.translate(m.x,m.y);ctx.scale(k,k);ctx.translate(-m.x,-m.y);BM.on=true;
-  try{d.col=d._bmCol;return _dmBM.apply(this,arguments);}finally{d.col=col0;BM.on=false;ctx.restore();try{bmWisps(m,k);}catch(e){}}};}
+  /* (v1.81.0) a boss is heavy: hits do not shove it or flash it white, and it does not slide at you when it swings.
+     Instead it recoils (a short squash) when hit, and leans into its swing from the feet. */
+  const hitF0=m.hitF,kbT0=m.kbT,lunge0=m.lunge,sinceHit=now-(hitF0||-9),sinceLunge=lunge0?now-lunge0:9;
+  const recoil=sinceHit<.16?Math.sin(sinceHit/.16*Math.PI):0,lean=sinceLunge<.3?Math.sin(sinceLunge/.3*Math.PI)*.08*(m.face<0?-1:1):0;
+  m.hitF=-9;m.kbT=0;m.lunge=0;
+  ctx.save();ctx.translate(m.x,m.y);ctx.scale(k,k);if(lean)ctx.rotate(lean);if(recoil)ctx.scale(1+recoil*.035,1-recoil*.06);ctx.translate(-m.x,-m.y);BM.on=true;
+  try{d.col=d._bmCol;return _dmBM.apply(this,arguments);}finally{d.col=col0;BM.on=false;m.hitF=hitF0;m.kbT=kbT0;m.lunge=lunge0;ctx.restore();try{bmWisps(m,k);}catch(e){}}};}
 
 /* ---- the boss's cast bar (v1.73.0) ----
    When a boss starts a skill, a bar over its head names it and fills until the blow lands: the Ground Slam's wind-up
