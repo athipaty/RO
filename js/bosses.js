@@ -26,6 +26,13 @@ function wbHud(){const el=document.getElementById('wbT');if(!el)return;const w=N
   if(t===wbKey)return;wbKey=t;el.hidden=!t;el.textContent=t;}
 setInterval(()=>{if(running)wbHud();},1000);
 // boss music near a boss: world bosses, and (v1.71.3) every other boss and mini-boss on the map too
+/* (v1.71.5) mini-bosses get a lighter battle song of their own (quicker, brighter, softer drums), so the big bosses
+   still feel bigger. Composed for Embervale. */
+if(typeof SONGS!=='undefined'&&!SONGS.miniboss){SONGS.miniboss={bpm:138,spb:8,lead:'square',lp:2000,lv:.6,chords:'Dm Bb C A Dm Bb C Dm',drums:{k:[0,4],h:[2,6],s:[4]},
+  mel:'D5 . F5 A5 . F5 D5 . | D5 . Bb4 . F4 . Bb4 . | C5 . E5 G5 . E5 C5 . | C#5 . E5 . A4 . - - | F5 . E5 D5 A4 . D5 . | F5 . G5 F5 D5 . Bb4 . | E5 . G5 . C6 . G5 E5 | D5 . . . A4 . - -'};
+  const sg=SONGS.miniboss,toks=sg.mel.replace(/\|/g,' ').trim().split(/\s+/);sg.len=toks.length;sg.ch=sg.chords.split(' ').map(chordNotes);
+  sg.notes=toks.map((t,i)=>{const n=noteNum(t);if(n===null)return null;let len=1;while(toks[i+len]==='.')len++;return {n,len};});}
 const bossChasing=m=>m&&!m.dead&&m.d&&(m.d.boss||m.d.world)&&m.state==='chase'&&dist(m,P)<650;
-setInterval(()=>{if(!running||!P||zoneId==='crypt'||Z.D.dungeon||typeof musicPlay!=='function')return;const near=bossChasing(wbMob)||mobs.some(bossChasing);
-  if(near)musicPlay('boss');else if(AU.want==='boss')musicPlay(Z.D.music||zoneId);},1000);
+setInterval(()=>{if(!running||!P||zoneId==='crypt'||Z.D.dungeon||typeof musicPlay!=='function')return;
+  const on=[wbMob,...mobs].filter(bossChasing),big=on.some(m=>!m.d.mini),song=big?'boss':on.length&&SONGS.miniboss?'miniboss':null;
+  if(song)musicPlay(song);else if(AU.want==='boss'||AU.want==='miniboss')musicPlay(Z.D.music||zoneId);},1000);

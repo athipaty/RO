@@ -1,4 +1,5 @@
-// v1.71.3: every boss (mini-bosses and field bosses too) switches to the boss music while it chases you close by.
+// v1.71.3: every boss (mini-bosses and field bosses too) switches to battle music while it chases you close by;
+// (v1.71.5) a mini-boss plays the lighter mini-boss song, a big boss the boss song.
 const { player, wait, newRoom } = require('./helpers');
 module.exports = async t => {
   const A = await player('Bossmusic', newRoom(), { server: 'http://127.0.0.1:9' });
@@ -13,12 +14,14 @@ module.exports = async t => {
       const before = AU.want;
       P.x = hx + 150; P.y = hy; for (let i = 0; i < 15; i++) { provoke(boss); await w(100); }
       const during = AU.want;
+      const m0 = boss.d.mini; boss.d.mini = false; for (let i = 0; i < 15; i++) { provoke(boss); await w(100); } const big = AU.want; boss.d.mini = m0;
       P.x = hx + 2500; P.y = hy; boss.state = 'return'; boss.aggroed = false; await w(1500);
-      return { before, during, after: AU.want, name: boss.d.name };
+      return { before, during, big, after: AU.want, name: boss.d.name };
     });
-    t.ok(r.before !== 'boss', `no boss music while the ${r.name} is far and calm (${r.before})`);
-    t.ok(r.during === 'boss', `boss music while the ${r.name} chases you (${r.during})`);
-    t.ok(r.after !== 'boss', `map music comes back when it stops (${r.after})`);
+    t.ok(r.before !== 'boss' && r.before !== 'miniboss', `no boss music while the ${r.name} is far and calm (${r.before})`);
+    t.ok(r.during === 'miniboss', `the mini-boss song while the ${r.name} chases you (${r.during})`);
+    t.ok(r.big === 'boss', `a big boss plays the full boss song (${r.big})`);
+    t.ok(r.after !== 'boss' && r.after !== 'miniboss', `map music comes back when it stops (${r.after})`);
     t.ok(!A.page.errors.length, 'no script errors');
   } finally { await A.close(); }
 };
