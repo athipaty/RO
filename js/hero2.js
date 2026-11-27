@@ -83,7 +83,7 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
       if(!robe){ctx.strokeStyle=OL;ctx.lineWidth=6.2;ctx.beginPath();ctx.moveTo(x+k*3.6,hip-2);ctx.lineTo(fx,fy-2.5);ctx.stroke();
         ctx.strokeStyle=(WV&&WV.pant)||(AK&&AK.pant)||D.pant;ctx.lineWidth=FORT?4.6:3.6;ctx.beginPath();ctx.moveTo(x+k*3.6,hip-2);ctx.lineTo(fx,fy-2.5);ctx.stroke();}
       ctx.lineWidth=1.5;ctx.strokeStyle=OL;ctx.fillStyle=(SHO?SHO.col:WV?WV.boot:AK&&AK.boot?AK.boot:D.boot);ctx.beginPath();ctx.roundRect(fx-3,fy-(RUNE||(AK&&AK.tall)||(SHO&&SHO.tall)?7:5),6,RUNE||(AK&&AK.tall)||(SHO&&SHO.tall)?7:5,2);fs();
-      if(AK)outfitPart(AK,'leg',{x,y,by,hip,f,bk,sway,OL,fs,fx,fy,k});
+      if(AK)outfitPart(AK,'leg',{x,y,by,hip,f,bk,sway,OL,fs,fx,fy,k,skin:L.skin});
       ctx.beginPath();ctx.ellipse(fx+f*1.3,fy-.6,3.9,2.4,0,0,7);fs();
       ctx.fillStyle='rgba(255,255,255,.18)';ctx.fillRect(fx-2.6,fy-4.6,5.2,1.3);
       if(BERS){ctx.fillStyle=WV.fur;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<=6;i++){const u=i/6;ctx.lineTo(fx-3.6+u*7.2,fy-5.2-(i%2?1.6:0));}ctx.lineTo(fx+3.4,fy-3.6);ctx.lineTo(fx-3.4,fy-3.6);ctx.closePath();fs();}

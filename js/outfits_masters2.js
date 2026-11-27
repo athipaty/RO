@@ -28,10 +28,10 @@ Object.assign(MASTER2_LOOKS,{
   /* (v1.71.0) the Forgehand family: the Forgehand a working smith; the Runesmith and the Coinbreaker uniforms; the
      Forgemaster and the Goldlord their own way */
   forgehand:{fam:'master2',kit:'smith1',own:1,body:'#d8c8a8',sleeve:'#d8c8a8',apron:'#7a4e2a',apron2:'#5a3a1e',belt:'#4a3020',glove:'#6a4426',pant:'#4a3a2e',boot:'#5a3a22',cuff:'#b8925a',tall:1},
-  runesmith:{fam:'master2',kit:'runesmith',own:1,body:'#2a2422',sleeve:'#2a2422',apron:'#3a2a1e',copper:'#c8783a',glow:'#ff8a3a',belt:'#1a1412',pant:'#221c1a',boot:'#1a1412',cuff:'#ff8a3a',tall:1},
+  runesmith:{fam:'master2',kit:'runesmith',own:1,body:'#7a6452',sleeve:'skin',shirt:'#7a6452',rag:'#c8402a',apron:'#3a2a1e',copper:'#c8783a',glow:'#ff8a3a',belt:'#2a1e16',pant:'#4a3c32',boot:'#2a1e16',cuff:'#5a4a3e'},
   coinbreaker:{fam:'master2',kit:'merchant',own:1,body:'#f0ece0',sleeve:'#f0ece0',vest:'#1e5a3a',gold:'#e8c25a',scarf:'#c8282e',belt:'#4a3020',pant:'#3a3a40',boot:'#4a3020',cuff:'#e8c25a',tall:1},
-  forgemaster:{fam:'master2',kit:'forgemaster',body:'#3a4450',sleeve:'#3a4450',steel:'#9aa4b2',steel2:'#6a7482',glow:'#7ad8ff',pant:'#2a3038',boot:'#1a1e24',cuff:'#7ad8ff',tall:1},
-  goldlord:{fam:'master2',kit:'goldlord',body:'#f4ecd8',sleeve:'#4a1a5a',coat:'#4a1a5a',gold:'#ffd84a',belt:'#2a1236',pant:'#2a1236',boot:'#2a1236',cuff:'#ffd84a',tall:1},
+  forgemaster:{fam:'master2',kit:'forgemaster',body:'#1e2228',sleeve:'skin',shirt:'#1e2228',steel:'#9aa4b2',steel2:'#6a7482',glow:'#7ad8ff',strap:'#3a2e26',pant:'#2a3038',boot:'#1a1e24',cuff:'#9aa4b2',tall:1},
+  goldlord:{fam:'master2',kit:'goldlord',body:'#f4ecd8',sleeve:'skin',tie:'#d8242e',tie2:'#9a141c',coat:'#4a1a5a',gold:'#ffd84a',belt:'#2a1236',pant:'#3f6aa8',denim:'#5a86c4',boot:'#2a1236',cuff:'#ffd84a'},
   shade:{fam:'master2',kit:'rogue2',own:1,body:'#3a3a44',sleeve:'#3a3a44',leather:'#6a4a30',scarf:'#8a8a94',metal:'#c8ccd4',wrap:'#8a8070',pant:'#2e2e36',boot:'#4a3a2a',cuff:'#8a8070',tall:1},
   nightblade:{fam:'master2',kit:'assassin2',own:1,body:'#16141c',sleeve:'skin',red:'#c8202e',red2:'#8a1420',metal:'#c8ccd4',pant:'#16141c',boot:'#100e14',cuff:'#c8202e',tall:1},
   venomancer:{fam:'master2',kit:'venom2',own:1,hood:'#3a4a2a',hood2:'#2a3820',pouch:'#5a3e24',body:'#1e3a24',sleeve:'#1e3a24',coat:'#1e3a24',coat2:'#16301c',venom:'#a8ff3a',leather:'#3a2a1a',pant:'#16261a',boot:'#16261a',cuff:'#a8ff3a',tall:1}});
@@ -65,6 +65,14 @@ for(const k of [-1,1]){ctx.save();ctx.translate(x,by-6);ctx.rotate(k*1.15);ctx.f
   if(part==='leg'){const {fx,fy,k}=v;if(typeof bootDetail==='function')bootDetail(fx,fy,f,K.cuff,K.boot,OL);
     if(K.kit==='poncho'&&k===f){ctx.fillStyle=K.brass;ctx.beginPath();for(let i=0;i<8;i++){const r=i%2?.6:1.6,a=i*Math.PI/4;ctx.lineTo(fx-f*3.6+Math.cos(a)*r,fy-2.4+Math.sin(a)*r);}ctx.closePath();ctx.fill();} // a spur
     if(K.kit==='blast'){ctx.fillStyle=K.hazard;ctx.fillRect(fx-2.6,fy-3.3,5.2,.9);}
+    if(K.kit==='forgemaster'){ctx.fillStyle=K.steel;ctx.strokeStyle=OL;ctx.lineWidth=.8;ctx.beginPath();ctx.roundRect(fx-3,fy-6.6,6,1.4,.5);ctx.fill();ctx.stroke();} // (v1.71.9) a steel band round the boot top
+    if(K.kit==='goldlord'){ /* (v1.71.7) long ripped blue jeans: down over the boot tops (only the shoe shows), a lighter
+         fade down the front, a torn knee on the near leg and a smaller rip on the other */
+      const top=v.hip-2.6,bot=fy-1.7,lx=(x+k*3.6+fx)/2;ctx.fillStyle=K.pant;ctx.strokeStyle=OL;ctx.lineWidth=1.1;
+      ctx.beginPath();ctx.moveTo(x+k*3.6-3,top);ctx.lineTo(x+k*3.6+3,top);ctx.lineTo(fx+3.4,bot);ctx.lineTo(fx-3.4,bot);ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.strokeStyle=K.denim;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(lx+f*.6,top+.8);ctx.lineTo(fx+f*.8,bot-.8);ctx.stroke(); // the fade
+      ctx.strokeStyle='#e8c060';ctx.lineWidth=.45;ctx.setLineDash([.8,.8]);ctx.beginPath();ctx.moveTo(fx-3.1,bot-.7);ctx.lineTo(fx+3.1,bot-.7);ctx.stroke();ctx.setLineDash([]); // hem stitching
+      }
     return;}
   if(part==='arm'){const {sx,sy,hx,hy2,k}=v,ang=Math.atan2(hy2-sy,hx-sx),far=k===k0,mid=(t)=>[sx+(hx-sx)*t,sy+(hy2-sy)*t];
     const glove=(c,r)=>{ctx.fillStyle=c;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.ellipse(hx,hy2-1.8,r,r*.72,0,0,7);ctx.fill();ctx.stroke();};
@@ -72,10 +80,30 @@ for(const k of [-1,1]){ctx.save();ctx.translate(x,by-6);ctx.rotate(k*1.15);ctx.f
     const wraps=(c)=>{ctx.save();const [mx,my]=mid(.68);ctx.translate(mx,my);ctx.rotate(ang);ctx.strokeStyle=c;ctx.lineWidth=1.2;for(const d of [-2,0,2]){ctx.beginPath();ctx.moveTo(d-.7,-2.4);ctx.lineTo(d+.7,2.4);ctx.stroke();}ctx.restore();};
     switch(K.kit){
       case 'smith1':rolled();glove(K.glove,3.4);break;
-      case 'runesmith':glove('#1a1614',3.3);ctx.strokeStyle=K.glow;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(hx,hy2-3.4,3,1,0,Math.PI,0);ctx.stroke();break;
+      case 'runesmith': /* (v1.71.8) sleeves shoved up both arms; one sooty work glove with a glowing rune ring, the other hand bare */
+        {ctx.save();ctx.translate(sx,sy);ctx.rotate(ang);ctx.fillStyle=K.shirt;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-1.6,-3.4,5.4,6.8,1.6);ctx.fill();ctx.stroke(); // a short, pushed-up sleeve
+          ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(2.6,-3);ctx.lineTo(2.6,3);ctx.stroke();ctx.restore();}
+        if(!far){ctx.fillStyle='rgba(40,30,24,.35)';ctx.beginPath();ctx.ellipse(...mid(.62),1.3,.8,ang,0,7);ctx.fill();} // a smudge of soot
+        if(far){glove('#1a1614',3.3);ctx.strokeStyle=K.glow;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(hx,hy2-3.4,3,1,0,Math.PI,0);ctx.stroke();}break;
       case 'merchant':glove('#f0ece0',3);break;
-      case 'forgemaster':if(!far){rolled();glove(K.steel,4.4);ctx.strokeStyle=K.glow;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(hx-2.4,hy2-2.4);ctx.lineTo(hx+2.4,hy2-1.2);ctx.stroke();}else glove('#1a1e24',3.3);break;
-      case 'goldlord':glove('#2a1236',3.2);ctx.fillStyle=K.gold;ctx.beginPath();ctx.arc(hx+1.6,hy2-1.4,.9,0,7);ctx.fill();break;
+      case 'forgemaster':{ /* (v1.71.9) a black short-sleeved tee; the near forearm carries glowing blue forge tattoos and a big steel
+          gauntlet, the far hand a fingerless glove with a steel wrist cuff */
+        ctx.save();ctx.translate(sx,sy);ctx.rotate(ang);ctx.fillStyle=K.shirt;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-1.6,-3.4,5.2,6.8,1.4);ctx.fill();ctx.stroke();
+        ctx.strokeStyle=K.glow;ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(3,-3);ctx.lineTo(3,3);ctx.stroke();ctx.restore();
+        if(!far){const [ax,ay]=mid(.55),[bx,by2]=mid(.8);glowOn(K.glow);ctx.strokeStyle=K.glow;ctx.lineWidth=.8;ctx.save();ctx.translate(ax,ay);ctx.rotate(ang);
+            ctx.beginPath();ctx.moveTo(-1.4,-1.8);ctx.lineTo(0,0);ctx.lineTo(-1.4,1.8);ctx.moveTo(1.2,-1.8);ctx.lineTo(1.2,1.8);ctx.stroke();ctx.restore();glowOff();
+          glove(K.steel,4.4);ctx.strokeStyle=K.steel2;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(hx-3,hy2-3.2);ctx.lineTo(hx+3,hy2-3.2);ctx.stroke();
+          glowOn(K.glow);ctx.strokeStyle=K.glow;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(hx-2.4,hy2-2);ctx.lineTo(hx+2.4,hy2-.8);ctx.stroke();glowOff();}
+        else{glove('#1a1e24',3.3);const [cx,cy]=mid(.84);ctx.save();ctx.translate(cx,cy);ctx.rotate(ang);ctx.fillStyle=K.steel;ctx.strokeStyle=OL;ctx.lineWidth=.9;ctx.beginPath();ctx.roundRect(-1.4,-2.8,2.8,5.6,.8);ctx.fill();ctx.stroke();ctx.restore();}
+        break;}
+      case 'goldlord':{ /* (v1.71.7) bare arms; a red cloth tied round the near upper arm, the knot's two tails fluttering */
+        if(!far){const [mx,my]=mid(.5),fl=Math.sin(now*5)*.8;ctx.save();ctx.translate(mx,my);ctx.rotate(ang);
+          ctx.fillStyle=K.tie;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-2,-3.6,4,7.2,1.2);ctx.fill();ctx.stroke();
+          ctx.strokeStyle=K.tie2;ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(-.5,-3);ctx.lineTo(-.5,3);ctx.stroke();
+          const kx=0,ky=-f*3.6;ctx.fillStyle=K.tie;ctx.strokeStyle=OL;ctx.lineWidth=.9;
+          for(const [a,l] of [[-.55,5.6],[.5,4.6]]){ctx.beginPath();ctx.moveTo(kx-.6,ky);ctx.lineTo(kx+Math.sin(a)*l-.8,ky-f*Math.cos(a)*l+fl);ctx.lineTo(kx+Math.sin(a)*l+.9,ky-f*Math.cos(a)*l+fl*.6);ctx.lineTo(kx+.6,ky);ctx.closePath();ctx.fill();ctx.stroke();}
+          ctx.fillStyle=K.tie2;ctx.beginPath();ctx.arc(kx,ky,1.1,0,7);ctx.fill();ctx.stroke();ctx.restore();}
+        glove('#2a1236',3.2);ctx.fillStyle=K.gold;ctx.beginPath();ctx.arc(hx+1.6,hy2-1.4,.9,0,7);ctx.fill();break;}
       case 'rogue2':wraps(K.wrap);glove(K.leather,3.1);break;
       case 'assassin2':{ /* a long arm guard from the elbow to the hand, crimson bands */ctx.save();const [mx,my]=mid(.7);ctx.translate(mx,my);ctx.rotate(ang);ctx.fillStyle=K.body;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-5.4,-2.9,9.4,5.8,1.6);ctx.fill();ctx.stroke();ctx.fillStyle=K.red;ctx.fillRect(-4.2,-2.7,1.2,5.4);ctx.fillRect(-.6,-2.7,1.2,5.4);ctx.restore();glove('#16141c',3.1);break;}
       case 'venom2':glove('#1a2a1a',3.2);ctx.strokeStyle=K.venom;ctx.lineWidth=1.1;ctx.beginPath();ctx.ellipse(hx,hy2-3.4,3,1,0,Math.PI,0);ctx.stroke();break;
@@ -179,13 +207,21 @@ for(const k of [-1,1]){ctx.save();ctx.translate(x,by-6);ctx.rotate(k*1.15);ctx.f
       ctx.fillStyle=K.belt;ctx.beginPath();ctx.roundRect(x-7.8,by-2.8,15.6,2.4,1);fs();
       ctx.save();ctx.translate(x+f*7,by-1.2);ctx.rotate(f*.3);ctx.fillStyle='#6a4a2a';ctx.strokeStyle=OL;ctx.lineWidth=.8;ctx.beginPath();ctx.roundRect(-.7,0,1.4,6,.5);ctx.fill();ctx.stroke();
       ctx.fillStyle='#8a909c';ctx.beginPath();ctx.roundRect(-2.4,-1.2,4.8,2.4,.6);ctx.fill();ctx.stroke();ctx.restore();break;}
-    case 'runesmith':{ /* the Runesmith's uniform: soot black, copper shoulder pads with glowing rune studs on both sides,
-         a dark apron with glowing orange rune stitching */
-      ctx.fillStyle=K.apron;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x-6.4,by-9.4);ctx.lineTo(x+6.4,by-9.4);ctx.lineTo(x+7.6+sw,HEM);ctx.lineTo(x-7.6+sw,HEM);ctx.closePath();fs();
-      glowOn(K.glow);ctx.strokeStyle=K.glow;ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(x,by-8.4);ctx.lineTo(x,by+1.2);for(const yy of [-6.6,-3.6,-.6]){ctx.moveTo(x-1.6,by+yy);ctx.lineTo(x,by+yy+1.2);ctx.lineTo(x+1.6,by+yy);}ctx.stroke();glowOff();
-      ctx.fillStyle=K.belt;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x-7.8,by-2.8,15.6,2.4,1);fs();ctx.fillStyle=K.copper;ctx.beginPath();ctx.roundRect(x-1.4,by-3,2.8,2.8,.6);fs();
-      for(const k of [-1,1]){ctx.save();ctx.translate(x+k*10.6,by-12.6);ctx.rotate(k*.35);ctx.fillStyle=K.copper;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.ellipse(0,0,5.6,3.6,0,Math.PI,0);ctx.quadraticCurveTo(0,2.2,-5.6,0);ctx.closePath();fs();
-        glowOn(K.glow);ctx.fillStyle=K.glow;ctx.beginPath();ctx.arc(0,-1.2,1.2,0,7);ctx.fill();glowOff();ctx.restore();}break;}
+    case 'runesmith':{ /* (v1.71.8) the Runesmith, relaxed: a loose sooty work shirt open at the collar, the apron's bib folded
+         down at the waist with one strap hanging loose, a belt worn low and crooked, a red rag tucked in on one side, one
+         glowing rune scrawled on the apron (not stitched in rows) and a copper rune charm on a cord. No shoulder pads. */
+      ctx.fillStyle=v.skin||'#f6d6b8';ctx.strokeStyle=OL;ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(x-2.8,by-14.2);ctx.lineTo(x+2.8,by-14.2);ctx.lineTo(x+f*.6,by-9.4);ctx.closePath();ctx.fill();ctx.stroke(); // open collar
+      line(OL,.8,[x-2.8,by-14.2,x-4.2,by-12]);line(OL,.8,[x+2.8,by-14.2,x+4.2,by-12]);
+      line('#3a2a1e',.7,[x-2.4,by-13.8,x+f*.4,by-9.6,x+2.4,by-13.8]);ctx.fillStyle=K.copper;ctx.strokeStyle=OL;ctx.lineWidth=.8;ctx.beginPath();ctx.arc(x+f*.4,by-9,1.5,0,7);ctx.fill();ctx.stroke(); // the charm
+      glowOn(K.glow);ctx.fillStyle=K.glow;ctx.beginPath();ctx.arc(x+f*.4,by-9,.6,0,7);ctx.fill();glowOff();
+      ctx.fillStyle=K.apron;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x-6.6,by-4.6);ctx.lineTo(x+6.6,by-4.6);ctx.lineTo(x+7.4+sw,HEM);ctx.lineTo(x-7.4+sw,HEM);ctx.closePath();fs(); // the apron, from the waist
+      ctx.fillStyle='#4a3626';ctx.beginPath();ctx.moveTo(x-6.4,by-4.6);ctx.lineTo(x+6.4,by-4.6);ctx.lineTo(x+5.4,by-1.8);ctx.lineTo(x-5,by-2.2);ctx.closePath();fs(); // the bib, folded down over it
+      {const k=-f,sv=Math.sin(now*2.2)*.5;line(OL,2.2,[x+k*4.6,by-2.4,x+k*6+sv,by+1.4]);line('#4a3626',1.2,[x+k*4.6,by-2.4,x+k*6+sv,by+1.4]);} // a loose strap
+      glowOn(K.glow);ctx.strokeStyle=K.glow;ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(x+f*1.6,by-.6);ctx.lineTo(x+f*.2,by+.6);ctx.lineTo(x+f*2,by+1.2);ctx.lineTo(x+f*.6,by+1.9);ctx.stroke();glowOff(); // one scrawled rune
+      ctx.save();ctx.translate(x,by-5.2);ctx.rotate(f*.08);ctx.fillStyle=K.belt;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(-7.8,-1.2,15.6,2.4,1);fs();ctx.fillStyle=K.copper;ctx.beginPath();ctx.roundRect(f*3-1.3,-1.4,2.6,2.8,.6);fs();ctx.restore(); // low, crooked belt
+      {const k=f,sv=Math.sin(now*1.8+1)*.7;ctx.fillStyle=K.rag;ctx.strokeStyle=OL;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+k*2.6,by-5.8);ctx.lineTo(x+k*6.4,by-5.6);ctx.lineTo(x+k*7+sv,by+1.6);ctx.lineTo(x+k*5.6+sv,by+.6);ctx.lineTo(x+k*4.4+sv,by+2);ctx.lineTo(x+k*3.4+sv,by+.4);ctx.closePath();ctx.fill();ctx.stroke();
+        line('rgba(255,255,255,.3)',.6,[x+k*4,by-4.4,x+k*4.8+sv,by+.4]);} // a red rag tucked in the belt, hanging in front
+      break;}
     case 'merchant':{ /* the Coinbreaker's uniform: a white shirt, a deep green vest with gold buttons on both sides, a red
          neckerchief, a gold coin purse at the near hip */
       for(const k of [-1,1]){ctx.fillStyle=K.vest;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x+k*2.2,by-14);ctx.lineTo(x+k*8.6,by-14);ctx.quadraticCurveTo(x+k*9.4,by-6,x+k*8.6,by-.4);ctx.lineTo(x+k*2.6,by-.8);ctx.closePath();fs();
@@ -195,15 +231,28 @@ for(const k of [-1,1]){ctx.save();ctx.translate(x,by-6);ctx.rotate(k*1.15);ctx.f
       {const px=x+f*6.4,py=by+1.4,sv=Math.sin(now*2)*.4;ctx.fillStyle=K.gold;ctx.strokeStyle=OL;ctx.lineWidth=.9;ctx.beginPath();ctx.ellipse(px+sv,py,2.6,2.2,0,0,7);ctx.fill();ctx.stroke();
         ctx.fillStyle='#8a6a1a';ctx.fillRect(px+sv-1.6,py-2.2,3.2,.8);ctx.fillStyle='#fff6c8';ctx.beginPath();ctx.arc(px+sv-.8,py-.4,.6,0,7);ctx.fill();}break;}
     case 'forgemaster':{ /* the Forgemaster, its own way: steel grey, one huge iron pauldron with glowing blue cracks on the
-         far shoulder, a half apron of steel plates on one side, a blue-hot belt buckle */
+         far shoulder, a half apron of steel plates on one side, a blue-hot belt buckle; (v1.71.9) cooler: a black tee, a leather
+         harness across the chest with a steel ring, a chain looping from the belt, glowing blue lines down the trousers */
       {const k=-f;for(let r=0;r<3;r++){const t=by-2+r*1.4;ctx.fillStyle=r%2?K.steel2:K.steel;ctx.strokeStyle=OL;ctx.lineWidth=.9;ctx.beginPath();ctx.roundRect(Math.min(x+k*1,x+k*8.4),t,7.4,1.8,.5);ctx.fill();ctx.stroke();}}
+      band(K.strap,1.8,x-f*7.6,by-13.6,x+f*6.6,by-3.4); // the harness, from the far shoulder to the near hip
+      ctx.strokeStyle=K.steel;ctx.lineWidth=1;ctx.beginPath();ctx.arc(x+f*1.4,by-9,1.5,0,7);ctx.stroke();
       ctx.fillStyle='#1a1e24';ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x-7.8,by-3.4,15.6,2.6,1);fs();
       glowOn(K.glow);ctx.fillStyle=K.glow;ctx.beginPath();ctx.roundRect(x-1.6,by-3.6,3.2,3,.8);ctx.fill();glowOff();
-      line(K.steel2,1.4,[x-8.4,by-9.8,x,by-4.6,x+8.4,by-9.8]);
+      {const k=f,sv=Math.sin(now*2)*.3;ctx.strokeStyle=K.steel;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(x+k*3,by-1.6);ctx.quadraticCurveTo(x+k*5+sv,by+3.4,x+k*7.4,by-1.4);ctx.stroke();
+        for(let q=1;q<6;q++){const u=q/6,px=(1-u)*(1-u)*(x+k*3)+2*u*(1-u)*(x+k*5+sv)+u*u*(x+k*7.4),py=(1-u)*(1-u)*(by-1.6)+2*u*(1-u)*(by+3.4)+u*u*(by-1.4);ctx.beginPath();ctx.ellipse(px,py,.7,.5,0,0,7);ctx.stroke();}} // the chain
+      glowOn(K.glow);for(const k of [-1,1])line(K.glow,.6,[x+k*5.6,by,x+k*6.4,by+4]);glowOff(); // blue lines down the trousers
       pauld(k=>{for(let i=2;i>=0;i--){ctx.fillStyle=i===0?K.steel:K.steel2;ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(k*.6*i,i*2.6,8.6-i*1.2,5.6-i*.8,0,Math.PI,0);ctx.quadraticCurveTo(k*.6*i,i*2.6+3,-(8.6-i*1.2)+k*.6*i,i*2.6);ctx.closePath();ctx.fill();ctx.stroke();}
-        glowOn(K.glow);ctx.strokeStyle=K.glow;ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(-4,-3.4);ctx.lineTo(-1.4,-1.4);ctx.lineTo(-2.4,1);ctx.moveTo(2.6,-4);ctx.lineTo(1.4,-1.6);ctx.lineTo(3.6,.2);ctx.stroke();glowOff();},1.1);break;}
+        glowOn(K.glow);ctx.strokeStyle=K.glow;ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(-4,-3.4);ctx.lineTo(-1.4,-1.4);ctx.lineTo(-2.4,1);ctx.moveTo(2.6,-4);ctx.lineTo(1.4,-1.6);ctx.lineTo(3.6,.2);ctx.stroke();glowOff();
+        for(const [rx,ry] of [[-5.6,.4],[0,-4.4],[5.6,.4]]){ctx.fillStyle=K.steel2;ctx.strokeStyle=OL;ctx.lineWidth=.7;ctx.beginPath();ctx.arc(rx,ry,.9,0,7);ctx.fill();ctx.stroke();}},1.1); // rivets
+      break;}
     case 'goldlord':{ /* the Goldlord, its own way: a royal purple coat open on the near side and long on the far side, a gold
          chain across the chest, a gold coin pauldron on the far shoulder */
+      /* (v1.71.7) the jeans' seat over the shirt's hem, so the long blue jeans read from the belt down */
+      ctx.fillStyle=K.pant;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x-7.4,by-1.6);ctx.lineTo(x+7.4,by-1.6);ctx.lineTo(x+7,by+3.4);ctx.lineTo(x-7,by+3.4);ctx.closePath();fs();
+      line(OL,.8,[x,by-.6,x,by+3.4]);line(K.denim,1,[x+f*4.4,by-.8,x+f*4.8,by+3.2]);
+      if(!bk)for(const [rx,ry,w,h,n] of [[x+f*3.6,by+1.3,2.1,1.25,2],[x-f*3.8,by+.6,1.4,.9,1]]){ // the rips: skin through torn denim, white threads across
+        ctx.fillStyle=v.skin||'#f6d6b8';ctx.strokeStyle=OL;ctx.lineWidth=.6;ctx.beginPath();ctx.ellipse(rx,ry,w,h,0,0,7);ctx.fill();ctx.stroke();
+        for(let q=0;q<n;q++){const d=n>1?(q?.45:-.45):0;line('#f4f6fa',.55,[rx-w-.3,ry+d,rx+w+.3,ry+d]);}}
       {const k=-f;ctx.fillStyle=K.coat;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(x+k*1.6,by-14);ctx.lineTo(x+k*8.8,by-14);ctx.quadraticCurveTo(x+k*9.8+sw,by-4,x+k*9.4+sw,HEM);ctx.lineTo(x+k*3.4+sw,HEM-.6);ctx.closePath();fs();line(K.gold,1,[x+k*2,by-13,x+k*3.8+sw,HEM-1]);}
       {const k=f;ctx.fillStyle=K.coat;ctx.beginPath();ctx.moveTo(x+k*3,by-14);ctx.lineTo(x+k*8.6,by-14);ctx.quadraticCurveTo(x+k*9.2,by-8,x+k*8.4,by-4.6);ctx.lineTo(x+k*4.2,by-5.4);ctx.closePath();fs();line(K.gold,1,[x+k*3.4,by-13,x+k*4.4,by-5.6]);}
       ctx.fillStyle=K.belt;ctx.strokeStyle=OL;ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x-7.8,by-3.2,15.6,2.6,1);fs();ctx.fillStyle=K.gold;ctx.beginPath();ctx.arc(x,by-1.9,1.5,0,7);fs();
