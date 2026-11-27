@@ -596,9 +596,10 @@ function drawPlayerBody(P,wid){
     const ws=P.moving&&p<0&&!P.casting&&!P.sitting?Math.sin(gaitWalk(P)*12)*2.6*walkGait(P.cls).arm*(typeof HERO2_ON!=='undefined'&&HERO2_ON?-1:1):0;
     const bowRest=w.wt==='bow'&&p<0&&!P.casting; // (v1.69.0) a resting bow is held by its grip (below)
     drawHeld=by=>{
-      if(bowRest&&!P.back){ /* held at the side by its grip, the wood toward the body and the string outward, the top
-           tipped a little forward: the whole bow stays outside the head, then the hand closes over the grip */
-        const hx=P.x+P.face*(9.6+ws),hy=by-3;ctx.save();ctx.translate(hx,hy);ctx.scale(P.face,1);ctx.rotate(BOW_IDLE_LEAN);ctx.scale(-1,1);ctx.translate(-13,0);drawWeaponShape(w,0);ctx.restore();
+      if(bowRest&&!P.back){ /* held at the side, the top tipped a little forward; (v1.85.2) the same way round as from
+           behind: the wood curving outward and the string toward the body (it used to be the other way round walking
+           S and E), the whole bow outside the body, the hand over its inner side */
+        const hx=P.x+P.face*(9.6+ws),hy=by-3;ctx.save();ctx.translate(hx,hy);ctx.scale(P.face,1);ctx.rotate(BOW_IDLE_LEAN);drawWeaponShape(w,0);ctx.restore();
         ctx.fillStyle=(typeof lookOf==='function'&&(lookOf(P.name,P.look)||{}).skin)||'#f6d6b8';ctx.strokeStyle='#2a1c14';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(hx,hy,2.7,0,7);ctx.fill();ctx.stroke();return;}
       ctx.save();ctx.translate(P.x+P.face*(11-lift*15+reach+ws),by-3-lift*9-castUp);ctx.scale(P.face,1);
       // the smear the blade leaves behind as it comes down

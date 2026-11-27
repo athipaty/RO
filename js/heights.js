@@ -441,9 +441,15 @@ function lvPaint(z,hill){const L=z.lvd,dpr=typeof DPR==='number'&&DPR?picDPR():1
         for(const [u,v] of [[.3,.3],[.7,.3],[.3,.7],[.7,.7]]){const p=lvS(X0+u*T,Y0+v*T,0);g.fillStyle=F[2];g.beginPath();g.ellipse(p.x,p.y,7,3.6,0,0,7);g.fill();g.strokeStyle='rgba(0,0,0,.3)';g.stroke();}}
       else for(let q=0;q<3;q++){const a=lvS(X0+R()*T,Y0+R()*T,0);g.strokeStyle='rgba(0,0,0,.25)';g.beginPath();g.moveTo(a.x,a.y);g.lineTo(a.x+R()*8-4,a.y+R()*4-2);g.stroke();}}
     else if(wt===2){ // the bridge: planks across, the road's way over the water
-      quad('#9a7448');g.strokeStyle='rgba(60,38,18,.55)';g.lineWidth=1;for(let q=1;q<4;q++){const a=lvS(X0,Y0+q*T/4,0),b2=lvS(X1,Y0+q*T/4,0);g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b2.x,b2.y);g.stroke();}
-      // rails along both sides, a post at each corner
-      g.strokeStyle='#5a3d22';g.lineWidth=2;for(const ex of [X0,X1])if(L.wet[ty*W+(ex===X0?tx-1:tx+1)]!==2){const a=lvS(ex,Y0,0),b2=lvS(ex,Y1,0);g.beginPath();g.moveTo(a.x,a.y-9);g.lineTo(b2.x,b2.y-9);g.stroke();
+      // (v1.85.2) rails stand only on a side over the water (or a drop), running along the way across: they used to sit
+      // on the west and east edges always, so where the road crossed east-west they stood across the walkway
+      const over=(x,y)=>{if(x<0||y<0||x>=W||y>=L.Hh)return false;const k=y*W+x;return L.wet[k]===1||L.wet[k]===3;};
+      const sides=[[tx,ty-1,[X0,Y0],[X1,Y0]],[tx,ty+1,[X0,Y1],[X1,Y1]],[tx-1,ty,[X0,Y0],[X0,Y1]],[tx+1,ty,[X1,Y0],[X1,Y1]]].filter(e=>over(e[0],e[1]));
+      // which way the road goes: along x when the water lies north or south of the bridge
+      const alongX=sides.some(e=>e[1]!==ty)&&!sides.some(e=>e[0]!==tx);
+      // planks across the way
+      quad('#9a7448');g.strokeStyle='rgba(60,38,18,.55)';g.lineWidth=1;for(let q=1;q<4;q++){const a=alongX?lvS(X0+q*T/4,Y0,0):lvS(X0,Y0+q*T/4,0),b2=alongX?lvS(X0+q*T/4,Y1,0):lvS(X1,Y0+q*T/4,0);g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b2.x,b2.y);g.stroke();}
+      g.strokeStyle='#5a3d22';g.lineWidth=2;for(const e of sides){const a=lvS(e[2][0],e[2][1],0),b2=lvS(e[3][0],e[3][1],0);g.beginPath();g.moveTo(a.x,a.y-9);g.lineTo(b2.x,b2.y-9);g.stroke();
         for(const p of [a,b2]){g.beginPath();g.moveTo(p.x,p.y);g.lineTo(p.x,p.y-11);g.stroke();}}}
     else if(L.ford[i]){ // a ford: a gravel path down into the water, stepping stones along it
       tri([C[0],C[1],C[2]],[S[0],S[1],S[2]],sh);tri([C[0],C[2],C[3]],[S[0],S[2],S[3]],sh);quad('rgba(196,176,138,.82)');

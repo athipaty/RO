@@ -75,14 +75,15 @@
     ctx.restore();}
   // which hero is being drawn (for the falcon's dive at its target)
   let ML_P=null;{const _dpbM=drawPlayerBody;drawPlayerBody=function(p){ML_P=p;try{return _dpbM.apply(this,arguments);}finally{ML_P=null;}};}
-  /* the Skywarden's falcon: hovers on the far side, beside the head, never over it; glides with a few strong flaps,
+  /* the Skywarden's falcon: (v1.85.2) hovers just above the head (it used to fly beside it), drifting a little from side to
+     side; glides with a few strong flaps,
      tilts and bobs. When the Skywarden shoots, the falcon IS the shot: it leaves its place and flies the projectile's own
      path to the target (so it goes where the arrow goes), then flies back from there. */
   const SKY_FALCON={body:'#f6f4ee',wing:'#ffffff',wing2:'#e2e8f0',tip:'#5aa8e0',belly:'#eef2f8',beak:'#e8c060',mark:'#4a5a70',leg:'#e8c060'};
   if(typeof shoot==='function'){const _shM=shoot;shoot=function(from){const r=_shM.apply(this,arguments);const sh=shots[shots.length-1];if(sh&&from){sh.ox=from.x;sh.oy=from.y;}return r;};}
   const skyShot=sh=>{sh._sky=true;const a=typeof fsAng==='function'?fsAng(sh):0,f=Math.cos(a)<0?-1:1;drawFalcon(0,0,1.5,f,SKY_FALCON,'fly',Math.sin(now*22)*.9,f>0?a:a-Math.PI);};
   if(typeof FS_STYLES!=='undefined'&&FS_STYLES.skywarden)FS_STYLES.skywarden.shot=skyShot;
-  JSIDE.skyfalcon=function(x,y,by,f,o){let hx=x-f*27,hy=by-25+Math.sin(now*1.8)*2.6,tilt=Math.sin(now*.9)*.14,face=f;
+  JSIDE.skyfalcon=function(x,y,by,f,o){const top=typeof LAST_HY==='number'&&LAST_HY?LAST_HY-27:by-46;let hx=x+Math.sin(now*.8)*5,hy=top+Math.sin(now*1.8)*2.2,tilt=Math.sin(now*.9)*.14,face=f;
     const cyc=now%3.2;let flap=cyc<.9?Math.sin(cyc*16):.18+Math.sin(now*2)*.06;const p=ML_P;
     if(p&&typeof shots!=='undefined'){const out=shots.find(sh=>sh._sky&&typeof sh.ox==='number'&&Math.hypot(sh.ox-x,sh.oy-y)<40);
       if(out){p._falX=out.x;p._falY=out.y-10;p._falOut=true;return;} // in flight: the shot is the falcon
