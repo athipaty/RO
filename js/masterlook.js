@@ -153,7 +153,10 @@
   /* a master in its own outfit wears no job mantle (the coloured shoulder pads and collar every advanced calling has):
      they would cover its own pauldrons and chest pieces */
   if(typeof drawJobMantle==='function'){const _djm=drawJobMantle;drawJobMantle=function(){const p=ML_P;
-    if(p&&typeof OUTFITS!=='undefined'){const K=(OUTFITS[baseOf(p.cls)]||{})[p.cls];if(K&&(K.fam==='wardenm'||K.fam==='rangerm'||K.fam==='master2'||K.own))return;}
+    if(p&&typeof OUTFITS!=='undefined'){const K=(OUTFITS[baseOf(p.cls)]||{})[p.cls];if(K&&(K.fam==='wardenm'||K.fam==='rangerm'||K.fam==='master2'||K.own))return;
+      /* (v1.71.4) the advanced callings wear their own official uniforms now (every family): the old mantle drew coloured
+         shoulder pads and a collar over them in the game only, so they did not match the start screen and their designs */
+      if(typeof WARDEN_V2!=='undefined'&&WARDEN_V2&&(K||(typeof WARDEN_LOOKS!=='undefined'&&WARDEN_LOOKS[p.cls])))return;}
     return _djm.apply(this,arguments);};}
   /* nothing drawn over the body ever covers the face: every side piece (orbs, sparks, runes, spikes...) is clipped out
      of the head, drawn at LAST_HY about 13 across */
