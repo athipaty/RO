@@ -74,23 +74,20 @@ function goalPlacePhone(el){const obs=[];for(const e of document.querySelectorAl
     const left=Math.round(c.l)+'px',top=Math.round(c.t)+'px',mw=Math.round(right-c.l)+'px';if(el.style.left!==left)el.style.left=left;if(el.style.top!==top)el.style.top=top;if(el.style.maxWidth!==mw)el.style.maxWidth=mw;if(el.style.right)el.style.right='';return;}
   el.hidden=true;}
 setInterval(()=>{try{goalChip(true);}catch(e){}},500);
-// the arrow: at the screen edge when the goal is off screen, a small bouncing marker over it when it is on screen
+// the arrow: around the hero when the goal is off screen (v1.82.0: on every screen), a small bouncing marker over it when it is on screen
 {const _rG=render;render=function(){const r=_rG.apply(this,arguments);try{if(!running||!goalOn()||!P||P.dead||!GOAL.t)return r;
     let pt=GOAL.pt;if(pt&&pt.m){if(pt.m.dead)return r;pt={x:pt.m.x,y:pt.m.y};}if(!pt)return r;
     const p=proj(pt.x,pt.y),sx=p.x-camX,sy=p.y-camY-20,mT=78,mB=VH-(document.body.classList.contains('touchui')?120:90),mL=40,mR=VW-40;
     ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);
     if(sx>mL&&sx<mR&&sy>mT&&sy<mB){const b=Math.sin(now*5)*4,y=sy-34+b;ctx.fillStyle='rgba(255,207,90,.95)';ctx.strokeStyle='rgba(30,20,8,.8)';ctx.lineWidth=2;
       ctx.beginPath();ctx.moveTo(sx,y+10);ctx.lineTo(sx-8,y);ctx.lineTo(sx-3,y);ctx.lineTo(sx-3,y-8);ctx.lineTo(sx+3,y-8);ctx.lineTo(sx+3,y);ctx.lineTo(sx+8,y);ctx.closePath();ctx.stroke();ctx.fill();}
-    // upright phones (v1.21.3): the screen edges hold the button columns, so the arrow circles close around the hero
-    // like a compass instead; elsewhere it runs along the edge of the screen
-    else if(document.body.classList.contains('touchui')&&VH>VW){const hp=proj(P.x,P.y),hx=hp.x-camX,hy=hp.y-camY-26,ang=Math.atan2(sy-hy,sx-hx),R=Math.min(VW*.3,120),ax=hx+Math.cos(ang)*R,ay=hy+Math.sin(ang)*R*.8;
-      const pulse=.85+.15*Math.sin(now*4);ctx.translate(ax,ay);ctx.rotate(ang);ctx.globalAlpha=pulse;
-      ctx.fillStyle='rgba(14,18,26,.75)';ctx.beginPath();ctx.arc(-6,0,15,0,7);ctx.fill();
-      ctx.fillStyle='#ffcf5a';ctx.strokeStyle='rgba(30,20,8,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(9,0);ctx.lineTo(-9,-8);ctx.lineTo(-4,0);ctx.lineTo(-9,8);ctx.closePath();ctx.stroke();ctx.fill();}
-    else{const cx=VW/2,cy=(mT+mB)/2,dx=sx-cx,dy=sy-cy,k=Math.min((mR-cx)/Math.max(1e-6,Math.abs(dx)),(mB-cy)/Math.max(1e-6,Math.abs(dy))),ax=cx+dx*k,ay=cy+dy*k,ang=Math.atan2(dy,dx);
-      const pulse=.85+.15*Math.sin(now*4);ctx.translate(ax,ay);ctx.rotate(ang);ctx.globalAlpha=pulse;
-      ctx.fillStyle='rgba(14,18,26,.75)';ctx.beginPath();ctx.arc(-6,0,17,0,7);ctx.fill();
-      ctx.fillStyle='#ffcf5a';ctx.strokeStyle='rgba(30,20,8,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(-10,-9);ctx.lineTo(-5,0);ctx.lineTo(-10,9);ctx.closePath();ctx.stroke();ctx.fill();}
+    /* (v1.82.0) on every screen the arrow circles close around the hero like a compass, just outside the body: on the
+       screen edge it sat among the buttons and boxes and was far from where you look (upright phones had this since
+       v1.21.3, at a wider ring) */
+    else{const hp=proj(P.x,P.y),hx=hp.x-camX,hy=hp.y-camY-22,ang=Math.atan2(sy-hy,sx-hx),R=56,ax=hx+Math.cos(ang)*R,ay=hy+Math.sin(ang)*R*.78;
+      const pulse=.8+.2*Math.sin(now*4),nudge=Math.sin(now*5)*2.5;ctx.translate(ax+Math.cos(ang)*nudge,ay+Math.sin(ang)*nudge*.78);ctx.rotate(ang);ctx.globalAlpha=pulse;
+      ctx.fillStyle='rgba(14,18,26,.6)';ctx.beginPath();ctx.arc(-4,0,11,0,7);ctx.fill();
+      ctx.fillStyle='#ffcf5a';ctx.strokeStyle='rgba(30,20,8,.9)';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(-7,-7);ctx.lineTo(-3,0);ctx.lineTo(-7,7);ctx.closePath();ctx.stroke();ctx.fill();}
     ctx.restore();}catch(e){}return r;};}
 
 if(typeof PANELS!=='undefined'&&PANELS.settings){const _psG=PANELS.settings;PANELS.settings=function(){const h=_psG.apply(this,arguments);
