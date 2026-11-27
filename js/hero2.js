@@ -249,7 +249,9 @@ function drawHuman2(x,y,body,hair,face,walk,opt={}){
     ctx.fillStyle='rgba(255,255,255,.5)';ctx.beginPath();ctx.moveTo(x-4,by-15.5);ctx.lineTo(x,by-11.5);ctx.lineTo(x+4,by-15.5);ctx.closePath();ctx.fill();
     ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(x,by-11.5);ctx.lineTo(x,by-4);ctx.stroke();
     belt(D.belt,by-1.5);ctx.fillStyle='#8a5a2b';ctx.strokeStyle=OL;ctx.lineWidth=1.2;ctx.beginPath();ctx.roundRect(x+f*4.2-2.2,by-.5,4.4,4,1.2);fs();}
-  if(opt.armor)drawArmor(x,by-1,f,bk,opt.armor,OL);
+  /* (v1.71.10) a hero in its job's own outfit shows that outfit: worn body armour still counts (its stats), it is just not
+     drawn over the design */
+  if(opt.armor&&!AK&&!WV)drawArmor(x,by-1,f,bk,opt.armor,OL);
   ctx.restore();
   arm(-backArm);
   // ---- head (same size and place as before so hats and face gear still fit) ----
