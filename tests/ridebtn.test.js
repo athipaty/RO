@@ -12,8 +12,8 @@ module.exports = async t => {
     await wait(1500); const ev = (f, ...a) => page.evaluate(f, ...a);
     const none = await ev(async () => { await new Promise(r => setTimeout(r, 500)); const b = document.getElementById('rideBtn'); b.click(); return { shown: !b.hidden && b.classList.contains('none'), told: /Tobin at the Waystation/.test(document.getElementById('log').textContent), riding: !!P.riding }; });
     t.ok(none.shown && none.told && !none.riding, 'the Ride button is always there (dimmed); without a mount it says where to get one');
-    const shown = await ev(async () => { P.lv = 20; P.mounts = ['hopper']; enterZone('meadow'); await new Promise(r => setTimeout(r, 600)); const b = document.getElementById('rideBtn'), r = b.getBoundingClientRect(); return { vis: !b.hidden && r.width > 30, after: b.previousElementSibling && b.previousElementSibling.id }; });
-    t.ok(shown.vis && shown.after === 'autoBtn', 'with a mount, a round Ride button sits right under Auto');
+    const shown = await ev(async () => { P.lv = 20; P.mounts = ['hopper']; enterZone('meadow'); await new Promise(r => setTimeout(r, 1000)); const b = document.getElementById('rideBtn'), r = b.getBoundingClientRect(); return { vis: !b.hidden && r.width > 30, after: b.previousElementSibling && b.previousElementSibling.id, col: b.parentElement.id === 'quick' && b.parentElement.firstElementChild === b }; });
+    t.ok(shown.vis && shown.col, 'with a mount, a round Ride button sits at the top of the left column of round buttons (v1.74.1: upright it left the right column, which ran into the hotbar ✎)');
     const tap = await ev(() => { const r = document.getElementById('rideBtn').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
     await page.touchscreen.tap(tap.x, tap.y); await wait(600);
     t.ok(await ev(() => !!P.riding && document.getElementById('rideBtn').classList.contains('on')), 'tapping it gets you in the saddle, and it lights up');
