@@ -5,7 +5,7 @@ module.exports = async t => {
   try {
     const r = await A.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); P.lv = 30; P.mounts = ['hopper', 'greylupe']; enterZone('capital', 'town'); P.x = 40 * TILE; P.y = 21 * TILE;
       let art = 0; const o = drawMountArt; drawMountArt = (...a) => { art++; return o(...a); }; mountUp('greylupe'); const sparks = MART.spark.length; await w(300);
-      const ph0 = MART.phase.get('me'); pathTo(P.x - 400, P.y, true); await w(700); const ph1 = MART.phase.get('me'), dust = MART.dust.length; P.path = []; await w(500); const ph2 = MART.phase.get('me'); await w(300); const ph3 = MART.phase.get('me');
+      const ph0 = MART.phase.get('me'), x0 = P.x; pathTo(P.x - 400, P.y, true); for (let k = 0; k < 30 && Math.abs(P.x - x0) < 160; k++) await w(100); /* until it has really walked a way (slow machines take longer) */ const ph1 = MART.phase.get('me'), dust = MART.dust.length; P.path = []; await w(500); const ph2 = MART.phase.get('me'); await w(300); const ph3 = MART.phase.get('me');
       drawMountArt = o; const icon = mountIconURL('hopper').length;
       return { art, sparks, stride: ph1 - ph0, still: Math.abs(ph3 - ph2), dust, icon }; });
     t.ok(r.art > 5, 'mounts are drawn with their own artwork');

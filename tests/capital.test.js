@@ -12,7 +12,7 @@ module.exports = async t => {
     t.ok(/Market Row/.test(banner), 'walking into a district shows its name');
     const gem = await A.ev(() => { P.gold = 100000; P.inv = []; giveItem('glintstone', 10); giveItem('robe'); const e = P.inv.find(x => x.id === 'robe'); const n0 = e.s.length;
       openPanel('gemcut'); const txt = panel.textContent, cut = !!panel.querySelector('[data-act="gemcut"]'); PANEL_ACTS.gemcut(e.uid); closePanel();
-      return { n0, after: e.s.length, gold: P.gold, gl: invFind('glintstone').n, cut, way: /Dye & Wardrobe/.test(txt) && /Costume hat/.test(txt) }; });
+      return { n0, after: e.s.length, gold: P.gold, gl: invFind('glintstone').n, cut, way: /Dye & Wardrobe/.test(txt) && /Saved looks/.test(txt) }; });
     t.ok(!gem.cut && gem.after === gem.n0 && gem.gold === 100000 && gem.gl === 10 && gem.way, 'no more slot cutting (v1.76.0): her shop is the Dye & Wardrobe now (v1.77.0), and nothing is spent by the old cut action');
     const lib = await A.ev(() => { const a = achData(); a.kk = { sproutling: 12, hopper: 3 }; openPanel('library'); const tx = panel.textContent; const notes = !!panel.querySelector('[data-act="libinfo"][data-arg="sproutling"]'); closePanel(); return { tx, notes }; });
     t.ok(/2 of \d+ monsters recorded/.test(lib.tx) && /7 more for full notes/.test(lib.tx) && lib.notes, 'the Library bestiary records what you defeated, with full notes after 10');

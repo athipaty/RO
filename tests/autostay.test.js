@@ -24,7 +24,7 @@ module.exports = async t => {
       near.dead = true; P.target = null; await sleep(800);
       out.ignoredFar = P.target !== far;
       // walked away (pushed 200 px) with nothing near: it walks back to the spot
-      P.x = home.x + 200; P.path = []; await sleep(1500);
+      P.x = home.x + 200; P.path = []; for (let k = 0; k < 40 && Math.hypot(P.x - home.x, P.y - home.y) >= 120; k++) await sleep(100); /* up to 4 s: a busy machine walks it back more slowly */
       out.walkedBack = Math.hypot(P.x - home.x, P.y - home.y) < 120;
       // roam: the far monster is taken
       P.auto = false; await sleep(200); P.autoStay = false; P.target = null; P.path = []; P.auto = true; await sleep(800);

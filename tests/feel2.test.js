@@ -14,7 +14,8 @@ module.exports = async t => {
       for (const m of ms) { m.myDmg = 5; killMob(m); await sleep(50); } const c = document.getElementById('combo'); out.combo = c && c.classList.contains('show') && c.textContent.startsWith('3');
       // loot fly: pick up an item next to the hero
       loot.push({ id: 'sap', gold: 0, x: P.x + 10, y: P.y, fx: P.x + 10, fy: P.y, t0: now - 1, exp: now + 60, uid: ++lootId });
-      pickUp(loot[loot.length - 1]); out.fly = document.querySelectorAll('.lootfly').length >= 1; await sleep(1200); /* the 0.62 s flight can start a frame or two late on a busy machine */ out.flyGone = document.querySelectorAll('.lootfly').length === 0;
+      const before = new Set(document.querySelectorAll('.lootfly')); pickUp(loot[loot.length - 1]); const mine = [...document.querySelectorAll('.lootfly')].find(e => !before.has(e)); out.fly = !!mine;
+      for (let k = 0; k < 30 && mine && mine.isConnected; k++) await sleep(100); /* this picture (other drops may be flying too), up to 3 s on a busy machine */ out.flyGone = !!mine && !mine.isConnected;
       return out; });
     t.ok(r.cols === '#9aa3ad #8fe0a0 #ffffff #ffe27a #ffaa5a #ff6a5a #ffcf5a', 'names go grey, green, white, yellow, orange, red by level, gold for bosses (' + r.cols + ')');
     t.ok(r.skull && r.aggro, 'deadly monsters get a skull, aggressive ones a ⚔');
