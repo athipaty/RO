@@ -32,6 +32,8 @@ function skillLinkSvg(box,nodes){const old=box.querySelector(':scope>svg.sklinks
     add('path',{d,fill:'none',stroke:col,'stroke-width':met?'2.4':'1.8','stroke-linejoin':'round','stroke-linecap':'round',...(met?{}:{'stroke-dasharray':'5 4'}),opacity:on?'1':'.18'});
     add('path',{d:`M${x2-5},${y2-8} L${x2},${y2-1} L${x2+5},${y2-8} Z`,fill:col,opacity:on?'1':'.18'});
     // the level it needs, as a tag on the child's top-right corner (one under the other when it needs two skills)
+    // (v1.85.0) only while the requirement is not met yet: met ones are already told by the solid gold line
+    if(met)continue;
     const n=kids.get(L.id)||0;kids.set(L.id,n+1);const tx=L.c.r-7,ty=L.c.t+7+n*14;
     add('rect',{x:tx-8,y:ty-6.5,width:16,height:13,rx:6.5,fill:met?'#3a2e12':'#1c2230',stroke:col,'stroke-width':'1',opacity:on?'1':'.3'});
     const t=add('text',{x:tx,y:ty+3.5,'text-anchor':'middle','font-size':'9.5','font-weight':'700',fill:met?'#ffe08a':'#aab4c4',opacity:on?'1':'.3'});t.textContent=L.lv;}

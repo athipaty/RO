@@ -26,11 +26,12 @@ module.exports = async t => {
     t.ok(!nx.bad && nx.ok && nx.lethal, `the next step always takes requirements first: ${nx.steps} …`);
     const ui = await g.ev(() => { P.skills = { cleave: 3 }; P.skillPts = 5; P.statPts = 6; P.st = { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 };
       openPanel('buildguide'); const s0 = document.getElementById('panel').textContent; document.querySelector('[data-act="buildpick"][data-arg="duel"]').click();
-      const following = P.build === 'duel' && /Next skill: Blade Mastery Lv 1/.test(document.getElementById('panel').textContent);
-      openPanel('skills'); const node = document.querySelector('.snode.bgnextnode [data-act="learn"]'), bar = document.querySelector('.bgbar') && document.querySelector('.bgbar').textContent;
+      /* since v1.85.0 following a build goes back to the Skills window, the next skill marked NEXT (js/skilltidy.js) */
+      const following = P.build === 'duel' && panelKind === 'skills';
+      const nb = document.querySelector('.skpic.bnext'), node = nb && nb.dataset.arg, bar = document.querySelector('.sktnext') && ('Following ' + document.querySelector('.sktnext').textContent);
       openPanel('status'); const stat = document.querySelector('.bgnextstat'); closePanel();
       return { tabs: !/Arcanist/.test(s0) && !/Elementalist/.test(s0), names: /Earthsplitter/.test(s0) && /Duelist/.test(s0) && /Iron Wall/.test(s0), following,
-        node: node && node.dataset.arg, bar, stat: stat && stat.dataset.arg }; });
+        node, bar, stat: stat && stat.dataset.arg }; });
     t.ok(ui.tabs && ui.names, 'a Warden sees only Warden builds, no other job');
     t.ok(ui.following && ui.node === 'bladecraft' && /Following/.test(ui.bar), `following Duelist marks the next skill in the tree (${ui.node})`);
     t.ok(ui.stat === 'agi', `and the Status window points at the next stat (${ui.stat})`);
