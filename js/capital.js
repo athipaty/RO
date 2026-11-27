@@ -1,7 +1,7 @@
 "use strict";
 /* ================= #32 the capital: Aurelmark =================
    A safe city west of Hearthvale (through the new west gate) with four districts, each announced as you walk in:
-     Market Row        Merchant Tavi (the general store) and Gemcutter Sela (who no longer cuts sigil slots, v1.76.0)
+     Market Row        Merchant Tavi (the general store) and the Dye & Wardrobe (Dyer Celestine, js/wardrobe.js; it was Gemcutter Sela's until v1.76.0)
      Scholars' Quarter Librarian Oren's bestiary of every monster you have defeated, and Seer Valen (rebirth)
      Noble Gardens     a royal garden: flower beds and a pond
      Grand Gate        Smith Garrow (refining past +7), the road home

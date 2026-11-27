@@ -38,7 +38,7 @@ function getZone(id){
     for(let y=12;y<=30;y++)for(let x=19;x<=37;x++)if(Math.hypot(x+.5-28,y+.5-21)<7.2)set(x,y,6); // the royal plaza
     const B=[{x:23,y:2,w:10,h:7,name:'Royal Palace',roof:'#2a4a8a',npc:{name:'Herald Cassian',role:'palace',col:'#2a4a8a',hair:'#e8d8b0'}}, // v1.37.0 at the head of the avenue
              {x:5,y:5,w:8,h:5,name:'Aurel Market',roof:'#a8452e',npc:{name:'Merchant Tavi',role:'shop',col:'#c86a3a',hair:'#3a2a1a'}},
-             {x:15,y:5,w:7,h:5,name:'Gemcutter',roof:'#5a3a8a',npc:{name:'Gemcutter Sela',role:'gemcut',col:'#7a5ac0',hair:'#e8e4f0'}},
+             {x:15,y:5,w:7,h:5,name:'Dye & Wardrobe',roof:'#5a3a8a',npc:{name:'Dyer Celestine',role:'gemcut',col:'#c86ab0',hair:'#f0c8e8'}},
              {x:37,y:4,w:10,h:6,name:'Grand Library',roof:'#2e4f6e',npc:{name:'Librarian Oren',role:'library',col:'#3b5a7a',hair:'#c8c8c8'}},
              {x:48,y:5,w:6,h:5,name:"Alchemist's Laboratory",roof:'#4a7a4a',npc:{name:'Alchemist Verena',role:'alchemy',col:'#3a6a4a',hair:'#e8a040'}}, // v1.40.1 Scholars' Quarter
              {x:12,y:24,w:6,h:5,name:'Sigil Forge',roof:'#2e6e6a',npc:{name:'Sigilwright Dorn',role:'fuse',col:'#4a5a6a',hair:'#e8e8e8'}}, // v1.38.5 beside the Hall of Awakening in Noble Gardens
