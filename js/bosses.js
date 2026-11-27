@@ -25,6 +25,7 @@ function wbHud(){const el=document.getElementById('wbT');if(!el)return;const w=N
   if(w){const left=Math.max(0,Math.round((w.until-Date.now())/60000));t=`☠ ${MOBS[w.b].name} · ${ZONES[w.z].name}${zoneId===w.z?' (here)':''} · ${left<1?'<1':left}m`;}
   if(t===wbKey)return;wbKey=t;el.hidden=!t;el.textContent=t;}
 setInterval(()=>{if(running)wbHud();},1000);
-// boss music near a world boss
-setInterval(()=>{if(!running||!P||zoneId==='crypt'||Z.D.dungeon||typeof musicPlay!=='function')return;const near=wbMob&&!wbMob.dead&&wbMob.state==='chase'&&dist(wbMob,P)<650;
+// boss music near a boss: world bosses, and (v1.71.3) every other boss and mini-boss on the map too
+const bossChasing=m=>m&&!m.dead&&m.d&&(m.d.boss||m.d.world)&&m.state==='chase'&&dist(m,P)<650;
+setInterval(()=>{if(!running||!P||zoneId==='crypt'||Z.D.dungeon||typeof musicPlay!=='function')return;const near=bossChasing(wbMob)||mobs.some(bossChasing);
   if(near)musicPlay('boss');else if(AU.want==='boss')musicPlay(Z.D.music||zoneId);},1000);
