@@ -34,8 +34,8 @@ function mqttRoom(){
 /* Player account: logging in keeps your character on the server so you can play from any device. */
 const ACC={token:null,username:null,cloud:null,loaded:false};
 try{const a=JSON.parse(localStorage.getItem('embervale.account')||'null');if(a&&a.token){ACC.token=a.token;ACC.username=a.username;}}catch(e){}
-/* Our own game server (the Embervale part of center-kitchen-backend). Override with ?server=https://... for testing. */
-const SERVER=(()=>{const s=new URLSearchParams(location.search).get('server');return /^https?:\/\/[\w.:-]+$/.test(s||'')?s:'https://center-kitchen-backend.onrender.com';})();
+/* Our own game server (embervale-server on Render, the game-only service of center-kitchen-backend since v1.85.1). Override with ?server=https://... for testing. */
+const SERVER=(()=>{const s=new URLSearchParams(location.search).get('server');return /^https?:\/\/[\w.:-]+$/.test(s||'')?s:'https://embervale-server.onrender.com';})();
 function serverRoom(){
   return (window.io?Promise.resolve():loadScript('https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js')).then(()=>new Promise((res,rej)=>{
     const sock=io(SERVER+'/embervale',{transports:['websocket'],auth:{token:ACC.token||undefined},reconnectionDelayMax:8000});

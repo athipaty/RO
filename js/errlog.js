@@ -5,7 +5,7 @@
    the account name the server already knows from the login token. Admins read the list in Admin → Errors. */
 (()=>{
   const sent=new Set();let n=0;
-  const server=()=>{const s=new URLSearchParams(location.search).get('server');return /^https?:\/\/[\w.:-]+$/.test(s||'')?s:'https://center-kitchen-backend.onrender.com';};
+  const server=()=>{const s=new URLSearchParams(location.search).get('server');return /^https?:\/\/[\w.:-]+$/.test(s||'')?s:'https://embervale-server.onrender.com';};
   const ours=src=>!src||src.startsWith(location.origin)||src.startsWith('file:')||/\/js\/[\w-]+\.js/.test(src);
   function report(msg,src,line,col,stack){
     try{msg=String(msg||'').slice(0,300);if(!msg||n>=10)return;src=String(src||'');

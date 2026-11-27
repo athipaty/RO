@@ -256,7 +256,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 // live player count from the game server (quietly says nothing when the server is asleep)
 (function () {
   var el = document.getElementById('online');
-  fetch('https://center-kitchen-backend.onrender.com/api/embervale/status').then(function (r) { return r.json(); }).then(function (j) {
+  fetch('https://embervale-server.onrender.com/api/embervale/status').then(function (r) { return r.json(); }).then(function (j) {
     var n = Math.max(0, Math.floor(Number(j && j.online) || 0));
     el.innerHTML = n ? '<b>' + n + '</b> adventurer' + (n === 1 ? ' is' : 's are') + ' playing right now' : 'The world is quiet right now. Be the first one in!';
   }).catch(function () { el.textContent = 'Free to play, right in your browser'; });
