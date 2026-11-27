@@ -1,4 +1,4 @@
-// Gemcutter Sela: awaken gear (a random build line you can keep or throw back) and fuse three sigils into one (sometimes Radiant).
+// Awakening (Hall of Awakening) and the Sigil Forge: awaken gear (a random build line you can keep or throw back) and fuse three sigils into one (sometimes Radiant).
 const { player, wait, newRoom } = require('./helpers');
 
 module.exports = async t => {
@@ -8,9 +8,9 @@ module.exports = async t => {
     // tabs in Sela's window
     const tabs = await g.ev(() => { P.gold = 1e6; P.lv = 60; P.inv.push({ id: 'glintstone', n: 20 }, { id: 'pelt', n: 30 }, { id: 'carapace', n: 30 }, { id: 'core', n: 20 });
       P.eq.weapon = { id: 'twinfang', uid: 701, s: [null] }; S = computeStats(); openPanel('gemcut'); const s = document.getElementById('panel').textContent;
-      const sela = { slots: /Gemcutter Sela/.test(s) && !/Awaken/.test(s) && !/Fuse sigils/.test(s), cut: !!document.querySelector('[data-act="gemcut"]') };
+      const sela = { slots: /Gemcutter Sela/.test(s) && !document.querySelector('[data-act="awroll"],[data-act="fuse"],[data-act="fuseadd"]'), cut: !document.querySelector('[data-act="gemcut"]') };
       openPanel('awaken'); sela.hall = /Hall of Awakening/.test(document.getElementById('panel').textContent) && getZone('capital').npcs.some(n => n.role === 'awaken'); return sela; });
-    t.ok(tabs.slots && tabs.cut && tabs.hall, 'Sela only cuts sigil slots; awakening has its own Hall of Awakening and fusing its own Sigil Forge');
+    t.ok(tabs.slots && tabs.cut && tabs.hall, 'Sela no longer cuts slots (v1.76.0) and does not awaken or fuse; awakening has its own Hall of Awakening and fusing its own Sigil Forge');
     // awaken: costs materials + gold, rolls a line, keep-or-throw-back
     const aw = await g.ev(() => { openPanel('awaken'); const g0 = P.gold, gl0 = invFind('glintstone').n, c0 = invFind('carapace').n;
       document.querySelector('[data-act="awaken"][data-arg="701"]').click(); const pd = AWK.pending, txt = document.getElementById('panel').textContent;

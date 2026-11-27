@@ -1,7 +1,7 @@
 "use strict";
 /* ================= #32 the capital: Aurelmark =================
    A safe city west of Hearthvale (through the new west gate) with four districts, each announced as you walk in:
-     Market Row        Merchant Tavi (the general store) and Gemcutter Sela, who adds sigil slots to gear
+     Market Row        Merchant Tavi (the general store) and Gemcutter Sela (who no longer cuts sigil slots, v1.76.0)
      Scholars' Quarter Librarian Oren's bestiary of every monster you have defeated, and Seer Valen (rebirth)
      Noble Gardens     a royal garden: flower beds and a pond
      Grand Gate        Smith Garrow (refining past +7), the road home
@@ -19,23 +19,22 @@ function districtAt(x,y){const tx=x/TILE,ty=y/TILE;return DISTRICTS.find(d=>tx>=
 setInterval(()=>{try{if(!running||!P||zoneId!=='capital'){districtNow=null;return;}const d=districtAt(P.x,P.y);
   if(d&&d!==districtNow){districtNow=d;showBanner(d.name,d.sub);}else if(!d)districtNow=null;}catch(e){}},400);
 
-/* ---- Gemcutter Sela: add a sigil slot (up to 4); each extra slot is harder and dearer ---- */
-const GEM_CHANCE=[.9,.7,.5,.3],GEM_GOLD=[2000,5000,12000,30000];
-function gemList(){const out=[];for(const s of [...GEAR,'acc2'])if(P.eq[s]&&Array.isArray(P.eq[s].s))out.push({e:P.eq[s],where:'equipped'}); // (v1.54.0) the second accessory too
+/* ---- Gemcutter Sela (v1.76.0: she no longer cuts sigil slots) ----
+   She used to cut a new slot into any gear, up to 4. Anyone could then fill every piece with four sigils (32 in all),
+   which made lucky extra-slot drops (js/slotvar.js) meaningless and late heroes very strong. Extra slots now come only
+   from monster drops; gear she cut before keeps its slots. Her window points to the Hall of Awakening and the Sigil Forge. */
+// gear you carry or wear (the Hall of Awakening lists from it, js/awaken.js)
+function gemList(){const out=[];for(const s of [...GEAR,'acc2'])if(P.eq[s]&&Array.isArray(P.eq[s].s))out.push({e:P.eq[s],where:'equipped'});
   for(const e of P.inv)if(e.uid&&Array.isArray(e.s)&&GEAR.includes(ITEMS[e.id].type))out.push({e,where:'in bag'});return out;}
-PANELS.gemcut=()=>{let h=`<h2>Gemcutter Sela</h2><div class="say">"Every piece of gear can hold up to four sigils, if you trust my hand. I cut one new slot at a time. The deeper I go, the likelier the stone resists, but I never break your gear, only my fee."</div>`;
-  const gl=invFind('glintstone'),haveG=gl?gl.n:0;h+=`<div class="sub">${fmt(P.gold)} gold</div><div class="cms">${itemHaveChip('glintstone')}</div>`;
-  const list=gemList();if(!list.length)return h+`<div class="sub">You have no gear that can take a slot.</div>`;
-  for(const {e,where} of list){const n=e.s.length,it=ITEMS[e.id];
-    if(n>=4){h+=`<div class="row">${icon({id:e.id})}<div class="grow"><div class="nm">${esc(itemName(e))}</div><div class="ds">${where} · already has 4 slots</div></div></div>`;continue;}
-    const g=GEM_GOLD[n],ok=P.gold>=g&&haveG>=n+1;
-    h+=`<div class="row">${icon({id:e.id})}<div class="grow"><div class="nm">${esc(itemName(e))}</div><div class="ds">${where} · ${n} slot${n===1?'':'s'} → ${n+1} · ${Math.round(GEM_CHANCE[n]*100)}%</div><div class="cms">${itemChip('glintstone',n+1)}${goldChip(g)}</div></div><button class="btn small" data-act="gemcut" data-arg="${e.uid}" ${ok?'':'disabled'}>Cut</button></div>`;}
+PANELS.gemcut=()=>{const th=typeof LANG!=='undefined'&&LANG==='th';
+  let h=`<h2>Gemcutter Sela</h2><div class="say">${th?'"ข้าเลิกเจาะช่องเพิ่มแล้ว อัญมณีที่ดีที่สุดต้องได้มาจากการผจญภัย อุปกรณ์ที่ดรอปจากมอนสเตอร์บางชิ้นมีช่องมากกว่าปกติ ลองตามล่าดูสิ"':'"I have put my cutting tools away. The best stones are won, not cut: gear dropped by monsters sometimes comes with more slots than usual. Go and find one."'}</div>`;
+  h+=`<div class="sub">${th?'ช่องที่เคยเจาะไว้แล้วยังอยู่ครบ':'Slots she cut before stay on your gear.'}</div>`;
+  h+=`<h3>${th?'ทำอะไรต่อได้บ้าง':'Where to go instead'}</h3>`;
+  h+=`<div class="row"><div class="grow"><div class="nm">${th?'หอแห่งการปลุกพลัง (ลิโอร่า)':'Hall of Awakening (Awakener Liora)'}</div><div class="ds">${th?'ปลุกพลังอุปกรณ์ให้ได้บัฟพิเศษ':'Awaken gear for a bonus line of its own'}</div></div><button class="btn small" data-act="selaway" data-arg="Awakener Liora">${th?'นำทาง':'Show the way'}</button></div>`;
+  h+=`<div class="row"><div class="grow"><div class="nm">${th?'โรงหลอมซิจิล (ดอร์น)':'Sigil Forge (Sigilwright Dorn)'}</div><div class="ds">${th?'หลอมซิจิล 3 อันเป็นอันใหม่':'Fuse three spare sigils into a new one'}</div></div><button class="btn small" data-act="selaway" data-arg="Sigilwright Dorn">${th?'นำทาง':'Show the way'}</button></div>`;
   return h;};
-PANEL_ACTS.gemcut=uid=>{const found=gemList().find(x=>String(x.e.uid)===String(uid));if(!found)return;const e=found.e,n=e.s.length;if(n>=4)return;
-  const g=GEM_GOLD[n];if(P.gold<g||!takeItem('glintstone',n+1)){refreshPanel();return;}P.gold-=g;
-  if(Math.random()<GEM_CHANCE[n]){e.s.push(null);sfx('jobup');fx.push({k:'ring',x:P.x,y:P.y,r:34,col:'#c8b0ff',t0:now,dur:.6});addLog(`Sela cuts a new slot: your ${ITEMS[e.id].name} now has ${n+1}.`,'l-good');}
-  else{sfx('miss');addLog(`The stone resists. Sela shakes her head: no new slot this time (the gear is unharmed).`,'l-bad');}
-  S=computeStats();save();refreshPanel();};
+PANEL_ACTS.gemcut=()=>{};
+PANEL_ACTS.selaway=name=>{if(typeof tdShowWay==='function')tdShowWay({zone:'capital',npc:name,text:(typeof LANG!=='undefined'&&LANG==='th'?'ไปหา ':'Talk to ')+name});else closePanel();};
 
 /* ---- Librarian Oren: the bestiary of monsters you have defeated ---- */
 // v1.36.7: every monster has its picture (a dark silhouette until you have defeated one), and the list can be narrowed by

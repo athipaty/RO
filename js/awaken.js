@@ -52,7 +52,7 @@ const trayCount=id=>AWK.tray.filter(x=>x===id).length;
 /* ---- Sela's window: Slots (as before) · Awaken · Fuse sigils ---- */
 // v1.37.4: Awaken has its own building (the Hall of Awakening, Awakener Liora); Sela keeps the slots (and fusing until
 // the Sigil Forge opens). One page per place; SELA_TABS lists the tabs Sela still shows.
-let SELA_TABS=[]; // v1.38.3 fusing moved to the Sigil Forge (Sigilwright Dorn); Sela only cuts slots
+let SELA_TABS=[]; // v1.38.3 fusing moved to the Sigil Forge (Sigilwright Dorn); (v1.76.0) Sela no longer cuts slots either (js/capital.js)
 {const _gem=PANELS.gemcut;const awPage=function(page){const inSela=page==='sela';if(inSela&&!SELA_TABS.some(t=>t[0]===AWK.tab))AWK.tab='slots';const tab=inSela?AWK.tab:page;
   const tabs=!inSela||SELA_TABS.length<2?'':`<div class="tabs itabs" role="tablist">`+SELA_TABS.map(([k,l])=>`<button class="btn small ${AWK.tab===k?'on':''}" role="tab" aria-selected="${AWK.tab===k}" data-act="gemtab" data-arg="${k}">${l}</button>`).join('')+`</div>`;
   if(tab==='slots'){const h=_gem.apply(this,arguments);const i=h.indexOf('</div>',h.indexOf('class="say"'));return i<0?tabs+h:h.slice(0,i+6)+tabs+h.slice(i+6);}
