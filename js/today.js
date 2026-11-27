@@ -27,16 +27,11 @@ function wkReward(g){const big=g.k==='boss'?1.6:1;return {gold:Math.round(P.lv*1
       if(boss&&id){P.bossK=P.bossK||{};P.bossK[id]=(P.bossK[id]||0)+1;P.bossT=P.bossT||{};P.bossT[id]=Date.now()+(resp||120)*1000;}}}catch(e){}
   return r;};}
 // the goal chip: a "show the way" pick first, then quests as before, then a region for your level
-const tdZoneLv=z=>{const m=/Lv\s*(\d+)\D+(\d+)/.exec((ZONES[z]&&ZONES[z].lvl)||'');return m?[+m[1],+m[2]]:null;};
-function tdHuntZone(){if(!P||typeof ZGRAPH==='undefined')return null;const dist={[zoneId]:0},q=[zoneId];
-  while(q.length){const a=q.shift();for(const b of ZGRAPH[a]||[])if(dist[b]==null){dist[b]=dist[a]+1;q.push(b);}}
-  let best=null,bs=1e9;for(const z in ZONES){const D=ZONES[z],r=tdZoneLv(z);if(!r||D.safe||D.pvp||/arena|keep/.test(z)||dist[z]==null)continue;
-    if(P.lv<r[0]-1||P.lv>r[1]+2)continue;const s=dist[z]*10+(/dungeon|boss/.test(D.lvl)?5:0)+Math.abs((r[0]+r[1])/2-P.lv)*.3;if(s<bs){bs=s;best=z;}}
-  return best;}
 if(typeof goalWhat==='function'){const _gwTD=goalWhat;goalWhat=function(){if(TODAY.over){const o=TODAY.over;
       if(o.mob&&!MOBS[o.mob])TODAY.over=null;else if(o.mob&&zoneId===o.zone&&!mobs.some(m=>m.d.id===o.mob&&!m.dead)&&Date.now()-o.t>4000){}else return o;}
-    const r=_gwTD.apply(this,arguments);if(r)return r;
-    const z=tdHuntZone();if(!z||z===zoneId)return null;return {zone:z,text:tdTh()?`ล่ามอนสเตอร์ที่ ${ZONES[z].name}`:`Good hunting: ${ZONES[z].name} (${ZONES[z].lvl.replace(/\s*·.*$/,'')})`};};}
+    /* (v1.86.1) with no quest left there is no goal: the "Good hunting: <region>" suggestion that used to fill the goal
+       box and arrow got in the way, so it is gone */
+    return _gwTD.apply(this,arguments);};}
 function tdShowWay(o){TODAY.over={...o,t:Date.now()};closePanel();addLog(tdTh()?`ลูกศรชี้ทางไป: ${o.text}`:`The goal arrow now points to: ${o.text}.`,'l-sys');}
 // Looking for party
 function tdLfg(){if(!P||typeof sendChat!=='function')return;const c=CLASSES[P.cls]?CLASSES[P.cls].name:'';sendChat(`[LFG] Lv ${P.lv} ${c} looking for a party in ${Z&&Z.D?Z.D.name:''}`);

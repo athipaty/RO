@@ -33,9 +33,9 @@ module.exports = async t => {
       return { has: /Daily gift/.test(txt) && /Daily quests/.test(txt) && /Weekly goals/.test(txt) && /Boss board/.test(txt) && /Looking for party/.test(txt), paid, once: P.gold === again, menu: !!document.getElementById('mToday') }; });
     t.ok(td.has && td.menu, 'the Today board (☰ → Today) shows the gift, dailies, bounties, weekly goals, play together and the boss board');
     t.ok(td.paid > 0 && td.once, `a finished weekly goal pays once (+${td.paid} gold)`);
-    // the hunting tip when there is nothing else to do, and Show the way
+    // nothing to do: no goal at all; Show the way still points the arrow
     const g = await ev(() => { P.lv = 22; P.qs = { active: {}, done: Object.keys(QUESTS), daily: {} }; P.quest = null; P.cls = 'warden'; P.jl = 20; enterZone('town'); const w = goalWhat(); PANEL_ACTS.tdboss('hopperchief|meadow'); const o = goalWhat(); return { w: w && w.text, z: w && w.zone, o: o && o.text }; });
-    t.ok(g.w && /Good hunting/.test(g.w) && g.z, `with no quest, the goal chip suggests a region for your level ("${g.w}")`);
+    t.ok(!g.w, `with no quest there is no goal chip or arrow (v1.86.1: the "Good hunting" suggestion is gone) (${g.w})`);
     t.ok(g.o === 'Hunt Hopper Chieftain', 'Show the way on the boss board points the goal arrow at that boss');
     t.ok(!errs.length, 'no script errors ' + errs.slice(0, 3).join(' | '));
   } finally { await b.close(); }
