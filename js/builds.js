@@ -29,9 +29,9 @@ const BUILD_SKILLS={
     desc:l=>`Heal ${4+l}% of max HP plus ${l*2*HP_K} per VIT, and +${l*3} DEF for 10s.`,
     run:l=>{healP(S.maxhp*(4+l)/100+S.vit*l*2*HP_K);buff('secondwind','Second Wind',10,{def:l*3});}},
   sunder:{name:'Sundering Blow',max:10,col:'#e0603a',g:'⚒',sp:l=>14+l*2,cd:3,kind:'target',range:55,
-    desc:l=>`Bring the weapon down for ${200+l*35}% ATK plus 1% per STR that never misses. Axes hit 25% harder.`,
+    desc:l=>`Bring the weapon down for ${200+l*35}% ATK plus 1% per STR that never misses. Swords hit 25% harder.`,
     run:(l,t)=>{fx.push({k:'impact',x:t.x,y:t.y-(t.d?t.d.size*.6:10),t0:now,dur:.3});fx.push({k:'ring',x:t.x,y:t.y,r:40,col:'#e0a060',t0:now,dur:.3});
-      shakeUntil=Math.max(shakeUntil,now+.15);dealPhys(t,(2+l*.35+S.str*.01)*(wieldType()==='axe'?1.25:1),{sure:true});}},
+      shakeUntil=Math.max(shakeUntil,now+.15);dealPhys(t,(2+l*.35+S.str*.01)*(wieldType()==='sword'?1.25:1),{sure:true}); /* (v1.87.0) swords: axes are the Forgehand's */}},
   // ---- Arcanist
   manaflow:{name:'Mana Flow',max:10,col:'#6a9ae0',g:'≈',...PASSIVE(),desc:l=>`+${l*3}% max SP and +${(l*.3).toFixed(1)} SP regen per second.`},
   swiftcast:{name:'Swift Casting',max:10,col:'#b0d8ff',g:'»',...PASSIVE(),desc:l=>`Spells cast ${l*3}% faster.`},

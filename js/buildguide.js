@@ -7,9 +7,9 @@
 const BUILDS=[
   // ---- Warden
   {id:'axe',job:'warden',name:'Earthsplitter',th:'ผู้ผ่าแผ่นดิน',tag:'STR two-hander',route:['warden','ravager','warbringer'],stats:{str:5,dex:2,vit:2},
-    desc:'Huge single blows with an axe. Sundering Blow and Execution grow with STR.',
+    desc:'Huge single blows with a two-handed sword. Sundering Blow and Execution grow with STR.',
     skills:[['cleave',5],['bladecraft',10],['sunder',10],['cleave',10],['whirl',5],['ironwill',3],['bloodlust',10],['rendingblow',10],['rampage',5],['frenzy',5],['earthshatter',5],['bloodthirst',10],['execution',10],['bloodrage',5],['cataclysm',5]],
-    gear:['splitter','fangblade','quickgrip','carapacemail'],sigils:['burrowmole','ridgeram','dunetyrant','salamander'],awaken:['atkpct','critdmg']},
+    gear:['splitblade','fangblade','quickgrip','carapacemail'],sigils:['burrowmole','ridgeram','dunetyrant','salamander'],awaken:['atkpct','critdmg']},
   {id:'duel',job:'warden',name:'Duelist',th:'นักดวล',tag:'AGI crit',route:['warden','ravager','warbringer'],stats:{agi:5,luk:3,str:2},
     desc:'Fast sword cuts that crit often. Lethal Edge grows with AGI; attack speed and double attack stack up.',
     skills:[['cleave',3],['bladecraft',5],['duelist',10],['lethaledge',10],['bladecraft',10],['bloodlust',10],['frenzy',10],['rendingblow',5],['rampage',5],['bloodthirst',10],['bloodrage',10],['execution',5]],

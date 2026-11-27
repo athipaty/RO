@@ -20,6 +20,9 @@ const RELICS={
   hollowblade:['hollowking',{name:"Hollow King's Blade",type:'weapon',wt:'sword',atk:315,b:{str:4,int:4,crit:5},lv:76,col:'#9a8ab8'}],
   krakenmaw:['krakenmatron',{name:'Krakenmaw',type:'weapon',wt:'gun',atk:300,rng:265,b:{dex:5,crit:4},lv:78,col:'#4aa0b8'}],
   wyrmaxe:['cinderwyrm',{name:'Wyrmfire Waraxe',type:'weapon',wt:'axe',atk:450,b:{str:5,atkpct:6},lv:88,col:'#ff7030'}],
+  // (v1.87.0) axes are the Forgehand's alone: the two axe bosses also drop a sword just as strong for the Warden family
+  warblade:['warlord',{name:"Warlord's Greatblade",type:'weapon',wt:'sword',atk:200,b:{str:4,atkpct:5},lv:42,col:'#d86040'}],
+  wyrmblade:['cinderwyrm',{name:'Wyrmfire Greatsword',type:'weapon',wt:'sword',atk:450,b:{str:5,atkpct:6},lv:88,col:'#ff7030'}],
   stormbowv:['voltaris',{name:'Voltaris Stormbow',type:'weapon',wt:'bow',atk:320,b:{dex:5,agi:4,aspd:6},lv:90,col:'#ffe060'}],
   dragonplate:['ignarok',{name:'Ignarok Dragonplate',type:'armor',def:140,b:{vit:5,str:4,hppct:8,dmgred:5},lv:95,col:'#e04a2a'}]};
 for(const id in RELICS){const [boss,it]=RELICS[id],m=MOBS[boss];
@@ -38,6 +41,8 @@ if(typeof WA!=='undefined'&&typeof waSword==='function'){
   for(const id in L)if(typeof WA_BOW!=='undefined')WA_BOW[id]=L[id];
   WA.oathkeeper=()=>waSword({w:4.8,len:26,guard:8,blade:'#f4f0e4',gcol:'#d8b860',gem:'#60a0ff',grip:'#3a2a52',wrap:'#d8b860',pom:'#d8b860',glow:'#fff0b0'});
   WA.hollowblade=()=>waSword({w:5,len:27,guard:7.5,blade:'#c8c0e0',gcol:'#4a3a6a',gem:'#a060ff',grip:'#1a1428',wrap:'#4a3a6a',pom:'#4a3a6a',glow:'#b8a0ff'});
+  WA.warblade=()=>waSword({w:5.4,len:28,guard:9,blade:'#d0d4dc',gcol:'#7a2a18',gem:'#ff6040',grip:'#3a1a10',wrap:'#7a2a18',pom:'#7a2a18',glow:'#ff9070'});
+  WA.wyrmblade=()=>waSword({w:5.6,len:29,guard:9,blade:'#ffc8a0',gcol:'#3a1a10',gem:'#ff7030',grip:'#2a1008',wrap:'#ff7030',pom:'#ff7030',glow:'#ffb070'});
   WA.mirefang=()=>waSword({w:3.2,len:18,guard:4.5,blade:'#c8e8c0',gcol:'#4a7a40',gem:'#80ff60',grip:'#2a3a20',wrap:'#4a7a40',pom:'#4a7a40',glow:'#a0ff80'});
   if(typeof waAxe==='function'){WA.warcleaver=()=>waAxe({double:true,head:'#c8ccd4',haft:'#5a2a18',len:25});WA.wyrmaxe=()=>waAxe({double:true,head:'#ffb070',haft:'#3a1a10',len:27});}
   if(typeof waMace==='function')WA.orchidscepter=()=>waMace({head:'#c060a0',flange:'#ffd0f0',gem:'#ff80d0',glow:'#ffc0e8'});

@@ -26,6 +26,7 @@ Object.assign(ITEMS,{
   dawnmace:{name:'Dawnlight Mace',type:'weapon',wt:'mace',atk:78,matk:40,b:{int:2,healpct:10},price:7400,lv:30,slots:1,col:'#fff0a0',g:'W',craft:true},
   arcanecirclet:{name:'Arcane Circlet',type:'head',def:3,b:{matkpct:6,cast:6},price:6400,lv:32,slots:0,col:'#b090ff',g:'^',craft:true},
   galebow:{name:'Galeheart Bow',type:'weapon',wt:'bow',atk:88,b:{crit:5,critdmg:15},price:8800,lv:34,slots:1,col:'#9fe0c0',g:'W',craft:true},
+  splitblade:{name:'Earthsplitter Greatsword',type:'weapon',wt:'sword',atk:124,b:{str:3,atkpct:8},price:10500,lv:36,slots:1,col:'#a07a4a',g:'W',craft:true}, // (v1.87.0) the build's weapon now that axes are the Forgehand's
   splitter:{name:'Earthsplitter Axe',type:'weapon',wt:'axe',atk:124,b:{str:3,atkpct:8},price:10500,lv:36,slots:1,col:'#a07a4a',g:'W',craft:true},
 });
 BREWS.push(['quickdraught',2,{pelt:2,tuft:3},60],['focustonic',2,{spore:3,glowsilk:1},80],['keenbrew',2,{thorn:3,needle:1},100]);
@@ -42,6 +43,7 @@ FORGES.push(
   ['dawnmace',1,{dust:5,glowsilk:4},6600],
   ['arcanecirclet',1,{dust:6,core:2},5600],
   ['galebow',1,{needle:6,batwing:4},8000],
-  ['splitter',1,{bone:6,trollhide:4},9500]);
+  ['splitter',1,{bone:6,trollhide:4},9500],
+  ['splitblade',1,{bone:6,trollhide:4},9500]);
 // cheapest first, new pieces in among the old (after every module has added its recipes)
 addEventListener("DOMContentLoaded",()=>FORGES.sort((a,b)=>(ITEMS[a[0]].lv||1)-(ITEMS[b[0]].lv||1)));
