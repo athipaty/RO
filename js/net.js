@@ -56,8 +56,9 @@ function serverRoom(){
       if(!ready){ready=true;clearTimeout(fail);res(room);}else updateOnline();});
     sock.on('peer',p=>{if(!p||!p.peer)return;const was=seen.has(p.peer);seen.set(p.peer,p);if(cb)cb({joined:was?[]:[p],updated:was?[p]:[],left:[]});});
     // server-run monsters: the server acts as the region's monster host (wb: the world boss, if one is in this region)
-    sock.on('mobs',m=>{if(!m||typeof m.z!=='string'||!Array.isArray(m.mb)||m.mb.length>120)return;
-      NET.srv={id:'server',z:m.z,mb:m.mb,ev:Array.isArray(m.ev)?m.ev.slice(-40):[],at:now,wb:m.wb&&typeof m.wb==='object'?m.wb:null};});
+    // (v1.84.0) between full lists the server sends only the monsters that changed (md: [index, x, y, hp, flags]); a change
+    // list with no full list to apply it to is skipped (the next full list comes within 2 s)
+    sock.on('mobs',m=>netMobsMsg(m));
     sock.on('wboss',m=>{if(m&&typeof m==='object'&&typeof onWorldBoss==='function')onWorldBoss(m);});
     sock.on('left',p=>{if(cb&&p&&seen.delete(p.peer))cb({joined:[],updated:[],left:[{peer:p.peer}]});});
     sock.on('disconnect',()=>{if(ready){NET.status='connecting';updateWho();}});
@@ -154,6 +155,12 @@ function chatLog(name,txt,zone,mine,guest){
   const b=document.createElement('b');b.textContent=name+(guest?' (guest)':'');d.appendChild(b);
   if(zone&&zone!==zoneId){const i=document.createElement('i');i.textContent=` in ${ZONES[zone].name}`;d.appendChild(i);}
   d.appendChild(document.createTextNode(': '+txt));el.appendChild(d);trimLog(el,60);el.scrollTop=el.scrollHeight;}
+function netMobsMsg(m){if(!m||typeof m.z!=='string')return;let mb=null;
+      if(Array.isArray(m.mb)){if(m.mb.length>120)return;mb=m.mb;}
+      else if(Array.isArray(m.md)&&m.md.length<=120&&NET.srv&&NET.srv.z===m.z&&Array.isArray(NET.srv.mb)){mb=NET.srv.mb.slice();
+        for(const d of m.md){if(!Array.isArray(d)||d.length<2)continue;const i=d[0]|0;if(i>=0&&i<mb.length)mb[i]=d.slice(1);}}
+      if(!mb)return;
+      NET.srv={id:'server',z:m.z,mb,ev:Array.isArray(m.ev)?m.ev.slice(-40):[],at:now,wb:m.wb&&typeof m.wb==='object'?m.wb:null};}
 function sendChat(raw){
   const txt=clean(raw,120);if(!txt||!P)return;
   if(txt[0]!=='/'&&SOC.tab==='party'&&SOC.party){soc('partyChat',{text:txt});return;}
@@ -270,9 +277,11 @@ function netTick(dt){
   // beyond 20 a second, and early sends for every hit could pass that in a fast fight, so hits arrived late in bursts.
   // In a player fight (duel, arena, guild war) updates go out every 66 ms instead of 125 ms.
   const rn=performance.now()/1000;if(!NET.room||!P||rn<NET.sendT)return;if(rn-(NET.sentRt||0)<(NET.viaBroker?.1:.055))return;
-  NET.sendT=rn+(NET.viaBroker?.15:(typeof pvpOn==='function'&&pvpOn()?.066:netFighting()?.08:.125));NET.sentAt=now;NET.sentRt=rn;
+  // (v1.84.0) standing still with nothing going on: twice a second is plenty (chat, emotes and new things still go at once)
+  const idle=!P.moving&&!P.target&&!P.casting&&!(P.path&&P.path.length)&&!netFighting()&&!(typeof pvpOn==='function'&&pvpOn());
+  NET.sendT=rn+(NET.viaBroker?.15:(typeof pvpOn==='function'&&pvpOn()?.066:netFighting()?.08:idle?.5:.125));NET.sentAt=now;NET.sentRt=rn;
   if(typeof netFresh==='function'){NET.hits=netFresh(NET.hits);NET.vh=netFresh(NET.vh);NET.evs=netFresh(NET.evs);}
-  const s={v:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,b:P.back?1:0,lk:lookCode(P.look),...(P.ward&&typeof wardCode==='function'&&(P.ward.dye||P.ward.cape||P.ward.hat)?{wd:wardCode(P.ward)}:{}),rb:P.reborn?1:0,j3:CLASSES[P.cls]&&CLASSES[P.cls].tier===3?1:0,bt:P.look&&P.look.body?P.look.body:0,lv:P.lv,pg:NET.ping?Math.round(NET.ping/10)*10:0,mv:P.moving?1:0,sp:Math.round(S?S.speed:145),...(NET.pv&&NET.pv.on?{vx:Math.round(NET.pv.vx),vy:Math.round(NET.pv.vy)}:{}),...(P.moving&&P.path&&P.path.length?{wp:P.path.slice(0,4).map(w=>[Math.round(w.x),Math.round(w.y)])}:{}),st:P.sitting?1:0,d:P.dead?1:0,
+  const s={v:1,dz:1,n:P.name,c:P.cls,z:zoneId,x:Math.round(P.x),y:Math.round(P.y),f:P.face,b:P.back?1:0,lk:lookCode(P.look),...(P.ward&&typeof wardCode==='function'&&(P.ward.dye||P.ward.cape||P.ward.hat)?{wd:wardCode(P.ward)}:{}),rb:P.reborn?1:0,j3:CLASSES[P.cls]&&CLASSES[P.cls].tier===3?1:0,bt:P.look&&P.look.body?P.look.body:0,lv:P.lv,pg:NET.ping?Math.round(NET.ping/10)*10:0,mv:P.moving?1:0,sp:Math.round(S?S.speed:145),...(NET.pv&&NET.pv.on?{vx:Math.round(NET.pv.vx),vy:Math.round(NET.pv.vy)}:{}),...(P.moving&&P.path&&P.path.length?{wp:P.path.slice(0,4).map(w=>[Math.round(w.x),Math.round(w.y)])}:{}),st:P.sitting?1:0,d:P.dead?1:0,
     w:P.eq.weapon?P.eq.weapon.id:null,h:P.eq.head?P.eq.head.id:null,fg:P.eq.face?P.eq.face.id:null,mg:P.eq.mouth?P.eq.mouth.id:null,sh:P.eq.shoes?P.eq.shoes.id:null,ar:P.eq.armor?P.eq.armor.id:null,hp:Math.round(P.hp/Math.max(1,S?S.maxhp:1)*100),mh:S?Math.round(S.maxhp):0,df:S?Math.round(S.def):0,fl:S?Math.round(S.flee):0,...(typeof pvpDowned==='function'&&pvpDowned()?{kd:1}:{}),...(typeof brawlOn==='function'&&brawlOn()?{br:1}:{}),...(typeof pvpSrvOn==='function'&&pvpSrvOn()?{pv:1}:{}),ch:NET.myChat,em:NET.myEmote||null,
     id:NET.myId,zt:NET.zt,vd:typeof TR!=='undefined'&&TR.vend?TR.vend.title:null,hd:document.hidden?1:0,hx:NET.hits};if(NET.sp&&NET.sp.length)s.sp=NET.sp;if(typeof groundPresence==='function'){const g=groundPresence();if(g)s.gz=g;}if(NET.vh&&NET.vh.length)s.hv=NET.vh;{const t=P.target;if(t&&!t.dead&&!t.pvp&&mobs[t.idx]===t)s.tg=t.idx;}if(loot.length&&typeof myGroundLoot==='function'){const gl=myGroundLoot();if(gl.length)s.gl=gl;}if(NET.dl&&NET.dl.length)s.dl=NET.dl;if(typeof petPresence==='function'){const pt=petPresence();if(pt)s.pt=pt;}if(typeof myTitle==='function'){const ti=myTitle();if(ti)s.ti=ti;}if(P.casting&&P.casting.id)s.cs=P.casting.id;if(typeof ridePresence==='function'){const rd=ridePresence();if(rd)s.rd=rd;}if(typeof chatroomPresence==='function'){const cr=chatroomPresence();if(cr)s.cr=cr;}if(typeof cartPresence==='function'&&cartPresence())s.ct=1;if(typeof bondPresence==='function'){s.bdv=1;const bd=bondPresence();if(bd)s.bd=bd;}
   if(!zoneHost()&&othersHere()&&mobs.length){s.ev=NET.evs;

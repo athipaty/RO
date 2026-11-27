@@ -5,8 +5,10 @@ module.exports = async t => {
   const g = await player('Smooth', newRoom());
   try {
     await g.page.setViewport({ width: 1000, height: 600, deviceScaleFactor: 2 }); await wait(800);
-    await g.ev(() => { window.__bsForce = 0; }); await wait(200); await g.ev(() => { delete window.__bsForce; BS.lastChange = performance.now() - 1000; });
+    await g.ev(() => { window.__bsForce = 0; }); await wait(200);
+    /* read the full-quality start while it is still pinned: a busy machine could step it down in the moment after */
     const d0 = await g.ev(() => ({ level: BS.level, dpr: DPR }));
+    await g.ev(() => { delete window.__bsForce; BS.lastChange = performance.now() - 1000; });
     await g.ev(() => { const _r = render; window.__slowR = true; render = function () { const t = performance.now(); while (window.__slowR && performance.now() - t < 28); return _r.apply(this, arguments); }; });
     await wait(2500);
     const low = await g.ev(() => ({ level: BS.level, dpr: DPR, w: cv.width, lite: window.LITE }));
