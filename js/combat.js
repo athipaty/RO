@@ -351,7 +351,7 @@ function callMinions(m,fxOnly){if(!fxOnly)for(const o of mobs)if(o.lead===m.d.id
 /* (v1.50.1) boss area strike: a circle is marked on the ground under a player and erupts 1.2 s later. Each game hurts
    its own hero if they are still inside (1.3x the boss's ATK, DEF counts), so step out of the glowing circle. */
 const BZONES=[];let bzTold=false;
-function bossZone(m,x,y,r){if(!m||!m.d)return;BZONES.push({m,x,y,r,at:now+1.2});fx.push({k:'warn',x,y,r,t0:now,dur:1.2});
+function bossZone(m,x,y,r){if(!m||!m.d)return;BZONES.push({m,x,y,r,at:now+1.2});fx.push({k:'warn',x,y,r,t0:now,dur:1.2});if(typeof bossCastBar==='function'&&!(m.cast&&now-m.cast.t0<m.cast.dur))bossCastBar(m,'Ground Mark',1.2);
   if(!bzTold&&P&&Math.hypot(P.x-x,P.y-y)<r+PR+40){bzTold=true;addLog(`${m.d.name} marks the ground under you: step out of the glowing circle!`,'l-bad');}}
 function bossZoneTick(){for(let i=BZONES.length-1;i>=0;i--){const z=BZONES[i];if(!mobs.includes(z.m)){BZONES.splice(i,1);continue;}if(now<z.at)continue;BZONES.splice(i,1);
   fx.push({k:'ring',x:z.x,y:z.y,r:z.r,col:'#ff6a3a',t0:now,dur:.45});fx.push({k:'critburst',x:z.x,y:z.y-6,t0:now,dur:.35});
@@ -386,7 +386,7 @@ function updateMob(m,dt,T){
   if(m.state==='chase'&&tg){
     if(Math.hypot(m.x-m.sx,m.y-m.sy)>520||dp>600){m.state='return';m.aggroed=false;m.retT=0;}
     else{
-      if(d.boss&&now>m.slamT&&dp<160){m.slamAt=now+1.1;fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});netEvent('w',m);return;}
+      if(d.boss&&now>m.slamT&&dp<160){m.slamAt=now+1.1;fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});if(typeof bossCastBar==='function')bossCastBar(m,'Ground Slam',1.1);netEvent('w',m);return;}
       // (v1.50.1) the boss marks the ground under you (within 420 px); it erupts 1.2 s later (js/combat.js bossZone)
       if(d.boss&&now>(m.zoneT||0)&&dp<420){m.zoneT=now+rnd(7,10);const r=d.world?110:85,zx=Math.round(tg.x),zy=Math.round(tg.y);bossZone(m,zx,zy,r);netEvent('z',m,null,{x:zx,y:zy,r});}
       // (v1.51.3) the boss's own signature skill (js/bosssig.js) every 10-14 s
@@ -471,7 +471,7 @@ function syncMobs(host,dt){
     if(e.k==='a'){m.lunge=now;
       if(e.t===NET.myId){if(!P.dead){if(m.d.range)shoot(m,P,'arrow','#d8d0b8',()=>mobAttack(m),true);else mobAttack(m);}}
       else if(m.d.range){for(const o of NET.others.values())if(o.id===e.t){shoot(m,{x:o.rx,y:o.ry},'arrow','#d8d0b8',()=>{},true);break;}}}
-    else if(e.k==='w')fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});
+    else if(e.k==='w'){fx.push({k:'warn',x:m.x,y:m.y,r:130,t0:now,dur:1.1});if(typeof bossCastBar==='function')bossCastBar(m,'Ground Slam',1.1);}
     else if(e.k==='s')slamLand(m);
     else if(e.k==='z')bossZone(m,fin(e.x),fin(e.y),clamp(fin(e.r)||85,20,200));
     else if(e.k==='q'){if(typeof bossSigCast==='function')bossSigCast(m,fin(e.x),fin(e.y),fin(e.s));}

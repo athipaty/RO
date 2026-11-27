@@ -14,12 +14,12 @@ module.exports = async t => {
       for (const m of ms) { m.myDmg = 5; killMob(m); await sleep(50); } const c = document.getElementById('combo'); out.combo = c && c.classList.contains('show') && c.textContent.startsWith('3');
       // loot fly: pick up an item next to the hero
       loot.push({ id: 'sap', gold: 0, x: P.x + 10, y: P.y, fx: P.x + 10, fy: P.y, t0: now - 1, exp: now + 60, uid: ++lootId });
-      pickUp(loot[loot.length - 1]); out.fly = document.querySelectorAll('.lootfly').length >= 1; await sleep(800); out.flyGone = document.querySelectorAll('.lootfly').length === 0;
+      pickUp(loot[loot.length - 1]); out.fly = document.querySelectorAll('.lootfly').length >= 1; await sleep(1200); /* the 0.62 s flight can start a frame or two late on a busy machine */ out.flyGone = document.querySelectorAll('.lootfly').length === 0;
       return out; });
     t.ok(r.cols === '#9aa3ad #8fe0a0 #ffffff #ffe27a #ffaa5a #ff6a5a #ffcf5a', 'names go grey, green, white, yellow, orange, red by level, gold for bosses (' + r.cols + ')');
     t.ok(r.skull && r.aggro, 'deadly monsters get a skull, aggressive ones a ⚔');
     t.ok(r.combo, 'three quick kills show a combo of 3');
-    t.ok(r.fly && r.flyGone, 'a picked-up item flies to the bag and disappears');
+    t.ok(r.fly && r.flyGone, 'a picked-up item flies to the bag and disappears' + (r.fly && r.flyGone ? '' : ` (fly ${r.fly}, gone ${r.flyGone})`));
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };
