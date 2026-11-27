@@ -221,7 +221,7 @@ function autoHunt(){
      and Red, which heal too little late on), and
      against a boss from 55% HP, since one boss blow and a slam can take half your HP */
   const vsBoss=!!(P.target&&!P.target.dead&&P.target.d&&P.target.d.boss);
-  if(f<(vsBoss?.55:.4)&&(P.cd.pot_hp||0)<=now){const have=['red','orange','crimson','phoenix'].filter(id=>ITEMS[id]&&invFind(id)),miss=S.maxhp-P.hp;
+  if(f<(vsBoss?.55:.4)&&(P.cd.pot_hp||0)<=now){const have=['red','orange','crimson','grandtonic','phoenix'].filter(id=>ITEMS[id]&&invFind(id)),miss=S.maxhp-P.hp;
     const pot=have.find(id=>ITEMS[id].heal*HP_K>=miss*.8)||have[have.length-1]||null; // the smallest that covers most of what is missing
     if(pot)useItem(pot);} /* no pause when out of tonics (user request): auto-hunt keeps going until HP runs out */
   /* "Stay here" (P.autoStay, switch on the Auto card): only monsters and loot near the spot where auto-hunt started,
