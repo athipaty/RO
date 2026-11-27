@@ -106,6 +106,10 @@ function sfx(n){
     case 'pop':tone({f:520,f2:1100,dur:.09,vol:.12});tone({type:'triangle',f:1320,dur:.08,vol:.05,t:t+.05});break;
     case 'fanfare':[[523,0],[523,.12],[523,.24],[659,.36],[784,.6],[659,.78],[784,.9],[1047,1.05]].forEach(([f,d],i)=>tone({type:i%2?'square':'triangle',f,dur:i===7?.8:.16,vol:.13,lp:4500,t:t+d}));break;
     case 'slam':tone({f:90,f2:28,dur:.7,vol:.75});noise({ft:'lowpass',f:900,f2:90,dur:.6,vol:.5});break;
+    // (v1.71.2) a boss throws or drags your hero: a rushing whoosh over a low thud
+    case 'fling':noise({ft:'bandpass',f:500,f2:2400,dur:.32,vol:.38,q:1.4});tone({f:140,f2:50,dur:.22,vol:.5});noise({ft:'bandpass',f:2400,f2:700,dur:.25,vol:.2,q:2,t:t+.2});break;
+    // (v1.71.2) a boss skill opens lingering ground (fog, brambles, quicksand, ice, spores...): a deep rumble and a hiss
+    case 'zone':tone({f:70,f2:40,dur:.8,vol:.55});noise({ft:'lowpass',f:600,f2:150,dur:.8,vol:.35});noise({ft:'bandpass',f:1800,f2:900,dur:.6,vol:.12,q:1.5,t:t+.05});break;
   }
 }
 function setAudio(music,fxOn){AU.music=music;AU.sfx=fxOn;saveAudio();

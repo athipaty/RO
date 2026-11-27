@@ -21,12 +21,13 @@ function bsCurse(k,dur,m){if(!P||P.dead||!AILS[k])return;
   if(!was){floatT(P.x,P.y-56,AILS[k].name+'!',AILS[k].col,14);addLog(`${m?m.d.name+': ':''}you are ${AILS[k].name.toLowerCase()} by a boss curse (a Remedy Draught cannot cure it).`,'l-bad');}
   if(typeof ailHeld==='function'&&ailHeld()){P.path=[];P.casting=null;P.sitting=false;}}
 function bsSlow(k,dur){if(!P)return;P.slowUntil=Math.max(P.slowUntil||0,now+dur);P.slowK=Math.min(P.slowK&&P.slowUntil>now?P.slowK:1,k);}
-function bsShove(m,distance){if(!P||P.dead)return;const dx=P.x-m.x,dy=P.y-m.y,d=Math.hypot(dx,dy)||1,step=8,n=Math.ceil(Math.abs(distance)/step),s=Math.sign(distance);
+function bsShove(m,distance){if(!P||P.dead)return;sfx('fling');const dx=P.x-m.x,dy=P.y-m.y,d=Math.hypot(dx,dy)||1,step=8,n=Math.ceil(Math.abs(distance)/step),s=Math.sign(distance);
   for(let i=0;i<n;i++){if(s<0&&Math.hypot(P.x-m.x,P.y-m.y)<m.d.size+PR+6)break;if(!moveEnt(P,dx/d*step*s,dy/d*step*s,PR))break;}P.path=[];NET.lastSent='';NET.sendT=0;}
 // a circle that lands after `wait` s: col tints the warning; hit(m) runs if your hero is inside
 function bsMark(m,x,y,r,wait,hit){HZ.push({t:'mark',m,x,y,r,at:now+wait,hit});fx.push({k:'warn',x,y,r,t0:now,dur:wait});}
 // ground that stays for `dur` s: tick(m) every second while you stand in it, end(m) when it fades if you are still in it
-function bsZone(m,x,y,r,dur,col,tick,end){HZ.push({t:'zone',m,x,y,r,until:now+dur,next:now+.5,col,tick,end,pulse:0});}
+function bsZone(m,x,y,r,dur,col,tick,end){HZ.push({t:'zone',m,x,y,r,until:now+dur,next:now+.5,col,tick,end,pulse:0});
+  if(P&&Math.hypot(P.x-x,P.y-y)<700)sfx('zone');} // (v1.71.2) lingering ground was silent
 function bsHzTick(){for(let i=HZ.length-1;i>=0;i--){const h=HZ[i];if(!mobs.includes(h.m)){HZ.splice(i,1);continue;}
     if(h.t==='mark'){if(now<h.at)continue;HZ.splice(i,1);fx.push({k:'ring',x:h.x,y:h.y,r:h.r,col:'#ff6a3a',t0:now,dur:.4});
       if(P&&Math.hypot(P.x-h.x,P.y-h.y)<700)sfx('slam');if(inR(h.x,h.y,h.r)){try{h.hit(h.m);}catch(e){}}continue;}
