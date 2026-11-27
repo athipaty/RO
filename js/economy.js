@@ -3,16 +3,18 @@
    Measured with an axe Warden levelling from 10 to 98 (loot sold at the shop, tonics for the HP each fight costs, the
    best gear bought or forged as it comes, refined to +4, a day of dailies and bounties): hunting paid well early, but
    from Lv 70 the tonics cost more than the loot sold for, and one day of quests paid more than many hours of hunting.
-     1. Late loot is worth more: a material dropped by monsters past Lv 40 sells for more the higher they are
-        (x1.2 at Lv 50, x1.4 at Lv 60, x2 at Lv 90). Ores, tonics and shop goods keep their price.
+     1. Late loot is worth a little more: a material dropped by monsters past Lv 60 sells for more the higher they are
+        (x1.1 at Lv 70, x1.3 at Lv 90). Kept small: strong late heroes kill fast and can farm easier places, so they earn
+        well anyway (v1.75.0 first tried x2, which made late gold too easy). Ores, tonics and shop goods keep their price.
      2. The Grand Tonic (royal shop): 1000 HP (3000 with heroes' 3x HP) for 420 gold, the cheapest healing per HP late on;
         auto-hunt knows it (js/combat.js).
      3. The two price walls are smoothed: the Lv 60 Storm and Lv 90 Sun gear cost about 15% less (the Lv 75 Star gear and
         the forged gear already sit on the curve).
-     4. Dailies, bounties and the weekly goals pay less gold from Lv 40 (x0.85 at 45, x0.7 from 50), EXP unchanged, so a
-        day of quests is a bonus on top of hunting instead of the whole income. */
+     4. Quest gold follows the curve: dailies, bounties and the weekly goals pay x1.3 gold up to Lv 30 (a new hero is the
+        one who is short of gold), x1 at Lv 40 and x0.85 from Lv 50 (EXP unchanged), so late on a day of quests is a bonus
+        on top of hunting instead of the whole income. */
 // ---- 1. late materials ----
-const ECON_MAT_K=lv=>lv<=40?1:lv<=60?1+(lv-40)*.02:Math.min(2,1.4+(lv-60)*.02);
+const ECON_MAT_K=lv=>lv<=60?1:Math.min(1.3,1+(lv-60)*.01);
 {const NO=new Set(['emberore','glintstone']),lvOf={};
   for(const m of Object.values(MOBS)){if(!m||!m.lv||m.world)continue;for(const [id,p] of m.drops||[]){const it=ITEMS[id];if(!it||it.type!=='etc'||NO.has(id)||p<.3)continue;if(typeof shopSells==='function'&&shopSells(id))continue;
     lvOf[id]=Math.min(lvOf[id]||999,m.lv);}}
@@ -24,8 +26,8 @@ if(typeof TH!=='undefined')Object.assign(TH,{'Grand Tonic':'ยาบำรุ�
 // ---- 3. the price walls ----
 for(const [id,it] of Object.entries(ITEMS)){if(!it||it._econP||!(it.type==='weapon'||it.type==='armor'))continue;
   if(/^storm(blade|axe|dirk|bow|mace|staff|gun|plate|robe)$/.test(id)||/^sun(mace|blade|axe|dirk|bow|staff|gun|plate|robe)$/.test(id)){it._econP=1;it.price=Math.round(it.price*.85/100)*100;}}
-// ---- 4. quest gold from Lv 40 ----
-const ECON_QK=lv=>lv<40?1:lv>=50?.7:1-(lv-40)*.03;
+// ---- 4. quest gold: more early, less late ----
+const ECON_QK=lv=>lv<=30?1.3:lv<40?1.3-(lv-30)*.03:lv<50?1-(lv-40)*.015:.85;
 if(typeof dqBuild==='function'){const _dqbE=dqBuild;dqBuild=function(id,x){const r=_dqbE.apply(this,arguments);
   try{const m=x&&x.mob&&MOBS[x.mob];if(r&&r.reward&&r.reward.gold&&m)r.reward.gold=Math.round(r.reward.gold*ECON_QK(m.lv)/10)*10;}catch(e){}return r;};}
 if(typeof bReward==='function'){const _brE=bReward;bReward=function(x){const r=_brE.apply(this,arguments);

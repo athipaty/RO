@@ -12,12 +12,12 @@ module.exports = async t => {
       const before = P.hp; autoHunt(); const drank = before < P.hp ? (P.inv.find(i => i.id === 'grandtonic') || { n: 0 }).n : -1;
       P.lv = 70; const dq = (() => { dqEnsure(); const q = P.qs.dq; const id = Object.keys(q.list)[0]; const x = q.list[id]; return { lv: MOBS[x.mob].lv, gold: QUESTS[id].reward.gold }; })();
       return { early: [early, sellValue(early), !!ITEMS[early]._econ], late: [late, sellValue(late), ITEMS[late]._econ], perHp: [g.price / g.heal, c.price / c.heal, ph.price / ph.heal], royal: ROYAL_SHOP.includes('grandtonic'),
-        storm: ITEMS.stormaxe.price, sun: ITEMS.sunplate.price, star: ITEMS.staraxe.price, drank, dq, k: [ECON_QK(30), ECON_QK(45), ECON_QK(70)] }; });
-    t.ok(r.late[2] === 1 && !r.early[2], `late materials sell for more (${r.late[0]} ${r.late[1]} gold), early ones are unchanged (${r.early[0]} ${r.early[1]})`);
+        storm: ITEMS.stormaxe.price, sun: ITEMS.sunplate.price, star: ITEMS.staraxe.price, drank, dq, k: [ECON_QK(30), ECON_QK(45), ECON_QK(70)], mid: !!ITEMS[mat('pearlclam')]._econ, lateK: ECON_MAT_K(97) }; });
+    t.ok(r.late[2] === 1 && !r.early[2], `Lv 60+ materials sell for a little more (x${r.lateK} at Lv 97: ${r.late[0]} ${r.late[1]} gold), early ones are unchanged (${r.early[0]} ${r.early[1]})`);
     t.ok(r.royal && r.perHp[0] < r.perHp[1] && r.perHp[0] < r.perHp[2], 'the Grand Tonic in the royal shop is the cheapest healing per HP');
     t.ok(r.drank === 2, 'auto-hunt drinks it when it covers what is missing');
     t.ok(r.storm === 44200 && r.sun === 110900 && r.star === 90000, 'the Lv 60 Storm and Lv 90 Sun gear cost 15% less; the Star gear stays');
-    t.ok(r.k[0] === 1 && Math.abs(r.k[1] - .85) < 1e-9 && r.k[2] === .7, 'quest gold: full below Lv 40, x0.85 at 45, x0.7 from 50');
+    t.ok(r.k[0] === 1.3 && Math.abs(r.k[1] - .925) < 1e-9 && r.k[2] === .85 && r.mid === false, 'quest gold: x1.3 up to Lv 30, x1 at 40, x0.85 from 50; Lv 50 loot keeps its price');
     t.ok(!A.page.errors.length, 'no script errors ' + A.page.errors.slice(0, 3).join(' | '));
   } finally { await A.close(); }
 };
