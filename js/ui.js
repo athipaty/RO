@@ -406,7 +406,7 @@ function loadSlot(n){try{const s=JSON.parse(localStorage.getItem(slotKey(n))||'n
 function loadSave(){return loadSlot(CS.slot);}
 function guestStorage(){try{const a=JSON.parse(localStorage.getItem(GUEST_ST_KEY)||'null');return Array.isArray(a)?a:null;}catch(e){return null;}}
 function writeGuestStorage(a){try{localStorage.setItem(GUEST_ST_KEY,JSON.stringify(a||[]));}catch(e){}}
-const slotSum=s=>s&&s.p?{name:s.p.name,lv:s.p.lv,jl:s.p.jl,cls:s.p.cls,look:s.p.look,reborn:s.p.reborn,zone:s.p.zone}:null;
+const slotSum=s=>s&&s.p?{name:s.p.name,lv:s.p.lv,jl:s.p.jl,cls:s.p.cls,look:s.p.look,reborn:s.p.reborn,zone:s.p.zone,ward:s.p.ward||null}:null; // (v1.80.0) ward: the start screen wears your Dye & Wardrobe look
 function guestSlots(){return ALL_SLOTS.filter(n=>loadSlot(n));}
 function setSlot(n){CS.slot=n;try{localStorage.setItem(SLOT_KEY,String(n));}catch(e){}}
 // add one entry to a storage list (stacking like items); returns a new list, or null when storage is full

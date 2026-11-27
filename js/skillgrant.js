@@ -33,7 +33,7 @@ const SKILL_GRANT={
   soulreaper:['thousandcuts','eclipseveil'],plaguelord:['shadowtempest'],
   forgemaster:['runeburst','worldrune']};
 // self buffs and heals that now reach party members too (the receiver runs the same effect on its own hero)
-const SKILL_PARTY=['ironbody','haste','mirage','elementalavatar','bigdeal','royalhaul','lotusbloom'];
+const SKILL_PARTY=['ironbody','haste','mirage','elementalavatar','bigdeal','royalhaul','lotusbloom','purify'];
 
 /* ---- Revive ---- */
 const REVIVE_R=260,revivePct=l=>10+l*8;
@@ -61,6 +61,29 @@ if(typeof CAST!=='undefined')CAST.revive=1.5;
 // auto-skill never casts Revive on its own (it would fire whenever nobody is down)
 if(typeof autoSkillList==='function'){const _aslRV=autoSkillList;autoSkillList=function(){return _aslRV.apply(this,arguments).filter(id=>id!=='revive');};}
 
+/* ---- Purify (v1.80.0): the Cleric's instant cleanse ----
+   Mend cures ailments too, but it has a cast time and most boss stuns are over by the time it lands. Purify is instant:
+   it cures you and party members within 260px of every ailment (boss curses too), and for a moment after none of you can
+   be stunned, frozen or put to sleep again, so a boss's next blow cannot chain the stun. A Cleric skill, so every job of
+   the Cleric family has it (Healer path). Auto-skill leaves it to you. */
+const PURIFY_R=260,purifyGuard=l=>+(1+l*.4).toFixed(1),PURIFY_BLOCK=['stun','freeze','sleep'];
+SKILLS.purify={name:'Purify',max:5,col:'#bfffe8',g:'✧',sp:l=>18+l*2,cd:8,kind:'self',
+  desc:l=>`Instantly cure every ailment (boss curses too) on yourself and party members within ${PURIFY_R}px; for ${purifyGuard(l)}s none of you can be stunned, frozen or put to sleep.`,
+  run:l=>{purifyOn(l,false);}};
+function purifyOn(l,fromMate){if(!P||P.dead)return;const had=P.ail&&Object.keys(P.ail).some(k=>typeof ailOn==='function'&&ailOn(k));
+  if(typeof cureAll==='function')cureAll(true);if(P.curse)P.curse={};P.ailGuard=Math.max(P.ailGuard||0,now+purifyGuard(l));
+  fx.push({k:'ring',x:P.x,y:P.y,r:36,col:'#bfffe8',t0:now,dur:.6});fx.push({k:'heal',x:P.x,y:P.y,r:30,col:'#bfffe8',t0:now,dur:.5});
+  if(had)floatT(P.x,P.y-56,typeof LANG!=='undefined'&&LANG==='th'?'ชำระล้าง!':'Purified!','#bfffe8',14);}
+// the guard: new stuns, freezes and sleeps do not take hold while it lasts
+const purifyBlocked=k=>!!(P&&PURIFY_BLOCK.includes(k)&&(P.ailGuard||0)>now);
+if(typeof tryAilment==='function'){const _taP=tryAilment;tryAilment=function(a){if(Array.isArray(a)&&purifyBlocked(a[0])){floatT(P.x,P.y-50,typeof LANG!=='undefined'&&LANG==='th'?'ป้องกัน':'Protected','#bfffe8',12);return false;}return _taP.apply(this,arguments);};}
+if(typeof bsCurse==='function'){const _bcP=bsCurse;bsCurse=function(k){if(purifyBlocked(k)){floatT(P.x,P.y-50,typeof LANG!=='undefined'&&LANG==='th'?'ป้องกัน':'Protected','#bfffe8',12);return;}return _bcP.apply(this,arguments);};}
+if(typeof SKILL_TH!=='undefined')SKILL_TH.purify=['ชำระล้าง','ล้างสถานะผิดปกติทั้งหมดทันที (รวมคำสาปบอส) ให้ตัวเองและสมาชิกปาร์ตี้ในระยะ {0}px และ {1} วินาทีต่อจากนั้นจะไม่ติดมึน แช่แข็ง หรือหลับ'];
+if(typeof CAST!=='undefined')CAST.purify=0;
+if(typeof SKILL_FX!=='undefined'&&typeof fxF==='function'){SKILL_FX.purify=l=>{fxF({k:'motes',x:P.x,y:P.y,o:P,col:'#bfffe8',col2:'#ffffff',n:14,r:28,dur:.8});};
+  const run=SKILLS.purify.run,fxf=SKILL_FX.purify;SKILLS.purify.run=function(){try{fxf.apply(this,arguments);}catch(e){}return run.apply(this,arguments);};}
+if(typeof autoSkillList==='function'){const _aslPU=autoSkillList;autoSkillList=function(){return _aslPU.apply(this,arguments).filter(id=>id!=='purify');};}
+SKILL_GRANT.cleric=['purify'];
 /* ---- give the skills to the jobs (and every job after them) ---- */
 {const kids=id=>Object.keys(CLASSES).filter(c=>c!==id&&(CLASSES[c].base===id||CLASSES[c].parent===id||(typeof JOB3!=='undefined'&&JOB3[c]&&JOB3[c].from===id)));
   const addTo=(c,sk)=>{const C=CLASSES[c];if(!C||!C.skills||C.skills.includes(sk))return;const i=C.skills.indexOf('firstaid');if(i<0)C.skills.push(sk);else C.skills.splice(i,0,sk);};
@@ -73,8 +96,8 @@ if(typeof autoSkillList==='function'){const _aslRV=autoSkillList;autoSkillList=f
   // the first jobs' new skills sit on a path (js/jobpaths.js): Phantom Edge on Edge, Umbral Grace on Venom (smoke and
   // dodging), Rune Mastery on Forge
   if(typeof JOB_PATHS!=='undefined'){const put=(job,path,sk)=>{const p=JOB_PATHS[job]&&JOB_PATHS[job].paths.find(x=>x.id===path);if(p&&!p.skills.includes(sk))p.skills.push(sk);};
-    put('shade','edge','phantomedge');put('shade','venom','umbralgrace');put('forgehand','forge','runemastery');}
-  if(typeof SKILL_REQ!=='undefined'){SKILL_REQ.revive={resurgence:3};SKILL_REQ.phantomedge={backstab:3};SKILL_REQ.lotusbloom={titanslam:1};}}
+    put('shade','edge','phantomedge');put('cleric','healer','purify');put('shade','venom','umbralgrace');put('forgehand','forge','runemastery');}
+  if(typeof SKILL_REQ!=='undefined'){SKILL_REQ.revive={resurgence:3};SKILL_REQ.purify={mend:3};SKILL_REQ.phantomedge={backstab:3};SKILL_REQ.lotusbloom={titanslam:1};}}
 
 /* ---- party support ---- */
 if(typeof SUP!=='undefined'&&typeof supportCast==='function')for(const id of SKILL_PARTY){const sk=SKILLS[id];if(!sk||sk.party||SUP[id])continue;

@@ -7,7 +7,8 @@
                    dye's colour (metal, white and black stay as they are), Snow pales and Shadow darkens everything
      Costume hat   unlock a hat's look once, then wear it over whatever head gear you have (its stats still count)
      Costume cape  a cape behind your hero in a colour of your choice
-     Aura          (v1.78.0) a soft glow on the ground under your hero, in a colour of your choice
+     Aura          (v1.78.0; masters only since v1.80.0) recolours a master's own aura and rune circle (it used to add a
+                   second glow, which doubled the masters' own)
      Saved looks   (v1.78.0) keep up to 3 whole looks and change between them for free
    (v1.78.0) Easier: try anything on and the preview shows it at once; the bar at the bottom adds up what is new and one
    button buys and wears it all (or Reset). A colour you have bought is yours: changing back to it later is free. The
@@ -44,11 +45,16 @@ const wardSwatch=k=>{const d=WARD_DYES.find(x=>x[0]===k);return !d?null:d[3]===-
 function wardCapeCol(k){const d=WARD_DYES.find(x=>x[0]===k)||WARD_DYES[0];if(d[3]===-1)return ['#e8ecf0','#ffffff'];if(d[3]===-2)return ['#1e1c24','#5a5468'];return [wHsl2Hex(d[3],.55,.38),wHsl2Hex(d[3]+15,.7,.62)];}
 function wardAuraCol(k){const d=WARD_DYES.find(x=>x[0]===k);if(!d)return null;return d[3]===-1?'#ffffff':d[3]===-2?'#6a4a9a':wHsl2Hex(d[3],.8,.6);}
 // ---- drawing: put a look on while one hero is drawn (dye, cape, costume hat), then take it off again ----
+const wardMaster=cls=>!!(CLASSES[cls]&&CLASSES[cls].tier===3);
 function wardWear(cls,w,fn,hatSet){const fam=typeof baseOf==='function'?baseOf(cls):cls,undo=[];
   try{if(w.dye){const tb=typeof OUTFITS!=='undefined'&&OUTFITS[fam];if(tb&&tb[cls]){const o=tb[cls];undo.push(()=>{tb[cls]=o;});tb[cls]=wardDyed(o,w.dye,'o'+fam+cls);}
       if(typeof WARDEN_LOOKS!=='undefined'&&fam==='warden'&&WARDEN_LOOKS[cls]){const o=WARDEN_LOOKS[cls];undo.push(()=>{WARDEN_LOOKS[cls]=o;});WARDEN_LOOKS[cls]=wardDyed(o,w.dye,'w'+cls);}}
-    if(w.cape&&typeof JOB_LOOK!=='undefined'){const o=JOB_LOOK[cls],had=Object.prototype.hasOwnProperty.call(JOB_LOOK,cls),bk=(o&&o.b)||[];
-      if(!bk.some(x=>x[0]==='cape')){const [c,t]=wardCapeCol(w.cape);undo.push(()=>{if(had)JOB_LOOK[cls]=o;else delete JOB_LOOK[cls];});JOB_LOOK[cls]={...(o||{}),b:[['cape',{c,t,long:1}],...bk]};}}
+    const master=wardMaster(cls);
+    if((w.cape||(w.aura&&master))&&typeof JOB_LOOK!=='undefined'){const o=JOB_LOOK[cls],had=Object.prototype.hasOwnProperty.call(JOB_LOOK,cls);let L={...(o||{}),b:[...((o&&o.b)||[])]};
+      if(w.cape&&!L.b.some(x=>x[0]==='cape')){const [c,t]=wardCapeCol(w.cape);L.b.unshift(['cape',{c,t,long:1}]);}
+      // (v1.80.0) a master's aura and rune circle take the colour (only masters have one: the Aura tab opens with the master calling)
+      if(w.aura&&master){const c=wardAuraCol(w.aura),t=wHsl2Hex(wHex2Hsl(c)[0],.6,.85);L.aura=c;L.b=L.b.map(x=>x[0]==='sigil'?['sigil',{...x[1],c,t}]:x);}
+      undo.push(()=>{if(had)JOB_LOOK[cls]=o;else delete JOB_LOOK[cls];});JOB_LOOK[cls]=L;}
     if(w.hat&&hatSet)undo.push(hatSet(w.hat));
     return fn();}
   finally{for(let i=undo.length-1;i>=0;i--)try{undo[i]();}catch(e){}}}
@@ -59,22 +65,27 @@ function wardAura(x,y,k){const c=wardAuraCol(k);if(!c)return;const p=.6+.4*Math.
 const WD={cur:null};
 if(typeof drawOther==='function'){const _doW=drawOther;drawOther=function(o){const k=WD.cur;WD.cur=o&&o.wd?o.wd:null;try{return _doW.apply(this,arguments);}finally{WD.cur=k;}};}
 if(typeof drawPlayerBody==='function'){const _dpbW=drawPlayerBody;drawPlayerBody=function(p){
-  const w=p&&p.__wd?p.__wd:p===P?(P.ward||null):WD.cur;if(!wardAny(w))return _dpbW.apply(this,arguments);
-  const args=arguments;if(w.aura&&!p.sitting&&!p._rider)try{wardAura(p.x,p.y,w.aura);}catch(e){}
+  const w=p&&p.__wd?p.__wd:(p===P||(P&&p&&!WD.cur&&p.name===P.name))?(P.ward||null):WD.cur;if(!wardAny(w))return _dpbW.apply(this,arguments);
+  const args=arguments;
   return wardWear(p.cls,w,()=>_dpbW.apply(this,args),h=>{const h0=p.hat,had=Object.prototype.hasOwnProperty.call(p,'hat');p.hat=h;return ()=>{if(had)p.hat=h0;else delete p.hat;};});};}
 // the stylist's preview (Lune, js/stylist.js) shows your look too
 if(typeof styDraw==='function'){const _sdW=styDraw;styDraw=function(){const w=P&&P.ward;if(!wardAny(w))return _sdW.apply(this,arguments);
   const args=arguments;return wardWear(P.cls,w,()=>{if(!w.hat)return _sdW.apply(this,args);const _dh=drawHuman;drawHuman=function(x,y,b,h,f,wk,opt){return _dh.call(this,x,y,b,h,f,wk,{...(opt||{}),hat:w.hat});};try{return _sdW.apply(this,args);}finally{drawHuman=_dh;}});};}
+// the start screen: the chosen character wears its look (its slot summary carries P.ward, js/ui.js slotSum)
+WD.stance=null;
+if(typeof drawLookPreview==='function'){const _dlpW=drawLookPreview;drawLookPreview=function(){const sv=typeof CS!=='undefined'&&CS.sum&&CS.sum[CS.slot];WD.stance=sv&&sv.ward||null;try{return _dlpW.apply(this,arguments);}finally{WD.stance=null;}};}
+if(typeof drawStance==='function'){const _dsW=drawStance;drawStance=function(cls){const w=WD.stance;if(!wardAny(w))return _dsW.apply(this,arguments);const args=arguments;
+  return wardWear(cls,w,()=>{if(!w.hat)return _dsW.apply(this,args);const _dh=drawHuman;drawHuman=function(x,y,b,h,f,wk,opt){return _dh.call(this,x,y,b,h,f,wk,{...(opt||{}),hat:w.hat});};try{return _dsW.apply(this,args);}finally{drawHuman=_dh;}});};}
 // ---- the window (Dyer Celestine) ----
 const WARDUI={tab:'dye',pick:{},turn:0,before:false};
 const wardHats=()=>{const shop=new Set([...(typeof SHOP!=='undefined'?SHOP:[]),...(typeof ROYAL_SHOP!=='undefined'?ROYAL_SHOP:[]),...(typeof FORGES!=='undefined'?FORGES.map(f=>f[0]):[])]);
   return Object.keys(ITEMS).filter(id=>ITEMS[id].type==='head'&&shop.has(id)).sort((a,b)=>(ITEMS[a].lv||0)-(ITEMS[b].lv||0));};
-const wardTry=()=>{const w=wardMine(),o={};for(const k of WARD_PARTS)o[k]=WARDUI.pick[k]!==undefined?WARDUI.pick[k]:w[k];return o;};
+const wardTry=()=>{const w=wardMine(),o={};for(const k of WARD_PARTS)o[k]=WARDUI.pick[k]!==undefined?WARDUI.pick[k]:w[k];if(P&&!wardMaster(P.cls))o.aura=w.aura;return o;};
 // what the new look costs: only what you do not own yet
 function wardBill(t){const w=wardMine(),lines=[];t=t||wardTry();
   if(t.dye&&t.dye!==w.dye&&!w.dyes.includes(t.dye))lines.push(['dye',WARD_COST.dye(P.lv)]);
   if(t.cape&&t.cape!==w.cape){if(!w.capeOwned)lines.push(['cape',WARD_COST.cape]);else if(!w.capes.includes(t.cape))lines.push(['cape',WARD_COST.capeDye(P.lv)]);}
-  if(t.aura&&t.aura!==w.aura){if(!w.auraOwned)lines.push(['aura',WARD_COST.aura]);else if(!w.auras.includes(t.aura))lines.push(['aura',WARD_COST.auraDye(P.lv)]);}
+  if(t.aura&&t.aura!==w.aura&&wardMaster(P.cls)){if(!w.auraOwned)lines.push(['aura',WARD_COST.aura]);else if(!w.auras.includes(t.aura))lines.push(['aura',WARD_COST.auraDye(P.lv)]);}
   if(t.hat&&t.hat!==w.hat&&!w.hats.includes(t.hat))lines.push(['hat',WARD_COST.hat(t.hat)]);
   return {lines,total:lines.reduce((a,l)=>a+l[1],0),changed:WARD_PARTS.some(k=>t[k]!==w[k])};}
 function wardPreview(){const cv=document.getElementById('wardCv');if(!cv||!P)return;const g=cv.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,cv.width,cv.height);
@@ -94,7 +105,8 @@ PANELS.gemcut=()=>{const th=wardTh(),w=wardMine(),t=wardTry(),bill=wardBill(t);
   const tab=WARDUI.tab;
   if(tab==='dye')h+=`<div class="ds">${th?'ย้อมส่วนที่มีสีของชุดอาชีพ (โลหะ สีขาว สีดำ คงเดิม หิมะและเงาเปลี่ยนทั้งชุด)':'Colours the coloured parts of your job outfit (metal, white and black stay; Snow and Shadow change everything)'} · ${fmt(WARD_COST.dye(P.lv))} gold</div>`+wardSwatches('dye',t.dye,w.dyes,th?'สีเดิม':'Original');
   else if(tab==='cape')h+=`<div class="ds">${th?'ผ้าคลุมด้านหลัง':'A cape behind your hero.'} ${w.capeOwned?`${th?'สีใหม่':'A new colour'} ${fmt(WARD_COST.capeDye(P.lv))} gold`:`${th?'ครั้งแรก':'First cape'} ${fmt(WARD_COST.cape)} gold`}</div>`+wardSwatches('cape',t.cape,w.capes,th?'ไม่ใส่':'None');
-  else if(tab==='aura')h+=`<div class="ds">${th?'แสงเรืองใต้เท้า':'A soft glow on the ground under your feet.'} ${w.auraOwned?`${th?'สีใหม่':'A new colour'} ${fmt(WARD_COST.auraDye(P.lv))} gold`:`${th?'ครั้งแรก':'First aura'} ${fmt(WARD_COST.aura)} gold`}</div>`+wardSwatches('aura',t.aura,w.auras,th?'ไม่มี':'None');
+  else if(tab==='aura'&&!wardMaster(P.cls))h+=`<div class="wlock"><b>✨</b><div>${th?'ออร่าเปิดเมื่อคุณเป็นอาชีพขั้นสูงสุด (มาสเตอร์) แล้วจะเปลี่ยนสีออร่าและวงเวทใต้เท้าของคุณได้':'The Aura opens with your master calling: it recolours the master aura and rune circle under your feet.'}</div></div>`;
+  else if(tab==='aura')h+=`<div class="ds">${th?'เปลี่ยนสีออร่าและวงเวทของมาสเตอร์':'Recolours your master aura and rune circle.'} ${w.auraOwned?`${th?'สีใหม่':'A new colour'} ${fmt(WARD_COST.auraDye(P.lv))} gold`:`${th?'ครั้งแรก':'First aura'} ${fmt(WARD_COST.aura)} gold`}</div>`+wardSwatches('aura',t.aura,w.auras,th?'ไม่มี':'None');
   else if(tab==='hat'){h+=`<div class="ds">${th?'ใส่ทับหมวกจริงได้ ค่าสถานะยังคงอยู่':'Worn over your real head gear; its stats still count.'}</div><div class="whats">`+
       `<button class="what${!t.hat?' on':''}" data-act="wardset" data-arg="hat:"><span class="wnone"></span><span>${th?'ไม่ใส่':'None'}</span></button>`+
       wardHats().map(id=>{const own=w.hats.includes(id);return `<button class="what${t.hat===id?' on':''}" data-act="wardset" data-arg="hat:${id}" title="${esc(ITEMS[id].name)}">${icon({id})}<span class="whn">${esc(ITEMS[id].name)}</span><span>${own?(th?'มีแล้ว':'Yours'):fmt(WARD_COST.hat(id))}</span>${wOwnTag(own)}</button>`;}).join('')+`</div>`;}
@@ -141,6 +153,6 @@ PANEL_CLOSE.gemcut=()=>{WARDUI.pick={};WARDUI.before=false;};
 .wsw.on,.what.on{border-color:#e8a8ff;background:rgba(232,168,255,.14)}.wown{position:absolute;top:3px;right:6px;color:#7fd38a;font-size:12px}
 .whn{font-size:10.5px;line-height:1.15;text-align:center;opacity:.85}.whats{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;margin:8px 0}
 .wbar{position:sticky;bottom:0;display:flex;align-items:center;gap:8px;padding:10px;margin:10px -4px 0;border-radius:12px;background:rgba(20,16,28,.96);border:1px solid rgba(232,168,255,.35)}
-.wlook{display:flex;gap:3px;width:42px}.wlook i{width:12px;height:12px;border-radius:50%;display:block}
+.wlock{display:flex;gap:10px;align-items:center;padding:14px;margin:8px 0;border-radius:12px;background:rgba(255,255,255,.04);border:1px dashed rgba(232,168,255,.4)}.wlock b{font-size:24px}.wlook{display:flex;gap:3px;width:42px}.wlook i{width:12px;height:12px;border-radius:50%;display:block}
 @media (max-width:420px){.wardtop{flex-direction:column;align-items:center}.wtabs{grid-template-columns:repeat(5,1fr);width:100%}.wtab{flex-direction:column;gap:2px;padding:6px 2px;font-size:10.5px}}`;document.head.appendChild(st);}
 if(typeof TH!=='undefined')Object.assign(TH,{'Dye & Wardrobe':'ร้านย้อมและตู้เสื้อผ้า','Dyer Celestine':'ช่างย้อมเซเลสทีน'});
