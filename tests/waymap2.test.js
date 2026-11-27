@@ -11,17 +11,17 @@ module.exports = async t => {
       out.big = !!sc && sc.classList.contains('big'); out.tileW = tile ? Math.round(tile.getBoundingClientRect().width) : 0;
       out.compass = panel.querySelectorAll('.wsmrose').length; out.letters = panel.querySelectorAll('.wsmc').length;
       const card = panel.querySelector('#wsDet'); out.badges = card.querySelectorAll('.tcel').length; out.weak = (card.querySelector('.tcels') || {}).textContent || '';
-      // (v1.65.2) the direction pad: E from the Steppe is the Ruins (the Steppe's links decide), and a missing road is greyed
-      const pd = { n: panel.querySelectorAll('.wsmpad .wsmpd').length, L: ZONES.steppe.links };
-      const dir = Object.keys(pd.L).find(d => WORLD_GRID[pd.L[d]]), k = { north: 'N', east: 'E', south: 'S', west: 'W' }[dir];
-      panel.querySelector('.wsmpd-' + k).click(); await w(150); pd.moved = WSMAP.sel === pd.L[dir];
-      pd.off = [...panel.querySelectorAll('.wsmpd')].filter(b => b.disabled).length === 4 - Object.values(ZONES[WSMAP.sel].links).filter(z => WORLD_GRID[z]).length; out.pad = pd;
+      // (v1.80.1) no direction pad: the squares stand apart, big enough to tap
+      const ts = [...panel.querySelectorAll('.wsmscroll.big .wsmt')].map(e => e.getBoundingClientRect()); const near = (a, b) => Math.hypot(a.left - b.left, a.top - b.top);
+      let minStep = 1e9; for (let i = 0; i < ts.length; i++) for (let j = i + 1; j < ts.length; j++) minStep = Math.min(minStep, near(ts[i], ts[j]));
+      const to = Object.values(ZONES.steppe.links).find(z => WORLD_GRID[z]); panel.querySelector(`.wsmt[data-arg="${to}"]`).click(); await w(150);
+      out.pad = { none: !panel.querySelector('.wsmpad'), w: Math.round(ts[0].width), step: Math.round(minStep), tap: WSMAP.sel === to };
       out.noZoom = !panel.querySelector('[data-act="wsmzoom"]'); // (v1.64.5) the Bigger / Whole world button is gone
       out.dn = !!panel.querySelector('.wsmt[data-arg="woods"] .wsmdn') && !panel.querySelector('.wsmt[data-arg="meadow"] .wsmdn');
       const tog = panel.querySelectorAll('.wsftog'); out.toggle = tog.length === 1 && /World map/.test(tog[0].textContent) && tog[0].dataset.arg === 'floors' && !!tog[0].querySelector('.wsfarr');
       closePanel(); return out; });
     t.ok(r.big && r.tileW >= 60, `the map opens big: each square ${r.tileW} px wide, in a box you drag`);
-    t.ok(r.pad.n === 4 && r.pad.moved && r.pad.off, 'a direction pad in the corner steps the pick along the roads; arrows with no road are greyed ' + JSON.stringify(r.pad));
+    t.ok(r.pad.none && r.pad.w >= 70 && r.pad.step >= 40 && r.pad.tap, 'no arrow pad (v1.80.1): the squares are big and stand apart, and a tap picks one ' + JSON.stringify(r.pad));
     t.ok(r.noZoom, 'the map is always big: no Bigger / Whole world button');
     t.ok(r.dn, 'a region with stairs down to a dungeon carries a ▼ sign');
     t.ok(r.toggle, 'one ⇄ button, named for the view you are on, switches between the world map and the floors');
@@ -62,12 +62,12 @@ module.exports = async t => {
       return { down: col('woods', 'deep1'), up: col('deep1', 'woods'), gate: col('woods', 'meadow') }; });
     t.ok(mm.down[0] > 200 && mm.down[1] > 120 && mm.down[2] < 110, 'the minimap shows the stairs down as an orange ▼ ' + mm.down);
     t.ok(mm.up[2] > 200 && mm.up[0] > 150, 'and the way back up out of a dungeon as a pale ▲ ' + mm.up);
-    // (v1.65.3) the World map window's direction pad
+    // (v1.65.3) the World map window (the arrow pad left in v1.80.1)
     const wp = await g.ev(async () => { const w = ms => new Promise(r => setTimeout(r, ms)); enterZone('meadow'); WSF.mview = 'world'; WSF.wsel = null; openPanel('worldmap'); await w(200);
       const out = { pads: panel.querySelectorAll('.wgpad .wsmpd').length, start: WSF.wsel, cap: (panel.querySelector('.wgcap b') || {}).textContent };
-      const to = ZONES.meadow.links.east; panel.querySelector('.wgpd-E').click(); await w(200); out.moved = WSF.wsel === to && (panel.querySelector('.wgcap b') || {}).textContent === ZONES[to].name && !!panel.querySelector(`.wc.sel[data-arg="${to}"]`);
+      const to = ZONES.meadow.links.east; panel.querySelector(`.wc[data-arg="${to}"]`).click(); await w(200); out.moved = WSF.wsel === to && (panel.querySelector('.wgcap b') || {}).textContent === ZONES[to].name && !!panel.querySelector(`.wc.sel[data-arg="${to}"]`);
       closePanel(); return out; });
-    t.ok(wp.pads === 4 && wp.start === 'meadow' && wp.moved, `the World map window has the direction pad too: from ${wp.cap} east to the next region, its name under the map`);
+    t.ok(wp.pads === 0 && wp.start === 'meadow' && wp.moved, `the World map window has no arrow pad either; tapping a square picks it and names it under the map (from ${wp.cap})`);
     t.ok(wm.picked === 'grotto1', 'tapping a floor square picks it in the list below (' + wm.picked + ')');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }

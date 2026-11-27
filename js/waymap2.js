@@ -22,7 +22,8 @@ const elName=el=>typeof LANG!=='undefined'&&LANG==='th'?(EL_TH[el]||el):(typeof 
   // (v1.65.2) a direction pad in the bottom-left corner: step the pick to the next region along a road
   const L=(WSMAP.sel&&ZONES[WSMAP.sel]&&ZONES[WSMAP.sel].links)||{},pad=[['north','↗','N'],['east','↘','E'],['south','↙','S'],['west','↖','W']].map(([d,a,k])=>{const to=L[d];
     return `<button type="button" class="wsmpd wsmpd-${k}" ${to&&WORLD_GRID[to]?`data-act="wsmsel" data-arg="${to}" aria-label="${k}: ${esc(ZONES[to].name)}" title="${esc(ZONES[to].name)}"`:`disabled aria-label="${k}: no road"`}><i aria-hidden="true">${a}</i><b>${k}</b></button>`;}).join('');
-  return `<div class="wsmwrap"><div class="wsmscroll big" style="--U:${U}">${mapD}</div>${compass}<div class="wsmpad" role="group" aria-label="Move along the roads">${pad}</div></div>`+
+  /* (v1.80.0) no direction pad: the squares are spread out and big enough to tap, and the pad took room from the map */
+  return `<div class="wsmwrap"><div class="wsmscroll big" style="--U:${U}">${mapD}</div>${compass}</div>`+
     key.replace('<span>numbers: lowest monster level</span>','<span>numbers: lowest monster level</span><span>▼ dungeon below</span>');};}
 // centre the picked square once each time the pick changes (not on every refresh, so a drag is not undone)
 function wsmCentre(){const sc=panel&&panel.querySelector('.wsmscroll.big');if(!sc)return;const t=sc.querySelector('.wsmt.sel')||sc.querySelector('.wsmt.here');if(!t)return;
@@ -50,7 +51,7 @@ function elWeakLine(ms){const els=[...new Set(ms.map(m=>m.el||'neutral'))].filte
 #panel .wsmwrap{position:relative}
 #panel .wsmpad{position:absolute;left:8px;bottom:8px;width:104px;height:104px;z-index:6}
 #panel .wgwrap{position:relative}
-#panel .wgscroll.big .wgrid{margin:0 0 118px 0}
+#panel .wgscroll.big .wgrid{margin:0;gap:14px!important}
 #panel .wgpad{width:132px;height:132px;left:10px;bottom:10px}
 #panel .wgpd-N{left:45px;top:0}#panel .wgpd-S{left:45px;bottom:0}#panel .wgpd-W{left:0;top:45px}#panel .wgpd-E{right:0;top:45px}
 #panel .wgcap{display:flex;align-items:center;gap:10px;width:100%;margin:6px 0 2px;padding:8px 12px;border-radius:12px;border:1px solid rgba(232,194,90,.45);
@@ -72,9 +73,12 @@ function elWeakLine(ms){const els=[...new Set(ms.map(m=>m.el||'neutral'))].filte
 #panel .wsmbar .ds{font-size:11px;opacity:.75}
 #panel .wsmscroll.big{overflow:auto;max-height:min(62vh,520px);border-radius:14px;touch-action:pan-x pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin:6px 0 4px;
   background:#0e151f;border:1px solid rgba(232,194,90,.28)}
-#panel .wsmscroll.big .wsm{width:calc(var(--U) * 36px);max-width:none!important;margin:28px 26px 124px 130px}
+#panel .wsmscroll.big .wsm{width:calc(var(--U) * 52px);max-width:none!important;margin:34px 34px 40px 34px}
+/* (v1.80.0) the squares spread out (52 px a step instead of 36) and drawn a little smaller than the step, so each one stands
+   apart with a clear gap round it and is still bigger than before: easy to tap */
+#panel .wsmscroll.big .wsmt{scale:.8}#panel .wsmscroll.big .wsmt b{font-size:16px}
 #panel .wsmscroll.big .wsm::before{display:none}
-#panel .wsmscroll.big .wsmt b{font-size:14px}
+#panel .wsmscroll.big .wsmt b{font-size:16px}
 #panel .wsmscroll.big .wsmt i{font-size:13px}
 #panel .tcmobw{position:relative;display:inline-block}
 /* (v1.64.2) bigger monster pictures, so each one is easy to make out */
@@ -97,7 +101,7 @@ function elWeakLine(ms){const els=[...new Set(ms.map(m=>m.el||'neutral'))].filte
   const pad=[['north','↑','N'],['east','→','E'],['south','↓','S'],['west','←','W']].map(([d,a,k])=>{const to=L[d];
     return `<button type="button" class="wsmpd wgpd-${k}" ${to&&WORLD_GRID[to]?`data-act="wmstep" data-arg="${to}" aria-label="${k}: ${esc(ZONES[to].name)}" title="${esc(ZONES[to].name)}"`:`disabled aria-label="${k}: no road"`}><i aria-hidden="true">${a}</i><b>${k}</b></button>`;}).join('');
   const cap=`<button type="button" class="wgcap" data-act="wmgo" data-arg="${WSF.wsel}"><b>${esc(D.name)}</b><span>${esc(D.lvl||'')}</span><i aria-hidden="true">▸</i></button>`;
-  return `<div class="wgwrap"><div class="wgscroll big">${grid}</div><div class="wsmpad wgpad" role="group" aria-label="Move along the roads">${pad}</div></div>${cap}`+key;};}
+  return `<div class="wgwrap"><div class="wgscroll big">${grid}</div></div>${cap}`+key;};} /* (v1.80.0) no direction pad here either */
 PANEL_ACTS.wmstep=id=>{if(!ZONES[id]||!WORLD_GRID[id])return;WSF.wsel=id;sfx('click');refreshPanel();};
 {const _wmgoS=PANEL_ACTS.wmgo;PANEL_ACTS.wmgo=id=>{if(WORLD_GRID[id]&&WSF.wsel!==id){WSF.wsel=id;refreshPanel();}return _wmgoS(id);};}
 // the highlighted square: outlined, and kept in view when it changes
