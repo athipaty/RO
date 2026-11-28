@@ -1933,3 +1933,16 @@ body.touchui #panel .eqrm{width:26px;height:26px}
 @media (orientation:landscape) and (max-height:540px){
   body.touchui #panel .eqslot[data-slot="head"]{order:1}body.touchui #panel .eqslot[data-slot="face"]{order:2}
   body.touchui #panel .eqslot[data-slot="accessory"]{order:3}body.touchui #panel .eqslot[data-slot="mouth"]{order:4}}
+/* v1.93.0 equipment on a phone held upright: the hero in the middle, head/face/mouth/accessory down the left,
+   weapon/armour/shoes/accessory II down the right (it used to sit alone above two columns) */
+@media (orientation:portrait){
+  body.touchui #panel .eqgrid,body.touchui #panel.npcfull .eqgrid{display:grid;grid-template-columns:minmax(0,1fr) clamp(92px,26vw,130px) minmax(0,1fr);grid-template-rows:auto;gap:6px;align-items:center}
+  body.touchui #panel .eqcol,body.touchui #panel.npcfull .eqcol{display:flex;flex-direction:column;gap:6px;min-width:0}
+  body.touchui #panel .eqgrid>.eqcol:first-child{grid-column:1;grid-row:1}body.touchui #panel .eqgrid>.eqcol:last-child{grid-column:3;grid-row:1}
+  body.touchui #panel #eqCv,body.touchui #panel.npcfull #eqCv{grid-column:2;grid-row:1;width:100%;height:auto;aspect-ratio:4/5;align-self:center;justify-self:center}
+  body.touchui #panel .eqslot{min-width:0;padding:5px 6px;gap:5px}
+  body.touchui #panel .eqslot .nm{font-size:12px;line-height:1.2;overflow-wrap:anywhere}body.touchui #panel .eqslot .ds{font-size:10.5px;line-height:1.25}
+}
+
+/* v1.93.0 Items window, Sigils tab: one heading per gear type */
+.sgk{margin:10px 0 4px;font-size:12px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:#e8c25a;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(232,194,90,.25);padding-bottom:3px}.sgk i{font-style:normal;font-weight:600;color:var(--muted)}
