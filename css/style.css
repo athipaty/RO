@@ -1939,8 +1939,8 @@ body.touchui #panel .eqrm{width:26px;height:26px}
   body.touchui #panel .eqgrid,body.touchui #panel.npcfull .eqgrid{display:grid;grid-template-columns:minmax(0,1fr) clamp(92px,26vw,130px) minmax(0,1fr);grid-template-rows:auto;gap:6px;align-items:start}
   body.touchui #panel .eqcol,body.touchui #panel.npcfull .eqcol{display:flex;flex-direction:column;gap:6px;min-width:0}
   body.touchui #panel .eqgrid>.eqcol:first-child{grid-column:1;grid-row:1}body.touchui #panel .eqgrid>.eqcol:last-child{grid-column:3;grid-row:1}
-  body.touchui #panel #eqCv,body.touchui #panel.npcfull #eqCv{grid-column:2;grid-row:1;width:100%;height:auto;aspect-ratio:4/5;align-self:start;justify-self:center}
-  /* (v1.94.1) the gear columns and the hero line up at the top; the stats go one per line so the parts fit */
+  body.touchui #panel #eqCv,body.touchui #panel.npcfull #eqCv{grid-column:2;grid-row:1;width:100%;height:auto;aspect-ratio:4/5;align-self:center;justify-self:center}
+  /* (v1.94.1) the gear columns line up at the top, (v1.94.2) the hero sits in the middle of its column, top to bottom; the stats go one per line so the parts fit */
   body.touchui #panel[data-kind="equip"] .spgrid{grid-template-columns:1fr;gap:3px}
   body.touchui #panel .eqslot{min-width:0;padding:5px 6px;gap:5px}
   body.touchui #panel .eqslot .nm{font-size:12px;line-height:1.2;overflow-wrap:anywhere}body.touchui #panel .eqslot .ds{font-size:10.5px;line-height:1.25}

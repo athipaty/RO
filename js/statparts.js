@@ -19,18 +19,18 @@ function statParts(){const eq=P.eq,sk=P.skills,bf=P.buffs,pet=P.pet;let out=null
 function statPartsHtml(){const th=typeof LANG!=='undefined'&&LANG==='th',L=k=>th&&SP_TH[k]||k,parts=statParts();if(!parts)return '';
   const f=(k,v)=>k==='aspd'?v.toFixed(2):k==='crit'?(+v.toFixed(1)).toString():String(Math.round(v));
   const z=(k,v)=>k==='aspd'?Math.abs(v)<.005:k==='crit'?Math.abs(v)<.05:Math.abs(v)<.5;
-  // (v1.94.1) just the numbers: ATK (208 + 114 + 577 + 418) 1317, each part in its colour, one small legend above
-  const PARTS=['base','skills','gear','sigils','buffs'];
-  let h=`<div class="splg">`+PARTS.map(p=>`<span class="sp-${p}">${L(p)}</span>`).join('')+`</div><div class="spgrid">`;
-  for(const [k,name] of SP_STATS){const p=parts[k],nums=[];
-    for(const part of PARTS){const v=p[part];if(part!=='base'&&z(k,v))continue;nums.push(`<span class="sp-${part}">${nums.length?(v<0?'− ':'+ '):''}${f(k,Math.abs(v))}</span>`);}
-    h+=`<div class="spr"><span class="spk">${L(name)}</span><span class="spn">${nums.length>1?'('+nums.join(' ')+')':''}</span><b>${f(k,p.total)}</b></div>`;}
-  return h+`</div>`;}
+  // (v1.94.2) a table: one row per stat, a column for each part (base, skills, gear, sigils, buffs) and the total
+  const PARTS=['base','skills','gear','sigils','buffs'],HEAD={base:['Base','ฐาน'],skills:['Skill','สกิล'],gear:['Gear','ของ'],sigils:['Sigil','ซิจิล'],buffs:['Buff','บัฟ']};
+  const SHORT={'Attacks/sec':th?'โจมตี/วิ':'Atk/s'};
+  let h=`<div class="sptw"><table class="spt2"><thead><tr><th></th>`+PARTS.map(p=>`<th class="sp-${p}">${HEAD[p][th?1:0]}</th>`).join('')+`<th>${th?'รวม':'Total'}</th></tr></thead><tbody>`;
+  for(const [k,name] of SP_STATS){const p=parts[k];
+    h+=`<tr><th>${SHORT[name]||L(name)}</th>`+PARTS.map(part=>{const v=p[part];if(part==='base')return `<td class="sp-base">${f(k,v)}</td>`;
+      return z(k,v)?`<td class="spz">–</td>`:`<td class="sp-${part}">${v<0?'−':'+'}${f(k,Math.abs(v))}</td>`;}).join('')+`<td class="sptot">${f(k,p.total)}</td></tr>`;}
+  return h+`</tbody></table></div>`;}
 (function(){if(typeof document==='undefined')return;const st=document.createElement('style');st.textContent=
-  '.splg{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 2px;font-size:10px;font-weight:700}.splg span{padding:0 5px;border-radius:5px}'+
-  '.spgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:3px 14px;margin:2px 0 6px}'+
-  '.spr{display:flex;align-items:baseline;gap:6px;min-width:0;font-size:13px}.spk{color:var(--muted);font-weight:700;white-space:nowrap}'+
-  '.spn{flex:1;text-align:right;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted);overflow-wrap:anywhere}.spr b{font-variant-numeric:tabular-nums;white-space:nowrap}'+
-  '.sp-base{color:#c8d0dc}.sp-skills{color:#d0b0ff}.sp-gear{color:#ffd27a}.sp-sigils{color:#7fe0f0}.sp-buffs{color:#8fe0a0}'+
-  '.splg .sp-base{background:rgba(200,210,225,.12)}.splg .sp-skills{background:rgba(190,150,255,.14)}.splg .sp-gear{background:rgba(255,200,100,.14)}.splg .sp-sigils{background:rgba(90,200,230,.14)}.splg .sp-buffs{background:rgba(110,210,130,.14)}';
+  '.sptw{overflow-x:auto;margin:6px 0}.spt2{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}'+
+  '.spt2 th,.spt2 td{padding:3px 4px;text-align:right;white-space:nowrap}.spt2 thead th{font-size:10.5px;font-weight:800;letter-spacing:.2px;border-bottom:1px solid rgba(255,255,255,.14)}'+
+  '.spt2 tbody th{text-align:left;color:var(--muted);font-weight:700}.spt2 tbody tr+tr th,.spt2 tbody tr+tr td{border-top:1px solid rgba(255,255,255,.05)}'+
+  '.spt2 .sptot,.spt2 thead th:last-child{font-weight:800;color:var(--ink,#fff);border-left:1px solid rgba(255,255,255,.12)}.spt2 .spz{color:rgba(160,170,185,.45)}'+
+  '.sp-base{color:#c8d0dc}.sp-skills{color:#d0b0ff}.sp-gear{color:#ffd27a}.sp-sigils{color:#7fe0f0}.sp-buffs{color:#8fe0a0}';
   document.head.appendChild(st);})();
