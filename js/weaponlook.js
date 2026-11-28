@@ -126,4 +126,28 @@ drawItemIcon=function(g,id){const it=ITEMS[id];
   else{g.translate(16,16);g.rotate(-Math.PI/4);({axe:wlAxe,sword:wlSword,dagger:wlDagger,mace:wlMace,wand:wlWand})[it.wt](g,L,n,t);}
   g.restore();};
 for(const k in ICON_CACHE)delete ICON_CACHE[k];for(const k in ICON_CANVAS)delete ICON_CANVAS[k];
+
+/* ---- (v1.87.2) the hero holds the same weapon the icon shows ----
+   drawWeaponShape (render.js, weaponart.js) draws with the grip at 0,0 and the weapon up -y. Weapons with their own
+   hand-made held art in weaponart.js keep it; every other axe, sword, dagger, mace and wand is drawn with the shape
+   above, moved so its grip sits in the hand and a little smaller. Bows get limbs in their theme's colours, so the
+   bow in the hand and in the shot animation match the icon too. */
+const WL_GRIP={sword:n=>/great|giant|earth|claymore/i.test(n)?-12:-11,dagger:()=>-9,mace:()=>-11,
+  wand:n=>/staff|rod|scepter/i.test(n)?-12:-10,axe:n=>{const big=/great|war|giant|splitter|maw|kraken/i.test(n),small=/hatchet|hand/i.test(n);return -((small?20:big?28:24)/2-2);}};
+const WL_TYPE_ART=new Set(['sword','axe','mace','wand']);
+const wlHeldOK=(w,id)=>w&&w.type==='weapon'&&!w.radiant&&WL_GRIP[w.wt]&&!(typeof WA!=='undefined'&&WA[id]&&!WL_TYPE_ART.has(id));
+const _drawWeaponShapeWL=drawWeaponShape;
+drawWeaponShape=function(w,ang){if(!w)return;const id=typeof waId==='function'?waId(w):'';
+  if(!wlHeldOK(w,id))return _drawWeaponShapeWL.apply(this,arguments);
+  const L=wlLook(id,w),t=tierOf(w),n=w.name||id;
+  ctx.save();ctx.lineJoin='round';ctx.lineCap='round';ctx.scale(.85,.85);ctx.translate(0,WL_GRIP[w.wt](n));
+  if(t>=3){const gr=ctx.createRadialGradient(0,-8,1,0,-8,12);gr.addColorStop(0,L.accent+'55');gr.addColorStop(1,L.accent+'00');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(0,-8,12,0,7);ctx.fill();}
+  try{({axe:wlAxe,sword:wlSword,dagger:wlDagger,mace:wlMace,wand:wlWand})[w.wt](ctx,L,n,t);}finally{ctx.restore();}};
+if(typeof bowLimbsArt==='function'&&typeof WA_BOW!=='undefined'){const _bowLimbsWL=bowLimbsArt;
+  bowLimbsArt=function(w){const id=typeof waId==='function'?waId(w):'';
+    if(id&&!WA_BOW[id]&&w&&w.wt==='bow'&&!w.radiant){const L=wlLook(id,w),n=w.name||id,t=tierOf(w),horn=/horn|antler|tusk|bone/i.test(n);
+      WA_BOW[id]={wood:horn?L.metal:L.wood,grip:t>=1?'#e0b84a':'#5a3a22',tip:L.themed?L.accent:undefined,
+        scale:/long|war|great/i.test(n)?1.12:/short|hunter|ash|hand/i.test(n)?.9:1,thick:/long|war|great/i.test(n)?3.4:3,
+        thorns:L.fx==='drip'||undefined,feather:L.fx==='swirl'?'#ffffff':undefined,ribbon:t>=3?L.accent:undefined};}
+    return _bowLimbsWL.apply(this,arguments);};}
 }
