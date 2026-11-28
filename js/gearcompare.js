@@ -3,7 +3,11 @@
    next to its name, and a line of green/red chips with exactly how your stats would change if you put it on instead of
    what you wear now. The numbers come from computeStats() itself (the piece is tried on for a moment and taken off
    again), so refines, sigils, awakenings, job bonuses, mounts and pets are all counted. With both accessory slots full
-   it compares against each one (I and II). */
+   it compares against each one (I and II).
+   (v1.90.0) Slots and sigils too: the sigil abilities that are not plain stats (life steal, stun, element resists, EXP,
+   gold...; js/sigfx.js), race damage (vs Beast...) and the weapon's size damage (vs Large...) are compared as well;
+   an empty sigil slot more or less counts as a gain or a loss; the line says when your worn piece has sigils in it
+   (they stay on it when you swap, so its numbers drop out). */
 const GC_STATS=[ // [key, label, Thai label, how to read it]
   ['atk','ATK','ATK'],['matk','MATK','MATK'],['def','DEF','DEF'],['maxhp','Max HP','HP สูงสุด'],['maxsp','Max SP','SP สูงสุด'],
   ['hit','HIT','HIT'],['flee','FLEE','FLEE'],['crit','CRIT','CRIT','%'],['aspd','Attacks/sec','โจมตี/วิ','f2'],['speed','Move','ความเร็ว'],
@@ -11,30 +15,48 @@ const GC_STATS=[ // [key, label, Thai label, how to read it]
   ['dmgred','Dmg taken','ลดดาเมจ','%neg'],['heal','Healing','ฮีล','%']];
 const gcTh=()=>typeof LANG!=='undefined'&&LANG==='th';
 let gcCache=new Map(),gcKey='';
-function gcRead(s){const o={};for(const [k] of GC_STATS)o[k]=k==='aspd'?(s.delay?1/s.delay:0):(+s[k]||0);return o;}
+function gcRead(s){const o={};for(const [k] of GC_STATS)o[k]=k==='aspd'?(s.delay?1/s.delay:0):(+s[k]||0);
+  const x={};o.x=x; // the extras: read while the piece is on (computeStats() has just refreshed SFX)
+  if(typeof SFX!=='undefined')for(const k in SFX)if(SFX[k])x['sfx:'+k]=SFX[k];
+  if(typeof RACES!=='undefined'&&typeof raceBonus==='function')for(const r in RACES){const n=raceBonus(r);if(n)x['race:'+r]=n;}
+  if(typeof WSIZE!=='undefined'&&typeof weaponType==='function'){const w=WSIZE[weaponType()];['s','m','l'].forEach((z,i)=>x['size:'+z]=w[i]);}
+  return o;}
+const GC_SIZE={s:['vs Small','vs เล็ก'],m:['vs Medium','vs กลาง'],l:['vs Large','vs ใหญ่']};
+function gcExtraLabel(k){const [kind,id]=k.split(':'),th=gcTh();
+  if(kind==='sfx'){const n=typeof SIG3_NAME!=='undefined'&&SIG3_NAME[id]||id;return th&&typeof TH_BONUS!=='undefined'&&TH_BONUS[n]||n;}
+  if(kind==='race'){const n=RACES[id]&&RACES[id].name||id;return (th&&typeof TH_BONUS!=='undefined'&&TH_BONUS[n]?'vs '+TH_BONUS[n]:'vs '+n);}
+  return GC_SIZE[id][th?1:0];}
+const GC_FLAT=['spleech','killsp']; // shown as points, not %
 /* stats with `e` worn in `slot` (null = as you are now); always leaves P.eq and S as they were */
 function gcStatsWith(slot,e){const old=P.eq[slot];
   try{if(slot)P.eq[slot]=e;return gcRead(computeStats());}finally{if(slot)P.eq[slot]=old;}}
 function gcSlots(it){if(it.type!=='accessory')return [it.type];const a=P.eq.accessory,b=P.eq.acc2;
   if(a&&b)return ['accessory','acc2'];return [a&&!b?'acc2':'accessory'];} // the same slot useInv() would fill
+const gcFree=e=>e&&e.s?e.s.filter(x=>!x).length:0,gcSigs=e=>e&&e.s?e.s.filter(x=>x).length:0;
 function gcDiff(base,next){const out=[];let up=0,down=0;
   for(const [k,l,lt,f] of GC_STATS){let d=next[k]-base[k];if(f==='f2'?Math.abs(d)<.005:Math.abs(d)<.5)continue;
     const good=f==='%neg'?d<0:d>0;good?up++:down++;
     const n=f==='f2'?(d>0?'+':'−')+Math.abs(d).toFixed(2):(d>0?'+':'−')+Math.round(Math.abs(d))+(f&&f[0]==='%'?'%':'');
     out.push({l:gcTh()?lt:l,n,good});}
+  const xs=new Set([...Object.keys(base.x||{}),...Object.keys(next.x||{})]);
+  for(const k of xs){const d=((next.x||{})[k]||0)-((base.x||{})[k]||0);if(Math.abs(d)<.5)continue;d>0?up++:down++;
+    out.push({l:gcExtraLabel(k),n:(d>0?'+':'−')+Math.round(Math.abs(d))+(GC_FLAT.includes(k.slice(4))?'':'%'),good:d>0});}
   return {out,up,down,verdict:!up&&!down?'same':up&&!down?'better':down&&!up?'worse':'mixed'};}
 const GC_BADGE={better:['▲ BETTER','▲ ดีกว่า'],worse:['▼ WORSE','▼ แย่กว่า'],mixed:['◆ MIXED','◆ ได้-เสีย'],same:['= SAME','= เท่าเดิม'],no:['✕ CAN\'T USE','✕ ใส่ไม่ได้']};
 function gcBadge(v){return `<span class="gcbadge gc-${v}">${GC_BADGE[v][gcTh()?1:0]}</span>`;}
 /* {badge, html} for one bag item, or null for things that are not gear */
 function gearCompare(e){const it=ITEMS[e.id];if(!it||!['weapon','armor','head','accessory','face','mouth','shoes'].includes(it.type))return null;
-  const sig=JSON.stringify([P.eq,P.st,P.lv,P.cls,P.job,P.riding,P.reborn,P.jlv]);if(sig!==gcKey){gcKey=sig;gcCache=new Map();}
+  const sig=JSON.stringify([P.eq,P.st,P.lv,P.cls,P.job,P.riding,P.reborn,P.jlv,P.pet&&P.pet.k]);if(sig!==gcKey){gcKey=sig;gcCache=new Map();}
   const ck=JSON.stringify(e);if(gcCache.has(ck))return gcCache.get(ck);
   let r;const why=typeof canEquip==='function'?canEquip(it):null;
   if(why)r={verdict:'no',badge:gcBadge('no'),html:`<div class="gcline"><span class="gcvs">${esc(why)}</span></div>`};
-  else{const base=gcStatsWith(null),rows=gcSlots(it).map(slot=>{const cur=P.eq[slot],d=gcDiff(base,gcStatsWith(slot,e));return {slot,cur,...d};});
+  else{const base=gcStatsWith(null),rows=gcSlots(it).map(slot=>{const cur=P.eq[slot],d=gcDiff(base,gcStatsWith(slot,e)),fd=gcFree(e)-gcFree(cur);
+      if(fd){d.out.push({l:gcTh()?'ช่องว่าง':'Empty slot',n:(fd>0?'+':'−')+Math.abs(fd),good:fd>0,slot:1});fd>0?d.up++:d.down++;
+        d.verdict=!d.up&&!d.down?'same':d.up&&!d.down?'better':d.down&&!d.up?'worse':'mixed';}
+      return {slot,cur,...d};});
     const order=['better','mixed','same','worse'],best=rows.map(x=>x.verdict).sort((a,b)=>order.indexOf(a)-order.indexOf(b))[0];
-    const html=rows.map(x=>{const vs=x.cur?(gcTh()?'เทียบกับ ':'vs ')+esc(ITEMS[x.cur.id].name)+(rows.length>1?(x.slot==='acc2'?' (II)':' (I)'):''):(gcTh()?'ช่องนี้ว่าง':'slot empty');
-      const chips=x.out.length?x.out.map(c=>`<span class="gcchip ${c.good?'up':'dn'}">${c.l} ${c.n}</span>`).join(''):`<span class="gcchip eq">${gcTh()?'ค่าสถานะไม่เปลี่ยน':'no stat change'}</span>`;
+    const html=rows.map(x=>{const vs=x.cur?(gcTh()?'เทียบกับ ':'vs ')+esc(ITEMS[x.cur.id].name)+(gcSigs(x.cur)?(gcTh()?` (มีซิจิล ${gcSigs(x.cur)})`:` (with ${gcSigs(x.cur)} sigil${gcSigs(x.cur)>1?'s':''})`):'')+(rows.length>1?(x.slot==='acc2'?' (II)':' (I)'):''):(gcTh()?'ช่องนี้ว่าง':'slot empty');
+      const chips=x.out.length?x.out.map(c=>`<span class="gcchip ${c.good?'up':'dn'}${c.slot?' sl':''}">${c.slot?'◇ ':''}${c.l} ${c.n}</span>`).join(''):`<span class="gcchip eq">${gcTh()?'ค่าสถานะไม่เปลี่ยน':'no stat change'}</span>`;
       return `<div class="gcline">${rows.length>1?gcBadge(x.verdict):''}<span class="gcvs">${vs}</span>${chips}</div>`;}).join('');
     r={verdict:best,badge:gcBadge(best),html};}
   computeStats(); // put side effects (sigil effects, pet buff) back exactly as you are

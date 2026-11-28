@@ -20,5 +20,18 @@ module.exports = async t => {
     t.ok(r.rows.some(x => /SAME/.test(x.txt) && /no stat change/.test(x.txt)), 'a copy of what you wear shows = SAME');
     t.ok(r.atkSame && r.eqSame, 'comparing leaves your gear and stats as they were');
     t.ok(r.useTab === 0, 'other tabs show no badges');
+    // (v1.90.0) slots and sigils: an empty slot more, a sigil ability (life steal) and the worn piece's sigils are named
+    const r2 = await g.ev(() => { const wid = P.eq.weapon.id;
+      ITEMS.tmpleech_sig = { name: 'Test Leech Sigil', type: 'sigil', b: { leech: 3 }, price: 1 };
+      P.inv.push({ id: wid, uid: uid++, s: [null] }); P.inv.push({ id: wid, uid: uid++, s: ['tmpleech_sig'] });
+      invTab = 'equip'; openPanel('items'); const rows = [...panel.querySelectorAll('.row')].map(x => x.textContent);
+      const slot = rows.find(x => /Empty slot \+1/.test(x)), leech = rows.find(x => /Life steal \+3%/.test(x));
+      const old = P.eq.weapon; P.eq.weapon = { id: wid, uid: uid++, s: ['tmpleech_sig'] }; gcKey = ''; openPanel('items');
+      const withSig = [...panel.querySelectorAll('.row')].map(x => x.textContent).some(x => /with 1 sigil/.test(x) && /Life steal −3%/.test(x));
+      P.eq.weapon = old; P.inv = P.inv.filter(e => e.id !== wid || !e.s.length); delete ITEMS.tmpleech_sig; S = computeStats(); closePanel();
+      return { slot: slot && /BETTER/.test(slot), leech: leech && /BETTER/.test(leech), withSig }; });
+    t.ok(r2.slot, 'a piece with an empty sigil slot more counts as ▲ BETTER (◇ Empty slot +1)');
+    t.ok(r2.leech, 'sigil abilities that are not plain stats count too (Life steal +3%)');
+    t.ok(r2.withSig, 'the line says when your worn piece has sigils in it, and what you would lose');
   } finally { await g.close(); }
 };
