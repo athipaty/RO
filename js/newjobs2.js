@@ -22,14 +22,14 @@ const NJ_SKILLS={
     run:(l,t)=>dealPhys(t,1.8+l*.3+S.int*.01,{el:'wind',sure:true})},
   // ---- Runelord
   runeburst:{name:'Rune Burst',max:10,col:'#ffd27a',g:'ᛟ',sp:l=>40+l*3,cd:5,kind:'self',
-    desc:l=>`Every rune bursts at once: ${220+l*30}% ATK plus ${l*15}% MATK to all within 120px, in fire, water and wind.`,
-    run:l=>{let i=0;aoe(P.x,P.y,120,m=>{const el=['fire','water','wind'][i++%3];dealPhys(m,2.2+l*.3,{el,sure:true});if(!m.dead)dealMag(m,l*.15,el);});}},
+    desc:l=>`Every rune bursts at once: ${110+l*16}% ATK plus ${l*15}% MATK to all within 120px, in fire, water and wind.`,
+    run:l=>{let i=0;aoe(P.x,P.y,120,m=>{const el=['fire','water','wind'][i++%3];dealPhys(m,1.1+l*.16,{el,sure:true});if(!m.dead)dealMag(m,l*.15,el);});}},
   elementalavatar:{name:'Elemental Avatar',max:10,col:'#ffb070',g:'✺',sp:l=>45,cd:60,kind:'self',
     desc:l=>`For 45s: +${l*3}% ATK, +${l*3}% MATK and +${l*2}% attack speed.`,run:l=>buff('elementalavatar','Elemental Avatar',45,{atkpct:l*3,matkpct:l*3,aspd:l*2})},
   runemastery:{name:'Rune Mastery',max:10,col:'#bfefff',g:'ᛞ',...PASSIVE(),desc:l=>`+${l} CRIT and +${l*2}% critical damage.`},
   worldrune:{name:'World Rune',max:10,col:'#c8964a',g:'ᛜ',sp:l=>50+l*4,cd:7,kind:'area',range:200,radius:110,
-    desc:l=>`Carve a world rune: ${300+l*40}% ATK plus 1% per INT as Earth damage to all within 110px, ${20+l*3}% chance to stun for 2s.`,
-    run:(l,x,y)=>aoe(x,y,110,m=>dealPhys(m,3+l*.4+S.int*.01,{el:'earth',sure:true,ail:['stun',.2+l*.03,2]}))},
+    desc:l=>`Carve a world rune: ${160+l*20}% ATK plus 1% per INT as Earth damage to all within 110px, ${20+l*3}% chance to stun for 2s.`,
+    run:(l,x,y)=>aoe(x,y,110,m=>dealPhys(m,1.6+l*.2+S.int*.01,{el:'earth',sure:true,ail:['stun',.2+l*.03,2]}))},
   // ---- Chronomancer
   timebolt:{name:'Time Bolt',max:10,col:'#ffd27a',g:'⧗',sp:l=>8+l,cd:.8,kind:'target',range:230,
     desc:l=>`A bolt from a moment ago: ${150+l*28}% MATK, ${10+l*3}% chance to stun for 1s.`,

@@ -9,26 +9,26 @@
 const SH3_SKILLS={
   // ---- Soulreaper
   deathmark:{name:'Death Mark',max:10,col:'#ff2a4a',g:'☩',sp:l=>22+l*2,cd:1.5,kind:'target',range:60,
-    desc:l=>`Carve a death mark: ${450+l*70}% ATK with ${30+l*3}% more critical chance. Never misses.`,
-    run:(l,t)=>dealPhys(t,4.5+l*.7,{sure:true,critPlus:30+l*3})},
+    desc:l=>`Carve a death mark: ${880+l*138}% ATK with ${30+l*3}% more critical chance. Never misses.`,
+    run:(l,t)=>dealPhys(t,8.8+l*1.38,{sure:true,critPlus:30+l*3})},
   reapersharvest:{name:"Reaper's Harvest",max:10,col:'#c83a5a',g:'☾',sp:l=>40+l*4,cd:5,kind:'self',
-    desc:l=>`One sweep of the scythe: ${300+l*50}% ATK to all within 120px, and you heal ${l*2}% of your Max HP for each monster cut.`,
-    run:l=>{let n=0;aoe(P.x,P.y,120,m=>{n++;dealPhys(m,3+l*.5,{sure:true});});if(n)healP(S.maxhp*l*.02*n);}},
-  assassinsedge:{name:"Assassin's Edge",max:10,col:'#ffb0c0',g:'⚔',...PASSIVE(),desc:l=>`With a dagger: +${l*4} ATK and +${l*3} CRIT.`},
+    desc:l=>`One sweep of the scythe: ${600+l*100}% ATK to all within 120px, and you heal ${l*2}% of your Max HP for each monster cut.`,
+    run:l=>{let n=0;aoe(P.x,P.y,120,m=>{n++;dealPhys(m,6+l*1,{sure:true});});if(n)healP(S.maxhp*l*.02*n);}},
+  assassinsedge:{name:"Assassin's Edge",max:10,col:'#ffb0c0',g:'⚔',...PASSIVE(),desc:l=>`With a dagger: +${l*4} ATK, +${l*2}% ATK and +${l*3} CRIT.`},
   shadowexecute:{name:'Shadow Execution',max:10,col:'#ff5a7a',g:'✝',sp:l=>34+l*3,cd:3,kind:'target',range:60,
-    desc:l=>`End it: ${350+l*50}% ATK, or ${700+l*100}% ATK to a monster under 40% HP. Never misses.`,
-    run:(l,t)=>{const low=t.hp<(t.d.hp||t.hp)*.4;dealPhys(t,low?7+l:3.5+l*.5,{sure:true});}},
+    desc:l=>`End it: ${700+l*100}% ATK, or ${1400+l*200}% ATK to a monster under 40% HP. Never misses.`,
+    run:(l,t)=>{const low=t.hp<(t.d.hp||t.hp)*.4;dealPhys(t,low?14+l*2:7+l*1,{sure:true});}},
   // ---- Plaguelord
   deathbloom:{name:'Death Bloom',max:10,col:'#b8ff5a',g:'❀',sp:l=>24+l*2,cd:1.5,kind:'target',range:60,
-    desc:l=>`A blooming wound: ${400+l*60}% ATK (Earth), then poison for ${60+l*8}% ATK every second for 5s.`,
-    run:(l,t)=>{dealPhys(t,(4+l*.6)*sh2Tox(),{sure:true,el:'earth'});sh2Poison(t,.6+l*.08,5);}},
+    desc:l=>`A blooming wound: ${740+l*110}% ATK (Earth), then poison for ${110+l*15}% ATK every second for 5s.`,
+    run:(l,t)=>{dealPhys(t,(7.4+l*1.1)*sh2Tox(),{sure:true,el:'earth'});sh2Poison(t,1.1+l*.15,5);}},
   pestilence:{name:'Pestilence',max:10,col:'#8ad84a',g:'☣',sp:l=>44+l*4,cd:6,kind:'area',range:220,radius:140,
-    desc:l=>`Release a plague on the spot: every monster within 140px is poisoned for ${60+l*10}% ATK every second for 6s.`,
-    run:(l,x,y)=>aoe(x,y,140,m=>sh2Poison(m,.6+l*.1,6))},
-  virulence:{name:'Virulence',max:10,col:'#d0f0a0',g:'⚗',...PASSIVE(),desc:l=>`+${l*3}% ATK and +${l*4} HIT.`},
+    desc:l=>`Release a plague on the spot: every monster within 140px is poisoned for ${110+l*18}% ATK every second for 6s.`,
+    run:(l,x,y)=>aoe(x,y,140,m=>sh2Poison(m,1.1+l*.18,6))},
+  virulence:{name:'Virulence',max:10,col:'#d0f0a0',g:'⚗',...PASSIVE(),desc:l=>`+${l*4}% ATK and +${l*4} HIT.`},
   blightnova:{name:'Blight Nova',max:10,col:'#c8ff70',g:'✺',sp:l=>40+l*4,cd:5,kind:'self',
-    desc:l=>`The plague bursts out of you: ${280+l*45}% ATK (Earth) to all within 130px, and they are slowed for 3s.`,
-    run:l=>aoe(P.x,P.y,130,m=>{dealPhys(m,(2.8+l*.45)*sh2Tox(),{sure:true,el:'earth'});if(!m.dead)slowMob(m,3);})},
+    desc:l=>`The plague bursts out of you: ${520+l*83}% ATK (Earth) to all within 130px, and they are slowed for 3s.`,
+    run:l=>aoe(P.x,P.y,130,m=>{dealPhys(m,(5.2+l*.83)*sh2Tox(),{sure:true,el:'earth'});if(!m.dead)slowMob(m,3);})},
   // ---- Umbral Dancer
   thousandcuts:{name:'Thousand Cuts',max:10,col:'#c8b8ff',g:'⫻',sp:l=>30+l*3,cd:3,kind:'target',range:60,
     desc:l=>`Eight cuts in a heartbeat, each ${80+l*12}% ATK plus 1% per AGI. Never misses.`,
@@ -43,8 +43,8 @@ const SH3_SKILLS={
 Object.assign(SKILLS,SH3_SKILLS);
 Object.assign(SKILL_REQ,{reapersharvest:{deathmark:3},shadowexecute:{assassinsedge:1},pestilence:{deathbloom:3},blightnova:{virulence:1},eclipseveil:{thousandcuts:1},shadowtempest:{nightwaltz:3}});
 Object.assign(SKILL_ELEM,{deathbloom:'earth',blightnova:'earth'});
-PASSIVE_MORE.push((add,L,wt)=>{if(wt==='dagger'){add('atk',L('assassinsedge')*4);add('crit',L('assassinsedge')*3);}
-  add('atkpct',L('virulence')*3);add('hit',L('virulence')*4);add('flee',L('nightwaltz')*2);add('aspd',L('nightwaltz')*3);});
+PASSIVE_MORE.push((add,L,wt)=>{if(wt==='dagger'){add('atk',L('assassinsedge')*4);add('atkpct',L('assassinsedge')*2);add('crit',L('assassinsedge')*3);}
+  add('atkpct',L('virulence')*4);add('hit',L('virulence')*4);add('flee',L('nightwaltz')*2);add('aspd',L('nightwaltz')*3);});
 
 const SH3={
   soulreaper:{from:'nightblade',name:'Soulreaper',hp:1.45,sp:1.35,aspd:.66,col:'#1a1018',acc:'#ff2a4a',
