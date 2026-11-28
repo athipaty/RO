@@ -1176,6 +1176,8 @@ body.touchui svg.tabi{width:17px;height:17px}
 #topBars.low i.hp{animation:topLow 1s infinite}@keyframes topLow{50%{background:#ffd0c0}}
 /* phones upright: quick buttons in a column by the thumb */
 body.touchui.thumbq #quick{top:auto!important;right:auto!important;left:max(10px,env(safe-area-inset-left))!important;bottom:var(--qb,180px)!important;flex-direction:column}
+/* v1.94.7 the quick buttons by the thumb are as big as the hotbar slots (51px) */
+body.touchui.thumbq #quick .qk{width:51px!important;height:51px!important;min-width:51px;min-height:51px}body.touchui.thumbq #quick .qk svg{width:24px!important;height:24px!important}
 /* phones: windows slide up like a sheet, with a grab handle */
 body.touchui #panel.sheetin{animation:sheetUp .28s cubic-bezier(.2,.9,.3,1)}
 @keyframes sheetUp{from{translate:0 40px;opacity:.4}to{translate:0 0;opacity:1}}
