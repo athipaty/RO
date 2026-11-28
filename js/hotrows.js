@@ -17,7 +17,7 @@ function rowSet(r,i,e){if(!r)return barSet(i,e);const b=getRows()[r-1];if(!(i>=0
   if(was>=0&&was!==i)b[was]=b[i];b[i]=e;buildRows(true);save();}
 function rowSwap(a,c){if(a.r===c.r&&a.i===c.i)return;const A=rowGet(a.r),C=rowGet(c.r);[A[a.i],C[c.i]]=[C[c.i],A[a.i]];
   if(!a.r||!c.r){P.bar=getBar();rebuildHotbar();}buildRows(true);save();}
-function pressRow(r,i){const e=rowGet(r)[i];if(!e)return;if(e.s){if(!P.skills[e.s]){addLog(`Learn ${SKILLS[e.s].name} in the Skills window (K).`);return;}useSkill(e.s);}else useItem(e.i);}
+function pressRow(r,i){const e=rowGet(r)[i];if(!e)return;if(e.s){if(!P.skills[e.s]){addLog(`Learn ${SKILLS[e.s].name} in the Skills window.`);return;}useSkill(e.s);}else useItem(e.i);}
 
 /* ---- the extra rows on screen ---- */
 function buildRows(force){if(!P)return;let box=$('#hotrows');
@@ -26,8 +26,8 @@ function buildRows(force){if(!P)return;let box=$('#hotrows');
   box.innerHTML='';rowEls=[];box.hidden=!n;
   for(let r=n;r>=1;r--){const row=document.createElement('div');row.className='hrow';row.setAttribute('aria-label','Hotbar row '+(r+1));
     rowGet(r).forEach((e,i)=>{const b=document.createElement('button');b.type='button';b.className='slot hrs'+(e?'':' empty');b.dataset.r=r;b.dataset.i=i;b.draggable=true;
-      const d=e?(e.s?SKILLS[e.s]:ITEMS[e.i]):null,key=ROW_KEYS[r-1]+(i+1);
-      b.title=d?`${d.name} (${key})`:`Empty slot ${key}: tap to choose`;b.setAttribute('aria-label',b.title);
+      const d=e?(e.s?SKILLS[e.s]:ITEMS[e.i]):null,key=i+1;
+      b.title=d?`${d.name} (row ${r+1}, slot ${key})`:`Row ${r+1}, empty slot ${key}: tap to choose`;b.setAttribute('aria-label',b.title);
       b.innerHTML=(e?(e.i&&typeof itemIconURL==='function'?`<img class="ic img" src="${itemIconURL(e.i)}" alt="">`:e.s&&typeof skillIconURL==='function'?`<img class="ic img" src="${skillIconURL(e.s)}" alt="">`:`<span class="ic" style="background:${d.col}">${d.g}</span>`):'')+`<span class="k">${key}</span><span class="cd"></span><span class="n"></span>`;
       b._slot=e?(e.s?{skill:e.s}:{item:e.i}):null;
       b.addEventListener('click',()=>{if(e)pressRow(r,i);else{editRow=r;barSel=i;openPanel('hotbar');}});
@@ -49,7 +49,7 @@ updateHud=function(){_updateHudRows.apply(this,arguments);if(!P)return;buildRows
 const _rebuildHotbarRows=rebuildHotbar;
 rebuildHotbar=function(){_rebuildHotbarRows();const hb=$('#hotbar');if(!P||!hb||hb.querySelector('#hbRows'))return;
   const b=document.createElement('button');b.id='hbRows';b.type='button';b.className='slot edit';b.title='More or fewer hotbar rows';b.setAttribute('aria-label',b.title);b.textContent='⊞';
-  b.addEventListener('click',()=>{P.hbRows=(hbRows()+1)%3;sfx('click');buildRows(true);save();addLog(P.hbRows?`Hotbar rows: ${P.hbRows+1}. Row 2 uses Alt+1–8${P.hbRows>1?', row 3 uses F1–F8':''}.`:'Hotbar rows: 1.');});
+  b.addEventListener('click',()=>{P.hbRows=(hbRows()+1)%3;sfx('click');buildRows(true);save();addLog(`Hotbar rows: ${P.hbRows+1}.`);});
   hb.appendChild(b);};
 
 /* ---- keys: Alt+1–8 for row 2, F1–F8 for row 3 (when shown) ---- */
@@ -75,11 +75,11 @@ document.addEventListener('dragend',()=>{rowDrag=null;});
 /* ---- the editor gets row tabs ---- */
 const _hotbarPanel=PANELS.hotbar;
 PANELS.hotbar=()=>{if(editRow>hbRows())editRow=0;let h=_hotbarPanel();
-  const tabs=`<div class="seg hbrowtabs" role="tablist" aria-label="Hotbar row">${[0,1,2].map(r=>`<button class="${r===editRow?'on':''}" role="tab" aria-selected="${r===editRow}" data-act="hbrow" data-arg="${r}">Row ${r+1}${r?` <small>${ROW_KEYS[r-1]}1–8</small>`:''}</button>`).join('')}</div>`;
+  const tabs=`<div class="seg hbrowtabs" role="tablist" aria-label="Hotbar row">${[0,1,2].map(r=>`<button class="${r===editRow?'on':''}" role="tab" aria-selected="${r===editRow}" data-act="hbrow" data-arg="${r}">Row ${r+1}</button>`).join('')}</div>`;
   h=h.replace('</h2>','</h2>'+tabs);
   if(editRow){const b=rowGet(editRow),icon=e=>e?(e.s?`<img src="${skillIconURL(e.s)}" alt="">`:`<img src="${itemIconURL(e.i)}" alt="">`):'';
     const nameOf=e=>e?(e.s?SKILLS[e.s].name:ITEMS[e.i].name):'Empty';
-    const slots=`<div class="hbslots" role="radiogroup" aria-label="Hotbar slots">`+b.map((e,i)=>`<button class="hbs${i===barSel?' on':''}" role="radio" aria-checked="${i===barSel}" data-act="hbsel" data-arg="${i}" title="Slot ${ROW_KEYS[editRow-1]}${i+1}: ${esc(nameOf(e))}">${icon(e)}<em>${i+1}</em></button>`).join('')+`</div>`;
+    const slots=`<div class="hbslots" role="radiogroup" aria-label="Hotbar slots">`+b.map((e,i)=>`<button class="hbs${i===barSel?' on':''}" role="radio" aria-checked="${i===barSel}" data-act="hbsel" data-arg="${i}" title="Slot ${i+1}: ${esc(nameOf(e))}">${icon(e)}<em>${i+1}</em></button>`).join('')+`</div>`;
     h=h.replace(/<div class="hbslots"[\s\S]*?<\/div><div class="tbtns"[\s\S]*?<\/div>/,slots+`<div class="tbtns" style="justify-content:flex-start;margin:6px 0"><span class="muted" style="font-size:12px">Row ${editRow+1}, slot ${barSel+1}: <b>${esc(nameOf(b[barSel]))}</b></span>${b[barSel]?`<button class="btn small" data-act="hbclear">Clear slot</button>`:''}</div>`);}
   return h;};
 PANEL_ACTS.hbrow=r=>{r=clamp(+r||0,0,2);if(r>hbRows()){P.hbRows=r;buildRows(true);save();}editRow=r;barSel=0;refreshPanel();};

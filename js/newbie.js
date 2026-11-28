@@ -40,7 +40,7 @@ PANEL_ACTS.statauto=()=>{const n=statAuto();if(!n)return;sfx('jobup');addLog(`Sp
 if(typeof TH!=='undefined')Object.assign(TH,{'Daily tasks':'งานประจำวัน','Story':'เนื้อเรื่อง'});
 (()=>{const st=document.createElement('style');st.textContent=`
 body.newbie #giftPill,body.newbie #onlineBadge{display:none!important}
-body.newbie .slot.empty{visibility:hidden}
+
 body.zcard #tutCard,body.zcard #giftPill{opacity:0!important;pointer-events:none}
 #panel .tq.tqmain{border-color:#ffd77a;box-shadow:0 0 0 1px #ffd77a inset,0 0 12px rgba(255,215,122,.25)}
 #panel .tqtag{margin:0 6px;padding:1px 7px;border-radius:9px;background:#ffd77a;color:#2a1a08;font:800 11px var(--ui,system-ui);vertical-align:2px}

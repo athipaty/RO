@@ -498,6 +498,10 @@ body.touchui #gwBar{top:calc(max(10px,env(safe-area-inset-top)) + 182px);font-si
 .hbk.k-one{color:#ffb070;background:rgba(255,150,70,.14)}.hbk.k-area{color:#7fe0f0;background:rgba(90,200,230,.14)}
 .hbk.k-heal{color:#8fe0a0;background:rgba(110,210,130,.14)}.hbk.k-nova{color:#ff8fb0;background:rgba(255,110,150,.14)}
 .hbk.k-buff{color:#e0c8ff;background:rgba(190,150,255,.14)}
+/* v1.93.0 hotbar editor: skills grouped (single target, area, buffs and healing), SP cost and cooldown on each */
+.hbgrp{margin:8px 0 4px;font-size:12px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;display:flex;align-items:center;gap:6px}.hbgrp i{font-style:normal;font-weight:600;color:var(--muted)}
+.hbgrp.g0{color:#ffb070}.hbgrp.g1{color:#7fe0f0}.hbgrp.g2{color:#e0c8ff}
+.hbcost{font-size:11px;color:var(--muted);font-weight:600}.hbcost b{color:#8fc8ff;font-weight:800}
 /* v1.49.5 the editor's slots placed like the real hotbar (arcs around the Attack button on phones) */
 .hbslots.hbmap{display:block;position:relative;margin:10px auto}
 .hbslots.hbmap .hbs{position:absolute;aspect-ratio:auto;border-radius:50%}
@@ -1140,6 +1144,8 @@ body:not(.touchui) #panel .skpright{position:sticky;top:0}
 #goalChip[hidden]{display:none}#goalChip .gi{color:#ffcf5a;font-size:11px;flex:none}#goalChip .gt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:60px;flex:1 1 auto}#goalChip .gw{color:#9fb0c4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;max-width:48%}
 body.touchui #goalChip{right:auto;font-size:11px;padding:6px 10px 6px 8px;max-height:34px;box-sizing:border-box}
 body.npcopen #goalChip{display:none}
+/* v1.93.0 upright phone: the goal card sits in the left column under the status box (or the party box), as wide as the status box */
+body.touchui #goalChip.gcol{box-sizing:border-box;border-radius:12px}
 /* rarity frames on item pictures (js/polish.js) */
 .ico.img.r1{border-color:rgba(127,211,138,.75);box-shadow:0 0 6px rgba(127,211,138,.35)}
 .ico.img.r2{border-color:rgba(111,176,255,.85);box-shadow:0 0 7px rgba(111,176,255,.45)}

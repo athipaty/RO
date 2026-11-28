@@ -9,11 +9,11 @@
 const NJ_SKILLS={
   // ---- Runeguard
   runestrike:{name:'Rune Strike',max:10,col:'#ff8a4a',g:'ᚱ',sp:l=>10+l,cd:1,kind:'target',range:55,
-    desc:l=>`Strike with a burning rune: ${150+l*25}% ATK as Fire damage plus ${l*10}% MATK.`,
-    run:(l,t)=>{dealPhys(t,1.5+l*.25,{el:'fire',sure:true});if(l&&!t.dead)dealMag(t,l*.1,'fire');}},
+    desc:l=>`Strike with a burning rune: ${110+l*19}% ATK as Fire damage plus ${l*10}% MATK.`,
+    run:(l,t)=>{dealPhys(t,1.1+l*.19,{el:'fire',sure:true});if(l&&!t.dead)dealMag(t,l*.1,'fire');}},
   frostrune:{name:'Frost Rune',max:10,col:'#8fd0f0',g:'ᛁ',sp:l=>16+l*2,cd:4,kind:'self',
-    desc:l=>`Slam a frost rune into the ground: ${120+l*20}% ATK as Water damage to every foe within 90px, slowed for 3s.`,
-    run:l=>aoe(P.x,P.y,90,m=>{dealPhys(m,1.2+l*.2,{el:'water',sure:true});slowMob(m,3);})},
+    desc:l=>`Slam a frost rune into the ground: ${90+l*15}% ATK as Water damage to every foe within 90px, slowed for 3s.`,
+    run:l=>aoe(P.x,P.y,90,m=>{dealPhys(m,.9+l*.15,{el:'water',sure:true});slowMob(m,3);})},
   runeward:{name:'Rune Ward',max:10,col:'#7fd3ff',g:'ᛉ',sp:l=>30,cd:30,kind:'self',desc:l=>`For 60s: +${l*6} DEF and +${l*5}% MATK.`,
     run:l=>buff('runeward','Rune Ward',60,{def:l*6,matkpct:l*5})},
   runiclore:{name:'Runic Lore',max:10,col:'#9fb8ff',g:'ᚨ',...PASSIVE(),desc:l=>`+${l*2}% ATK and +${l*2}% MATK.`},
@@ -22,14 +22,14 @@ const NJ_SKILLS={
     run:(l,t)=>dealPhys(t,1.8+l*.3+S.int*.01,{el:'wind',sure:true})},
   // ---- Runelord
   runeburst:{name:'Rune Burst',max:10,col:'#ffd27a',g:'ᛟ',sp:l=>40+l*3,cd:5,kind:'self',
-    desc:l=>`Every rune bursts at once: ${110+l*16}% ATK plus ${l*15}% MATK to all within 120px, in fire, water and wind.`,
-    run:l=>{let i=0;aoe(P.x,P.y,120,m=>{const el=['fire','water','wind'][i++%3];dealPhys(m,1.1+l*.16,{el,sure:true});if(!m.dead)dealMag(m,l*.15,el);});}},
+    desc:l=>`Every rune bursts at once: ${200+l*29}% ATK plus ${l*15}% MATK to all within 120px, in fire, water and wind.`,
+    run:l=>{let i=0;aoe(P.x,P.y,120,m=>{const el=['fire','water','wind'][i++%3];dealPhys(m,2+l*.29,{el,sure:true});if(!m.dead)dealMag(m,l*.15,el);});}},
   elementalavatar:{name:'Elemental Avatar',max:10,col:'#ffb070',g:'✺',sp:l=>45,cd:60,kind:'self',
-    desc:l=>`For 45s: +${l*3}% ATK, +${l*3}% MATK and +${l*2}% attack speed.`,run:l=>buff('elementalavatar','Elemental Avatar',45,{atkpct:l*3,matkpct:l*3,aspd:l*2})},
+    desc:l=>`For 45s: +${l*2}% ATK, +${l*3}% MATK and +${l*2}% attack speed.`,run:l=>buff('elementalavatar','Elemental Avatar',45,{atkpct:l*2,matkpct:l*3,aspd:l*2})},
   runemastery:{name:'Rune Mastery',max:10,col:'#bfefff',g:'ᛞ',...PASSIVE(),desc:l=>`+${l} CRIT and +${l*2}% critical damage.`},
   worldrune:{name:'World Rune',max:10,col:'#c8964a',g:'ᛜ',sp:l=>50+l*4,cd:7,kind:'area',range:200,radius:110,
-    desc:l=>`Carve a world rune: ${160+l*20}% ATK plus 1% per INT as Earth damage to all within 110px, ${20+l*3}% chance to stun for 2s.`,
-    run:(l,x,y)=>aoe(x,y,110,m=>dealPhys(m,1.6+l*.2+S.int*.01,{el:'earth',sure:true,ail:['stun',.2+l*.03,2]}))},
+    desc:l=>`Carve a world rune: ${290+l*36}% ATK plus 1% per INT as Earth damage to all within 110px, ${20+l*3}% chance to stun for 2s.`,
+    run:(l,x,y)=>aoe(x,y,110,m=>dealPhys(m,2.9+l*.36+S.int*.01,{el:'earth',sure:true,ail:['stun',.2+l*.03,2]}))},
   // ---- Chronomancer
   timebolt:{name:'Time Bolt',max:10,col:'#ffd27a',g:'⧗',sp:l=>8+l,cd:.8,kind:'target',range:230,
     desc:l=>`A bolt from a moment ago: ${150+l*28}% MATK, ${10+l*3}% chance to stun for 1s.`,
@@ -53,23 +53,23 @@ const NJ_SKILLS={
     run:(l,x,y)=>{for(let k=0;k<3;k++)setTimeout(()=>{if(P)aoe(x,y,120,m=>dealMag(m,1.2+l*.15));},k*220);}},
   // ---- Falconer
   falconstrike:{name:'Falcon Strike',max:10,col:'#e8c070',g:'⋎',sp:l=>8+l,cd:.8,kind:'target',range:260,
-    desc:l=>`Send the falcon: ${130+l*25}% ATK plus 1% per AGI that never misses.`,run:(l,t)=>falconHit(t,1.3+l*.25+S.agi*.01)},
+    desc:l=>`Send the falcon: ${110+l*21}% ATK plus 1% per AGI that never misses.`,run:(l,t)=>falconHit(t,1.1+l*.21+S.agi*.01)},
   falcondive:{name:'Falcon Dive',max:10,col:'#d8a050',g:'⇓',sp:l=>18+l*2,cd:3,kind:'area',range:260,radius:90,
     desc:l=>`The falcon dives: ${150+l*25}% ATK to all within 90px.`,run:(l,x,y)=>aoe(x,y,90,m=>dealPhys(m,1.5+l*.25,{sure:true}))},
   eaglecall:{name:"Eagle's Call",max:10,col:'#ffe08a',g:'⌃',sp:l=>25,cd:30,kind:'self',desc:l=>`For 90s: +${l*3} DEX, +${l*2} AGI and +${l*2} HIT.`,
     run:l=>buff('eaglecall',"Eagle's Call",90,{dex:l*3,agi:l*2,hit:l*2})},
-  keentalon:{name:'Keen Talon',max:10,col:'#c8a060',g:'⌇',...PASSIVE(),desc:l=>`${l*3}% chance that the falcon joins a normal attack for ${50+l*10}% ATK.`},
+  keentalon:{name:'Keen Talon',max:10,col:'#c8a060',g:'⌇',...PASSIVE(),desc:l=>`${l*2}% chance that the falcon joins a normal attack for ${50+l*10}% ATK.`},
   raptorstorm:{name:'Raptor Storm',max:10,col:'#f0b060',g:'≋',sp:l=>20+l*2,cd:4,kind:'target',range:260,
-    desc:l=>`The falcon strikes ${2+Math.floor(l/3)} times, each ${90+l*15}% ATK plus 1% per DEX.`,
-    run:(l,t)=>{for(let k=0;k<2+Math.floor(l/3);k++)setTimeout(()=>{if(P&&!t.dead)falconHit(t,.9+l*.15+S.dex*.01);},k*170);}},
+    desc:l=>`The falcon strikes ${2+Math.floor(l/3)} times, each ${77+l*13}% ATK plus 1% per DEX.`,
+    run:(l,t)=>{for(let k=0;k<2+Math.floor(l/3);k++)setTimeout(()=>{if(P&&!t.dead)falconHit(t,.77+l*.13+S.dex*.01);},k*170);}},
   // ---- Skywarden
   talonstorm:{name:'Talon Storm',max:10,col:'#ffd27a',g:'⋙',sp:l=>40+l*4,cd:5,kind:'area',range:280,radius:140,
-    desc:l=>`A storm of talons: ${160+l*25}% ATK to all within 140px, twice.`,run:(l,x,y)=>{for(let k=0;k<2;k++)setTimeout(()=>{if(P)aoe(x,y,140,m=>dealPhys(m,1.6+l*.25,{sure:true}));},k*260);}},
+    desc:l=>`A storm of talons: ${221+l*35}% ATK to all within 140px, twice.`,run:(l,x,y)=>{for(let k=0;k<2;k++)setTimeout(()=>{if(P)aoe(x,y,140,m=>dealPhys(m,2.21+l*.35,{sure:true}));},k*260);}},
   skydominion:{name:'Sky Dominion',max:10,col:'#fff0a0',g:'☁',sp:l=>40,cd:45,kind:'self',desc:l=>`For 60s: the falcon joins every normal attack and +${l*3}% attack speed.`,
     run:l=>buff('skydominion','Sky Dominion',60,{aspd:l*3,falc:100})},
   apexhunter:{name:'Apex Hunter',max:10,col:'#e8c070',g:'♛',...PASSIVE(),desc:l=>`+${l*2} CRIT and +${l*3}% critical damage.`},
-  skyfall:{name:'Skyfall',max:10,col:'#ffe08a',g:'⇣',sp:l=>35+l*3,cd:6,kind:'target',range:300,desc:l=>`The falcon falls from the sky: ${400+l*50}% ATK plus 2% per AGI that never misses.`,
-    run:(l,t)=>falconHit(t,4+l*.5+S.agi*.02,true)},
+  skyfall:{name:'Skyfall',max:10,col:'#ffe08a',g:'⇣',sp:l=>35+l*3,cd:6,kind:'target',range:300,desc:l=>`The falcon falls from the sky: ${545+l*69}% ATK plus 2% per AGI that never misses.`,
+    run:(l,t)=>falconHit(t,5.45+l*.69+S.agi*.02,true)},
   // ---- Ascetic
   palmstrike:{name:'Palm Strike',max:10,col:'#ffb070',g:'✋',sp:l=>7+l,cd:.7,kind:'target',range:55,
     desc:l=>`A chi-charged palm for ${140+l*25}% ATK plus 1% per STR that never misses.`,run:(l,t)=>dealPhys(t,1.4+l*.25+S.str*.01,{sure:true})},
@@ -80,8 +80,8 @@ const NJ_SKILLS={
     run:l=>buff('ironbody','Iron Body',60,{dmgred:l*2,vit:l*3})},
   innercalm:{name:'Inner Calm',max:10,col:'#9fe0c0',g:'◌',...PASSIVE(),desc:l=>`+${l*3}% attack speed and +${(l*.3).toFixed(1)} SP regen per second.`},
   flurry:{name:'Flurry',max:10,col:'#ffd0a0',g:'≡',sp:l=>14+l*2,cd:2,kind:'target',range:55,
-    desc:l=>`A flurry of ${3+Math.floor(l/4)} blows, each ${70+l*12}% ATK plus 1% per AGI.`,
-    run:(l,t)=>{for(let k=0;k<3+Math.floor(l/4);k++)setTimeout(()=>{if(P&&!t.dead)dealPhys(t,.7+l*.12+S.agi*.01);},k*90);}},
+    desc:l=>`A flurry of ${3+Math.floor(l/4)} blows, each ${92+l*16}% ATK plus 1% per AGI.`,
+    run:(l,t)=>{for(let k=0;k<3+Math.floor(l/4);k++)setTimeout(()=>{if(P&&!t.dead)dealPhys(t,.92+l*.16+S.agi*.01);},k*90);}},
   // ---- Lotus Sage
   hundredpalms:{name:'Hundred Palms',max:10,col:'#ffcf8a',g:'✺',sp:l=>35+l*3,cd:5,kind:'target',range:55,
     desc:l=>`A hundred palms in a heartbeat: ${8+l} blows, each ${60+l*10}% ATK.`,
@@ -110,7 +110,7 @@ function falconHit(t,mult,big){if(!t||t.dead)return;const s=t.d?t.d.size:14;
   setTimeout(()=>{if(P&&!t.dead)dealPhys(t,mult,{sure:true});},120);}
 // Keen Talon / Sky Dominion: the falcon joins normal attacks
 {const _baFal=basicAttack;basicAttack=function(t){const r=_baFal.apply(this,arguments);try{const l=P.skills.keentalon||0,dom=P.buffs.skydominion&&P.buffs.skydominion.until>now;
-  if(t&&!t.dead&&(dom||(l&&Math.random()*100<l*3)))setTimeout(()=>falconHit(t,.5+l*.1),180);}catch(e){}return r;};}
+  if(t&&!t.dead&&(dom||(l&&Math.random()*100<l*2)))setTimeout(()=>falconHit(t,.5+l*.1),180);}catch(e){}return r;};}
 
 const NJ2={
   runeguard:{base:'warden',name:'Runeguard',hp:1.7,sp:1.2,aspd:.9,col:'#4a5a7a',acc:'#7fd3ff',

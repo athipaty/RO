@@ -9,7 +9,7 @@ const BUILD3_SKILLS={
     desc:l=>`Strike back at every foe within 110px for ${250+l*28}% ATK plus 2% per VIT.`,
     run:l=>{fx.push({k:'ring',x:P.x,y:P.y,r:110,col:'#ffd76a',t0:now,dur:.4});shakeUntil=Math.max(shakeUntil,now+.15);aoe(P.x,P.y,110,m=>dealPhys(m,2.5+l*.28+S.vit*.02,{sure:true}));}},
   // Warbringer
-  bloodthirst:{name:'Bloodthirst',max:10,col:'#e0403a',g:'♥',...PASSIVE(),desc:l=>`+${l*3}% ATK and +${l*3}% critical damage.`},
+  bloodthirst:{name:'Bloodthirst',max:10,col:'#e0403a',g:'♥',...PASSIVE(),desc:l=>`+${l*2}% ATK and +${l*3}% critical damage.`},
   execution:{name:'Execution',max:10,col:'#ff6a3a',g:'⚔',sp:l=>25+l*2,cd:4,kind:'target',range:60,
     desc:l=>`A finishing blow for ${300+l*40}% ATK plus 1% per STR, doubled against foes under 30% HP.`,
     run:(l,t)=>{const mx=t.maxhp||(t.d&&t.d.hp),low=mx>0&&t.hp/mx<.3;fx.push({k:'slash',x:t.x,y:t.y,t0:now,dur:.3});fx.push({k:'impact',x:t.x,y:t.y-(t.d?t.d.size*.6:10),t0:now,dur:.3});
@@ -28,8 +28,8 @@ const BUILD3_SKILLS={
   // Deadeye
   perfectaim:{name:'Perfect Aim',max:10,col:'#ffe08a',g:'⊕',...PASSIVE(),desc:l=>`+${l} CRIT and +${l*4}% critical damage.`},
   killingshot:{name:'Killing Shot',max:10,col:'#fff0a0',g:'➶',sp:l=>35+l*3,cd:6,kind:'target',range:320,
-    desc:l=>`One perfect arrow for ${290+l*35}% ATK plus 2% per DEX that never misses, with ${l*4}% more critical chance.`,
-    run:(l,t)=>shoot(P,t,'arrow','#fff0a0',()=>{fx.push({k:'critburst',x:t.x,y:t.y-(t.d?t.d.size:14),t0:now,dur:.35});dealPhys(t,2.9+l*.35+S.dex*.02,{sure:true,critPlus:l*4});})},
+    desc:l=>`One perfect arrow for ${378+l*45}% ATK plus 2% per DEX that never misses, with ${l*4}% more critical chance.`,
+    run:(l,t)=>shoot(P,t,'arrow','#fff0a0',()=>{fx.push({k:'critburst',x:t.x,y:t.y-(t.d?t.d.size:14),t0:now,dur:.35});dealPhys(t,3.78+l*.45+S.dex*.02,{sure:true,critPlus:l*4});})},
   // Beastlord
   alphainstinct:{name:'Alpha Instinct',max:10,col:'#c8f08a',g:'❦',...PASSIVE(),desc:l=>`+${l}% attack speed and with a bow ${l*2}% double attack.`},
   stampede:{name:'Stampede',max:10,col:'#a8c86a',g:'≋',sp:l=>35+l*3,cd:5,kind:'area',range:270,radius:120,
@@ -56,7 +56,7 @@ const BUILD3_OF={aegislord:['livingfortress','retribution'],warbringer:['bloodth
 for(const c in BUILD3_OF)addOwnSkills(c,BUILD3_OF[c]);
 PASSIVE_MORE.push((add,L,wt)=>{
   add('dmgred',L('livingfortress'));add('hppct',L('livingfortress')*2);
-  add('atkpct',L('bloodthirst')*3);add('critdmg',L('bloodthirst')*3);
+  add('atkpct',L('bloodthirst')*2);add('critdmg',L('bloodthirst')*3);
   add('matkpct',L('stormmind')*1.5);add('cast',L('stormmind')*2);
   add('sppct',L('voidpact')*3);add('dmgred',L('voidpact'));
   add('crit',L('perfectaim'));add('critdmg',L('perfectaim')*4);

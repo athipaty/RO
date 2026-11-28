@@ -43,8 +43,8 @@ const BUILD_SKILLS={
     desc:l=>`An instant bolt of force for ${80+l*15}% MATK plus 1% per DEX.`,
     run:(l,t)=>shoot(P,t,'orb','#e0b0ff',()=>dealMag(t,.8+l*.15+S.dex*.01))},
   // ---- Ranger
-  owleye:{name:"Owl's Eye",max:10,col:'#c8b070',g:'◎',...PASSIVE(),desc:l=>`With a bow: +${l*2} ATK and +${l*2} HIT.`},
-  doublenock:{name:'Double Nock',max:10,col:'#d8e8a0',g:'⇉',...PASSIVE(),desc:l=>`With a bow: ${l*3}% chance that a normal attack fires a second arrow.`},
+  owleye:{name:"Owl's Eye",max:10,col:'#c8b070',g:'◎',...PASSIVE(),desc:l=>`With a bow: +${l} ATK and +${l*2} HIT.`},
+  doublenock:{name:'Double Nock',max:10,col:'#d8e8a0',g:'⇉',...PASSIVE(),desc:l=>`With a bow: ${l*2}% chance that a normal attack fires a second arrow.`},
   huntersluck:{name:"Hunter's Luck",max:10,col:'#9fe08a',g:'♣',...PASSIVE(),desc:l=>`+${l} CRIT and +${l*4}% critical damage.`},
   aimedshot:{name:'Aimed Shot',max:10,col:'#ffe08a',g:'⌖',sp:l=>10+l,cd:1.5,kind:'target',range:260,
     desc:l=>`A careful shot for ${150+l*25}% ATK plus 1% per LUK that never misses, with ${l*5}% more critical chance.`,
@@ -80,7 +80,7 @@ function passiveB(){const b={};if(!P||!P.skills)return b;const L=id=>P.skills[id
   add('aspd',L('duelist')*2.5);add('crit',L('duelist')*.8);
   add('hppct',L('stoneblood')*2);add('def',L('stoneblood'));add('regen',L('stoneblood'));
   add('sppct',L('manaflow')*3);add('spregen',L('manaflow')*.3);add('cast',L('swiftcast')*3);add('matkpct',L('arcanefocus')*2);
-  if(wt==='bow'){add('atk',L('owleye')*2);add('hit',L('owleye')*2);add('dbl',L('doublenock')*3);}
+  if(wt==='bow'){add('atk',L('owleye'));add('hit',L('owleye')*2);add('dbl',L('doublenock')*2);}
   add('crit',L('huntersluck'));add('critdmg',L('huntersluck')*4);add('flee',L('fleetstep')*2);add('aspd',L('fleetstep')*2);
   if(wt==='mace'||wt==='club'){add('atk',L('macemastery')*3);add('hit',L('macemastery'));}
   add('hppct',L('faith')*2);add('healpct',L('faith')*3);add('dmgred',L('divineguard')*1.5);add('def',L('divineguard'));

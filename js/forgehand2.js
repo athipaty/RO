@@ -63,27 +63,27 @@ const fhLive=t=>t&&!t.dead&&mobs.includes(t);
 const FH2_SK={
   // ---- Runesmith (the Forge path)
   runecleave:{name:'Rune Cleave',max:10,col:'#ff7a2a',g:'ᚱ',sp:l=>16+l*2,cd:1.6,kind:'target',range:70,
-    desc:l=>`A rune burns on the blade: ${230+l*32}% ATK (Fire), then the rune bursts for ${60+l*10}% ATK (Fire) on all within 70px.`,
-    run:(l,t)=>{dealPhys(t,2.3+l*.32,{el:'fire'});const x=t.x,y=t.y;setTimeout(()=>{if(!P||P.dead)return;aoe(x,y,70,m=>dealPhys(m,.6+l*.1,{sure:true,el:'fire'}));},200);}},
+    desc:l=>`A rune burns on the blade: ${170+l*24}% ATK (Fire), then the rune bursts for ${45+l*8}% ATK (Fire) on all within 70px.`,
+    run:(l,t)=>{dealPhys(t,1.7+l*.24,{el:'fire'});const x=t.x,y=t.y;setTimeout(()=>{if(!P||P.dead)return;aoe(x,y,70,m=>dealPhys(m,.45+l*.08,{sure:true,el:'fire'}));},200);}},
   emberwave:{name:'Ember Wave',max:10,col:'#ff5a1a',g:'≋',sp:l=>24+l*2,cd:5,kind:'area',range:220,radius:100,
-    desc:l=>`Strike the ground and send embers rolling: ${70+l*12}% ATK (Fire) to all within 100px of the spot, three times.`,
-    run:(l,x,y)=>{for(let k=0;k<3;k++)setTimeout(()=>{if(!P||P.dead)return;fx.push({k:'ring',x,y,r:100,col:'#ff7a2a',t0:now,dur:.45});aoe(x,y,100,m=>dealPhys(m,.7+l*.12,{sure:true,el:'fire'}));},k*450);}},
+    desc:l=>`Strike the ground and send embers rolling: ${52+l*9}% ATK (Fire) to all within 100px of the spot, three times.`,
+    run:(l,x,y)=>{for(let k=0;k<3;k++)setTimeout(()=>{if(!P||P.dead)return;fx.push({k:'ring',x,y,r:100,col:'#ff7a2a',t0:now,dur:.45});aoe(x,y,100,m=>dealPhys(m,.52+l*.09,{sure:true,el:'fire'}));},k*450);}},
   hammerquake:{name:'Hammer Quake',max:10,col:'#c8a070',g:'⊛',sp:l=>26+l*2,cd:6,kind:'self',
-    desc:l=>`Slam the ground: ${200+l*28}% ATK to all within 110px of you, and a ${25+l*4}% chance to stun each for 2s.`,
-    run:l=>{shakeUntil=now+.25;for(const m of fhNear(P.x,P.y,110)){dealPhys(m,2+l*.28,{sure:true});if(!m.dead&&Math.random()*100<25+l*4&&typeof ailMob==='function')ailMob(m,'stun',2);}}},
-  runebrand:{name:'Rune Brand',max:10,col:'#ffa060',g:'ᚦ',...PASSIVE(),desc:l=>`With an axe: +${l*2}% ATK and +${l*3} DEF.`},
+    desc:l=>`Slam the ground: ${150+l*21}% ATK to all within 110px of you, and a ${25+l*4}% chance to stun each for 2s.`,
+    run:l=>{shakeUntil=now+.25;for(const m of fhNear(P.x,P.y,110)){dealPhys(m,1.5+l*.21,{sure:true});if(!m.dead&&Math.random()*100<25+l*4&&typeof ailMob==='function')ailMob(m,'stun',2);}}},
+  runebrand:{name:'Rune Brand',max:10,col:'#ffa060',g:'ᚦ',...PASSIVE(),desc:l=>`With an axe: +${l}% ATK and +${l*3} DEF.`},
   temperedge:{name:'Tempered Edge',max:10,col:'#ffd08a',g:'◇',sp:l=>30,cd:30,kind:'self',
-    desc:l=>`For 45s: +${l*4}% ATK and +${l*2} CRIT.`,run:l=>buff('temperedge','Tempered Edge',45,{atkpct:l*4,crit:l*2})},
+    desc:l=>`For 45s: +${l*2.5}% ATK and +${l*2} CRIT.`,run:l=>buff('temperedge','Tempered Edge',45,{atkpct:l*2.5,crit:l*2})},
   // ---- Coinbreaker (the Trade path)
   coinstrike:{name:'Coin Strike',max:10,col:'#ffd84a',g:'¤',sp:l=>12+l,cd:1.6,kind:'target',range:70,
-    desc:l=>`Pay ${10+l*5} gold for a blow worth it: ${260+l*36}% ATK. Without the gold, half as hard.`,
-    run:(l,t)=>{const cost=10+l*5,paid=P.gold>=cost;if(paid)P.gold-=cost;dealPhys(t,(2.6+l*.36)*(paid?1:.5));}},
+    desc:l=>`Pay ${10+l*5} gold for a blow worth it: ${475+l*65}% ATK. Without the gold, half as hard.`,
+    run:(l,t)=>{const cost=10+l*5,paid=P.gold>=cost;if(paid)P.gold-=cost;dealPhys(t,(4.75+l*.65)*(paid?1:.5));}},
   cartcrash:{name:'Cart Crash',max:10,col:'#c89a5a',g:'⛟',sp:l=>24+l*2,cd:5,kind:'self',
-    desc:l=>`Ram your cart through the crowd: ${190+l*26}% ATK to all within 100px of you.`,
-    run:l=>{shakeUntil=now+.15;aoe(P.x,P.y,100,m=>dealPhys(m,1.9+l*.26,{sure:true}));}},
+    desc:l=>`Ram your cart through the crowd: ${345+l*48}% ATK to all within 100px of you.`,
+    run:l=>{shakeUntil=now+.15;aoe(P.x,P.y,100,m=>dealPhys(m,3.45+l*.48,{sure:true}));}},
   jackpot:{name:'Jackpot',max:10,col:'#ffe68a',g:'✪',sp:l=>20+l*2,cd:3,kind:'target',range:70,
-    desc:l=>`Roll your luck: anywhere from ${100+l*15}% to ${400+l*60}% ATK. Never misses.`,
-    run:(l,t)=>{const lo=1+l*.15,hi=4+l*.6;dealPhys(t,lo+Math.random()*(hi-lo),{sure:true});}},
+    desc:l=>`Roll your luck: anywhere from ${180+l*27}% to ${725+l*109}% ATK. Never misses.`,
+    run:(l,t)=>{const lo=1.8+l*.27,hi=7.25+l*1.09;dealPhys(t,lo+Math.random()*(hi-lo),{sure:true});}},
   goldenguard:{name:'Golden Guard',max:10,col:'#e8c860',g:'⛨',...PASSIVE(),desc:l=>`+${l*4} DEF and +${l*2} FLEE.`},
   bigdeal:{name:'Big Deal',max:10,col:'#ffe08a',g:'✦',sp:l=>28,cd:30,kind:'self',
     desc:l=>`For 40s: +${l*3}% attack speed and +${l*2} CRIT.`,run:l=>buff('bigdeal','Big Deal',40,{aspd:l*3,crit:l*2})}};
@@ -94,7 +94,7 @@ Object.assign(SKILL_ELEM,{runecleave:'fire',emberwave:'fire'});
 if(typeof CROSS_REQ!=='undefined'){const X={runecleave:{anvildrop:3},runebrand:{axemastery:3},coinstrike:{widechop:3},goldenguard:{ironback:3}};
   Object.assign(CROSS_REQ,X);for(const id in X)SKILL_REQ[id]=Object.assign({},SKILL_REQ[id]||{},X[id]);}
 {const _pbF2=passiveB;passiveB=function(){const b=_pbF2.apply(this,arguments);if(!P||!P.skills)return b;const L=id=>P.skills[id]||0,add=(k,v)=>{if(v)b[k]=(b[k]||0)+v;};
-  if(isAxe()){add('atkpct',L('runebrand')*2);add('def',L('runebrand')*3);}add('def',L('goldenguard')*4);add('flee',L('goldenguard')*2);return b;};}
+  if(isAxe()){add('atkpct',L('runebrand'));add('def',L('runebrand')*3);}add('def',L('goldenguard')*4);add('flee',L('goldenguard')*2);return b;};}
 const FH2={
   runesmith:{base:'forgehand',name:'Runesmith',hp:1.6,sp:1.1,aspd:.95,col:'#3a2a24',acc:'#ff8a3a',
     desc:'Burns fire runes into the axe. Rune cleaves, waves of embers and a hammer that shakes the ground.',skills:['runecleave','emberwave','hammerquake','runebrand','temperedge']},

@@ -54,7 +54,13 @@ PANELS.hotbar=()=>{const b=getBar(),c=CLASSES[P.cls];
   h+=`<div class="tbtns" style="justify-content:flex-start;margin:6px 0"><span class="muted" style="font-size:12px">Slot ${barSel+1}: <b>${esc(nameOf(b[barSel]))}</b>${b[barSel]&&b[barSel].s&&typeof skTypeTag==='function'?' '+skTypeTag(b[barSel].s):''}</span>${b[barSel]?`<button class="btn small" data-act="hbclear">Clear slot</button>`:''}</div>`;
   const skills=c.skills.filter(id=>P.skills[id]&&SKILLS[id].kind!=='passive');
   const on=k=>b.some(x=>x&&(x.s?'s:'+x.s:'i:'+x.i)===k);
-  h+=`<h3>Skills</h3>`+(skills.length?`<div class="hbpick">`+skills.map(id=>`<button class="hbp${on('s:'+id)?' used':''}" draggable="true" data-bar="s:${id}" data-act="hbput" data-arg="s:${id}" title="${esc(SKILLS[id].name)}">${icon({s:id})}<span>${esc(SKILLS[id].name)}${typeof skTypeTag==='function'?skTypeTag(id):''}</span></button>`).join('')+`</div>`:`<div class="sub">No skills learned yet. Learn them in the Skills window (K).</div>`);
+  // (v1.93.0) skills in three groups (single target, area, buffs and healing), each with its SP cost and cooldown
+  const grp=id=>{const t=typeof skType==='function'?skType(id):null,k=t&&t.k;return k==='one'?0:k==='area'||k==='nova'?1:2;};
+  const spOf=id=>{const s=SKILLS[id],l=P.skills[id]||1;try{return Math.round(typeof s.sp==='function'?s.sp(l):(s.sp||0));}catch(e){return 0;}};
+  const cdOf=id=>{const c=SKILLS[id].cd;return c?(c<10?+c.toFixed(1):Math.round(c))+'s':'';};
+  const btn=id=>`<button class="hbp${on('s:'+id)?' used':''}" draggable="true" data-bar="s:${id}" data-act="hbput" data-arg="s:${id}" title="${esc(SKILLS[id].name)}">${icon({s:id})}<span>${esc(SKILLS[id].name)}${typeof skTypeTag==='function'?skTypeTag(id):''}<small class="hbcost"><b>${spOf(id)} SP</b>${cdOf(id)?` · ${cdOf(id)}`:''}</small></span></button>`;
+  const GRP=['Single target','Area','Buffs & healing'];
+  h+=`<h3>Skills</h3>`+(skills.length?[0,1,2].map(g=>{const ids=skills.filter(id=>grp(id)===g);return ids.length?`<h4 class="hbgrp g${g}">${GRP[g]} <i>${ids.length}</i></h4><div class="hbpick">`+ids.map(btn).join('')+`</div>`:'';}).join(''):`<div class="sub">No skills learned yet. Learn them in the Skills window.</div>`);
   const items=[...new Set(P.inv.filter(e=>barItemOk(e.id)).map(e=>e.id)),...['red','orange','blue','scroll'].filter(id=>ITEMS[id])];
   const uniq=[...new Set(items)];
   h+=`<h3>Items</h3><div class="hbpick">`+uniq.map(id=>{const n=invFind(id);return `<button class="hbp${on('i:'+id)?' used':''}" draggable="true" data-bar="i:${id}" data-act="hbput" data-arg="i:${id}" title="${esc(ITEMS[id].name)}">${icon({i:id})}<span>${esc(ITEMS[id].name)} <i>×${n?n.n:0}</i></span></button>`;}).join('')+`</div>`;

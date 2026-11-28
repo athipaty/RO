@@ -6,31 +6,31 @@
 const FH3_SK={
   // ---- Forgemaster
   moltencore:{name:'Molten Core',max:10,col:'#7ad8ff',g:'◉',sp:l=>46+l*4,cd:6,kind:'area',range:260,radius:140,
-    desc:l=>`Pour white-hot steel on the spot: three waves, each ${80+l*13}% ATK (Fire) to all within 140px.`,
+    desc:l=>`Pour white-hot steel on the spot: three waves, each ${145+l*23}% ATK (Fire) to all within 140px.`,
     run:(l,x,y)=>{for(let k=0;k<3;k++)setTimeout(()=>{if(!P||P.dead)return;shakeUntil=now+.15;fx.push({k:'ring',x,y,r:140,col:'#9ae8ff',t0:now,dur:.45});
-      aoe(x,y,140,m=>dealPhys(m,.8+l*.13,{sure:true,el:'fire'}));},k*320);}},
-  masterwork:{name:'Masterwork',max:10,col:'#c8e8ff',g:'❖',...PASSIVE(),desc:l=>`With an axe: +${l}% ATK and +${l*4} DEF.`},
+      aoe(x,y,140,m=>dealPhys(m,1.45+l*.23,{sure:true,el:'fire'}));},k*320);}},
+  masterwork:{name:'Masterwork',max:10,col:'#c8e8ff',g:'❖',...PASSIVE(),desc:l=>`With an axe: +${l*2}% ATK and +${l*4} DEF.`},
   forgeheart:{name:'Forge Heart',max:10,col:'#bfe8ff',g:'♨',sp:l=>40,cd:40,kind:'self',
     desc:l=>`For 60s: +${l}% ATK, +${l*3} HIT and +${l*2}% attack speed.`,run:l=>buff('forgeheart','Forge Heart',60,{atkpct:l,hit:l*3,aspd:l*2})},
   meteorhammer:{name:'Meteor Hammer',max:10,col:'#ffffff',g:'☄',sp:l=>36+l*3,cd:3,kind:'target',range:80,
-    desc:l=>`A blow like a falling star: ${260+l*40}% ATK, and ${64+l*10}% ATK (Fire) to all within 80px. Never misses.`,
-    run:(l,t)=>{dealPhys(t,2.6+l*.4,{sure:true});const x=t.x,y=t.y;setTimeout(()=>{if(!P||P.dead)return;aoe(x,y,80,m=>{if(m!==t)dealPhys(m,.64+l*.1,{sure:true,el:'fire'});});},150);}},
+    desc:l=>`A blow like a falling star: ${470+l*72}% ATK, and ${115+l*18}% ATK (Fire) to all within 80px. Never misses.`,
+    run:(l,t)=>{dealPhys(t,4.7+l*.72,{sure:true});const x=t.x,y=t.y;setTimeout(()=>{if(!P||P.dead)return;aoe(x,y,80,m=>{if(m!==t)dealPhys(m,1.15+l*.18,{sure:true,el:'fire'});});},150);}},
   // ---- Goldlord
   goldrain:{name:'Gold Rain',max:10,col:'#ffd84a',g:'⁂',sp:l=>44+l*4,cd:6,kind:'area',range:260,radius:150,
     desc:l=>`Throw a fortune in the air (${50+l*10} gold): ${330+l*50}% ATK to all within 150px as it rains down. Without the gold, half as hard.`,
     run:(l,x,y)=>{const cost=50+l*10,paid=P.gold>=cost;if(paid)P.gold-=cost;setTimeout(()=>{if(!P||P.dead)return;fx.push({k:'ring',x,y,r:150,col:'#ffd84a',t0:now,dur:.5});
       aoe(x,y,150,m=>dealPhys(m,(3.3+l*.5)*(paid?1:.5),{sure:true}));},300);}},
-  midastouch:{name:'Midas Touch',max:10,col:'#ffe68a',g:'✧',...PASSIVE(),desc:l=>`+${l*2} CRIT and +${l*4}% critical damage.`},
+  midastouch:{name:'Midas Touch',max:10,col:'#ffe68a',g:'✧',...PASSIVE(),desc:l=>`+${l} CRIT and +${l*2}% critical damage.`},
   royalhaul:{name:'Royal Haul',max:10,col:'#ffeaa0',g:'♛',sp:l=>36,cd:40,kind:'self',
-    desc:l=>`For 40s: +${l*4}% attack speed, +${l*3} FLEE and +${l*3}% ATK.`,run:l=>buff('royalhaul','Royal Haul',40,{aspd:l*4,flee:l*3,atkpct:l*3})},
+    desc:l=>`For 40s: +${l*4}% attack speed, +${l*3} FLEE and +${l}% ATK.`,run:l=>buff('royalhaul','Royal Haul',40,{aspd:l*4,flee:l*3,atkpct:l})},
   fortuneblade:{name:'Fortune\'s Blade',max:10,col:'#fff2b0',g:'✪',sp:l=>30+l*3,cd:2,kind:'target',range:80,
-    desc:l=>`${400+l*60}% ATK plus 2% per LUK, with ${20+l*3}% more critical chance. Never misses.`,
-    run:(l,t)=>dealPhys(t,4+l*.6+S.luk*.02,{sure:true,critPlus:20+l*3})}};
+    desc:l=>`${320+l*48}% ATK plus 2% per LUK, with ${20+l*3}% more critical chance. Never misses.`,
+    run:(l,t)=>dealPhys(t,3.2+l*.48+S.luk*.02,{sure:true,critPlus:20+l*3})}};
 Object.assign(SKILLS,FH3_SK);
 Object.assign(SKILL_REQ,{masterwork:{moltencore:1},forgeheart:{masterwork:3},meteorhammer:{moltencore:3},midastouch:{goldrain:1},royalhaul:{midastouch:3},fortuneblade:{goldrain:3}});
 Object.assign(SKILL_ELEM,{moltencore:'fire'});
 {const _pbF3=passiveB;passiveB=function(){const b=_pbF3.apply(this,arguments);if(!P||!P.skills)return b;const L=id=>P.skills[id]||0,add=(k,v)=>{if(v)b[k]=(b[k]||0)+v;};
-  if(isAxe()){add('atkpct',L('masterwork'));add('def',L('masterwork')*4);}add('crit',L('midastouch')*2);add('critdmg',L('midastouch')*4);return b;};}
+  if(isAxe()){add('atkpct',L('masterwork')*2);add('def',L('masterwork')*4);}add('crit',L('midastouch'));add('critdmg',L('midastouch')*2);return b;};}
 const FH3={
   forgemaster:{from:'runesmith',name:'Forgemaster',hp:2.0,sp:1.35,aspd:.9,col:'#2a3a4a',acc:'#9ae8ff',
     desc:'Works steel past red-hot to white. A molten core on a whole pack, and a hammer blow like a falling star.',skills:['moltencore','masterwork','forgeheart','meteorhammer']},

@@ -1,6 +1,6 @@
 "use strict";
 /* ================= constants & data ================= */
-const VERSION='1.92.0';
+const VERSION='1.93.0';
 // chance that a normal monster drops its sigil (card); bosses set their own sigChance
 const SIG_CHANCE=.01;
 /* (v1.51.0) one damage for everyone: heroes have 3x the HP they had, and monsters hit 3x as hard, tonics and fixed heals
@@ -228,8 +228,8 @@ const SKILLS={
     run:l=>{fx.push({k:'nova',x:P.x,y:P.y,r:115,t0:now,dur:.5});aoe(P.x,P.y,115,m=>{dealMag(m,1+l*.2,'water',['freeze',.3+l*.03,1.5+l*.1]);slowMob(m,2+l*.3);});}},
   arcstorm:{name:'Arc Storm',max:10,col:'#c8b0ff',g:'S',sp:l=>25+l*3,cd:4,kind:'area',range:250,radius:105,desc:l=>`Call lightning on your target's area: ${220+l*40}% MATK to all within 105px.`,
     run:(l,x,y)=>{for(let i=0;i<6;i++)fx.push({k:'bolt',x:x+rnd(-80,80),y:y+rnd(-60,60),t0:now+i*.05,dur:.3});fx.push({k:'ring',x,y,r:105,col:'#c8b0ff',t0:now,dur:.4});aoe(x,y,105,m=>dealMag(m,2.2+l*.4,'wind'));}},
-  twinshot:{name:'Twin Shot',max:10,col:'#9fe08a',g:'T',sp:l=>6+l,cd:.6,kind:'target',range:250,desc:l=>`Fire two arrows, each ${90+l*15}% ATK.`,
-    run:(l,t)=>{shoot(P,t,'arrow','#e8dcb0',()=>dealPhys(t,.9+l*.15,{sure:true}));setTimeout(()=>{if(!t.dead)shoot(P,t,'arrow','#e8dcb0',()=>dealPhys(t,.9+l*.15,{sure:true}));},110);}},
+  twinshot:{name:'Twin Shot',max:10,col:'#9fe08a',g:'T',sp:l=>6+l,cd:.6,kind:'target',range:250,desc:l=>`Fire two arrows, each ${75+l*12.5}% ATK.`,
+    run:(l,t)=>{shoot(P,t,'arrow','#e8dcb0',()=>dealPhys(t,.75+l*.125,{sure:true}));setTimeout(()=>{if(!t.dead)shoot(P,t,'arrow','#e8dcb0',()=>dealPhys(t,.75+l*.125,{sure:true}));},110);}},
   arrowrain:{name:'Arrow Rain',max:10,col:'#d8e070',g:'R',sp:l=>18+l*2,cd:3,kind:'area',range:250,radius:110,desc:l=>`Rain arrows on your target's area: ${130+l*25}% ATK to all within 110px.`,
     run:(l,x,y)=>{for(let i=0;i<14;i++)fx.push({k:'arrowfall',x:x+rnd(-100,100),y:y+rnd(-80,80),t0:now+i*.03,dur:.35});aoe(x,y,110,m=>dealPhys(m,1.3+l*.25,{sure:true}));}},
   hawkeye:{name:'Hawk Eye',max:10,col:'#e0c070',g:'H',sp:l=>22,cd:20,kind:'self',desc:l=>`For 90s: +${l*2} DEX and +${l} CRIT.`,

@@ -5,8 +5,8 @@ const BUILD2_SKILLS={
   // Bulwark: VIT wall
   unbreakable:{name:'Unbreakable',max:10,col:'#b8c0cc',g:'▣',...PASSIVE(),desc:l=>`+${l*3}% max HP and +${l*2} DEF.`},
   shieldcharge:{name:'Shield Charge',max:10,col:'#9aa6b8',g:'◘',sp:l=>12+l,cd:2,kind:'target',range:70,
-    desc:l=>`Charge in for ${150+l*20}% ATK plus 1% per VIT, ${20+l*3}% chance to stun for 2s.`,
-    run:(l,t)=>{fx.push({k:'impact',x:t.x,y:t.y-(t.d?t.d.size*.6:10),t0:now,dur:.25});dealPhys(t,1.5+l*.2+S.vit*.01,{sure:true,ail:['stun',.2+l*.03,2]});}},
+    desc:l=>`Charge in for ${105+l*14}% ATK plus 1% per VIT, ${20+l*3}% chance to stun for 2s.`,
+    run:(l,t)=>{fx.push({k:'impact',x:t.x,y:t.y-(t.d?t.d.size*.6:10),t0:now,dur:.25});dealPhys(t,1.05+l*.14+S.vit*.01,{sure:true,ail:['stun',.2+l*.03,2]});}},
   // Ravager: STR/AGI berserker
   bloodlust:{name:'Bloodlust',max:10,col:'#e0503a',g:'♨',...PASSIVE(),desc:l=>`+${l*1.5}% ATK and +${l*1.5}% attack speed.`},
   rampage:{name:'Rampage',max:10,col:'#ff7a4a',g:'✸',sp:l=>18+l*2,cd:4,kind:'self',
@@ -25,15 +25,15 @@ const BUILD2_SKILLS={
     desc:l=>`Curse a monster: it takes ${10+l*2}% more damage from you for 8s.`,
     run:(l,t)=>curseFrail(t,(10+l*2)/100,8)},
   // Sharpshooter: DEX
-  steadyhands:{name:'Steady Hands',max:10,col:'#e0c070',g:'✋',...PASSIVE(),desc:l=>`+${l} DEX and +${l*1.5}% ATK.`},
+  steadyhands:{name:'Steady Hands',max:10,col:'#e0c070',g:'✋',...PASSIVE(),desc:l=>`+${l} DEX and +${l*.5}% ATK.`},
   deadlyarrow:{name:'Deadly Arrow',max:10,col:'#ffd27a',g:'➹',sp:l=>15+l*2,cd:2,kind:'target',range:280,
-    desc:l=>`A drawn-out shot for ${200+l*30}% ATK plus 1% per DEX that never misses.`,
-    run:(l,t)=>shoot(P,t,'arrow','#ffd27a',()=>dealPhys(t,2+l*.3+S.dex*.01,{sure:true}))},
+    desc:l=>`A drawn-out shot for ${126+l*19}% ATK plus 1% per DEX that never misses.`,
+    run:(l,t)=>shoot(P,t,'arrow','#ffd27a',()=>dealPhys(t,1.26+l*.19+S.dex*.01,{sure:true}))},
   // Wildstalker: AGI/LUK
-  predator:{name:'Predator',max:10,col:'#a8d86a',g:'⚘',...PASSIVE(),desc:l=>`+${l} CRIT and with a bow ${l*2}% double attack.`},
+  predator:{name:'Predator',max:10,col:'#a8d86a',g:'⚘',...PASSIVE(),desc:l=>`+${l} CRIT and with a bow ${l}% double attack.`},
   rapidfire:{name:'Rapid Fire',max:10,col:'#c8f08a',g:'⋙',sp:l=>12+l,cd:1.5,kind:'target',range:260,
-    desc:l=>`Loose three quick arrows, each ${60+l*10}% ATK plus 1% per AGI.`,
-    run:(l,t)=>{for(let i=0;i<3;i++)setTimeout(()=>{if(P&&!t.dead)shoot(P,t,'arrow','#c8f08a',()=>dealPhys(t,.6+l*.1+S.agi*.01));},i*110);}},
+    desc:l=>`Loose three quick arrows, each ${38+l*6}% ATK plus 1% per AGI.`,
+    run:(l,t)=>{for(let i=0;i<3;i++)setTimeout(()=>{if(P&&!t.dead)shoot(P,t,'arrow','#c8f08a',()=>dealPhys(t,.38+l*.06+S.agi*.01));},i*110);}},
   // Templar: STR/VIT holy melee
   zeal:{name:'Zeal',max:10,col:'#f0d070',g:'☀',...PASSIVE(),desc:l=>`+${l*2}% attack speed and +${l}% ATK.`},
   sacredbulwark:{name:'Sacred Bulwark',max:10,col:'#fff0c0',g:'⛨',sp:l=>30,cd:40,kind:'self',
@@ -61,8 +61,8 @@ PASSIVE_MORE.push((add,L,wt)=>{
   add('atkpct',L('bloodlust')*1.5);add('aspd',L('bloodlust')*1.5);
   add('matkpct',L('elemmastery')*2);add('cast',L('elemmastery'));
   add('sppct',L('darkpact')*2);add('dmgred',L('darkpact'));
-  add('dex',L('steadyhands'));add('atkpct',L('steadyhands')*1.5);
-  add('crit',L('predator'));if(wt==='bow')add('dbl',L('predator')*2);
+  add('dex',L('steadyhands'));add('atkpct',L('steadyhands')*.5);
+  add('crit',L('predator'));if(wt==='bow')add('dbl',L('predator'));
   add('aspd',L('zeal')*2);add('atkpct',L('zeal'));
   add('healpct',L('insight')*3);add('spregen',L('insight')*.3);});
 

@@ -21,18 +21,18 @@ CLASSES.shade={name:'Shade',hp:1.05,sp:1,aspd:.72,weapons:['club','dagger'],col:
 // ---- its skills ----
 const SHADE_SK={
   twinfang:{name:'Twin Fang',max:10,col:'#c8b8ff',g:'⟡',sp:l=>6+l,cd:.8,kind:'target',range:55,
-    desc:l=>`Two quick stabs, each for ${70+l*12}% ATK, with ${10+l*3}% more critical chance.`,
-    run:(l,t)=>{const o={critPlus:10+l*3};dealPhys(t,.7+l*.12,o);setTimeout(()=>{if(t&&!t.dead&&mobs.includes(t))dealPhys(t,.7+l*.12,o);},140);}},
+    desc:l=>`Two quick stabs, each for ${88+l*15}% ATK, with ${10+l*3}% more critical chance.`,
+    run:(l,t)=>{const o={critPlus:10+l*3};dealPhys(t,.88+l*.15,o);setTimeout(()=>{if(t&&!t.dead&&mobs.includes(t))dealPhys(t,.88+l*.15,o);},140);}},
   backstab:{name:'Backstab',max:10,col:'#9a8ad8',g:'↯',sp:l=>10+l,cd:2,kind:'target',range:55,
-    desc:l=>`Slip behind the target and strike for ${150+l*25}% ATK plus 1% per AGI. Never misses.`,
-    run:(l,t)=>dealPhys(t,1.5+l*.25+S.agi*.01,{sure:true})},
+    desc:l=>`Slip behind the target and strike for ${188+l*31}% ATK plus 1% per AGI. Never misses.`,
+    run:(l,t)=>dealPhys(t,1.88+l*.31+S.agi*.01,{sure:true})},
   smokestep:{name:'Smoke Step',max:10,col:'#a8a0b8',g:'≋',sp:l=>15,cd:12,kind:'self',
     desc:l=>`Vanish in smoke: for ${(4+l*.3).toFixed(1)}s, +${20+l*6} FLEE and +${l} CRIT.`,
     run:l=>buff('smokestep','Smoke Step',+(4+l*.3).toFixed(1),{flee:20+l*6,crit:l})},
   venomedge:{name:'Venom Edge',max:10,col:'#8fd36a',g:'☠',sp:l=>10+l,cd:3,kind:'target',range:55,
-    desc:l=>`A poisoned cut for ${110+l*15}% ATK (Earth), then the poison deals ${25+l*4}% ATK three more times, once a second.`,
-    run:(l,t)=>{dealPhys(t,1.1+l*.15,{sure:true,el:'earth'});
-      for(let k=1;k<=3;k++)setTimeout(()=>{if(!t||t.dead||!mobs.includes(t)||!P||P.dead)return;dealPhys(t,.25+l*.04,{sure:true,el:'earth'});
+    desc:l=>`A poisoned cut for ${138+l*19}% ATK (Earth), then the poison deals ${31+l*5}% ATK three more times, once a second.`,
+    run:(l,t)=>{dealPhys(t,1.38+l*.19,{sure:true,el:'earth'});
+      for(let k=1;k<=3;k++)setTimeout(()=>{if(!t||t.dead||!mobs.includes(t)||!P||P.dead)return;dealPhys(t,.31+l*.05,{sure:true,el:'earth'});
         fx.push({k:'ring',x:t.x,y:t.y,r:18,col:'#8fd36a',t0:now,dur:.35});},k*1000);}},
   shadowsense:{name:'Shadow Sense',max:10,col:'#b8a8e8',g:'◐',...PASSIVE(),desc:l=>`+${l} CRIT and +${l*2} FLEE.`},
   nimblehands:{name:'Nimble Hands',max:10,col:'#d8c8ff',g:'✥',...PASSIVE(),desc:l=>`With a dagger: +${l*2}% attack speed and ${l*2}% chance to strike twice.`}};

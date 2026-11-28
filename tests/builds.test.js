@@ -56,7 +56,7 @@ module.exports = async t => {
       const r = { critdmg: S.critdmg, dbl: S.dbl };
       P.cls = 'cleric'; P.eq.weapon = { id: 'dawnmace', uid: 504, s: [null] }; P.skills = { faith: 10, divineguard: 10, mend: 3 }; S = computeStats(); P.hp = 1; healP(100); const healed = P.hp - 1;
       P.hp = S.maxhp; const h0 = P.hp; hurtPlayer(100, 'test'); return { r, healed, taken: h0 - P.hp, unl: skillUnlocked('renew'), k: HP_K }; });
-    t.ok(rc.r.critdmg === 55 && rc.r.dbl === 30, `Ranger: Hunter's Luck + Galeheart Bow crit damage +${rc.r.critdmg}%, Double Nock ${rc.r.dbl}%`);
+    t.ok(rc.r.critdmg === 55 && rc.r.dbl === 20, `Ranger (v1.93.0: Double Nock 3% → 2% a level): Hunter's Luck + Galeheart Bow crit damage +${rc.r.critdmg}%, Double Nock ${rc.r.dbl}%`);
     t.ok(rc.healed === 140 && rc.taken === 85 * rc.k, `Cleric: Faith + Dawnlight Mace heal 100 → ${rc.healed}; Divine Guard takes 100 → ${rc.taken}`);
 
     // gear text and recipes

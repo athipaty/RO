@@ -21,7 +21,7 @@ function skType(id){const s=SKILLS[id];if(!s)return null;const k=s.kind;
     if(typeof AUTOSK!=='undefined'&&AUTOSK.nova[id])return {k:'nova',t:'Around you'};return {k:'buff',t:'Buff'};}
   return null;}
 const skTypeTag=id=>{const t=skType(id);return t?`<b class="hbk k-${t.k}">${t.t}</b>`:'';};
-if(typeof TH!=='undefined')Object.assign(TH,{'Single target':'สกิลเป้าเดียว','Area':'วงกว้าง','Ground (aim)':'เล็งพื้นที่','Around you':'รอบตัว','Heal':'รักษา','Buff':'บัฟ'});
+if(typeof TH!=='undefined')Object.assign(TH,{'Single target':'สกิลเป้าเดียว','Area':'วงกว้าง','Ground (aim)':'เล็งพื้นที่','Around you':'รอบตัว','Heal':'รักษา','Buff':'บัฟ','Buffs & healing':'บัฟและรักษา'});
 
 /* (v1.49.5) the hotbar editor shows the slots where they sit on your screen: on a phone the two arcs around the
    Attack button (1-4 inside, 5-8 outside), on a desktop the row. The layout is read from the real hotbar (kept from

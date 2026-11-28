@@ -64,6 +64,12 @@ function goalLayoutKey(){let k=document.body.className;for(const id of GOAL_KEYS
 const GOAL_OBST='#hud,#minibox,#partyBox,#log,#onlineBadge,#quick .qk,#quickL .qk,#quickL>button,#actions>.act,#hotbar .slot,#buffs .buff,#rideBtn,#hotrows .hrow,#target,#quest,#qtrack';
 function goalPlacePhone(el){const obs=[];for(const e of document.querySelectorAll(GOAL_OBST)){if(!e.getClientRects().length||e.closest('#panel'))continue;const s=getComputedStyle(e);if(s.visibility==='hidden'||+s.opacity===0)continue;const r=e.getBoundingClientRect();if(r.width>2&&r.height>2)obs.push(r);}
   const R=id=>{const e=document.getElementById(id);return e&&e.getClientRects().length?e.getBoundingClientRect():null;},H=34,W=Math.min(300,innerWidth-20),cands=[];
+  // (v1.93.0) a phone held upright: always in the left column, under the status box (or under the party box when you
+  // are in one), exactly as wide as the status box
+  const hud=R('hud');if(hud&&innerHeight>innerWidth){const pb=R('partyBox'),pe=document.getElementById('partyBox'),a=pb&&pe&&!pe.hidden&&pb.height>4?pb:hud;
+    const left=Math.round(hud.left)+'px',top=Math.round(a.bottom+6)+'px',w=Math.round(hud.width)+'px';
+    if(el.style.left!==left)el.style.left=left;if(el.style.top!==top)el.style.top=top;if(el.style.width!==w){el.style.width=w;el.style.maxWidth=w;}if(el.style.right)el.style.right='';el.classList.add('gcol');return;}
+  el.classList.remove('gcol');if(el.style.width){el.style.width='';}
   const mb=R('menuBtn');if(mb&&mb.top<60)cands.push({l:mb.right+8,t:Math.max(12,mb.top)});
   for(const id of ['quick','hud','minibox']){const r=R(id);if(r)cands.push({l:id==='minibox'?r.left:id==='quick'?10:r.left,t:r.bottom+6});}
   for(const c of cands){let right=Math.min(innerWidth-10,c.l+W);
