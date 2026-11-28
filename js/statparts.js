@@ -28,7 +28,7 @@ function statPartsHtml(){const th=typeof LANG!=='undefined'&&LANG==='th',L=k=>th
       return z(k,v)?`<td class="spz">–</td>`:`<td class="sp-${part}">${v<0?'−':'+'}${f(k,Math.abs(v))}</td>`;}).join('')+`<td class="sptot">${f(k,p.total)}</td></tr>`;}
   return h+`</tbody></table></div>`;}
 (function(){if(typeof document==='undefined')return;const st=document.createElement('style');st.textContent=
-  '.sptw{overflow-x:auto;margin:6px 0}.spt2{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}'+
+  '.sptw{flex:none;overflow:visible;margin:6px 0}.spt2{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}'+
   '.spt2 th,.spt2 td{padding:3px 4px;text-align:right;white-space:nowrap}.spt2 thead th{font-size:10.5px;font-weight:800;letter-spacing:.2px;border-bottom:1px solid rgba(255,255,255,.14)}'+
   '.spt2 tbody th{text-align:left;color:var(--muted);font-weight:700}.spt2 tbody tr+tr th,.spt2 tbody tr+tr td{border-top:1px solid rgba(255,255,255,.05)}'+
   '.spt2 .sptot,.spt2 thead th:last-child{font-weight:800;color:var(--ink,#fff);border-left:1px solid rgba(255,255,255,.12)}.spt2 .spz{color:rgba(160,170,185,.45)}'+
