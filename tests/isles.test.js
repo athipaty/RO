@@ -38,7 +38,7 @@ module.exports = async t => {
     t.ok(r.boss, 'the Tide Leviathan waits on the bottom floor');
     t.ok(r.gale === 'wind' && r.sigil === 'wind' && r.none === null, `a Gale weapon and a Wind Sigil make plain attacks wind (${r.gale}, ${r.sigil}, ${r.none})`);
     t.ok(r.mult === 1.5 && r.fireMult === .5, `wind hits the island's monsters for 1.5x, fire for 0.5x (${r.mult}, ${r.fireMult})`);
-    t.ok(/^Wind · ATK 150/.test(r.desc), 'a wind weapon says so first: ' + r.desc);
+    t.ok(/^Wind · ATK 149/.test(r.desc), 'a wind weapon says so first (Gale Saber 149 since v1.92.0): ' + r.desc);
     t.ok(r.forge, 'the Gale weapons are forged at the smithy');
     t.ok(r.onMap, 'the world map lists the island, across the sea');
     t.ok(!r.looks.length && !r.drawBad.length, 'every island monster has its own drawing, drawn without errors' + (r.looks.length ? ' missing ' + r.looks : '') + (r.drawBad.length ? ' ' + r.drawBad.join('; ') : ''));

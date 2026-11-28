@@ -1956,8 +1956,8 @@ body.touchui #panel .eqrm{width:26px;height:26px}
   body.touchui #minibox:not(.pmap) #mini,body.touchui #minibox:not(.pmap) #miniSize{display:none!important}
   body.touchui #minibox:not(.pmap){padding:6px 10px}
   body.touchui #minibox .zn{cursor:pointer}body.touchui #minibox .zn::after{content:' ▾';font-size:10px;opacity:.7}body.touchui #minibox.pmap .zn::after{content:' ▴'}
-  body.touchui #minibox.pmap{max-width:min(320px,calc(100vw - 20px))!important}
-  body.touchui #minibox.pmap #mini{display:block;width:min(300px,calc(100vw - 40px))!important;height:auto!important;opacity:1}
+  body.touchui #minibox.pmap{max-width:none!important;box-sizing:border-box}
+  body.touchui #minibox.pmap #mini{display:block;width:100%!important;height:auto!important;opacity:1}
   body.touchui #minibox.pmap #miniSize{display:none!important}
   /* just the name and the map: no expand button, no level/day-night line, no EXP event line */
   body.touchui #minibox .zl,body.touchui #minibox #online,body.touchui #minibox #miniSize{display:none!important}

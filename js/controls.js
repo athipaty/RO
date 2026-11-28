@@ -148,7 +148,12 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
     else{for(const b of top3)b.style.left='';q.style.top=Math.round(r.bottom+8)+'px';q.style.right=Math.round(innerWidth-r.right)+'px';const ob=$('#onlineBadge');
       // upright: the stylesheet decides left/right again
       if(ob){ob.style.left=ob.style.right='';const wl=$('#whoList');if(wl){wl.style.left=wl.style.right=wl.style.maxHeight='';}}
-      if(ob&&document.body.classList.contains('touchui')){ob.style.top=Math.round(r.bottom+58)+'px';
+      // (v1.94.5) the open big map is as wide as the status box
+      {const hud=$('#hud');if(mb.classList.contains('pmap')&&hud){const w=Math.round(hud.getBoundingClientRect().width)+'px';if(mb.style.width!==w)mb.style.width=w;}else if(mb.style.width)mb.style.width='';}
+      // (v1.94.5) the quick buttons live in the thumb column on an upright phone, so the badge sits right under the map
+      // box (the same 6px gap as under the status box), lined up with its right edge
+      const qUnder=!document.body.classList.contains('thumbq')&&q.getClientRects().length&&q.getBoundingClientRect().height>0;
+      if(ob&&document.body.classList.contains('touchui')){const r2=mb.getBoundingClientRect();ob.style.top=Math.round(qUnder?r2.bottom+58:r2.bottom+6)+'px';if(!qUnder){ob.style.right=Math.round(innerWidth-r2.right)+'px';ob.style.left='auto';}
       // the who's-online list opens UNDER the badge, so the badge can still be tapped to close it
       const wl=$('#whoList');if(wl){const br=ob.getBoundingClientRect();if(br.height)wl.style.top=Math.round(br.bottom+6)+'px';}}}};
   place();setInterval(place,600);addEventListener('resize',place);})();
