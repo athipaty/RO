@@ -10,6 +10,7 @@
   const sideways=()=>document.body.classList.contains('touchui')&&innerWidth>innerHeight&&innerHeight<=520;
   const wanted=()=>[...ids.map(k=>document.querySelector(`#quick .qk[data-open="${k}"],#quickL .qk[data-open="${k}"]`)),document.getElementById('rideBtn')].filter(Boolean);
   function sync(){
+    {const pbw=document.getElementById('partyBox');if(pbw&&innerHeight<=innerWidth&&pbw.style.width)pbw.style.width='';} // the status-box width is only for upright phones
     if(sideways()){
       const list=wanted();
       if(list.some((el,i)=>row.children[i]!==el)){for(const el of list){if(el.parentElement!==row&&!home.some(h=>h[0]===el))home.push([el,el.parentElement,el.nextSibling]);row.appendChild(el);}}
@@ -45,7 +46,7 @@
   function stackSideways(hr){placeSit(true);placeGW(true);
     const pb=document.getElementById('partyBox'),log=document.getElementById('log'),bf=document.getElementById('buffs');
     const above=vis(row)?row.getBoundingClientRect().bottom:hr.bottom;
-    if(pb){const top=Math.round(above+8),lt=vis(log)?log.getBoundingClientRect().top:innerHeight;pb.style.top=top+'px';pb.style.left=Math.round(hr.left)+'px';
+    if(pb){const top=Math.round(above+8),lt=vis(log)?log.getBoundingClientRect().top:innerHeight;pb.style.width='';pb.style.top=top+'px';pb.style.left=Math.round(hr.left)+'px';
       pb.style.maxHeight=Math.max(30,Math.round(lt-top-8))+'px';pb.style.overflowY='auto';}
     if(bf){const tops=['menuBtn'].map(id=>document.getElementById(id)).filter(vis).map(e=>e.getBoundingClientRect());
       bf.style.flexDirection='row';bf.style.right='auto';
@@ -57,7 +58,9 @@
   // upright: the party box goes below the quick buttons if they would meet; buffs start under the online badge
   function stackUpright(){
     const pb=document.getElementById('partyBox'),hud=document.getElementById('hud'),q=document.getElementById('quick'),ob=document.getElementById('onlineBadge'),bf=document.getElementById('buffs'),mb=document.getElementById('minibox');
-    if(pb&&hud){const hr=hud.getBoundingClientRect();let top=hr.bottom+6;pb.style.left='';pb.style.maxHeight='';pb.style.overflowY='';
+    // (v1.94.1) as wide as the status box, open or folded: it always fits beside the map, so opening it no longer
+    // pushes it down under the map (it used to be wider than the status box when open)
+    if(pb&&hud){const hr=hud.getBoundingClientRect();let top=hr.bottom+6;pb.style.left='';pb.style.maxHeight='';pb.style.overflowY='';pb.style.width=Math.round(hr.width)+'px';
       const qTop=vis(q)&&!document.body.classList.contains('thumbq'); // in the thumb column (js/phoneui.js) they are not up here
       if(qTop){const qr=q.getBoundingClientRect(),w=pb.getBoundingClientRect().width||175;if(qr.left<hr.left+w+6&&qr.bottom>top)top=qr.bottom+8;}
       if(mb&&vis(mb)){const mr=mb.getBoundingClientRect(),w=pb.getBoundingClientRect().width||175;if(hr.left+w+6>mr.left&&mr.bottom>top)top=Math.max(top,mr.bottom+8);} // too wide to sit beside the map
