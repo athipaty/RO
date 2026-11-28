@@ -17,7 +17,7 @@ module.exports = async t => {
     });
     t.ok(r.dup.length === 0, `all ${r.n} jobs are drawn differently` + (r.dup.length ? ': ' + r.dup.join(', ') : ''));
     t.ok(r.missing.length === 0, 'every advanced and master job has its own look ' + JSON.stringify(r.missing));
-    t.ok(r.name === 'Mira · Lv44 · Bulwark', 'another player\'s name shows their job (' + r.name + ')');
+    t.ok(r.name === 'Mira', 'another player shows just their name, no level or job (v1.94.6) (' + r.name + ')');
     t.ok(g.page.errors.length === 0, 'no script errors' + g.page.errors.map(e => ': ' + e).join(''));
   } finally { await g.close(); }
 };
