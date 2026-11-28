@@ -117,7 +117,11 @@ for(const [id,path] of Object.entries(ICONS)){const b=document.getElementById(id
     b.setAttribute('aria-label',t);b.dataset.tip=t;if(tx)tx.textContent=sit?'Stand':'Sit';b.classList.toggle('on',sit);},250);})();
 // phones held sideways: tap the region name over the minimap to fold the map away (remembered)
 (()=>{const mb=$('#minibox'),zn=$('#zName');if(!mb||!zn)return;try{if(localStorage.getItem('embervale.miniSlim')==='1')mb.classList.add('slim');}catch(e){}
-  zn.addEventListener('click',ev=>{if(!document.body.classList.contains('touchui'))return;ev.stopPropagation();mb.classList.toggle('slim');sfx('click');try{localStorage.setItem('embervale.miniSlim',mb.classList.contains('slim')?'1':'0');}catch(e){}});})();
+  // (v1.94.4) a phone held upright shows only the region name; tapping it opens the big minimap under it (and closes it)
+  zn.addEventListener('click',ev=>{if(!document.body.classList.contains('touchui'))return;ev.stopPropagation();
+    if(innerHeight>innerWidth){const on=mb.classList.toggle('pmap');sfx('click');
+      if(typeof setMiniBig==='function'){if(on){mb._wasBig=typeof miniBig!=='undefined'&&miniBig;setMiniBig(true);}else setMiniBig(!!mb._wasBig);}return;}
+    mb.classList.toggle('slim');sfx('click');try{localStorage.setItem('embervale.miniSlim',mb.classList.contains('slim')?'1':'0');}catch(e){}});})();
 // ---- phones: quick buttons on the right for the windows used most (Stats, Skills, Items, Equip, Quests) ----
 (()=>{if($('#quick'))return;const q=document.createElement('div');q.id='quick';q.setAttribute('role','toolbar');q.setAttribute('aria-label','Quick windows');
   const I={status:['Stats (C)','<path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/>'],skills:['Skills (K)','<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>'],

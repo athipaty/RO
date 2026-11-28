@@ -1146,6 +1146,8 @@ body.touchui #goalChip{right:auto;font-size:11px;padding:6px 10px 6px 8px;max-he
 body.npcopen #goalChip{display:none}
 /* v1.93.0 upright phone: the goal card sits in the left column under the status box (or the party box), as wide as the status box */
 body.touchui #goalChip.gcol{box-sizing:border-box;border-radius:12px}
+/* v1.94.4 upright phone: one simple line, the quest only (no '· via ...'); a long one ends in ... */
+body.touchui #goalChip.gcol{flex-wrap:nowrap!important;max-height:34px!important;align-items:center!important}body.touchui #goalChip.gcol .gw{display:none!important}body.touchui #goalChip.gcol .gt{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;flex:1 1 auto!important;min-width:0}
 /* rarity frames on item pictures (js/polish.js) */
 .ico.img.r1{border-color:rgba(127,211,138,.75);box-shadow:0 0 6px rgba(127,211,138,.35)}
 .ico.img.r2{border-color:rgba(111,176,255,.85);box-shadow:0 0 7px rgba(111,176,255,.45)}
@@ -1948,3 +1950,15 @@ body.touchui #panel .eqrm{width:26px;height:26px}
 
 /* v1.93.0 Items window, Sigils tab: one heading per gear type */
 .sgk{margin:10px 0 4px;font-size:12px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:#e8c25a;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(232,194,90,.25);padding-bottom:3px}.sgk i{font-style:normal;font-weight:600;color:var(--muted)}
+
+/* v1.94.4 upright phone: the map box is just the region name; tap it to open the big minimap under it, tap again to close */
+@media (orientation:portrait){
+  body.touchui #minibox:not(.pmap) #mini,body.touchui #minibox:not(.pmap) #miniSize{display:none!important}
+  body.touchui #minibox:not(.pmap){padding:6px 10px}
+  body.touchui #minibox .zn{cursor:pointer}body.touchui #minibox .zn::after{content:' ▾';font-size:10px;opacity:.7}body.touchui #minibox.pmap .zn::after{content:' ▴'}
+  body.touchui #minibox.pmap{max-width:min(320px,calc(100vw - 20px))!important}
+  body.touchui #minibox.pmap #mini{display:block;width:min(300px,calc(100vw - 40px))!important;height:auto!important;opacity:1}
+  body.touchui #minibox.pmap #miniSize{display:none!important}
+  /* just the name and the map: no expand button, no level/day-night line, no EXP event line */
+  body.touchui #minibox .zl,body.touchui #minibox #online,body.touchui #minibox #miniSize{display:none!important}
+}
