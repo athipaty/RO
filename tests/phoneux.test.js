@@ -24,7 +24,7 @@ module.exports = async t => {
       const open = document.body.classList.contains('chatopen'), quick = document.querySelectorAll('#quickSay .qs').length, lg = document.getElementById('log').getBoundingClientRect();
       const after = document.querySelector('#logSay .pcn'); closeChat(); await w(400); return { badge, open, quick, wide: lg.width > 350, cleared: !after, closed: !document.body.classList.contains('chatopen') }; });
     t.ok(c.badge === '2', `messages from players while the chat is closed put a count on 💬 (${c.badge})`);
-    t.ok(c.open && c.quick === 6 && c.wide && c.cleared, 'opening the chat shows a full-width sheet with 6 quick replies, and the count clears');
+    t.ok(c.open && c.quick === 0 && c.wide && c.cleared, 'opening the chat shows a full-width sheet (no quick replies since v1.94.10), and the count clears');
     t.ok(c.closed, 'closing the chat closes the sheet');
     // Looking for party: others get an Invite button
     t.ok(await ev(async () => { chatLog('Cy', '[LFG] Lv 9 Ranger looking for a party in Greenmoss Meadow', zoneId, false); await new Promise(r => setTimeout(r, 100)); const last = document.getElementById('log').lastElementChild; return !!(last && last.querySelector('.lfgInv')); }), 'a Looking for party message from someone else has an Invite button');
